@@ -1,9 +1,11 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import java.net.URL;
+
+import at.bitfire.icsdroid.R;
 
 public class AddAccountActivity extends AppCompatActivity {
     URL url;

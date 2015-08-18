@@ -1,7 +1,6 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import android.content.ContentProviderClient;
-import android.content.Context;
 import android.content.Intent;
 import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
@@ -17,14 +16,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import at.bitfire.ical4android.CalendarStorageException;
+import at.bitfire.icsdroid.AppAccount;
+import at.bitfire.icsdroid.db.LocalCalendar;
+import at.bitfire.icsdroid.R;
 
 public class CalendarListActivity extends AppCompatActivity {
     RecyclerView calendarList;
@@ -115,7 +114,7 @@ public class CalendarListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int i) {
-            viewHolder.textURL.setText(calendars.get(i).url);
+            viewHolder.textURL.setText(calendars.get(i).getUrl());
         }
 
         @Override

@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import java.net.URL;
 

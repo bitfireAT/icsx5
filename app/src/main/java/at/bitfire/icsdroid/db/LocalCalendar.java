@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.db;
 
 import android.accounts.Account;
 import android.content.ContentProviderClient;
@@ -13,6 +13,7 @@ import at.bitfire.ical4android.AndroidCalendarFactory;
 import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.AndroidEventFactory;
 import at.bitfire.ical4android.CalendarStorageException;
+import lombok.Getter;
 
 public class LocalCalendar extends AndroidCalendar {
 
@@ -20,8 +21,8 @@ public class LocalCalendar extends AndroidCalendar {
             COLUMN_ETAG = Calendars.CAL_SYNC1,
             COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC2;
 
-    protected String url, eTag;
-    long lastModified;
+    @Getter protected String url, eTag;
+    @Getter long lastModified;
 
     private LocalCalendar(Account account, ContentProviderClient providerClient, AndroidEventFactory eventFactory, long id) {
         super(account, providerClient, eventFactory, id);

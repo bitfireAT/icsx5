@@ -1,9 +1,8 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.db;
 
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
 import android.provider.CalendarContract;
-import android.util.Log;
 
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidEvent;
@@ -18,7 +17,7 @@ public class LocalEvent extends AndroidEvent {
         super(calendar, id);
     }
 
-    LocalEvent(AndroidCalendar calendar, Event event) {
+    public LocalEvent(AndroidCalendar calendar, Event event) {
         super(calendar, event);
     }
 

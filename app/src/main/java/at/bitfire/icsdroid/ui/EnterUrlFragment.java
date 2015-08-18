@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import android.app.Fragment;
 import android.net.Uri;
@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import at.bitfire.icsdroid.R;
 
 public class EnterUrlFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, TextWatcher {
     private static final String TAG = "ICSdroid.EnterUrl";

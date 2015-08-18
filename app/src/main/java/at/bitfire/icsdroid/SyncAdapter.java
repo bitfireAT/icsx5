@@ -18,21 +18,20 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
+import at.bitfire.icsdroid.db.LocalCalendar;
+import at.bitfire.icsdroid.db.LocalEvent;
 import lombok.Cleanup;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-    private final static String TAG = "ICSdroid.SyncAdapter";
+    private static final String TAG = "ICSdroid.SyncAdapter";
 
-    private final Pattern regexContentTypeCharset = Pattern.compile("[; ]\\s*charset=\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern regexContentTypeCharset = Pattern.compile("[; ]\\s*charset=\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE);
 
     public SyncAdapter(Context context) {
         super(context, false);
@@ -40,7 +39,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.i(TAG, "Syncing!!!");
+        Log.i(TAG, "Synchronizing " + account.name + " on authority " + authority);
 
         LocalCalendar.init(getContext());
 
@@ -48,25 +47,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             LocalCalendar[] calendars = LocalCalendar.findAll(account, provider);
             for (LocalCalendar calendar : calendars)
                 if (calendar.isSynced())
-                    processEvents(calendar);
+                    processEvents(calendar, syncResult);
 
         } catch (CalendarStorageException e) {
             Log.e(TAG, "Calendar storage exception", e);
+            syncResult.databaseError = true;
         }
 
     }
 
-    void processEvents(LocalCalendar calendar) throws CalendarStorageException {
+    void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
         try {
-            Log.i(TAG, "Fetching remote calendar " + calendar.url);
-            @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.url).openConnection();
+            Log.i(TAG, "Fetching remote calendar " + calendar.getUrl());
+            @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.getUrl()).openConnection();
             conn.setRequestProperty("User-Agent", "ICSdroid/" + Constants.version + " (Android)");
 
-            if (calendar.eTag != null)
-                conn.setRequestProperty("If-None-Match", calendar.eTag);
-            if (calendar.lastModified != 0) {
-                Date date = new Date(calendar.lastModified);
-                conn.setRequestProperty("If-Modified-Since", DateFormatUtils.SMTP_DATETIME_FORMAT.format(calendar.lastModified));
+            if (calendar.getETag()!= null)
+                conn.setRequestProperty("If-None-Match", calendar.getETag());
+            if (calendar.getLastModified() != 0) {
+                Date date = new Date(calendar.getLastModified());
+                conn.setRequestProperty("If-Modified-Since", DateFormatUtils.SMTP_DATETIME_FORMAT.format(calendar.getLastModified()));
             }
 
             final int statusCode = conn.getResponseCode();
@@ -76,7 +76,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             conn.getInputStream(),
                             charsetFromContentType(conn.getHeaderField("Content-Type"))
                     );
-                    processEvents(calendar, events);
+                    processEvents(calendar, events, syncResult);
 
                     calendar.updateCacheInfo(conn.getHeaderField("ETag"), conn.getLastModified());
                     break;
@@ -84,8 +84,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.i(TAG, "Calendar hasn't been updated since last sync (" + conn.getResponseMessage() + ")");
                     break;
             }
-        } catch (IOException|InvalidCalendarException e) {
-            Log.e(TAG, "Couldn't fetch/parse calendar file", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Couldn't fetch calendar", e);
+            syncResult.stats.numIoExceptions++;
+        } catch (InvalidCalendarException e) {
+            Log.e(TAG, "Couldn't parse calendar", e);
+            syncResult.stats.numParseExceptions++;
         }
     }
 
@@ -105,7 +109,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return charset;
     }
 
-    private void processEvents(LocalCalendar calendar, Event[] events) throws CalendarStorageException {
+    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws CalendarStorageException {
         Log.i(TAG, "Processing " + events.length + " events");
         String[] uids = new String[events.length];
 
@@ -119,20 +123,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if (localEvents.length == 0) {
                 Log.d(TAG, uid + " not in local calendar, adding");
                 new LocalEvent(calendar, event).add();
+                syncResult.stats.numInserts++;
 
             } else {
                 LocalEvent localEvent = localEvents[0];
                 if (event.lastModified == 0 || event.lastModified > localEvent.getEvent().lastModified) {
                     // no LAST-MODIFIED or LAST-MODIFIED has been increased
                     localEvent.update(event);
-                } else
+                    syncResult.stats.numUpdates++;
+                } else {
                     Log.d(TAG, uid + " has not been modified since last sync");
+                    syncResult.stats.numSkippedEntries++;
+                }
             }
         }
 
         Log.i(TAG, "Deleting old events (retaining " + uids.length + " events by UID) …");
-        final int deleted = calendar.retainByUID(uids);
-        Log.i(TAG, "… " + deleted + " events deleted");
+        syncResult.stats.numDeletes = calendar.retainByUID(uids);
+        Log.i(TAG, "… " + syncResult.stats.numDeletes + " events deleted");
     }
 
 }

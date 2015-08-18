@@ -1,10 +1,9 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import android.accounts.AccountManager;
 import android.app.Fragment;
 import android.content.ContentValues;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,6 +21,8 @@ import android.widget.Toast;
 
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.CalendarStorageException;
+import at.bitfire.icsdroid.AppAccount;
+import at.bitfire.icsdroid.R;
 
 public class CalendarDetailsFragment extends Fragment implements TextWatcher {
     private static final String TAG = "ICSdroid.CreateCalendar";

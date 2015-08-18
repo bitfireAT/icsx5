@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid.ui;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -17,6 +17,7 @@ import java.net.URL;
 
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
+import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
 public class ValidateCalendarFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
