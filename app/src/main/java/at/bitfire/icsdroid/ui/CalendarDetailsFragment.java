@@ -17,21 +17,25 @@ import android.widget.EditText;
 
 import org.apache.commons.lang3.StringUtils;
 import android.provider.CalendarContract.Calendars;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class CalendarDetailsFragment extends Fragment implements TextWatcher {
     private static final String TAG = "ICSdroid.CreateCalendar";
     AddAccountActivity activity;
 
+    TextView textURL;
     EditText editTitle;
+    ColorButton colorButton;
 
     String title;
-    long color = 0xFFFF0000;
+    int color = 0xffFF0000;
 
 
     @Override
@@ -41,6 +45,9 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
         View v = inflater.inflate(R.layout.fragment_calendar_details, container, false);
         setHasOptionsMenu(true);
 
+        textURL = (TextView)v.findViewById(R.id.url);
+        textURL.setText(activity.url.toString());
+
         editTitle = (EditText)v.findViewById(R.id.title);
         editTitle.addTextChangedListener(this);
         if (savedInstanceState == null) {
@@ -48,6 +55,23 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
             editTitle.setText(path.substring(path.lastIndexOf('/') + 1));
         }
         editTitle.requestFocus();
+
+        colorButton = (ColorButton)v.findViewById(R.id.color);
+        colorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AmbilWarnaDialog(getActivity(), color, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                    @Override
+                    public void onCancel(AmbilWarnaDialog ambilWarnaDialog) {
+                    }
+
+                    @Override
+                    public void onOk(AmbilWarnaDialog ambilWarnaDialog, int newColor) {
+                        colorButton.setColor(color = 0xff000000 | newColor);
+                    }
+                }).show();
+            }
+        });
 
         return v;
     }
@@ -72,6 +96,26 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
         }
         return false;
     }
+
+
+    /* dynamic changes */
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        title = editTitle.getText().toString();
+        activity.invalidateOptionsMenu();
+    }
+
+
+    /* actions */
 
     private boolean createCalendar() {
         AccountManager am = AccountManager.get(activity);
@@ -98,20 +142,4 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
         }
     }
 
-
-    /* dynamic changes */
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        title = editTitle.getText().toString();
-        activity.invalidateOptionsMenu();
-    }
 }
