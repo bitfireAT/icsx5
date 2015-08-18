@@ -2,14 +2,10 @@ package at.bitfire.icsdroid;
 
 import android.accounts.Account;
 import android.content.ContentProviderClient;
-import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.CalendarContract;
-import android.util.Log;
+import android.provider.CalendarContract.Calendars;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import at.bitfire.ical4android.AndroidCalendar;
@@ -20,7 +16,12 @@ import at.bitfire.ical4android.CalendarStorageException;
 
 public class LocalCalendar extends AndroidCalendar {
 
-    protected String url, eTag, lastModified;
+    protected static final String
+            COLUMN_ETAG = Calendars.CAL_SYNC1,
+            COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC2;
+
+    protected String url, eTag;
+    long lastModified;
 
     private LocalCalendar(Account account, ContentProviderClient providerClient, AndroidEventFactory eventFactory, long id) {
         super(account, providerClient, eventFactory, id);
@@ -34,12 +35,22 @@ public class LocalCalendar extends AndroidCalendar {
     @Override
     protected void populate(ContentValues info) {
         super.populate(info);
-        url = info.getAsString(CalendarContract.Calendars.NAME);
-        eTag = info.getAsString(CalendarContract.Calendars.CAL_SYNC1);
-        lastModified = info.getAsString(CalendarContract.Calendars.CAL_SYNC2);
+        url = info.getAsString(Calendars.NAME);
+        eTag = info.getAsString(COLUMN_ETAG);
+
+        if (info.containsKey(COLUMN_LAST_MODIFIED))
+            lastModified = info.getAsLong(COLUMN_LAST_MODIFIED);
     }
 
-    public LocalEvent[] findByUID(String uid) throws CalendarStorageException {
+    public void updateCacheInfo(String eTag, long lastModified) throws CalendarStorageException {
+        ContentValues values = new ContentValues();
+        if ((this.eTag = eTag) != null)
+            values.put(COLUMN_ETAG, eTag);
+        values.put(COLUMN_LAST_MODIFIED, this.lastModified = lastModified);
+        update(values);
+    }
+
+    public LocalEvent[] queryByUID(String uid) throws CalendarStorageException {
         return (LocalEvent[])query(AndroidEvent.COLUMN_UID + "=?", new String[] { uid });
     }
 
