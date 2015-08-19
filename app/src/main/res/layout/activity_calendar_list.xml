@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:id="@+id/calendar_list"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:clickable="true"
+        android:elevation="1dp"
         android:src="@drawable/ic_action_add"
         app:layout_anchor="@id/calendar_list"
         app:layout_anchorGravity="bottom|right|end"

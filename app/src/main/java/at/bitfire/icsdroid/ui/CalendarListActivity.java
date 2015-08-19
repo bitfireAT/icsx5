@@ -1,33 +1,36 @@
 package at.bitfire.icsdroid.ui;
 
+import android.app.LoaderManager;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.ContentObserver;
+import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
-import at.bitfire.icsdroid.db.LocalCalendar;
 import at.bitfire.icsdroid.R;
+import at.bitfire.icsdroid.db.LocalCalendar;
 
-public class CalendarListActivity extends AppCompatActivity {
-    RecyclerView calendarList;
-    ContentProviderClient provider;
+public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]> {
+
+    ListView list;
+    CalendarListAdapter listAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +38,11 @@ public class CalendarListActivity extends AppCompatActivity {
         setTitle(R.string.title_activity_calendar_list);
         setContentView(R.layout.activity_calendar_list);
 
-        provider = getContentResolver().acquireContentProviderClient(CalendarContract.AUTHORITY);
 
-        calendarList = (RecyclerView)findViewById(R.id.calendar_list);
-        calendarList.setLayoutManager(new LinearLayoutManager(this));
-        calendarList.setAdapter(new CalendarListAdapter(provider));
+        list = (ListView)findViewById(R.id.calendar_list);
+        list.setAdapter(listAdapter = new CalendarListAdapter(this));
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -51,8 +54,25 @@ public class CalendarListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (provider != null)
-            provider.release();
+    }
+
+
+    /* loader callbacks */
+
+    @Override
+    public Loader<LocalCalendar[]> onCreateLoader(int id, Bundle args) {
+        Loader loader = new CalendarListLoader(this, listAdapter);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<LocalCalendar[]> loader, LocalCalendar[] calendars) {
+        listAdapter.clear();
+        listAdapter.addAll(calendars);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<LocalCalendar[]> loader) {
     }
 
 
@@ -71,34 +91,29 @@ public class CalendarListActivity extends AppCompatActivity {
     }
 
 
-    public static class CalendarListAdapter extends RecyclerView.Adapter<CalendarListAdapter.ViewHolder> {
+    public static class CalendarListAdapter extends ArrayAdapter<LocalCalendar> {
         private static final String TAG = "ICSdroid.CalendarList";
-        private List<LocalCalendar> calendars = new LinkedList<>();
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView textURL;
-            public ViewHolder(View view) {
-                super(view);
-                this.textURL = (TextView)view.findViewById(R.id.url);
-            }
-        }
-
-        public CalendarListAdapter(ContentProviderClient provider) {
-            try {
-                calendars.addAll(Arrays.asList(LocalCalendar.findAll(AppAccount.account, provider)));
-            } catch (CalendarStorageException e) {
-                Log.e(TAG, "Couldn't enumerate calendars", e);
-            }
+        public CalendarListAdapter(Context context) {
+            super(context, R.layout.calendar_list_item);
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(final ViewGroup parent, final int i) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.calendar_list_item, parent, false);
-            v.setOnLongClickListener(new View.OnLongClickListener() {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null)
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.calendar_list_item, parent, false);
+
+            LocalCalendar calendar = getItem(position);
+            ((TextView) v.findViewById(R.id.url)).setText(calendar.getUrl());
+            ((TextView) v.findViewById(R.id.title)).setText(calendar.getDisplayName());
+            ((ColorButton) v.findViewById(R.id.color)).setColor(calendar.getColor().intValue());
+
+            /*v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     try {
-                        LocalCalendar calendar = calendars.get(i);
+                        LocalCalendar calendar = getI;
                         calendar.delete();
                         calendars.remove(calendar);
                         notifyDataSetChanged();
@@ -107,20 +122,52 @@ public class CalendarListActivity extends AppCompatActivity {
                     }
                     return true;
                 }
-            });
-            ViewHolder vh = new ViewHolder(v);
-            return vh;
+            });*/
+            return v;
+        }
+    }
+
+    public static class CalendarListLoader extends Loader<LocalCalendar[]> {
+        private static final String TAG = "ICSdroid.CalendarsLoad";
+
+        final Context context;
+
+        ContentProviderClient provider;
+        ContentObserver observer;
+
+        public CalendarListLoader(Context context, CalendarListAdapter adapter) {
+            super(context);
+            this.context = context;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int i) {
-            viewHolder.textURL.setText(calendars.get(i).getUrl());
+        protected void onStartLoading() {
+            ContentResolver resolver = context.getContentResolver();
+            provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY);
+
+            observer = new ForceLoadContentObserver();
+            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, observer);
+
+            forceLoad();
         }
 
         @Override
-        public int getItemCount() {
-            return calendars.size();
+        protected void onStopLoading() {
+            context.getContentResolver().unregisterContentObserver(observer);
+            if (provider != null)
+                provider.release();
+        }
+
+        @Override
+        public void onForceLoad() {
+            try {
+                LocalCalendar[] calendars = LocalCalendar.findAll(AppAccount.account, provider);
+                deliverResult(calendars);
+            } catch (CalendarStorageException e) {
+                Log.e(TAG, "Couldn't load calendar list", e);
+            }
         }
 
     }
+
 }
