@@ -1,14 +1,16 @@
 <resources>
     <string name="app_name">ICSdroid</string>
 
-    <string name="hello_world">Hello world!</string>
-
     <string name="action_next">Next</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_info">About ICSdroid</string>
+
+    <string name="calendar_list_info">About ICSdroid</string>
+    <string name="calendar_list_settings">Settings</string>
+    <string name="calendar_list_sync_all">Synchronize all</string>
+    <string name="calendar_list_sync_started">Synchronization started</string>
+
+    <string name="title_activity_calendar_list">My subscriptions</string>
 
     <string name="title_activity_add_account">Subscribe calendar</string>
-    <string name="title_activity_calendar_list">My subscriptions</string>
     <string name="add_account_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
     <string name="add_account_url">URL</string>
     <string name="add_account_title_hint">Calendar name</string>

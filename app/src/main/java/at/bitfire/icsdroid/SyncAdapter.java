@@ -57,6 +57,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
+        String errorMessage = null;
+
         try {
             Log.i(TAG, "Fetching remote calendar " + calendar.getUrl());
             @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.getUrl()).openConnection();
@@ -78,19 +80,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     );
                     processEvents(calendar, events, syncResult);
 
-                    calendar.updateCacheInfo(conn.getHeaderField("ETag"), conn.getLastModified());
+                    calendar.updateStatusSuccess(conn.getHeaderField("ETag"), conn.getLastModified());
                     break;
                 case 304:
+                    calendar.updateStatusNotModified();
                     Log.i(TAG, "Calendar hasn't been updated since last sync (" + conn.getResponseMessage() + ")");
                     break;
+                default:
+                    errorMessage = statusCode + " " + conn.getResponseMessage();
             }
         } catch (IOException e) {
             Log.e(TAG, "Couldn't fetch calendar", e);
+            errorMessage = e.getMessage();
             syncResult.stats.numIoExceptions++;
         } catch (InvalidCalendarException e) {
             Log.e(TAG, "Couldn't parse calendar", e);
+            errorMessage = e.getMessage();
             syncResult.stats.numParseExceptions++;
         }
+
+        if (errorMessage != null)
+            calendar.updateStatusError(errorMessage);
     }
 
     private Charset charsetFromContentType(String contentType) {

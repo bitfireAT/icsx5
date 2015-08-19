@@ -5,7 +5,7 @@
               android:layout_height="wrap_content"
               android:padding="16dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -22,10 +22,27 @@
             android:layout_height="wrap_content"
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:text="My Calendar"
-            android:layout_marginTop="8dp"
+            android:layout_below="@id/url"
             android:id="@+id/title" />
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Sync"
+            android:layout_below="@id/title"
+            android:id="@+id/last_sync" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LAST ERROR"
+            android:textColor="@color/error_color"
+            android:layout_alignBaseline="@id/last_sync"
+            android:layout_toRightOf="@id/last_sync"
+            android:layout_marginLeft="16dp"
+            android:id="@+id/error_message" />
+
+    </RelativeLayout>
 
     <at.bitfire.icsdroid.ui.ColorButton
         android:id="@+id/color"

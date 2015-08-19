@@ -8,6 +8,8 @@ import android.provider.CalendarContract.Calendars;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Date;
+
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidCalendarFactory;
 import at.bitfire.ical4android.AndroidEvent;
@@ -19,10 +21,16 @@ public class LocalCalendar extends AndroidCalendar {
 
     protected static final String
             COLUMN_ETAG = Calendars.CAL_SYNC1,
-            COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC2;
+            COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC2,
+            COLUMN_LAST_SYNC = Calendars.CAL_SYNC3,
+            COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC4;
 
-    @Getter protected String url, eTag;
-    @Getter long lastModified;
+    @Getter protected String
+            url,                    // URL of iCalendar file
+            eTag;                   // iCalendar ETag at last successful sync
+    @Getter long lastModified,      // iCalendar Last-Modified at last successful sync (or 0)
+            lastSync;               // time of last sync
+    @Getter String errorMessage;    // error message (HTTP status or exception name) of last sync (or null)
 
     private LocalCalendar(Account account, ContentProviderClient providerClient, AndroidEventFactory eventFactory, long id) {
         super(account, providerClient, eventFactory, id);
@@ -37,17 +45,40 @@ public class LocalCalendar extends AndroidCalendar {
     protected void populate(ContentValues info) {
         super.populate(info);
         url = info.getAsString(Calendars.NAME);
-        eTag = info.getAsString(COLUMN_ETAG);
 
+        eTag = info.getAsString(COLUMN_ETAG);
         if (info.containsKey(COLUMN_LAST_MODIFIED))
             lastModified = info.getAsLong(COLUMN_LAST_MODIFIED);
+
+        if (info.containsKey(COLUMN_LAST_SYNC))
+            lastSync = info.getAsLong(COLUMN_LAST_SYNC);
+        errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE);
     }
 
-    public void updateCacheInfo(String eTag, long lastModified) throws CalendarStorageException {
-        ContentValues values = new ContentValues();
+    public void updateStatusSuccess(String eTag, long lastModified) throws CalendarStorageException {
+        ContentValues values = new ContentValues(4);
         if ((this.eTag = eTag) != null)
             values.put(COLUMN_ETAG, eTag);
+        else
+            values.putNull(COLUMN_ETAG);
         values.put(COLUMN_LAST_MODIFIED, this.lastModified = lastModified);
+        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        values.putNull(COLUMN_ERROR_MESSAGE);
+        update(values);
+    }
+
+    public void updateStatusNotModified() throws CalendarStorageException {
+        ContentValues values = new ContentValues(1);
+        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        update(values);
+    }
+
+    public void updateStatusError(String message) throws CalendarStorageException {
+        ContentValues values = new ContentValues(4);
+        values.putNull(COLUMN_ETAG);
+        values.putNull(COLUMN_LAST_MODIFIED);
+        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        values.put(COLUMN_ERROR_MESSAGE, message);
         update(values);
     }
 

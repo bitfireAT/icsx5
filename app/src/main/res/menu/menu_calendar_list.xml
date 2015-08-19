@@ -3,11 +3,17 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".MainActivity">
 
-    <item android:title="@string/action_settings"
+    <item android:title="@string/calendar_list_sync_all"
+          android:onClick="onSyncAll"
+          android:icon="@drawable/ic_action_reload"
+          android:id="@+id/sync_all"
+          app:showAsAction="ifRoom"/>
+
+    <item android:title="@string/calendar_list_settings"
           android:onClick="onShowSettings"
           app:showAsAction="never"/>
 
-    <item android:title="@string/action_info"
+    <item android:title="@string/calendar_list_info"
           android:onClick="onShowInfo"
           app:showAsAction="never"/>
 
