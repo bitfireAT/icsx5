@@ -8,7 +8,6 @@
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_settings">Settings</string>
     <string name="calendar_list_sync_all">Synchronize all</string>
-    <string name="calendar_list_sync_started">Synchronization started</string>
 
     <string name="title_activity_calendar_list">My subscriptions</string>
 

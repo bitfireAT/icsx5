@@ -4,7 +4,6 @@
     <string name="calendar_list_info">Über ICSdroid</string>
     <string name="calendar_list_settings">Einstellungen</string>
     <string name="calendar_list_sync_all">Synchroniseren</string>
-    <string name="calendar_list_sync_started">Synchronisierung angestoßen</string>
 
     <string name="title_activity_calendar_list">Abonnierte Kalender</string>
     <string name="calendar_list_not_synced_yet">noch nicht synchronisiert</string>

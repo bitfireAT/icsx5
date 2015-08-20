@@ -7,8 +7,13 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SyncStatusObserver;
 import android.database.ContentObserver;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.CalendarContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,10 +38,18 @@ import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
-public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener {
+public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SyncStatusObserver {
+
+    private final String DATA_SYNC_ACTIVE = "sync_active";
+
+    boolean syncActive;
+    Object syncStatusHandle;
+    Handler syncStatusHandler;
 
     ListView list;
     CalendarListAdapter listAdapter;
+
+    ProgressBar progressSyncStatus;
 
 
     @Override
@@ -45,6 +59,12 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         setContentView(R.layout.calendar_list_activity);
 
         list = (ListView)findViewById(R.id.calendar_list);
+
+        // add sync status header view which contains one progress bar (progressSyncStatus)
+        View viewSyncStatus = LayoutInflater.from(this).inflate(R.layout.calendar_list_sync_header, list, false);
+        progressSyncStatus = (ProgressBar) viewSyncStatus.findViewById(R.id.progress);
+        list.addHeaderView(viewSyncStatus);
+
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
         list.setOnItemClickListener(this);
 
@@ -59,7 +79,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean canSync = !listAdapter.isEmpty();
+        boolean canSync = !listAdapter.isEmpty() && !syncActive;
         menu.findItem(R.id.sync_all)
             .setEnabled(canSync)
             .setVisible(canSync);
@@ -68,7 +88,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        LocalCalendar calendar = ((CalendarListAdapter) parent.getAdapter()).getItem(position);
+        LocalCalendar calendar = (LocalCalendar) parent.getItemAtPosition(position);
 
         Intent i = new Intent(this, EditCalendarActivity.class);
         i.setData(ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.getId()));
@@ -76,8 +96,44 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        syncStatusHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message message) {
+                syncActive = message.getData().getBoolean(DATA_SYNC_ACTIVE);
+                progressSyncStatus.setVisibility(syncActive ? View.VISIBLE : View.GONE);
+                invalidateOptionsMenu();
+            }
+        };
+        syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
+        progressSyncStatus.setVisibility(AppAccount.isSyncActive(this) ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (syncStatusHandle != null)
+            ContentResolver.removeStatusChangeListener(syncStatusHandle);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+
+    /* (sync) status changes */
+
+    @Override
+    public void onStatusChanged(int which) {
+        if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE) {
+            Message msg = new Message();
+            msg.getData().putBoolean(DATA_SYNC_ACTIVE, AppAccount.isSyncActive(this));
+            if (syncStatusHandler != null)
+                syncStatusHandler.sendMessage(msg);
+        }
     }
 
 
@@ -121,7 +177,6 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
         getContentResolver().requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
-        Snackbar.make(list, getString(R.string.calendar_list_sync_started), Snackbar.LENGTH_LONG).show();
     }
 
 
@@ -161,20 +216,6 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
                 textError.setVisibility(View.VISIBLE);
             }
 
-            /*v.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    try {
-                        LocalCalendar calendar = getI;
-                        calendar.delete();
-                        calendars.remove(calendar);
-                        notifyDataSetChanged();
-                    } catch (CalendarStorageException e) {
-                        Toast.makeText(v.getContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                }
-            });*/
             return v;
         }
     }
