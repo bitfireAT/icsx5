@@ -65,7 +65,6 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, new AddCalendarDetailsFragment())
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .addToBackStack(null)
                     .commitAllowingStateLoss();
         else
@@ -107,12 +106,11 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
                 info.statusCode = conn.getResponseCode();
                 info.statusMessage = conn.getResponseMessage();
 
-                // String contentType = conn.getContentType();
-                // TODO find charset
-
-                @Cleanup InputStream is = conn.getInputStream();
-                Event[] events = Event.fromStream(is, null);
-                info.eventsFound = events.length;
+                if (info.statusCode == 200) {
+                    @Cleanup InputStream is = conn.getInputStream();
+                    Event[] events = Event.fromStream(is, null);
+                    info.eventsFound = events.length;
+                }
 
             } catch (IOException|InvalidCalendarException e) {
                 info.exception = e;

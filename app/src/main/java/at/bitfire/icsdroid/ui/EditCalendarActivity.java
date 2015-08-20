@@ -1,10 +1,17 @@
 package at.bitfire.icsdroid.ui;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -77,6 +84,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             colorButton.setColor(color = inState.getInt(STATE_COLOR));
         }
 
+        // load calendar from provider
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -122,7 +130,11 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
     @Override
     public void onBackPressed() {
         if (dirty) {
-            Toast.makeText(this, "Speichern oder was?!", Toast.LENGTH_SHORT).show();
+            Fragment fragment = SaveCancelDialogFragment.newInstance();
+            getFragmentManager().beginTransaction()
+                    .add(fragment, null)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
         } else
             super.onBackPressed();
     }
@@ -143,7 +155,14 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
         finish();
     }
 
-    public void onDelete(MenuItem item) {
+    public void onAskDelete(MenuItem item) {
+        getFragmentManager().beginTransaction()
+                .add(DeleteDialogFragment.newInstance(), null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+    }
+
+    protected void onDelete() {
         boolean success = false;
         try {
             if (calendar != null) {
@@ -165,18 +184,18 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
     }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
     }
 
     @Override
     public void afterTextChanged(Editable s) {
-        title = editTitle.getText().toString();
-        setDirty();
+        if (!title.equals(editTitle.getText().toString())) {
+            title = editTitle.getText().toString();
+            setDirty();
+        }
     }
 
 
@@ -197,8 +216,6 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             textURL.setText(calendar.getUrl());
             editTitle.setText(title = calendar.getDisplayName());
             colorButton.setColor(color = calendar.getColor());
-            dirty = false;
-            invalidateOptionsMenu();
         }
     }
 
@@ -246,7 +263,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                 LocalCalendar calendar = null;
                 if (provider != null)
                     try {
-                        calendar = LocalCalendar.findById(AppAccount.account, provider);
+                        calendar = LocalCalendar.findById(AppAccount.account, provider, ContentUris.parseId(uri));
                     } catch (FileNotFoundException e) {
                         // calendar has been removed in the meanwhile, return null
                     }
@@ -256,4 +273,64 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             }
         }
     }
+
+
+    /* "Save or cancel" dialog */
+
+    public static class SaveCancelDialogFragment extends DialogFragment {
+        public static SaveCancelDialogFragment newInstance() {
+            return new SaveCancelDialogFragment();
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.edit_calendar_unsaved_changes)
+                    .setPositiveButton(R.string.edit_calendar_save, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            ((EditCalendarActivity) getActivity()).onSave(null);
+                        }
+                    })
+                    .setNegativeButton(R.string.edit_calendar_dismiss, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            ((EditCalendarActivity) getActivity()).onCancel(null);
+                        }
+                    })
+                    .create();
+        }
+    }
+
+
+    /* "Really delete?" dialog */
+
+    public static class DeleteDialogFragment extends DialogFragment {
+        public static DeleteDialogFragment newInstance() {
+            return new DeleteDialogFragment();
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setMessage(R.string.edit_calendar_really_delete)
+                    .setPositiveButton(R.string.edit_calendar_delete, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            ((EditCalendarActivity) getActivity()).onDelete();
+                        }
+                    })
+                    .setNegativeButton(R.string.edit_calendar_dismiss, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+        }
+    }
+
 }

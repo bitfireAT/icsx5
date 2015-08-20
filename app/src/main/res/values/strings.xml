@@ -6,7 +6,7 @@
 
     <string name="calendar_list_info">About ICSdroid</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
-    <string name="calendar_list_settings">Settings</string>
+    <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_sync_all">Synchronize all</string>
 
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -27,8 +27,37 @@
     <string name="edit_calendar_cancel">Cancel</string>
     <string name="edit_calendar_delete">Unsubscribe</string>
     <string name="edit_calendar_deleted">Unsubscribed successfully</string>
+    <string name="edit_calendar_dismiss">Dismiss</string>
     <string name="edit_calendar_failed">Operation failed</string>
+    <string name="edit_calendar_really_delete">Do you really want to unsubscribe from this calendar?</string>
     <string name="edit_calendar_save">Save</string>
     <string name="edit_calendar_saved">Changes saved</string>
+    <string name="edit_calendar_unsaved_changes">There are unsaved changes.</string>
+
+    <string name="sync_error_title">Synchronization error</string>
+    <string name="set_sync_interval_save">Save</string>
+    <string name="set_sync_interval_title">Set sync. interval:</string>
+    <string-array name="set_sync_interval_seconds">
+        <item>-1</item>
+        <item>300</item>
+        <item>600</item>
+        <item>900</item>
+        <item>3600</item>
+        <item>7200</item>
+        <item>14400</item>
+        <item>86400</item>
+        <item>604800</item>
+    </string-array>
+    <string-array name="set_sync_interval_names">
+        <item>Only manually</item>
+        <item>Every 5 minutes</item>
+        <item>Every 10 minutes</item>
+        <item>Every 15 minutes</item>
+        <item>Every hour</item>
+        <item>Every 2 hours</item>
+        <item>Every 4 hours</item>
+        <item>Once a day</item>
+        <item>Once a week</item>
+    </string-array>
 
 </resources>

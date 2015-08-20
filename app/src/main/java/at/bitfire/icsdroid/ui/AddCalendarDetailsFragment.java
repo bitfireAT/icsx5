@@ -134,8 +134,7 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
     /* actions */
 
     private boolean createCalendar() {
-        AccountManager am = AccountManager.get(activity);
-        am.addAccountExplicitly(AppAccount.account, null, null);
+        AppAccount.makeAvailable(getContext());
 
         ContentValues calInfo = new ContentValues();
         calInfo.put(Calendars.ACCOUNT_NAME, AppAccount.account.name);

@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui;
 
+import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -9,13 +10,11 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SyncStatusObserver;
 import android.database.ContentObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.CalendarContract;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,6 +67,8 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
         list.setOnItemClickListener(this);
 
+        AppAccount.makeAvailable(this);
+
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -88,7 +89,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        LocalCalendar calendar = (LocalCalendar) parent.getItemAtPosition(position);
+        LocalCalendar calendar = (LocalCalendar)parent.getItemAtPosition(position);
 
         Intent i = new Intent(this, EditCalendarActivity.class);
         i.setData(ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.getId()));
@@ -108,7 +109,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             }
         };
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
-        progressSyncStatus.setVisibility(AppAccount.isSyncActive(this) ? View.VISIBLE : View.GONE);
+        progressSyncStatus.setVisibility((syncActive = AppAccount.isSyncActive(this)) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -166,8 +167,9 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         Toast.makeText(this, "ICSdroid Info & Licenses!", Toast.LENGTH_SHORT).show();
     }
 
-    public void onShowSettings(MenuItem item) {
-        Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+    public void onSetSyncInterval(MenuItem item) {
+        DialogFragment frag = SyncIntervalDialogFragment.newInstance();
+        frag.show(getFragmentManager(), "sync_interval");
     }
 
     public void onSyncAll(MenuItem item) {
@@ -252,7 +254,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         public void onForceLoad() {
             try {
                 LocalCalendar[] calendars;
-                if (provider != null && AppAccount.isAvailable(getContext()))
+                if (provider != null)
                     calendars = LocalCalendar.findAll(AppAccount.account, provider);
                 else
                     calendars = LocalCalendar.Factory.FACTORY.newArray(0);

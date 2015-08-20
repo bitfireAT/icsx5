@@ -13,7 +13,7 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_action_trash"
         android:id="@+id/delete"
-        android:onClick="onDelete"
+        android:onClick="onAskDelete"
         android:title="@string/edit_calendar_delete" />
 
     <item

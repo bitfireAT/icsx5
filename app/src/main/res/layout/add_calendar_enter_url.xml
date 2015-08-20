@@ -70,12 +70,12 @@
             android:layout_height="wrap_content"
             android:text="@string/add_calendar_password"
             android:visibility="gone"
-            android:inputType="textPassword"
             android:id="@+id/password_label"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textPassword"
             android:visibility="gone"
             android:id="@+id/password"/>
 

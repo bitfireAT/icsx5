@@ -9,8 +9,8 @@
           android:id="@+id/sync_all"
           app:showAsAction="ifRoom"/>
 
-    <item android:title="@string/calendar_list_settings"
-          android:onClick="onShowSettings"
+    <item android:title="@string/calendar_list_set_sync_interval"
+          android:onClick="onSetSyncInterval"
           app:showAsAction="never"/>
 
     <item android:title="@string/calendar_list_info"

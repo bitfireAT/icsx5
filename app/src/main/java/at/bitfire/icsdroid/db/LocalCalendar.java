@@ -37,8 +37,8 @@ public class LocalCalendar extends AndroidCalendar {
         super(account, providerClient, eventFactory, id);
     }
 
-    public static LocalCalendar findById(Account account, ContentProviderClient provider) throws FileNotFoundException, CalendarStorageException {
-        return (LocalCalendar)AndroidCalendar.findByID(account, provider, Factory.FACTORY);
+    public static LocalCalendar findById(Account account, ContentProviderClient provider, long id) throws FileNotFoundException, CalendarStorageException {
+        return (LocalCalendar)AndroidCalendar.findByID(account, provider, Factory.FACTORY, id);
     }
 
     public static LocalCalendar[] findAll(Account account, ContentProviderClient provider) throws CalendarStorageException {
@@ -67,7 +67,7 @@ public class LocalCalendar extends AndroidCalendar {
         else
             values.putNull(COLUMN_ETAG);
         values.put(COLUMN_LAST_MODIFIED, this.lastModified = lastModified);
-        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        values.put(COLUMN_LAST_SYNC, System.currentTimeMillis());
         values.putNull(COLUMN_ERROR_MESSAGE);
         update(values);
     }
@@ -82,7 +82,7 @@ public class LocalCalendar extends AndroidCalendar {
         ContentValues values = new ContentValues(4);
         values.putNull(COLUMN_ETAG);
         values.putNull(COLUMN_LAST_MODIFIED);
-        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        values.put(COLUMN_LAST_SYNC, System.currentTimeMillis());
         values.put(COLUMN_ERROR_MESSAGE, message);
         update(values);
     }

@@ -1,11 +1,16 @@
 package at.bitfire.icsdroid;
 
 import android.accounts.Account;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import org.apache.commons.codec.Charsets;
@@ -26,6 +31,7 @@ import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.db.LocalCalendar;
 import at.bitfire.icsdroid.db.LocalEvent;
+import at.bitfire.icsdroid.ui.CalendarListActivity;
 import lombok.Cleanup;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -62,7 +68,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             Log.i(TAG, "Fetching remote calendar " + calendar.getUrl());
             @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.getUrl()).openConnection();
-            conn.setRequestProperty("User-Agent", "ICSdroid/" + Constants.version + " (Android)");
+            conn.setRequestProperty("User-Agent", "ICSdroid/" + Constants.VERSION + " (Android)");
 
             if (calendar.getETag()!= null)
                 conn.setRequestProperty("If-None-Match", calendar.getETag());
@@ -99,8 +105,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             syncResult.stats.numParseExceptions++;
         }
 
-        if (errorMessage != null)
+        if (errorMessage != null) {
+            NotificationManager nm = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = new NotificationCompat.Builder(getContext())
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setCategory(Notification.CATEGORY_ERROR)
+                    .setColor(calendar.getColor())
+                    .setGroup("ICSdroid")
+                    .setContentTitle(getContext().getString(R.string.sync_error_title))
+                    .setContentText(calendar.getDisplayName())
+                    .setSubText(errorMessage)
+                    .setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), CalendarListActivity.class), 0))
+                    .setAutoCancel(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setOnlyAlertOnce(true)
+                    .build();
+            nm.notify(0, notification);
             calendar.updateStatusError(errorMessage);
+        }
     }
 
     private Charset charsetFromContentType(String contentType) {
