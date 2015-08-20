@@ -22,8 +22,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
@@ -40,8 +43,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.title_activity_calendar_list);
-        setContentView(R.layout.activity_calendar_list);
-
+        setContentView(R.layout.calendar_list_activity);
 
         list = (ListView)findViewById(R.id.calendar_list);
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
@@ -90,7 +92,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     /* actions */
 
     public void onAddCalendar(View v) {
-        startActivity(new Intent(this, AddAccountActivity.class));
+        startActivity(new Intent(this, AddCalendarActivity.class));
     }
 
     public void onShowInfo(MenuItem item) {

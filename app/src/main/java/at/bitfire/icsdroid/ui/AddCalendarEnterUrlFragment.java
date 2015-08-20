@@ -1,8 +1,8 @@
 package at.bitfire.icsdroid.ui;
 
-import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -24,21 +24,20 @@ import java.net.URL;
 
 import at.bitfire.icsdroid.R;
 
-public class EnterUrlFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, TextWatcher {
+public class AddCalendarEnterUrlFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, TextWatcher {
     private static final String TAG = "ICSdroid.EnterUrl";
 
-    AddAccountActivity activity;
+    AddCalendarActivity activity;
 
     EditText editURL, editUsername, editPassword;
     TextView insecureAuthWarning, textUsername, textPassword;
     Switch switchAuthRequired;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        activity = (AddAccountActivity)getActivity();
+        Log.i(TAG, "Create fragment view");
 
-        View v = inflater.inflate(R.layout.fragment_enter_url, container, false);
+        View v = inflater.inflate(R.layout.add_calendar_enter_url, container, false);
         setHasOptionsMenu(true);
 
         editURL = (EditText)v.findViewById(R.id.url);
@@ -54,11 +53,17 @@ public class EnterUrlFragment extends Fragment implements CompoundButton.OnCheck
         editUsername.addTextChangedListener(this);
         editPassword.addTextChangedListener(this);
 
+        return v;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        activity = (AddCalendarActivity)getActivity();
+
         Uri createUri = activity.getIntent().getData();
         if (createUri != null)
             editURL.setText(createUri.toString());
-
-        return v;
     }
 
     @Override
@@ -125,7 +130,7 @@ public class EnterUrlFragment extends Fragment implements CompoundButton.OnCheck
     public void afterTextChanged(Editable s) {
         editURL.setTextColor(getResources().getColor(activity.url != null ?
                 R.color.secondary_text_default_material_light :
-                R.color.error_color));
+                R.color.redorange));
 
         updateAuthFields();
         activity.invalidateOptionsMenu();
@@ -149,8 +154,8 @@ public class EnterUrlFragment extends Fragment implements CompoundButton.OnCheck
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.next) {
-            ValidateCalendarFragment frag = new ValidateCalendarFragment();
-            frag.show(getFragmentManager(), null);
+            AddCalendarValidationFragment frag = new AddCalendarValidationFragment();
+            frag.show(getFragmentManager(), "validation");
             return true;
         }
         return false;

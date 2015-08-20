@@ -39,7 +39,7 @@
         </service>
 
         <activity
-            android:name=".ui.AddAccountActivity"
+            android:name=".ui.AddCalendarActivity"
             android:label="@string/title_activity_add_account"
             android:parentActivityName=".ui.CalendarListActivity">
             <intent-filter>

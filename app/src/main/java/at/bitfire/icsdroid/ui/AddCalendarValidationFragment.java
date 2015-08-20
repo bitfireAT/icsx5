@@ -1,13 +1,14 @@
 package at.bitfire.icsdroid.ui;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.LoaderManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -20,15 +21,15 @@ import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
-public class ValidateCalendarFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
+public class AddCalendarValidationFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
     public static final String ARG_URL = "url";
 
-    AddAccountActivity activity;
+    AddCalendarActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activity = (AddAccountActivity)getActivity();
+        activity = (AddCalendarActivity)getActivity();
 
         Loader<ResourceInfo> loader = getLoaderManager().initLoader(0, null, this);
     }
@@ -55,15 +56,16 @@ public class ValidateCalendarFragment extends DialogFragment implements LoaderMa
 
         String errorMessage = null;
         if (info.exception != null)
-            errorMessage = info.exception.getLocalizedMessage();
+            errorMessage = info.exception.getMessage();
         else if (info.statusCode != 200)
             errorMessage = info.statusCode + " " + info.statusMessage;
         
         if (errorMessage == null)
             // success, proceed to CreateCalendarFragment
-            activity.getFragmentManager()
+            getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, new CalendarDetailsFragment(), "create_calendar")
+                    .replace(R.id.fragment_container, new AddCalendarDetailsFragment())
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .addToBackStack(null)
                     .commitAllowingStateLoss();
         else

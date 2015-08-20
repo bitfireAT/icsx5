@@ -7,5 +7,6 @@
     <string name="calendar_list_sync_started">Synchronisierung angestoßen</string>
 
     <string name="title_activity_calendar_list">Abonnierte Kalender</string>
+    <string name="not_synced_yet">noch nicht synchronisiert</string>
 
 </resources>

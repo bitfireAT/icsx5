@@ -22,4 +22,5 @@
     <string name="add_account_color">Color</string>
     <string name="add_account_create_calendar">Subscribe now</string>
     <string name="add_account_calendar_created">Calendar subscribed successfully</string>
+    <string name="not_synced_yet">not synchronized yet</string>
 </resources>

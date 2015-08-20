@@ -1,9 +1,9 @@
 package at.bitfire.icsdroid.ui;
 
 import android.accounts.AccountManager;
-import android.app.Fragment;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,9 +26,12 @@ import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class CalendarDetailsFragment extends Fragment implements TextWatcher {
+public class AddCalendarDetailsFragment extends Fragment implements TextWatcher {
     private static final String TAG = "ICSdroid.CreateCalendar";
-    AddAccountActivity activity;
+
+    private static final String STATE_COLOR = "color";
+
+    AddCalendarActivity activity;
 
     TextView textURL;
     EditText editTitle;
@@ -37,26 +40,19 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
     String title;
     int color = 0xffFF0000;
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        activity = (AddAccountActivity)getActivity();
-
-        View v = inflater.inflate(R.layout.fragment_calendar_details, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle inState) {
+        View v = inflater.inflate(R.layout.add_calendar_details, container, false);
         setHasOptionsMenu(true);
 
         textURL = (TextView)v.findViewById(R.id.url);
-        textURL.setText(activity.url.toString());
 
         editTitle = (EditText)v.findViewById(R.id.title);
         editTitle.addTextChangedListener(this);
-        if (savedInstanceState == null) {
-            String path = activity.url.getPath();
-            editTitle.setText(path.substring(path.lastIndexOf('/') + 1));
-        }
-        editTitle.requestFocus();
 
         colorButton = (ColorButton)v.findViewById(R.id.color);
+        if (inState != null)
+            colorButton.setColor(color = inState.getInt(STATE_COLOR));
         colorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,6 +71,27 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
 
         return v;
     }
+
+    @Override
+    public void onActivityCreated(Bundle inState) {
+        super.onActivityCreated(inState);
+        activity = (AddCalendarActivity)getActivity();
+
+        textURL.setText(activity.url.toString());
+
+        if (inState == null) {
+            String path = activity.url.getPath();
+            editTitle.setText(path.substring(path.lastIndexOf('/') + 1));
+            editTitle.requestFocus();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_COLOR, color);
+    }
+
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -134,6 +151,7 @@ public class CalendarDetailsFragment extends Fragment implements TextWatcher {
         try {
             AndroidCalendar.create(AppAccount.account, activity.getContentResolver(), calInfo);
             Toast.makeText(activity, getString(R.string.add_account_calendar_created), Toast.LENGTH_LONG).show();
+            activity.invalidateOptionsMenu();
             return true;
         } catch (CalendarStorageException e) {
             Log.e(TAG, "Couldn't create calendar", e);

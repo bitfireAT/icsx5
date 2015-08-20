@@ -87,19 +87,16 @@
       <excludeFolder url="file://$MODULE_DIR$/../lib/ical4android/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/../lib/ical4android/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />
     <orderEntry type="library" exported="" name="ical4j-2.0-alpha1" level="project" />
     <orderEntry type="library" exported="" name="lombok-1.16.4" level="project" />
     <orderEntry type="library" exported="" name="jcl-over-slf4j-1.7.7" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="bndlib-2.3.0" level="project" />
     <orderEntry type="library" exported="" name="slf4j-android-1.7.12" level="project" />
     <orderEntry type="library" exported="" name="org.osgi.core-4.3.1" level="project" />
     <orderEntry type="library" exported="" name="slf4j-api-1.7.12" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="commons-codec-1.9" level="project" />
   </component>
 </module>

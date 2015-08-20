@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last Sync"
+            android:text="@string/not_synced_yet"
             android:layout_below="@id/title"
             android:id="@+id/last_sync" />
 
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="LAST ERROR"
-            android:textColor="@color/error_color"
+            android:textColor="@color/redorange"
             android:layout_alignBaseline="@id/last_sync"
             android:layout_toRightOf="@id/last_sync"
             android:layout_marginLeft="16dp"
