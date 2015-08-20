@@ -20,15 +20,19 @@ import lombok.Getter;
 
 public class LocalCalendar extends AndroidCalendar {
 
-    protected static final String
+    public static final String
             COLUMN_ETAG = Calendars.CAL_SYNC1,
-            COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC2,
-            COLUMN_LAST_SYNC = Calendars.CAL_SYNC3,
-            COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC4;
+            COLUMN_USERNAME = Calendars.CAL_SYNC2,
+            COLUMN_PASSWORD = Calendars.CAL_SYNC3,
+            COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4,
+            COLUMN_LAST_SYNC = Calendars.CAL_SYNC5,
+            COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6;
 
     @Getter protected String
             url,                    // URL of iCalendar file
-            eTag;                   // iCalendar ETag at last successful sync
+            eTag,                   // iCalendar ETag at last successful sync
+            username,               // HTTP username (or null if no auth. required)
+            password;               // HTTP password (or null if no auth. required)
     @Getter long lastModified,      // iCalendar Last-Modified at last successful sync (or 0)
             lastSync;               // time of last sync
     @Getter String errorMessage;    // error message (HTTP status or exception name) of last sync (or null)
@@ -50,6 +54,8 @@ public class LocalCalendar extends AndroidCalendar {
     protected void populate(ContentValues info) {
         super.populate(info);
         url = info.getAsString(Calendars.NAME);
+        username = info.getAsString(COLUMN_USERNAME);
+        password = info.getAsString(COLUMN_PASSWORD);
 
         eTag = info.getAsString(COLUMN_ETAG);
         if (info.containsKey(COLUMN_LAST_MODIFIED))

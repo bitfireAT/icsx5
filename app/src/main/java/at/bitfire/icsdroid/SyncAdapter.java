@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.util.Base64;
 import android.util.Log;
 
 import org.apache.commons.codec.Charsets;
@@ -69,6 +70,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.i(TAG, "Fetching remote calendar " + calendar.getUrl());
             @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.getUrl()).openConnection();
             conn.setRequestProperty("User-Agent", "ICSdroid/" + Constants.VERSION + " (Android)");
+            if (calendar.getUsername() != null && calendar.getPassword() != null) {
+                String basicCredentials = calendar.getUsername() + ":" + calendar.getPassword();
+                conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
+            }
 
             if (calendar.getETag()!= null)
                 conn.setRequestProperty("If-None-Match", calendar.getETag());

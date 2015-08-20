@@ -9,6 +9,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.util.Base64;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -22,15 +23,18 @@ import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
 public class AddCalendarValidationFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
-    public static final String ARG_URL = "url";
-
     AddCalendarActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activity = (AddCalendarActivity)getActivity();
+    }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        activity = (AddCalendarActivity)getActivity();
         Loader<ResourceInfo> loader = getLoaderManager().initLoader(0, null, this);
     }
 
@@ -47,7 +51,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
     @Override
     public Loader<ResourceInfo> onCreateLoader(int id, Bundle args) {
-        return new ResourceInfoLoader(getActivity(), activity.url);
+        return new ResourceInfoLoader(activity);
     }
 
     @Override
@@ -78,14 +82,14 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
     // loader
 
-    static class ResourceInfoLoader extends AsyncTaskLoader<ResourceInfo> {
+    protected static class ResourceInfoLoader extends AsyncTaskLoader<ResourceInfo> {
         ResourceInfo info;
         boolean started;
 
-        public ResourceInfoLoader(Context context, URL url) {
-            super(context);
+        public ResourceInfoLoader(AddCalendarActivity activity) {
+            super(activity);
 
-            info = new ResourceInfo(url);
+            info = new ResourceInfo(activity.url, activity.authRequired, activity.username, activity.password);
         }
 
         @Override
@@ -102,6 +106,10 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
             HttpURLConnection conn;
             try {
                 conn = (HttpURLConnection) info.url.openConnection();
+                if (info.authRequired) {
+                    String basicCredentials = info.username + ":" + info.password;
+                    conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
+                }
 
                 info.statusCode = conn.getResponseCode();
                 info.statusMessage = conn.getResponseMessage();

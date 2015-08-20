@@ -24,6 +24,7 @@ import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
+import at.bitfire.icsdroid.db.LocalCalendar;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class AddCalendarDetailsFragment extends Fragment implements TextWatcher {
@@ -145,6 +146,8 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
         calInfo.put(Calendars.OWNER_ACCOUNT, AppAccount.account.name);
         calInfo.put(Calendars.SYNC_EVENTS, 1);
         calInfo.put(Calendars.VISIBLE, 1);
+        calInfo.put(LocalCalendar.COLUMN_USERNAME, activity.authRequired ? activity.username : null);
+        calInfo.put(LocalCalendar.COLUMN_PASSWORD, activity.authRequired ? activity.password : null);
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ);
         try {
             AndroidCalendar.create(AppAccount.account, activity.getContentResolver(), calInfo);
