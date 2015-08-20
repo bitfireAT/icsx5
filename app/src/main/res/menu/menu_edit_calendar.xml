@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_cancel"
+        android:id="@+id/cancel"
+        android:onClick="onCancel"
+        android:title="@string/edit_calendar_cancel" />
+
+    <item
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_trash"
+        android:id="@+id/delete"
+        android:onClick="onDelete"
+        android:title="@string/edit_calendar_delete" />
+
+    <item
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_tick"
+        android:id="@+id/save"
+        android:onClick="onSave"
+        android:title="@string/edit_calendar_save" />
+
+</menu>

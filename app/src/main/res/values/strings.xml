@@ -2,25 +2,34 @@
     <string name="app_name">ICSdroid</string>
 
     <string name="action_next">Next</string>
+    <string name="please_wait">Please wait …</string>
 
     <string name="calendar_list_info">About ICSdroid</string>
+    <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_settings">Settings</string>
     <string name="calendar_list_sync_all">Synchronize all</string>
     <string name="calendar_list_sync_started">Synchronization started</string>
 
     <string name="title_activity_calendar_list">My subscriptions</string>
 
-    <string name="title_activity_add_account">Subscribe calendar</string>
-    <string name="add_account_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
-    <string name="add_account_url">URL</string>
-    <string name="add_account_title_hint">Calendar name</string>
-    <string name="add_account_requires_authentication">Requires authentication</string>
-    <string name="add_account_user_name">User name</string>
-    <string name="add_account_password">Password</string>
-    <string name="please_wait">Please wait …</string>
-    <string name="add_account_title">Title &amp; Color</string>
-    <string name="add_account_color">Color</string>
-    <string name="add_account_create_calendar">Subscribe now</string>
-    <string name="add_account_calendar_created">Calendar subscribed successfully</string>
-    <string name="not_synced_yet">not synchronized yet</string>
+    <string name="activity_add_account">Subscribe calendar</string>
+    <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
+    <string name="add_calendar_url">URL</string>
+    <string name="add_calendar_title_hint">Calendar name</string>
+    <string name="add_calendar_requires_authentication">Requires authentication</string>
+    <string name="add_calendar_user_name">User name</string>
+    <string name="add_calendar_password">Password</string>
+    <string name="add_calendar_title">Title &amp; Color</string>
+    <string name="add_calendar_color">Color</string>
+    <string name="add_calendar_create">Subscribe now</string>
+    <string name="add_calendar_created">Subscribed successfully</string>
+
+    <string name="activity_edit_calendar">Edit subscription</string>
+    <string name="edit_calendar_cancel">Cancel</string>
+    <string name="edit_calendar_delete">Unsubscribe</string>
+    <string name="edit_calendar_deleted">Unsubscribed successfully</string>
+    <string name="edit_calendar_failed">Operation failed</string>
+    <string name="edit_calendar_save">Save</string>
+    <string name="edit_calendar_saved">Changes saved</string>
+
 </resources>

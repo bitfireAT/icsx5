@@ -4,7 +4,7 @@
 
     <item android:id="@+id/create_calendar"
           android:icon="@drawable/ic_action_tick"
-          android:title="@string/add_account_create_calendar"
+          android:title="@string/add_calendar_create"
           app:showAsAction="always" />
 
 </menu>

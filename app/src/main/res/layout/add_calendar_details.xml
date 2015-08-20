@@ -14,7 +14,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_account_title"/>
+            android:text="@string/add_calendar_title"/>
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/add_account_title_hint"
+                        android:hint="@string/add_calendar_title_hint"
                         android:id="@+id/title"/>
 
                 </LinearLayout>

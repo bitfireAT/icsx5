@@ -3,6 +3,7 @@ package at.bitfire.icsdroid.ui;
 import android.app.LoaderManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -17,23 +18,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
-public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]> {
+public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener {
 
     ListView list;
     CalendarListAdapter listAdapter;
@@ -47,6 +46,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
         list = (ListView)findViewById(R.id.calendar_list);
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
+        list.setOnItemClickListener(this);
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -59,9 +59,20 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean acctAvailable = AppAccount.isAvailable(this);
-        menu.findItem(R.id.sync_all).setEnabled(acctAvailable);
+        boolean canSync = !listAdapter.isEmpty();
+        menu.findItem(R.id.sync_all)
+            .setEnabled(canSync)
+            .setVisible(canSync);
         return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        LocalCalendar calendar = ((CalendarListAdapter) parent.getAdapter()).getItem(position);
+
+        Intent i = new Intent(this, EditCalendarActivity.class);
+        i.setData(ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.getId()));
+        startActivity(i);
     }
 
     @Override
@@ -74,14 +85,14 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public Loader<LocalCalendar[]> onCreateLoader(int id, Bundle args) {
-        Loader loader = new CalendarListLoader(this, listAdapter);
-        return loader;
+        return new CalendarListLoader(this);
     }
 
     @Override
     public void onLoadFinished(Loader<LocalCalendar[]> loader, LocalCalendar[] calendars) {
         listAdapter.clear();
         listAdapter.addAll(calendars);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -117,8 +128,11 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     public static class CalendarListAdapter extends ArrayAdapter<LocalCalendar> {
         private static final String TAG = "ICSdroid.CalendarList";
 
+        final Context context;
+
         public CalendarListAdapter(Context context) {
             super(context, R.layout.calendar_list_item);
+            this.context = context;
         }
 
         @Override
@@ -132,7 +146,9 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             ((TextView) v.findViewById(R.id.title)).setText(calendar.getDisplayName());
 
             DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
-            ((TextView) v.findViewById(R.id.last_sync)).setText(formatter.format(new Date(calendar.getLastSync())));
+            ((TextView) v.findViewById(R.id.last_sync)).setText(calendar.getLastSync() == 0 ?
+                    context.getString(R.string.calendar_list_not_synced_yet) :
+                    formatter.format(new Date(calendar.getLastSync())));
 
             ((ColorButton) v.findViewById(R.id.color)).setColor(calendar.getColor().intValue());
 
@@ -163,22 +179,19 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         }
     }
 
-    public static class CalendarListLoader extends Loader<LocalCalendar[]> {
+    protected static class CalendarListLoader extends Loader<LocalCalendar[]> {
         private static final String TAG = "ICSdroid.CalendarsLoad";
-
-        final Context context;
 
         ContentProviderClient provider;
         ContentObserver observer;
 
-        public CalendarListLoader(Context context, CalendarListAdapter adapter) {
+        public CalendarListLoader(Context context) {
             super(context);
-            this.context = context;
         }
 
         @Override
         protected void onStartLoading() {
-            ContentResolver resolver = context.getContentResolver();
+            ContentResolver resolver = getContext().getContentResolver();
             provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY);
 
             observer = new ForceLoadContentObserver();
@@ -189,7 +202,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
         @Override
         protected void onStopLoading() {
-            context.getContentResolver().unregisterContentObserver(observer);
+            getContext().getContentResolver().unregisterContentObserver(observer);
             if (provider != null)
                 provider.release();
         }
@@ -197,7 +210,11 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         @Override
         public void onForceLoad() {
             try {
-                LocalCalendar[] calendars = LocalCalendar.findAll(AppAccount.account, provider);
+                LocalCalendar[] calendars;
+                if (provider != null && AppAccount.isAvailable(getContext()))
+                    calendars = LocalCalendar.findAll(AppAccount.account, provider);
+                else
+                    calendars = LocalCalendar.Factory.FACTORY.newArray(0);
                 deliverResult(calendars);
             } catch (CalendarStorageException e) {
                 Log.e(TAG, "Couldn't load calendar list", e);

@@ -19,6 +19,7 @@ public class ColorButton extends View {
         shape = new OvalShape();
         paint = new Paint();
         paint.setColor(0xffFF0000);
+        paint.setAntiAlias(true);
     }
 
     @Override

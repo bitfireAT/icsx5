@@ -39,8 +39,16 @@
         </service>
 
         <activity
+            android:name=".ui.CalendarListActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ui.AddCalendarActivity"
-            android:label="@string/title_activity_add_account"
+            android:label="@string/activity_add_account"
             android:parentActivityName=".ui.CalendarListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -60,13 +68,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.CalendarListActivity"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".ui.EditCalendarActivity"
+            android:label="@string/activity_edit_calendar"
+            android:parentActivityName=".ui.CalendarListActivity" />
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import android.provider.CalendarContract.Calendars;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 
 import at.bitfire.ical4android.AndroidCalendar;
@@ -34,6 +35,10 @@ public class LocalCalendar extends AndroidCalendar {
 
     private LocalCalendar(Account account, ContentProviderClient providerClient, AndroidEventFactory eventFactory, long id) {
         super(account, providerClient, eventFactory, id);
+    }
+
+    public static LocalCalendar findById(Account account, ContentProviderClient provider) throws FileNotFoundException, CalendarStorageException {
+        return (LocalCalendar)AndroidCalendar.findByID(account, provider, Factory.FACTORY);
     }
 
     public static LocalCalendar[] findAll(Account account, ContentProviderClient provider) throws CalendarStorageException {

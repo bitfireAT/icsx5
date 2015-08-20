@@ -2,7 +2,6 @@ package at.bitfire.icsdroid.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import java.net.URL;
 
@@ -23,7 +22,7 @@ public class AddCalendarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle inState) {
         super.onCreate(inState);
-        setContentView(R.layout.add_calendar_activity);
+        setContentView(R.layout.fragment_container);
 
         if (inState == null)
             getSupportFragmentManager()

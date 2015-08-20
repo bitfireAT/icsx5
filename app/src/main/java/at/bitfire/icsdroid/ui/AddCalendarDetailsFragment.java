@@ -82,7 +82,6 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
         if (inState == null) {
             String path = activity.url.getPath();
             editTitle.setText(path.substring(path.lastIndexOf('/') + 1));
-            editTitle.requestFocus();
         }
     }
 
@@ -150,7 +149,7 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ);
         try {
             AndroidCalendar.create(AppAccount.account, activity.getContentResolver(), calInfo);
-            Toast.makeText(activity, getString(R.string.add_account_calendar_created), Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show();
             activity.invalidateOptionsMenu();
             return true;
         } catch (CalendarStorageException e) {

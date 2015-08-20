@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_account_url"/>
+            android:text="@string/add_calendar_url"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -36,7 +36,7 @@
             android:layout_marginTop="32dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_account_requires_authentication"
+            android:text="@string/add_calendar_requires_authentication"
             android:id="@+id/requires_authentication"/>
 
         <TextView
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:text="@string/add_account_authentication_without_https_warning"
+            android:text="@string/add_calendar_authentication_without_https_warning"
             android:drawableLeft="@drawable/ic_action_warning"
             android:drawablePadding="8dp"
             android:padding="16dp"/>
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_account_user_name"
+            android:text="@string/add_calendar_user_name"
             android:visibility="gone"
             android:inputType="textNoSuggestions"
             android:id="@+id/user_name_label"/>
@@ -68,7 +68,7 @@
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_account_password"
+            android:text="@string/add_calendar_password"
             android:visibility="gone"
             android:inputType="textPassword"
             android:id="@+id/password_label"/>
