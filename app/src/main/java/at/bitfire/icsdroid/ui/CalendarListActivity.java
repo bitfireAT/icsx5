@@ -164,7 +164,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     }
 
     public void onShowInfo(MenuItem item) {
-        Toast.makeText(this, "ICSdroid Info & Licenses!", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, InfoActivity.class));
     }
 
     public void onSetSyncInterval(MenuItem item) {

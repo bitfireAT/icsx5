@@ -37,6 +37,7 @@
     <string name="sync_error_title">Synchronization error</string>
     <string name="set_sync_interval_save">Save</string>
     <string name="set_sync_interval_title">Set sync. interval:</string>
+    <string name="activity_app_info">App info</string>
     <string-array name="set_sync_interval_seconds">
         <item>-1</item>
         <item>300</item>

@@ -293,7 +293,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                             ((EditCalendarActivity) getActivity()).onSave(null);
                         }
                     })
-                    .setNegativeButton(R.string.edit_calendar_dismiss, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.edit_calendar_cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();

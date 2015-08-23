@@ -70,6 +70,10 @@
             android:name=".ui.EditCalendarActivity"
             android:label="@string/activity_edit_calendar"
             android:parentActivityName=".ui.CalendarListActivity" />
+        <activity
+            android:name=".ui.InfoActivity"
+            android:label="@string/activity_app_info"
+            android:parentActivityName=".ui.CalendarListActivity" />
     </application>
 
 </manifest>
