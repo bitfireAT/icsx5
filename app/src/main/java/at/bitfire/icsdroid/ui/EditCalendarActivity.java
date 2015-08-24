@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ */
+
 package at.bitfire.icsdroid.ui;
 
 import android.app.AlertDialog;
@@ -91,7 +103,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_edit_calendar, menu);
+        getMenuInflater().inflate(R.menu.edit_calendar_activity, menu);
         return true;
     }
 

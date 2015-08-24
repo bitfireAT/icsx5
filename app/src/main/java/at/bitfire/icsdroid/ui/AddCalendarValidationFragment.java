@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ */
+
 package at.bitfire.icsdroid.ui;
 
 import android.app.Activity;
@@ -18,6 +30,7 @@ import java.net.HttpURLConnection;
 
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
+import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
@@ -108,6 +121,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
             HttpURLConnection conn;
             try {
                 conn = (HttpURLConnection) info.url.openConnection();
+                conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
                 conn.setConnectTimeout(7000);
                 conn.setReadTimeout(20000);
                 if (info.authRequired) {

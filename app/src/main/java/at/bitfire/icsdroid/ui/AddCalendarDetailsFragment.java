@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ */
+
 package at.bitfire.icsdroid.ui;
 
 import android.content.ContentValues;
@@ -76,7 +88,7 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_create_calendar, menu);
+        inflater.inflate(R.menu.fragment_create_calendar, menu);
     }
 
     @Override

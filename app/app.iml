@@ -102,8 +102,7 @@
     <orderEntry type="library" exported="" name="ambilwarna-2.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.0" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />
-    <orderEntry type="library" exported="" name="ical4j-2.0-alpha1" level="project" />
-    <orderEntry type="library" exported="" name="jcl-over-slf4j-1.7.7" level="project" />
+    <orderEntry type="library" exported="" name="ical4j-2.0-beta1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.0" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="slf4j-api-1.7.12" level="project" />

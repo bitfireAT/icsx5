@@ -1,3 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+  ~ General Public License as published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  ~ PURPOSE.  See the GNU General Public License for more details.
+  -->
+
 <resources>
     <string name="app_name">ICSdroid</string>
 
@@ -6,7 +19,6 @@
     <string name="calendar_list_info">About ICSdroid</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
-    <string name="calendar_list_sync_all">Synchronize all</string>
     <string name="calendar_list_sync_disabled">Sync. disabled</string>
 
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -63,5 +75,8 @@
     </string-array>
 
     <string name="activity_app_info">App info</string>
+    <string name="app_info_donate">Donate</string>
+    <string name="app_info_gpl_info">Copyright (C) 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nThis program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under the conditions of the GNU GPL v3 (see below).</string>
+    <string name="app_info_web_site">Web site</string>
 
 </resources>

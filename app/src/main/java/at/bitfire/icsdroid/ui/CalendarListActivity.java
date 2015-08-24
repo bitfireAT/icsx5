@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ */
+
 package at.bitfire.icsdroid.ui;
 
 import android.app.DialogFragment;
@@ -15,6 +27,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.CalendarContract;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +38,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -36,18 +48,17 @@ import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
-public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SyncStatusObserver {
+public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
 
     private final String DATA_SYNC_ACTIVE = "sync_active";
 
-    boolean syncActive;
     Object syncStatusHandle;
     Handler syncStatusHandler;
 
     ListView list;
     CalendarListAdapter listAdapter;
 
-    ProgressBar progressSyncStatus;
+    SwipeRefreshLayout refresher;
 
 
     @Override
@@ -56,13 +67,13 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         setTitle(R.string.title_activity_calendar_list);
         setContentView(R.layout.calendar_list_activity);
 
+        refresher = (SwipeRefreshLayout)findViewById(R.id.refresh);
+        refresher.setColorSchemeColors(getResources().getColor(R.color.lightblue));
+        refresher.setOnRefreshListener(this);
+
+        refresher.setSize(SwipeRefreshLayout.LARGE);
+
         list = (ListView)findViewById(R.id.calendar_list);
-
-        // add sync status header view which contains one progress bar (progressSyncStatus)
-        View viewSyncStatus = LayoutInflater.from(this).inflate(R.layout.calendar_list_sync_header, list, false);
-        progressSyncStatus = (ProgressBar) viewSyncStatus.findViewById(R.id.progress);
-        list.addHeaderView(viewSyncStatus);
-
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
         list.setOnItemClickListener(this);
 
@@ -73,16 +84,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_calendar_list, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean canSync = !listAdapter.isEmpty() && !syncActive;
-        menu.findItem(R.id.sync_all)
-            .setEnabled(canSync)
-            .setVisible(canSync);
+        getMenuInflater().inflate(R.menu.activity_calendar_list, menu);
         return true;
     }
 
@@ -102,13 +104,11 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         syncStatusHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
-                syncActive = message.getData().getBoolean(DATA_SYNC_ACTIVE);
-                progressSyncStatus.setVisibility(syncActive ? View.VISIBLE : View.GONE);
-                invalidateOptionsMenu();
+                refresher.setRefreshing(AppAccount.isSyncActive(CalendarListActivity.this));
             }
         };
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
-        progressSyncStatus.setVisibility((syncActive = AppAccount.isSyncActive(this)) ? View.VISIBLE : View.GONE);
+        refresher.setRefreshing(AppAccount.isSyncActive(this));
     }
 
     @Override
@@ -118,22 +118,13 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             ContentResolver.removeStatusChangeListener(syncStatusHandle);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
 
     /* (sync) status changes */
 
     @Override
     public void onStatusChanged(int which) {
-        if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE) {
-            Message msg = new Message();
-            msg.getData().putBoolean(DATA_SYNC_ACTIVE, AppAccount.isSyncActive(this));
-            if (syncStatusHandler != null)
-                syncStatusHandler.sendMessage(msg);
-        }
+        if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE && syncStatusHandler != null)
+            syncStatusHandler.sendMessage(new Message());
     }
 
 
@@ -146,9 +137,22 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     @Override
     public void onLoadFinished(Loader<LocalCalendar[]> loader, LocalCalendar[] calendars) {
+        // we got our list of calendars
+
+        // add them into the list
         listAdapter.clear();
         listAdapter.addAll(calendars);
-        invalidateOptionsMenu();
+
+        // control the swipe refresher
+        if (calendars.length >= 1) {
+            // funny: use the calendar colors for the sync status
+            refresher.setEnabled(true);
+            int colors[] = new int[calendars.length];
+            int idx = 0;
+            for (LocalCalendar calendar : calendars)
+                colors[idx++] = 0xff000000 | calendar.getColor();
+            refresher.setColorSchemeColors(colors);
+        }
     }
 
     @Override
@@ -162,6 +166,16 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         startActivity(new Intent(this, AddCalendarActivity.class));
     }
 
+    @Override
+    public void onRefresh() {
+        Bundle extras = new Bundle();
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
+        getContentResolver().requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
+    }
+
     public void onShowInfo(MenuItem item) {
         startActivity(new Intent(this, InfoActivity.class));
     }
@@ -171,15 +185,8 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         frag.show(getFragmentManager(), "sync_interval");
     }
 
-    public void onSyncAll(MenuItem item) {
-        Bundle extras = new Bundle();
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
-        getContentResolver().requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
-    }
 
+    /* list adapter */
 
     public static class CalendarListAdapter extends ArrayAdapter<LocalCalendar> {
         private static final String TAG = "ICSdroid.CalendarList";

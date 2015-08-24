@@ -1,10 +1,26 @@
+/*
+ * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ */
+
 package at.bitfire.icsdroid.ui;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -16,6 +32,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
@@ -36,15 +53,21 @@ public class InfoActivity extends AppCompatActivity {
             tab.setIndicator("ICSdroid", getDrawable(R.drawable.ic_launcher));
         else
             tab.setIndicator("ICSdroid");
-        tab.setContent(R.id.icsdroid_info);
+        tab.setContent(new AppInfoTabFactory(tabs));
         tabs.addTab(tab);
 
-        addLibraryTab(tabs, "Android", "Android Support Library", "https://developer.android.com/tools/support-library/", "licenses/LICENSE.android-support");
-        addLibraryTab(tabs, "Ambilwarna", "Android Color Picker", "https://github.com/yukuku/ambilwarna", "licenses/LICENSE.ambilwarna");
-        addLibraryTab(tabs, "Commons", "Apache Commons", "https://commons.apache.org/", "licenses/LICENSE.commons");
-        addLibraryTab(tabs, "bnd", "bnd, OSGi Core", "http://bnd.bndtools.org/", "licenses/LICENSE.bnd");
-        addLibraryTab(tabs, "ical4j", "ical4j", "https://github.com/ical4j/ical4j/", "licenses/LICENSE.ical4j");
-        addLibraryTab(tabs, "SLF4J", "SLF4J, SLF4J Android", "http://www.slf4j.org/", "licenses/LICENSE.slf4j");
+        addLibraryTab(tabs, "Android", "Android Support Library", "https://developer.android.com/tools/support-library/", "LICENSE.android-support");
+        addLibraryTab(tabs, "Ambilwarna", "Android Color Picker", "https://github.com/yukuku/ambilwarna", "LICENSE.ambilwarna");
+        addLibraryTab(tabs, "Commons", "Apache Commons", "https://commons.apache.org/", "LICENSE.commons");
+        addLibraryTab(tabs, "bnd", "bnd, OSGi Core", "http://bnd.bndtools.org/", "LICENSE.bnd");
+        addLibraryTab(tabs, "ical4j", "ical4j", "https://github.com/ical4j/ical4j/", "LICENSE.ical4j");
+        addLibraryTab(tabs, "SLF4J", "SLF4J, SLF4J Android", "http://www.slf4j.org/", "LICENSE.slf4j");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.app_info_activity, menu);
+        return true;
     }
 
     protected void addLibraryTab(final TabHost tabs, final String tag, final String title, final String url, final String licenseFile) {
@@ -58,7 +81,7 @@ public class InfoActivity extends AppCompatActivity {
                 ((TextView)v.findViewById(R.id.library_url)).setText(url);
 
                 try {
-                    @Cleanup InputStream is = getAssets().open(licenseFile);
+                    @Cleanup InputStream is = getAssets().open("licenses/" + licenseFile);
                     ((TextView)v.findViewById(R.id.library_license)).setText(IOUtils.toString(is));
                 } catch (IOException e) {
                     Log.e(TAG, "Couldn't read library license", e);
@@ -67,6 +90,42 @@ public class InfoActivity extends AppCompatActivity {
             }
         });
         tabs.addTab(tab);
+    }
+
+
+    public void showWebSite(MenuItem item) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://icsdroid.bitfire.at/?pk_campaign=icsdroid-app&pk_kwd=info-activity")));
+    }
+
+    public void showDonate(MenuItem item) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://icsdroid.bitfire.at/donate?pk_campaign=icsdroid-app&pk_kwd=info-activity")));
+    }
+
+
+
+    class AppInfoTabFactory implements TabHost.TabContentFactory {
+
+        final TabHost tabs;
+
+        AppInfoTabFactory(TabHost tabs) {
+            this.tabs = tabs;
+        }
+
+        @Override
+        public View createTabContent(String tag) {
+            View v = getLayoutInflater().inflate(R.layout.app_info_icsdroid, tabs.getTabWidget(), false);
+
+            ((TextView)v.findViewById(R.id.icsdroid_version)).setText("ICSdroid " + Constants.VERSION);
+
+            try {
+                @Cleanup InputStream is = getAssets().open("licenses/COPYING");
+                ((TextView) v.findViewById(R.id.gpl_text)).setText(IOUtils.toString(is));
+            } catch (IOException e) {
+                Log.e(TAG, "Couldn't read GPLv3", e);
+            }
+
+            return v;
+        }
     }
 
 }
