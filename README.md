@@ -3,6 +3,8 @@
 
 Web: https://icsdroid.bitfire.at/
 
+News on Twitter: [@icsdroidapp](https://twitter.com/icsdroidapp)
+
 ICSdroid is a Android 4.0+ app to subscribe to remote iCalendar files (like
 time tables of your school/university or event files of your sports team).
 
@@ -13,6 +15,13 @@ with your calendar app.
 No data (neither login data, nor calendar data, nor statistical or usage data)
 is transferred to anywhere except the chosen server. No Google Calendar or
 account required.
+
+
+## How to get it
+
+* [Get it on Google Play](https://play.google.com/store/apps/details?id=at.bitfire.icsdroid)
+
+The source code is available on Gitlab. Pre-built binaries are available on F-Droid.
 
 
 ## How to use
@@ -34,7 +43,6 @@ Florastraße 27
 ```
 
 Email: [play@bitfire.at](mailto:play@bitfire.at)
-
 
 
 ## License 
