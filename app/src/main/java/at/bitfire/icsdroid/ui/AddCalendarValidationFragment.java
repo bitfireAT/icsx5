@@ -1,21 +1,20 @@
 package at.bitfire.icsdroid.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.util.Base64;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
@@ -23,26 +22,28 @@ import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
 public class AddCalendarValidationFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
+
     AddCalendarActivity activity;
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = (AddCalendarActivity)activity;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        activity = (AddCalendarActivity)getActivity();
-        Loader<ResourceInfo> loader = getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        setCancelable(false);
+
         ProgressDialog progress = new ProgressDialog(getActivity());
-        progress.setCancelable(false);
-        progress.setMessage(getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.add_calendar_validating));
         return progress;
     }
 
@@ -63,7 +64,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
             errorMessage = info.exception.getMessage();
         else if (info.statusCode != 200)
             errorMessage = info.statusCode + " " + info.statusMessage;
-        
+
         if (errorMessage == null)
             // success, proceed to CreateCalendarFragment
             getFragmentManager()
@@ -84,7 +85,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
     protected static class ResourceInfoLoader extends AsyncTaskLoader<ResourceInfo> {
         ResourceInfo info;
-        boolean started;
+        boolean loaded;
 
         public ResourceInfoLoader(AddCalendarActivity activity) {
             super(activity);
@@ -95,10 +96,11 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
         @Override
         protected void onStartLoading() {
             synchronized(this) {
-                if (started == false)
-                    started = true;
+                if (!loaded) {
                     forceLoad();
+                    loaded = true;
                 }
+            }
         }
 
         @Override
@@ -106,6 +108,8 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
             HttpURLConnection conn;
             try {
                 conn = (HttpURLConnection) info.url.openConnection();
+                conn.setConnectTimeout(7000);
+                conn.setReadTimeout(20000);
                 if (info.authRequired) {
                     String basicCredentials = info.username + ":" + info.password;
                     conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));

@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -202,10 +201,16 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             ((TextView) v.findViewById(R.id.url)).setText(calendar.getUrl());
             ((TextView) v.findViewById(R.id.title)).setText(calendar.getDisplayName());
 
-            DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
-            ((TextView) v.findViewById(R.id.last_sync)).setText(calendar.getLastSync() == 0 ?
-                    context.getString(R.string.calendar_list_not_synced_yet) :
-                    formatter.format(new Date(calendar.getLastSync())));
+            String syncStatus;
+            if (!calendar.isSynced())
+                syncStatus = context.getString(R.string.calendar_list_sync_disabled);
+            else {
+                DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
+                syncStatus = calendar.getLastSync() == 0 ?
+                        context.getString(R.string.calendar_list_not_synced_yet) :
+                        formatter.format(new Date(calendar.getLastSync()));
+            }
+            ((TextView) v.findViewById(R.id.sync_status)).setText(syncStatus);
 
             ((ColorButton) v.findViewById(R.id.color)).setColor(calendar.getColor().intValue());
 

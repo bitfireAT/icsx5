@@ -1,11 +1,9 @@
 package at.bitfire.icsdroid.ui;
 
-import android.accounts.AccountManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,11 +11,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import org.apache.commons.lang3.StringUtils;
 import android.provider.CalendarContract.Calendars;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import at.bitfire.ical4android.AndroidCalendar;
@@ -25,83 +21,68 @@ import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
-import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class AddCalendarDetailsFragment extends Fragment implements TextWatcher {
-    private static final String TAG = "ICSdroid.CreateCalendar";
-
-    private static final String STATE_COLOR = "color";
-
-    AddCalendarActivity activity;
-
-    TextView textURL;
-    EditText editTitle;
-    ColorButton colorButton;
+public class AddCalendarDetailsFragment extends Fragment implements TitleColorFragment.OnChangeListener {
+    private static final String
+            TAG = "ICSdroid.CreateCalendar",
+            STATE_TITLE = "title",
+            STATE_COLOR = "color";
 
     String title;
-    int color = 0xffFF0000;
+    int color = 0xff2F80C7;
+
+    AddCalendarActivity activity;
+    TitleColorFragment fragTitleColor;
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        activity = (AddCalendarActivity)context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle inState) {
         View v = inflater.inflate(R.layout.add_calendar_details, container, false);
         setHasOptionsMenu(true);
 
-        textURL = (TextView)v.findViewById(R.id.url);
-
-        editTitle = (EditText)v.findViewById(R.id.title);
-        editTitle.addTextChangedListener(this);
-
-        colorButton = (ColorButton)v.findViewById(R.id.color);
-        if (inState != null)
-            colorButton.setColor(color = inState.getInt(STATE_COLOR));
-        colorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AmbilWarnaDialog(getActivity(), color, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-                    @Override
-                    public void onCancel(AmbilWarnaDialog ambilWarnaDialog) {
-                    }
-
-                    @Override
-                    public void onOk(AmbilWarnaDialog ambilWarnaDialog, int newColor) {
-                        colorButton.setColor(color = 0xff000000 | newColor);
-                    }
-                }).show();
-            }
-        });
-
-        return v;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle inState) {
-        super.onActivityCreated(inState);
-        activity = (AddCalendarActivity)getActivity();
-
-        textURL.setText(activity.url.toString());
-
-        if (inState == null) {
+        if (inState != null) {
+            title = inState.getString(STATE_TITLE);
+            color = inState.getInt(STATE_COLOR);
+        } else {
             String path = activity.url.getPath();
-            editTitle.setText(path.substring(path.lastIndexOf('/') + 1));
+            title = path.substring(path.lastIndexOf('/') + 1);
         }
+
+        fragTitleColor = new TitleColorFragment();
+        Bundle args = new Bundle(3);
+        args.putString(TitleColorFragment.ARG_URL, activity.url.toString());
+        args.putString(TitleColorFragment.ARG_TITLE, title);
+        args.putInt(TitleColorFragment.ARG_COLOR, color);
+        fragTitleColor.setArguments(args);
+        fragTitleColor.setOnChangeListener(this);
+        getChildFragmentManager().beginTransaction()
+                .add(R.id.title_color, fragTitleColor)
+                .commit();
+        return v;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putString(STATE_TITLE, title);
         outState.putInt(STATE_COLOR, color);
-    }
-
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem itemGo = menu.findItem(R.id.create_calendar);
-        itemGo.setEnabled(StringUtils.isNotBlank(title));
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_create_calendar, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem itemGo = menu.findItem(R.id.create_calendar);
+        itemGo.setEnabled(StringUtils.isNotBlank(title));
     }
 
     @Override
@@ -115,24 +96,13 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
     }
 
 
-    /* dynamic changes */
-
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    public void onChangeTitleColor(String title, int color) {
+        this.title = title;
+        this.color = color;
+        getActivity().invalidateOptionsMenu();
     }
 
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        title = editTitle.getText().toString();
-        activity.invalidateOptionsMenu();
-    }
-
-
-    /* actions */
 
     private boolean createCalendar() {
         AppAccount.makeAvailable(getContext());
@@ -160,5 +130,4 @@ public class AddCalendarDetailsFragment extends Fragment implements TextWatcher 
             return false;
         }
     }
-
 }

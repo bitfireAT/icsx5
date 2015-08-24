@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,9 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,46 +23,41 @@ import java.net.URL;
 
 import at.bitfire.icsdroid.R;
 
-public class AddCalendarEnterUrlFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, TextWatcher {
+public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher, CredentialsFragment.OnCredentialsChangeListener {
     private static final String TAG = "ICSdroid.EnterUrl";
 
     AddCalendarActivity activity;
+    CredentialsFragment credentials;
 
-    EditText editURL, editUsername, editPassword;
-    TextView insecureAuthWarning, textUsername, textPassword;
-    Switch switchAuthRequired;
+    EditText editURL;
+    TextView insecureAuthWarning;
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = (AddCalendarActivity)activity;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(TAG, "Create fragment view");
-
         View v = inflater.inflate(R.layout.add_calendar_enter_url, container, false);
         setHasOptionsMenu(true);
 
         editURL = (EditText)v.findViewById(R.id.url);
-        switchAuthRequired = (Switch)v.findViewById(R.id.requires_authentication);
-        insecureAuthWarning = (TextView)v.findViewById(R.id.insecure_authentication_warning);
-        textUsername = (TextView)v.findViewById(R.id.user_name_label);
-        editUsername = (EditText)v.findViewById(R.id.user_name);
-        textPassword = (TextView)v.findViewById(R.id.password_label);
-        editPassword = (EditText)v.findViewById(R.id.password);
-
-        switchAuthRequired.setOnCheckedChangeListener(this);
+        Uri createUri = getActivity().getIntent().getData();
         editURL.addTextChangedListener(this);
-        editUsername.addTextChangedListener(this);
-        editPassword.addTextChangedListener(this);
-
-        return v;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        activity = (AddCalendarActivity)getActivity();
-
-        Uri createUri = activity.getIntent().getData();
         if (createUri != null)
             editURL.setText(createUri.toString());
+
+        credentials = new CredentialsFragment();
+        credentials.setOnChangeListener(this);
+        getChildFragmentManager().beginTransaction()
+                .add(R.id.credentials, credentials)
+                .commit();
+
+        insecureAuthWarning = (TextView)v.findViewById(R.id.insecure_authentication_warning);
+        return v;
     }
 
     @Override
@@ -74,33 +68,21 @@ public class AddCalendarEnterUrlFragment extends Fragment implements CompoundBut
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem itemNext = menu.findItem(R.id.next);
-        itemNext.setEnabled(
-                activity.url != null &&
-                        (!activity.authRequired || (StringUtils.isNotBlank(activity.username) && StringUtils.isNotBlank(activity.password)))
-        );
+        boolean urlOK = StringUtils.isNotBlank(editURL.getText().toString()),
+                authOK = !credentials.authRequired || (StringUtils.isNotBlank(credentials.username) && StringUtils.isNotBlank(credentials.password));
+        itemNext.setEnabled(urlOK && authOK);
     }
 
 
     /* dynamic changes */
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked) {
-            activity.authRequired = true;
-            textUsername.setVisibility(View.VISIBLE);
-            editUsername.setVisibility(View.VISIBLE);
-            textPassword.setVisibility(View.VISIBLE);
-            editPassword.setVisibility(View.VISIBLE);
-        } else {
-            activity.authRequired = false;
-            textUsername.setVisibility(View.GONE);
-            editUsername.setVisibility(View.GONE);
-            textPassword.setVisibility(View.GONE);
-            editPassword.setVisibility(View.GONE);
-        }
-
-        updateAuthFields();
-        activity.invalidateOptionsMenu();
+    public void onChangeCredentials(boolean authRequired, String username, String password) {
+        activity.authRequired = authRequired;
+        activity.username = username;
+        activity.password = password;
+        updateHttpWarning();
+        getActivity().invalidateOptionsMenu();
     }
 
     @Override
@@ -117,35 +99,31 @@ public class AddCalendarEnterUrlFragment extends Fragment implements CompoundBut
 
         activity.url = null;
         try {
-            activity.url = new URL(urlString);
-            String protocol = activity.url.getProtocol();
-            if ((!"http".equals(protocol) && !"https".equals(protocol) || StringUtils.isBlank(activity.url.getAuthority())))
-                activity.url = null;
+            URL url = new URL(urlString);
+            String protocol = url.getProtocol();
+            if ((("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority())))
+                activity.url = url;
         } catch (MalformedURLException e) {
             Log.d(TAG, "Invalid URL", e);
         }
+
+        editURL.setTextColor(getResources().getColor(activity.url != null ?
+                R.color.secondary_text_default_material_light :
+                R.color.redorange));
     }
 
     @Override
     public void afterTextChanged(Editable s) {
-        editURL.setTextColor(getResources().getColor(activity.url != null ?
-                R.color.secondary_text_default_material_light :
-                R.color.redorange));
-
-        updateAuthFields();
-        activity.invalidateOptionsMenu();
+        updateHttpWarning();
+        getActivity().invalidateOptionsMenu();
     }
 
-    void updateAuthFields() {
-        if (activity.authRequired) {
-            insecureAuthWarning.setVisibility(activity.url != null && "https".equals(activity.url.getProtocol()) ? View.GONE : View.VISIBLE);
-            activity.username = editUsername.getText().toString();
-            activity.password = editPassword.getText().toString();
-        } else {
+    void updateHttpWarning() {
+        // warn if auth. required and not using HTTPS
+        if (credentials.authRequired && activity.url != null)
+            insecureAuthWarning.setVisibility("https".equals(activity.url.getProtocol()) ? View.GONE : View.VISIBLE);
+        else
             insecureAuthWarning.setVisibility(View.GONE);
-            activity.username = null;
-            activity.password = null;
-        }
     }
 
 

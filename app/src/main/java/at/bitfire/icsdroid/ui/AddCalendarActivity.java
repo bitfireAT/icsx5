@@ -45,4 +45,5 @@ public class AddCalendarActivity extends AppCompatActivity {
         outState.putString(STATE_USERNAME, username);
         outState.putString(STATE_PASSWORD, password);
     }
+
 }

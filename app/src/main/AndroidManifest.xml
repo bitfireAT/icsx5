@@ -47,7 +47,7 @@
         </activity>
         <activity
             android:name=".ui.AddCalendarActivity"
-            android:label="@string/activity_add_account"
+            android:label="@string/activity_add_calendar"
             android:parentActivityName=".ui.CalendarListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

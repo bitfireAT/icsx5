@@ -18,15 +18,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Switch;
 import android.widget.Toast;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 
@@ -34,64 +33,58 @@ import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
-import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class EditCalendarActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar>, TextWatcher {
+public class EditCalendarActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar> {
     private static final String
+            STATE_TITLE = "title",
             STATE_COLOR = "color",
+            STATE_SYNC_THIS = "sync_this",
+            STATE_REQUIRE_AUTH = "requires_auth",
+            STATE_USERNAME = "username",
+            STATE_PASSWORD = "password",
             STATE_DIRTY = "dirty";
 
-    TextView textURL;
-    EditText editTitle;
-    ColorButton colorButton;
-
-    String title;
-    int color = 0xffFF0000;
-
+    Bundle savedState;
     LocalCalendar calendar;
     boolean dirty;           // indicates whether title/color have been changed by the user
+
+    TitleColorFragment fragTitleColor;
+    Switch switchSyncCalendar;
+    CredentialsFragment fragCredentials;
+
 
     @Override
     protected void onCreate(Bundle inState) {
         super.onCreate(inState);
-        setContentView(R.layout.add_calendar_details);
+        setContentView(R.layout.edit_calendar);
 
-        textURL = (TextView)findViewById(R.id.url);
-
-        editTitle = (EditText)findViewById(R.id.title);
-        editTitle.addTextChangedListener(this);
-
-        colorButton = (ColorButton)findViewById(R.id.color);
-        colorButton.setOnClickListener(new View.OnClickListener() {
+        switchSyncCalendar = (Switch)findViewById(R.id.sync_calendar);
+        switchSyncCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AmbilWarnaDialog(EditCalendarActivity.this, color, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-                    @Override
-                    public void onCancel(AmbilWarnaDialog ambilWarnaDialog) {
-                    }
-
-                    @Override
-                    public void onOk(AmbilWarnaDialog ambilWarnaDialog, int newColor) {
-                        colorButton.setColor(color = 0xff000000 | newColor);
-                        setDirty();
-                    }
-                }).show();
+                setDirty(true);
             }
         });
 
-        if (inState != null) {
-            dirty = inState.getBoolean(STATE_DIRTY);
-            colorButton.setColor(color = inState.getInt(STATE_COLOR));
-        }
-
         // load calendar from provider
         getLoaderManager().initLoader(0, null, this);
+
+        savedState = inState;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_COLOR, color);
+        if (fragTitleColor != null) {
+            outState.putString(STATE_TITLE, fragTitleColor.title);
+            outState.putInt(STATE_COLOR, fragTitleColor.color);
+        }
+        outState.putBoolean(STATE_SYNC_THIS, switchSyncCalendar.isChecked());
+        if (fragCredentials != null) {
+            outState.putBoolean(STATE_REQUIRE_AUTH, fragCredentials.authRequired);
+            outState.putString(STATE_USERNAME, fragCredentials.username);
+            outState.putString(STATE_PASSWORD, fragCredentials.password);
+        }
         outState.putBoolean(STATE_DIRTY, dirty);
     }
 
@@ -113,14 +106,17 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
         menu.findItem(R.id.cancel)
                 .setEnabled(dirty)
                 .setVisible(dirty);
+
+        boolean titleOK = StringUtils.isNotBlank(fragTitleColor.title),
+                authOK = !fragCredentials.authRequired || (StringUtils.isNotBlank(fragCredentials.username) && StringUtils.isNotBlank(fragCredentials.password) );
         menu.findItem(R.id.save)
-                .setEnabled(dirty)
-                .setVisible(dirty);
+                .setEnabled(dirty && titleOK && authOK)
+                .setVisible(dirty && titleOK && authOK);
         return true;
     }
 
-    protected void setDirty() {
-        dirty = true;
+    protected void setDirty(boolean dirty) {
+        this.dirty = dirty;
         invalidateOptionsMenu();
     }
 
@@ -130,7 +126,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
     @Override
     public void onBackPressed() {
         if (dirty) {
-            Fragment fragment = SaveCancelDialogFragment.newInstance();
+            Fragment fragment = SaveDismissDialogFragment.newInstance();
             getFragmentManager().beginTransaction()
                     .add(fragment, null)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -144,8 +140,9 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
         try {
             if (calendar != null) {
                 ContentValues values = new ContentValues(2);
-                values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, title);
-                values.put(CalendarContract.Calendars.CALENDAR_COLOR, color);
+                values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, fragTitleColor.title);
+                values.put(CalendarContract.Calendars.CALENDAR_COLOR, fragTitleColor.color);
+                values.put(CalendarContract.Calendars.SYNC_EVENTS, switchSyncCalendar.isChecked() ? 1 : 0);
                 calendar.update(values);
                 success = true;
             }
@@ -180,25 +177,6 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
     }
 
 
-    /* dynamic changes */
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        if (!title.equals(editTitle.getText().toString())) {
-            title = editTitle.getText().toString();
-            setDirty();
-        }
-    }
-
-
     /* loader callbacks */
 
     @Override
@@ -213,9 +191,47 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             finish();
         else {
             this.calendar = calendar;
-            textURL.setText(calendar.getUrl());
-            editTitle.setText(title = calendar.getDisplayName());
-            colorButton.setColor(color = calendar.getColor());
+
+            if (fragTitleColor == null) {
+                fragTitleColor = new TitleColorFragment();
+                Bundle args = new Bundle(3);
+                args.putString(TitleColorFragment.ARG_URL, calendar.getName());
+                args.putString(TitleColorFragment.ARG_TITLE, savedState == null ? calendar.getDisplayName() : savedState.getString(STATE_TITLE));
+                args.putInt(TitleColorFragment.ARG_COLOR, savedState == null ? calendar.getColor() : savedState.getInt(STATE_COLOR));
+                fragTitleColor.setArguments(args);
+                fragTitleColor.setOnChangeListener(new TitleColorFragment.OnChangeListener() {
+                    @Override
+                    public void onChangeTitleColor(String title, int color) {
+                        setDirty(true);
+                    }
+                });
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.title_color, fragTitleColor)
+                        .commit();
+            }
+
+            if (fragCredentials == null) {
+                fragCredentials = new CredentialsFragment();
+                Bundle args = new Bundle(3);
+                boolean authRequired = savedState == null ? (calendar.getUsername() != null && calendar.getPassword() != null) : savedState.getBoolean(STATE_REQUIRE_AUTH);
+                args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, authRequired);
+                args.putString(CredentialsFragment.ARG_USERNAME, savedState == null ? calendar.getUsername() : savedState.getString(STATE_USERNAME));
+                args.putString(CredentialsFragment.ARG_PASSWORD, savedState == null ? calendar.getPassword() : savedState.getString(STATE_PASSWORD));
+                fragCredentials.setArguments(args);
+                fragCredentials.setOnChangeListener(new CredentialsFragment.OnCredentialsChangeListener() {
+                    @Override
+                    public void onChangeCredentials(boolean authRequired, String username, String password) {
+                        setDirty(true);
+                    }
+                });
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.credentials, fragCredentials)
+                        .commit();
+            }
+
+            switchSyncCalendar.setChecked(savedState == null ? calendar.isSynced() : savedState.getBoolean(STATE_SYNC_THIS));
+
+            setDirty(savedState == null ? false : savedState.getBoolean(STATE_DIRTY));
         }
     }
 
@@ -231,6 +247,8 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
         private static final String TAG = "ICSdroid.Calendar";
 
         final Uri uri;
+        boolean loaded;
+
         ContentProviderClient provider;
         ContentObserver observer;
 
@@ -247,7 +265,12 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             observer = new ForceLoadContentObserver();
             resolver.registerContentObserver(uri, false, observer);
 
-            forceLoad();
+            synchronized(uri) {
+                if (!loaded) {
+                    forceLoad();
+                    loaded = true;
+                }
+            }
         }
 
         @Override
@@ -259,27 +282,25 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
         @Override
         public void onForceLoad() {
-            try {
-                LocalCalendar calendar = null;
-                if (provider != null)
-                    try {
-                        calendar = LocalCalendar.findById(AppAccount.account, provider, ContentUris.parseId(uri));
-                    } catch (FileNotFoundException e) {
-                        // calendar has been removed in the meanwhile, return null
-                    }
-                deliverResult(calendar);
-            } catch (CalendarStorageException e) {
-                Log.e(TAG, "Couldn't load calendar list", e);
-            }
+            LocalCalendar calendar = null;
+            if (provider != null)
+                try {
+                    calendar = LocalCalendar.findById(AppAccount.account, provider, ContentUris.parseId(uri));
+                } catch (FileNotFoundException e) {
+                    // calendar has been removed in the meanwhile, return null
+                } catch (CalendarStorageException e) {
+                    Log.e(TAG, "Couldn't load calendar data", e);
+                }
+            deliverResult(calendar);
         }
     }
 
 
-    /* "Save or cancel" dialog */
+    /* "Save or dismiss" dialog */
 
-    public static class SaveCancelDialogFragment extends DialogFragment {
-        public static SaveCancelDialogFragment newInstance() {
-            return new SaveCancelDialogFragment();
+    public static class SaveDismissDialogFragment extends DialogFragment {
+        public static SaveDismissDialogFragment newInstance() {
+            return new SaveDismissDialogFragment();
         }
 
         @Override
@@ -293,7 +314,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                             ((EditCalendarActivity) getActivity()).onSave(null);
                         }
                     })
-                    .setNegativeButton(R.string.edit_calendar_cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.edit_calendar_dismiss, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -323,7 +344,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                             ((EditCalendarActivity) getActivity()).onDelete();
                         }
                     })
-                    .setNegativeButton(R.string.edit_calendar_dismiss, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.edit_calendar_cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();

@@ -37,15 +37,15 @@
             android:layout_height="wrap_content"
             android:text="@string/calendar_list_not_synced_yet"
             android:layout_below="@id/title"
-            android:id="@+id/last_sync" />
+            android:id="@+id/sync_status" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="LAST ERROR"
             android:textColor="@color/redorange"
-            android:layout_alignBaseline="@id/last_sync"
-            android:layout_toRightOf="@id/last_sync"
+            android:layout_alignBaseline="@id/sync_status"
+            android:layout_toRightOf="@id/sync_status"
             android:layout_marginLeft="16dp"
             android:id="@+id/error_message" />
 
