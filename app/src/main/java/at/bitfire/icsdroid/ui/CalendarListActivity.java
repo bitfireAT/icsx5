@@ -108,7 +108,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             }
         };
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
-        refresher.setRefreshing(AppAccount.isSyncActive(this));
+        syncStatusHandler.sendEmptyMessage(0);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     @Override
     public void onStatusChanged(int which) {
         if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE && syncStatusHandler != null)
-            syncStatusHandler.sendMessage(new Message());
+            syncStatusHandler.sendEmptyMessage(0);
     }
 
 

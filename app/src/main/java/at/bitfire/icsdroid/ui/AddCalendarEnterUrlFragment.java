@@ -56,12 +56,6 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         View v = inflater.inflate(R.layout.add_calendar_enter_url, container, false);
         setHasOptionsMenu(true);
 
-        editURL = (EditText)v.findViewById(R.id.url);
-        Uri createUri = getActivity().getIntent().getData();
-        editURL.addTextChangedListener(this);
-        if (createUri != null)
-            editURL.setText(createUri.toString());
-
         credentials = new CredentialsFragment();
         credentials.setOnChangeListener(this);
         getChildFragmentManager().beginTransaction()
@@ -69,6 +63,14 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
                 .commit();
 
         insecureAuthWarning = (TextView)v.findViewById(R.id.insecure_authentication_warning);
+
+        editURL = (EditText)v.findViewById(R.id.url);
+        Uri createUri = getActivity().getIntent().getData();
+        editURL.addTextChangedListener(this);
+        if (createUri != null)
+            // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
+            editURL.setText(createUri.toString());
+
         return v;
     }
 
@@ -80,7 +82,7 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem itemNext = menu.findItem(R.id.next);
-        boolean urlOK = StringUtils.isNotBlank(editURL.getText().toString()),
+        boolean urlOK = activity.url != null,
                 authOK = !credentials.authRequired || (StringUtils.isNotBlank(credentials.username) && StringUtils.isNotBlank(credentials.password));
         itemNext.setEnabled(urlOK && authOK);
     }

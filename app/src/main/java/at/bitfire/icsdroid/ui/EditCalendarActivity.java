@@ -155,6 +155,8 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, fragTitleColor.title);
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, fragTitleColor.color);
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, switchSyncCalendar.isChecked() ? 1 : 0);
+                values.put(LocalCalendar.COLUMN_USERNAME, fragCredentials.authRequired ? fragCredentials.username : null);
+                values.put(LocalCalendar.COLUMN_PASSWORD, fragCredentials.authRequired ? fragCredentials.password : null);
                 calendar.update(values);
                 success = true;
             }

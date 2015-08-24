@@ -87,7 +87,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
             }
 
-            if (calendar.getETag()!= null)
+            if (calendar.getETag() != null)
                 conn.setRequestProperty("If-None-Match", calendar.getETag());
             if (calendar.getLastModified() != 0) {
                 Date date = new Date(calendar.getLastModified());
