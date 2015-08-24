@@ -12,7 +12,8 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="at.bitfire.icsdroid" >
+          xmlns:tools="http://schemas.android.com/tools"
+          package="at.bitfire.icsdroid">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -61,7 +62,7 @@
             android:name=".ui.AddCalendarActivity"
             android:label="@string/activity_add_calendar"
             android:parentActivityName=".ui.CalendarListActivity">
-            <intent-filter>
+            <intent-filter tools:ignore="AppIndexingError">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
