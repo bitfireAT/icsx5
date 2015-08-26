@@ -37,7 +37,7 @@ The source code is available on Gitlab. Pre-built binaries are available on F-Dr
 ## Contact
 
 ```
-bitfire web engineering – Hirner, Stockmann GesnbR
+bitfire web engineering – Stockmann, Hirner GesnbR
 Florastraße 27
 2540 Bad Vöslau, AUSTRIA
 ```

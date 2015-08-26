@@ -12,9 +12,11 @@
 
 package at.bitfire.icsdroid.ui;
 
+import android.content.ContentProviderClient;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +35,7 @@ import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
+import lombok.Cleanup;
 
 public class AddCalendarDetailsFragment extends Fragment implements TitleColorFragment.OnChangeListener {
     private static final String
@@ -132,7 +135,11 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
         calInfo.put(LocalCalendar.COLUMN_PASSWORD, activity.authRequired ? activity.password : null);
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ);
         try {
-            AndroidCalendar.create(AppAccount.account, activity.getContentResolver(), calInfo);
+            @Cleanup("release") ContentProviderClient client = getContext().getContentResolver().acquireContentProviderClient(CalendarContract.AUTHORITY);
+		    if (client == null)
+			    throw new CalendarStorageException("No calendar provider found (calendar storage disabled?)");
+
+            AndroidCalendar.create(AppAccount.account, client, calInfo);
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show();
             activity.invalidateOptionsMenu();
             return true;
