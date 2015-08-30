@@ -5,6 +5,8 @@ Web: https://icsdroid.bitfire.at/
 
 News on Twitter: [@icsdroidapp](https://twitter.com/icsdroidapp)
 
+Help and discussion: [ICSdroid forum](https://icsdroid.bitfire.at/forums)
+
 ICSdroid is a Android 4.0+ app to subscribe to remote iCalendar files (like
 time tables of your school/university or event files of your sports team).
 
@@ -32,6 +34,9 @@ The source code is available on Gitlab. Pre-built binaries are available on F-Dr
 3. In the ICSdroid main activity, you can set your sync interval. Single-tap existing
    calendars to edit/delete them.
 4. Swipe the calendar list to force a synchronization.
+
+If you use a privacy guard, take into account that calendar access is necessary for ICSdroid
+to work.
 
 
 ## Contact
