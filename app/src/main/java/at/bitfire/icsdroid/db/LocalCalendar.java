@@ -106,7 +106,7 @@ public class LocalCalendar extends AndroidCalendar {
     }
 
     public LocalEvent[] queryByUID(String uid) throws CalendarStorageException {
-        return (LocalEvent[])query(AndroidEvent.COLUMN_UID + "=?", new String[] { uid });
+        return (LocalEvent[])queryEvents(AndroidEvent.COLUMN_UID + "=?", new String[] { uid });
     }
 
     public int retainByUID(String[] uids) throws CalendarStorageException {
@@ -114,7 +114,7 @@ public class LocalCalendar extends AndroidCalendar {
         int idx = 0;
         for (String uid : uids)
             escapedUIDs[idx++] = DatabaseUtils.sqlEscapeString(uid);
-        return delete(LocalEvent.COLUMN_UID + " NOT IN (" + StringUtils.join(escapedUIDs, ",") +")", null);
+        return deleteEvents(LocalEvent.COLUMN_UID + " NOT IN (" + StringUtils.join(escapedUIDs, ",") +")", null);
     }
 
 
