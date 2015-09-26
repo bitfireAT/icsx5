@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import at.bitfire.ical4android.AndroidHostInfo;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.Constants;
@@ -134,7 +135,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
                 if (info.statusCode == 200) {
                     @Cleanup InputStream is = conn.getInputStream();
-                    Event[] events = Event.fromStream(is, null);
+                    Event[] events = Event.fromStream(is, null, new AndroidHostInfo(getContext().getContentResolver()));
                     info.eventsFound = events.length;
                 }
 

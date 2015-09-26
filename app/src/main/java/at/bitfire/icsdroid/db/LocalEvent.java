@@ -37,15 +37,23 @@ public class LocalEvent extends AndroidEvent {
     protected void populateEvent(ContentValues values) {
         super.populateEvent(values);
 
+        event.uid = values.getAsString(CalendarContract.Events._SYNC_ID);
+
         if (values.containsKey(COLUMN_LAST_MODIFIED))
             event.lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
     }
 
     @Override
-    protected void buildEvent(Builder builder) {
-        super.buildEvent(builder);
+    protected void buildEvent(Event recurrence, Builder builder) {
+        super.buildEvent(recurrence, builder);
 
-        builder.withValue(COLUMN_LAST_MODIFIED, event.lastModified);
+        if (recurrence == null) {
+            // master event
+            builder .withValue(CalendarContract.Events._SYNC_ID, event.uid)
+                    .withValue(COLUMN_LAST_MODIFIED, event.lastModified);
+        } else
+            // exception
+            builder.withValue(CalendarContract.Events.ORIGINAL_SYNC_ID, event.uid);
     }
 
 

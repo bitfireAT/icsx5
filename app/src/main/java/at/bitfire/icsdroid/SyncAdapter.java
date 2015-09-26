@@ -29,6 +29,7 @@ import android.util.Log;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -39,6 +40,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import at.bitfire.ical4android.AndroidHostInfo;
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
@@ -60,7 +62,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Synchronizing " + account.name + " on authority " + authority);
 
-        LocalCalendar.init(getContext());
+        Thread.currentThread().setContextClassLoader(getContext().getClassLoader());
 
         try {
             LocalCalendar[] calendars = LocalCalendar.findAll(account, provider);
@@ -99,7 +101,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 case 200:
                     Event[] events = Event.fromStream(
                             conn.getInputStream(),
-                            charsetFromContentType(conn.getHeaderField("Content-Type"))
+                            charsetFromContentType(conn.getHeaderField("Content-Type")),
+                            new AndroidHostInfo(getContext().getContentResolver())
                     );
                     processEvents(calendar, events, syncResult);
 
@@ -158,14 +161,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return charset;
     }
 
-    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws CalendarStorageException {
+    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws FileNotFoundException, CalendarStorageException {
         Log.i(TAG, "Processing " + events.length + " events");
         String[] uids = new String[events.length];
 
         int idx = 0;
         for (Event event : events) {
             final String uid = event.uid;
-            Log.d(TAG, "Found event: " + uid);
+            Log.d(TAG, "Found VEVENT: " + uid);
             uids[idx++] = uid;
 
             LocalEvent[] localEvents = calendar.queryByUID(uid);

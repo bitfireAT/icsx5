@@ -16,6 +16,7 @@ import android.accounts.Account;
 import android.content.ContentProviderClient;
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
+import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 
 import org.apache.commons.lang3.StringUtils;
@@ -106,7 +107,7 @@ public class LocalCalendar extends AndroidCalendar {
     }
 
     public LocalEvent[] queryByUID(String uid) throws CalendarStorageException {
-        return (LocalEvent[])queryEvents(AndroidEvent.COLUMN_UID + "=?", new String[] { uid });
+        return (LocalEvent[])queryEvents(CalendarContract.Events._SYNC_ID + "=?", new String[] { uid });
     }
 
     public int retainByUID(String[] uids) throws CalendarStorageException {
@@ -114,7 +115,9 @@ public class LocalCalendar extends AndroidCalendar {
         int idx = 0;
         for (String uid : uids)
             escapedUIDs[idx++] = DatabaseUtils.sqlEscapeString(uid);
-        return deleteEvents(LocalEvent.COLUMN_UID + " NOT IN (" + StringUtils.join(escapedUIDs, ",") +")", null);
+        String sqlUIDs = StringUtils.join(escapedUIDs, ",");
+        return deleteEvents(CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs +") OR " +
+                CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")", null);
     }
 
 
