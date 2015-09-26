@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -79,10 +80,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
         String errorMessage = null;
-
+        URLConnection conn = null;
         try {
             Log.i(TAG, "Fetching remote calendar " + calendar.getUrl());
-            @Cleanup("disconnect") HttpURLConnection conn = (HttpURLConnection)new URL(calendar.getUrl()).openConnection();
+            conn = new URL(calendar.getUrl()).openConnection();
+
             conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
             if (calendar.getUsername() != null && calendar.getPassword() != null) {
                 String basicCredentials = calendar.getUsername() + ":" + calendar.getPassword();
@@ -96,25 +98,36 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 conn.setRequestProperty("If-Modified-Since", DateFormatUtils.SMTP_DATETIME_FORMAT.format(calendar.getLastModified()));
             }
 
-            final int statusCode = conn.getResponseCode();
-            switch (statusCode) {
-                case 200:
-                    Event[] events = Event.fromStream(
-                            conn.getInputStream(),
-                            charsetFromContentType(conn.getHeaderField("Content-Type")),
-                            new AndroidHostInfo(getContext().getContentResolver())
-                    );
-                    processEvents(calendar, events, syncResult);
+            boolean readFromStream = false;
 
-                    calendar.updateStatusSuccess(conn.getHeaderField("ETag"), conn.getLastModified());
-                    break;
-                case 304:
-                    calendar.updateStatusNotModified();
-                    Log.i(TAG, "Calendar hasn't been updated since last sync (" + conn.getResponseMessage() + ")");
-                    break;
-                default:
-                    errorMessage = statusCode + " " + conn.getResponseMessage();
+            if (conn instanceof HttpURLConnection) {
+                HttpURLConnection httpConn = (HttpURLConnection)conn;
+                final int statusCode = httpConn.getResponseCode();
+                switch (statusCode) {
+                    case 200:
+                        readFromStream = true;
+                        break;
+                    case 304:
+                        calendar.updateStatusNotModified();
+                        Log.i(TAG, "Calendar hasn't been updated since last sync (" + httpConn.getResponseMessage() + ")");
+                        break;
+                    default:
+                        errorMessage = statusCode + " " + httpConn.getResponseMessage();
+                }
+            } else
+                readFromStream = true;
+
+            if (readFromStream) {
+                Event[] events = Event.fromStream(
+                        conn.getInputStream(),
+                        charsetFromContentType(conn.getHeaderField("Content-Type")),
+                        new AndroidHostInfo(getContext().getContentResolver())
+                );
+                processEvents(calendar, events, syncResult);
+
+                calendar.updateStatusSuccess(conn.getHeaderField("ETag"), conn.getLastModified());
             }
+
         } catch (IOException e) {
             Log.e(TAG, "Couldn't fetch calendar", e);
             errorMessage = e.getMessage();
@@ -123,6 +136,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "Couldn't parse calendar", e);
             errorMessage = e.getMessage();
             syncResult.stats.numParseExceptions++;
+        } finally {
+            if (conn instanceof HttpURLConnection)
+                ((HttpURLConnection)conn).disconnect();
         }
 
         if (errorMessage != null) {

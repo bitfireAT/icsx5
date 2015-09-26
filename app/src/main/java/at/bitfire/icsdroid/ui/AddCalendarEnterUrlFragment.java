@@ -115,7 +115,7 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         try {
             URL url = new URL(urlString);
             String protocol = url.getProtocol();
-            if ((("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority())))
+            if ("file".equals(protocol) || ("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority()))
                 activity.url = url;
         } catch (MalformedURLException e) {
             Log.d(TAG, "Invalid URL", e);

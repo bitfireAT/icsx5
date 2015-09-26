@@ -49,7 +49,7 @@ import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
 public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
-
+    private static final String TAG = "icsdroid.CalendarList";
     private final String DATA_SYNC_ACTIVE = "sync_active";
 
     Object syncStatusHandle;
@@ -101,12 +101,21 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     protected void onResume() {
         super.onResume();
 
-        syncStatusHandler = new Handler(Looper.getMainLooper()) {
+        syncStatusHandler = new Handler(new Handler.Callback() {
             @Override
-            public void handleMessage(Message message) {
-                refresher.setRefreshing(AppAccount.isSyncActive(CalendarListActivity.this));
+            public boolean handleMessage(Message msg) {
+                final boolean syncActive = AppAccount.isSyncActive(CalendarListActivity.this);
+                Log.d(CalendarListActivity.TAG, "Is sync. active? " + (syncActive ? "yes" : "no"));
+                // workaround: see https://code.google.com/p/android/issues/detail?id=77712
+                refresher.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        refresher.setRefreshing(syncActive);
+                    }
+                });
+                return true;
             }
-        };
+        });
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this);
         syncStatusHandler.sendEmptyMessage(0);
     }
@@ -146,7 +155,6 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         // control the swipe refresher
         if (calendars.length >= 1) {
             // funny: use the calendar colors for the sync status
-            refresher.setEnabled(true);
             int colors[] = new int[calendars.length];
             int idx = 0;
             for (LocalCalendar calendar : calendars)

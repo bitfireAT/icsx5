@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URLConnection;
 
 import at.bitfire.ical4android.AndroidHostInfo;
 import at.bitfire.ical4android.Event;
@@ -119,9 +120,9 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
         @Override
         public ResourceInfo loadInBackground() {
-            HttpURLConnection conn;
+            URLConnection conn = null;
             try {
-                conn = (HttpURLConnection) info.url.openConnection();
+                conn = info.url.openConnection();
                 conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
                 conn.setConnectTimeout(7000);
                 conn.setReadTimeout(20000);
@@ -130,10 +131,20 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
                     conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
                 }
 
-                info.statusCode = conn.getResponseCode();
-                info.statusMessage = conn.getResponseMessage();
+                boolean readFromStream = false;
 
-                if (info.statusCode == 200) {
+                if (conn instanceof HttpURLConnection) {
+                    info.statusCode = ((HttpURLConnection)conn).getResponseCode();
+                    info.statusMessage = ((HttpURLConnection)conn).getResponseMessage();
+
+                    if (info.statusCode == 200)
+                        readFromStream = true;
+                } else {
+                    info.statusCode = 200;
+                    readFromStream = true;
+                }
+
+                if (readFromStream) {
                     @Cleanup InputStream is = conn.getInputStream();
                     Event[] events = Event.fromStream(is, null, new AndroidHostInfo(getContext().getContentResolver()));
                     info.eventsFound = events.length;

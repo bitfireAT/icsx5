@@ -16,14 +16,20 @@
           package="at.bitfire.icsdroid"
           android:installLocation="internalOnly">
 
+    <!-- fetch iCalendar files -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- manage ICSdroid accounts -->
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- add/update/delete events -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <!-- view/change the sync. interval and whether the account is sync.ing -->
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+    <!-- access local .ics files -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -67,6 +73,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="file"/>
                 <data android:scheme="http"/>
                 <data android:scheme="https"/>
                 <data android:pathPattern="/.*.ics"/>
