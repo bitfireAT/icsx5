@@ -64,6 +64,9 @@ When processing VEVENTs, ICSdroid uses the LAST-MODIFIED property to check wheth
 a resource (identified by UID) has changed. Only changed resources will be updated
 in the calendar.
 
+ICSdroid uses Android's `HttpURLConnection` which doesn't follow redirects to
+different protocols (http:// to https:// or vice versa).
+
 
 ## License 
 

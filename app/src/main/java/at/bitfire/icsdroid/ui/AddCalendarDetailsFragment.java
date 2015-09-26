@@ -115,7 +115,9 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
     public void onChangeTitleColor(String title, int color) {
         this.title = title;
         this.color = color;
-        getActivity().invalidateOptionsMenu();
+
+        if (activity != null)
+            activity.invalidateOptionsMenu();
     }
 
 

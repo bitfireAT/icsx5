@@ -102,6 +102,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (conn instanceof HttpURLConnection) {
                 HttpURLConnection httpConn = (HttpURLConnection)conn;
+
                 final int statusCode = httpConn.getResponseCode();
                 switch (statusCode) {
                     case 200:

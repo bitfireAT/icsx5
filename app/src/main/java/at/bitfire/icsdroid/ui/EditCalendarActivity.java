@@ -16,7 +16,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -29,6 +28,7 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -40,6 +40,8 @@ import android.widget.Toast;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
@@ -220,7 +222,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                     }
                 });
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.title_color, fragTitleColor)
+                        .replace(R.id.title_color, fragTitleColor)
                         .commit();
             }
 
@@ -238,9 +240,17 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                         setDirty(true);
                     }
                 });
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.credentials, fragCredentials)
-                        .commit();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.credentials, fragCredentials);
+
+                try {
+                    URL url = new URL(calendar.getUrl());
+                    if ("file".equals(url.getProtocol()))
+                        ft.hide(fragCredentials);
+                } catch (MalformedURLException e) {
+                }
+
+                ft.commit();
             }
 
             switchSyncCalendar.setChecked(savedState == null ? calendar.isSynced() : savedState.getBoolean(STATE_SYNC_THIS));

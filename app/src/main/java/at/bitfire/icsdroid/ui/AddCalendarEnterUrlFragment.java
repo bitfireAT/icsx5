@@ -115,8 +115,19 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         try {
             URL url = new URL(urlString);
             String protocol = url.getProtocol();
-            if ("file".equals(protocol) || ("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority()))
+            if ("file".equals(protocol) && StringUtils.isNotEmpty(url.getPath())) {
                 activity.url = url;
+                credentials.authRequired = false;
+                getChildFragmentManager().beginTransaction()
+                        .remove(credentials)
+                        .commit();
+            } else if (("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority())) {
+                activity.url = url;
+                if (getChildFragmentManager().findFragmentById(R.id.credentials) == null)
+                    getChildFragmentManager().beginTransaction()
+                            .add(R.id.credentials, credentials)
+                            .commit();
+            }
         } catch (MalformedURLException e) {
             Log.d(TAG, "Invalid URL", e);
         }
