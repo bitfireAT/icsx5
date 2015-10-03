@@ -25,7 +25,8 @@ account required.
 
 ## How to get it
 
-* [Get it on Google Play](https://play.google.com/store/apps/details?id=at.bitfire.icsdroid)
+[![Available at Amazon](images/amazon.png)](http://www.amazon.com/gp/product/B0161BJKIY/ref=sr_1_1)
+[![Get it on Google Play](images/play.png)](https://play.google.com/store/apps/details?id=at.bitfire.icsdroid)
 
 The source code is available on Gitlab. Pre-built binaries are available on F-Droid.
 
