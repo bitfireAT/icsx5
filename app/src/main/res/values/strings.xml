@@ -25,7 +25,6 @@
 
     <string name="activity_add_calendar">Subscribe to calendar</string>
     <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
-    <string name="add_calendar_color">Color</string>
     <string name="add_calendar_create">Subscribe now</string>
     <string name="add_calendar_created">Subscribed successfully</string>
     <string name="add_calendar_password">Password</string>
@@ -76,7 +75,8 @@
 
     <string name="activity_app_info">App info</string>
     <string name="app_info_donate">Donate</string>
-    <string name="app_info_gpl_info">Copyright (C) 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nThis program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under the conditions of the GNU GPL v3 (see below).</string>
+    <string name="app_info_gpl_info">Copyright © 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nThis program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under the conditions of the GNU GPL v3 (see below).</string>
     <string name="app_info_web_site">Web site</string>
+    <string name="app_info_uses_this_software">ICSdroid uses this software:</string>
 
 </resources>

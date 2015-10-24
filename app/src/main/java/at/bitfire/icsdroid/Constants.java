@@ -16,8 +16,6 @@ import android.os.Build;
 
 public class Constants {
 
-    public static final String
-            VERSION = "0.9.9",
-            USER_AGENT = "ICSdroid/" + VERSION + " (Android/" + Build.VERSION.RELEASE + ")";
+    public static final String USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")";
 
 }

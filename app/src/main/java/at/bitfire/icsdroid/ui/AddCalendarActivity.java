@@ -20,7 +20,6 @@ import java.net.URL;
 import at.bitfire.icsdroid.R;
 
 public class AddCalendarActivity extends AppCompatActivity {
-    private static final String TAG = "ICSdroid.AddCalendar";
     private static final String
             STATE_URL = "url",
             STATE_AUTH_REQUIRED = "auth_required",

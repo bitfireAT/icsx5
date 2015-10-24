@@ -29,6 +29,7 @@ import android.util.Log;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -41,14 +42,12 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import at.bitfire.ical4android.AndroidHostInfo;
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.db.LocalCalendar;
 import at.bitfire.icsdroid.db.LocalEvent;
 import at.bitfire.icsdroid.ui.CalendarListActivity;
-import lombok.Cleanup;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = "ICSdroid.SyncAdapter";
@@ -75,7 +74,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "Calendar storage exception", e);
             syncResult.databaseError = true;
         }
-
     }
 
     void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
@@ -95,7 +93,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 conn.setRequestProperty("If-None-Match", calendar.getETag());
             if (calendar.getLastModified() != 0) {
                 Date date = new Date(calendar.getLastModified());
-                conn.setRequestProperty("If-Modified-Since", DateFormatUtils.SMTP_DATETIME_FORMAT.format(calendar.getLastModified()));
+                conn.setIfModifiedSince(calendar.getLastModified());
             }
 
             boolean readFromStream = false;
@@ -110,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
                     case 304:
                         calendar.updateStatusNotModified();
-                        Log.i(TAG, "Calendar hasn't been updated since last sync (" + httpConn.getResponseMessage() + ")");
+                        Log.i(TAG, "Calendar has not been modified since last sync (" + httpConn.getResponseMessage() + ")");
                         break;
                     default:
                         errorMessage = statusCode + " " + httpConn.getResponseMessage();
@@ -121,12 +119,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if (readFromStream) {
                 Event[] events = Event.fromStream(
                         conn.getInputStream(),
-                        charsetFromContentType(conn.getHeaderField("Content-Type")),
-                        new AndroidHostInfo(getContext().getContentResolver())
+                        charsetFromContentType(conn.getHeaderField("Content-Type"))
                 );
                 processEvents(calendar, events, syncResult);
 
-                calendar.updateStatusSuccess(conn.getHeaderField("ETag"), conn.getLastModified());
+                String eTag = conn.getHeaderField("ETag");
+                Log.i(TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + conn.getLastModified());
+                calendar.updateStatusSuccess(eTag, conn.getLastModified());
             }
 
         } catch (IOException e) {
@@ -146,7 +145,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             NotificationManager nm = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = new NotificationCompat.Builder(getContext())
                     .setSmallIcon(R.drawable.ic_launcher)
-                    .setCategory(Notification.CATEGORY_ERROR)
+                    .setCategory(NotificationCompat.CATEGORY_ERROR)
                     .setColor(calendar.getColor())
                     .setGroup("ICSdroid")
                     .setContentTitle(getContext().getString(R.string.sync_error_title))
@@ -196,7 +195,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             } else {
                 LocalEvent localEvent = localEvents[0];
-                if (event.lastModified == 0 || event.lastModified > localEvent.getEvent().lastModified) {
+                if (event.lastModified == 0 || event.lastModified > localEvent.getLastModified()) {
                     // no LAST-MODIFIED or LAST-MODIFIED has been increased
                     localEvent.update(event);
                     syncResult.stats.numUpdates++;

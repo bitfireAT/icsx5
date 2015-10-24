@@ -32,6 +32,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import at.bitfire.icsdroid.BuildConfig;
 import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
@@ -115,7 +116,7 @@ public class InfoActivity extends AppCompatActivity {
         public View createTabContent(String tag) {
             View v = getLayoutInflater().inflate(R.layout.app_info_icsdroid, tabs.getTabWidget(), false);
 
-            ((TextView)v.findViewById(R.id.icsdroid_version)).setText("ICSdroid " + Constants.VERSION);
+            ((TextView)v.findViewById(R.id.icsdroid_version)).setText("ICSdroid/" + BuildConfig.VERSION_NAME);
 
             try {
                 @Cleanup InputStream is = getAssets().open("licenses/COPYING");

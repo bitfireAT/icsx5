@@ -20,27 +20,35 @@ import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.AndroidEventFactory;
 import at.bitfire.ical4android.Event;
+import lombok.Getter;
 
 public class LocalEvent extends AndroidEvent {
 
     protected static final String COLUMN_LAST_MODIFIED = CalendarContract.Events.SYNC_DATA2;
 
-    LocalEvent(AndroidCalendar calendar, long id) {
-        super(calendar, id);
+    @Getter String uid;
+    @Getter Long lastModified;
+
+    LocalEvent(AndroidCalendar calendar, long id, ContentValues baseInfo) {
+        super(calendar, id, baseInfo);
+
+        uid = baseInfo.getAsString(CalendarContract.Events._SYNC_ID);
+        lastModified = baseInfo.getAsLong(COLUMN_LAST_MODIFIED);
     }
 
     public LocalEvent(AndroidCalendar calendar, Event event) {
         super(calendar, event);
+
+        uid = event.uid;
+        lastModified = event.lastModified;
     }
 
     @Override
     protected void populateEvent(ContentValues values) {
         super.populateEvent(values);
 
-        event.uid = values.getAsString(CalendarContract.Events._SYNC_ID);
-
-        if (values.containsKey(COLUMN_LAST_MODIFIED))
-            event.lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
+        uid = event.uid = values.getAsString(CalendarContract.Events._SYNC_ID);
+        lastModified = event.lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
     }
 
     @Override
@@ -49,11 +57,11 @@ public class LocalEvent extends AndroidEvent {
 
         if (recurrence == null) {
             // master event
-            builder .withValue(CalendarContract.Events._SYNC_ID, event.uid)
-                    .withValue(COLUMN_LAST_MODIFIED, event.lastModified);
+            builder .withValue(CalendarContract.Events._SYNC_ID, uid)
+                    .withValue(COLUMN_LAST_MODIFIED, lastModified);
         } else
             // exception
-            builder.withValue(CalendarContract.Events.ORIGINAL_SYNC_ID, event.uid);
+            builder.withValue(CalendarContract.Events.ORIGINAL_SYNC_ID, uid);
     }
 
 
@@ -61,8 +69,8 @@ public class LocalEvent extends AndroidEvent {
         public static final LocalEventFactory FACTORY = new LocalEventFactory();
 
         @Override
-        public AndroidEvent newInstance(AndroidCalendar calendar, long id) {
-            return new LocalEvent(calendar, id);
+        public AndroidEvent newInstance(AndroidCalendar calendar, long id, ContentValues baseInfo) {
+            return new LocalEvent(calendar, id, baseInfo);
         }
 
         @Override

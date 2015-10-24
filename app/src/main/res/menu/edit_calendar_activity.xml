@@ -11,7 +11,8 @@
   ~ PURPOSE.  See the GNU General Public License for more details.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
@@ -19,7 +20,8 @@
         android:icon="@drawable/ic_action_cancel"
         android:id="@+id/cancel"
         android:onClick="onCancel"
-        android:title="@string/edit_calendar_cancel" />
+        android:title="@string/edit_calendar_cancel"
+        tools:ignore="AlwaysShowAction"/>
 
     <item
         app:showAsAction="always"

@@ -65,8 +65,8 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         insecureAuthWarning = (TextView)v.findViewById(R.id.insecure_authentication_warning);
 
         editURL = (EditText)v.findViewById(R.id.url);
-        Uri createUri = getActivity().getIntent().getData();
         editURL.addTextChangedListener(this);
+        Uri createUri = getActivity().getIntent().getData();
         if (createUri != null)
             // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
             editURL.setText(createUri.toString());
@@ -119,21 +119,20 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
                 activity.url = url;
                 credentials.authRequired = false;
                 getChildFragmentManager().beginTransaction()
-                        .remove(credentials)
+                        .hide(credentials)
                         .commit();
             } else if (("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority())) {
                 activity.url = url;
-                if (getChildFragmentManager().findFragmentById(R.id.credentials) == null)
-                    getChildFragmentManager().beginTransaction()
-                            .add(R.id.credentials, credentials)
-                            .commit();
+                getChildFragmentManager().beginTransaction()
+                        .show(credentials)
+                        .commit();
             }
         } catch (MalformedURLException e) {
             Log.d(TAG, "Invalid URL", e);
         }
 
         editURL.setTextColor(getResources().getColor(activity.url != null ?
-                R.color.secondary_text_default_material_light :
+                android.support.v7.appcompat.R.color.abc_secondary_text_material_light :
                 R.color.redorange));
     }
 

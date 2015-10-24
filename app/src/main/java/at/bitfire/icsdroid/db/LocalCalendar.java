@@ -16,6 +16,7 @@ import android.accounts.Account;
 import android.content.ContentProviderClient;
 import android.content.ContentValues;
 import android.database.DatabaseUtils;
+import android.os.RemoteException;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 
@@ -50,6 +51,12 @@ public class LocalCalendar extends AndroidCalendar {
             lastSync;               // time of last sync
     @Getter String errorMessage;    // error message (HTTP status or exception name) of last sync (or null)
 
+
+    @Override
+    public String[] eventBaseInfoColumns() {
+        return new String[] { CalendarContract.Events._ID, CalendarContract.Events._SYNC_ID, LocalEvent.COLUMN_LAST_MODIFIED };
+    }
+
     private LocalCalendar(Account account, ContentProviderClient providerClient, AndroidEventFactory eventFactory, long id) {
         super(account, providerClient, eventFactory, id);
     }
@@ -59,7 +66,7 @@ public class LocalCalendar extends AndroidCalendar {
     }
 
     public static LocalCalendar[] findAll(Account account, ContentProviderClient provider) throws CalendarStorageException {
-        return (LocalCalendar[])AndroidCalendar.findAll(account, provider, Factory.FACTORY);
+        return (LocalCalendar[])AndroidCalendar.find(account, provider, Factory.FACTORY, null, null);
     }
 
 
@@ -81,10 +88,7 @@ public class LocalCalendar extends AndroidCalendar {
 
     public void updateStatusSuccess(String eTag, long lastModified) throws CalendarStorageException {
         ContentValues values = new ContentValues(4);
-        if ((this.eTag = eTag) != null)
-            values.put(COLUMN_ETAG, eTag);
-        else
-            values.putNull(COLUMN_ETAG);
+        values.put(COLUMN_ETAG, this.eTag = eTag);
         values.put(COLUMN_LAST_MODIFIED, this.lastModified = lastModified);
         values.put(COLUMN_LAST_SYNC, System.currentTimeMillis());
         values.putNull(COLUMN_ERROR_MESSAGE);
@@ -116,8 +120,13 @@ public class LocalCalendar extends AndroidCalendar {
         for (String uid : uids)
             escapedUIDs[idx++] = DatabaseUtils.sqlEscapeString(uid);
         String sqlUIDs = StringUtils.join(escapedUIDs, ",");
-        return deleteEvents(CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs +") OR " +
-                CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")", null);
+        try {
+            return provider.delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
+                    CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs + ") OR " +
+                    CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")", null);
+        } catch (RemoteException e) {
+            throw new CalendarStorageException("Couldn't delete local events");
+        }
     }
 
 

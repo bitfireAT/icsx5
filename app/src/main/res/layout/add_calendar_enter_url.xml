@@ -12,9 +12,9 @@
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:padding="16dp">
 
     <LinearLayout
@@ -33,13 +33,15 @@
             android:layout_height="wrap_content"
             android:hint="https://example.com/calendar.ics"
             android:inputType="textUri"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            tools:ignore="HardcodedText"/>
 
         <TextView
             android:id="@+id/insecure_authentication_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_action_warning"
+            android:drawableStart="@drawable/ic_action_warning"
             android:drawablePadding="8dp"
             android:padding="16dp"
             android:text="@string/add_calendar_authentication_without_https_warning"

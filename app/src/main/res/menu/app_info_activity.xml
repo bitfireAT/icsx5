@@ -15,7 +15,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_globe"
         android:onClick="showWebSite"
         android:title="@string/app_info_web_site" />

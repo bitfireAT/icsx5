@@ -49,7 +49,8 @@
         </service>
         <service
             android:name=".SyncAdapterService"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
@@ -68,7 +69,8 @@
         <activity
             android:name=".ui.AddCalendarActivity"
             android:label="@string/activity_add_calendar"
-            android:parentActivityName=".ui.CalendarListActivity">
+            android:parentActivityName=".ui.CalendarListActivity"
+            tools:ignore="UnusedAttribute">
             <intent-filter tools:ignore="AppIndexingError">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -91,11 +93,13 @@
             android:name=".ui.EditCalendarActivity"
             android:label="@string/activity_edit_calendar"
             android:windowSoftInputMode="stateHidden"
-            android:parentActivityName=".ui.CalendarListActivity" />
+            android:parentActivityName=".ui.CalendarListActivity"
+            tools:ignore="UnusedAttribute"/>
         <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
-            android:parentActivityName=".ui.CalendarListActivity" />
+            android:parentActivityName=".ui.CalendarListActivity"
+            tools:ignore="UnusedAttribute"/>
     </application>
 
 </manifest>

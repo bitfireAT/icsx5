@@ -26,6 +26,7 @@ public class ResourceInfo {
     int statusCode = -1;
     String statusMessage;
 
+    String calendarName;
     int eventsFound = -1;
 
     ResourceInfo(URL url, boolean authRequired, String username, String password) {

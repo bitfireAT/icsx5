@@ -12,6 +12,7 @@
 
 package at.bitfire.icsdroid.ui;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -44,7 +45,7 @@ public class SyncIntervalDialogFragment extends DialogFragment implements Adapte
         for (String syncInterval : getActivity().getResources().getStringArray(R.array.set_sync_interval_seconds))
             syncIntervalSeconds.add(Long.valueOf(syncInterval));
 
-        View v = getActivity().getLayoutInflater().inflate(R.layout.set_sync_interval, null);
+        @SuppressLint("InflateParams") View v = getActivity().getLayoutInflater().inflate(R.layout.set_sync_interval, null);
         Spinner spinnerInterval = (Spinner)v.findViewById(R.id.sync_interval);
         long currentSyncInterval = AppAccount.getSyncInterval(getActivity());
         if (syncIntervalSeconds.contains(currentSyncInterval))

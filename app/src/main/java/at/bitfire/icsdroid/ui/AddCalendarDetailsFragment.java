@@ -42,6 +42,7 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
             TAG = "ICSdroid.CreateCalendar",
             STATE_TITLE = "title",
             STATE_COLOR = "color";
+    public static final String KEY_TITLE = "title";
 
     String title;
     int color = 0xff2F80C7;
@@ -64,10 +65,8 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
         if (inState != null) {
             title = inState.getString(STATE_TITLE);
             color = inState.getInt(STATE_COLOR);
-        } else {
-            String path = activity.url.getPath();
-            title = path.substring(path.lastIndexOf('/') + 1);
-        }
+        } else
+            title = getArguments().getString(KEY_TITLE);
 
         fragTitleColor = new TitleColorFragment();
         Bundle args = new Bundle(3);

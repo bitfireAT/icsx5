@@ -17,6 +17,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -28,8 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
-import at.bitfire.ical4android.AndroidHostInfo;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.Constants;
@@ -80,14 +82,20 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
         else if (info.statusCode != 200)
             errorMessage = info.statusCode + " " + info.statusMessage;
 
-        if (errorMessage == null)
-            // success, proceed to CreateCalendarFragment
+        if (errorMessage == null) {
+            Bundle args = new Bundle(1);
+            args.putString(AddCalendarDetailsFragment.KEY_TITLE, info.calendarName != null ?
+                    info.calendarName : info.url.getPath());
+
+            Fragment detailsFrag = new AddCalendarDetailsFragment();
+            detailsFrag.setArguments(args);
+
             getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, new AddCalendarDetailsFragment())
+                    .replace(R.id.fragment_container, detailsFrag)
                     .addToBackStack(null)
                     .commitAllowingStateLoss();
-        else
+        } else
             Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
     }
 
@@ -146,7 +154,11 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
                 if (readFromStream) {
                     @Cleanup InputStream is = conn.getInputStream();
-                    Event[] events = Event.fromStream(is, null, new AndroidHostInfo(getContext().getContentResolver()));
+
+                    Map<String, String> properties = new HashMap<>();
+                    Event[] events = Event.fromStream(is, null, properties);
+
+                    info.calendarName = properties.get(Event.CALENDAR_NAME);
                     info.eventsFound = events.length;
                 }
 

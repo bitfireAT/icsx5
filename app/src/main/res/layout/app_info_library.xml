@@ -12,44 +12,45 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="ICSdroid uses this software:"/>
+            android:text="@string/app_info_uses_this_software"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/library_name"
             android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="libraryName"/>
+            tools:text="Library Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/library_url"
             android:layout_marginTop="16dp"
+            tools:text="http://library.com"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="https://www.example.com/"
             android:autoLink="web"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:id="@+id/library_license"
-            android:text="*** license text ***"/>
+            tools:text="Library License Text"
+            android:id="@+id/library_license"/>
 
     </LinearLayout>
 
