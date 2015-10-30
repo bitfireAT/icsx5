@@ -12,10 +12,20 @@
 
 package at.bitfire.icsdroid;
 
+import android.net.Uri;
 import android.os.Build;
+
+import net.fortuna.ical4j.util.CompatibilityHints;
 
 public class Constants {
 
+    static {
+        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true);
+        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true);
+    }
+
     public static final String USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")";
+
+    public static final Uri donationUri = Uri.parse("https://icsdroid.bitfire.at/donate?pk_campaign=icsdroid-app");
 
 }

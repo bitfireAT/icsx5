@@ -23,6 +23,7 @@ import android.provider.CalendarContract.Calendars;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.Date;
 
 import at.bitfire.ical4android.AndroidCalendar;
@@ -122,8 +123,10 @@ public class LocalCalendar extends AndroidCalendar {
         String sqlUIDs = StringUtils.join(escapedUIDs, ",");
         try {
             return provider.delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
-                    CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs + ") OR " +
-                    CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")", null);
+                    CalendarContract.Events.CALENDAR_ID + "=? AND (" +
+                        CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs + ") OR " +
+                        CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")" +
+                    ")", new String[] { String.valueOf(id) });
         } catch (RemoteException e) {
             throw new CalendarStorageException("Couldn't delete local events");
         }

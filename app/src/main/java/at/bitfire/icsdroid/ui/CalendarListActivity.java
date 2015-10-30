@@ -45,6 +45,8 @@ import java.util.Date;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
+import at.bitfire.icsdroid.BuildConfig;
+import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
@@ -78,6 +80,10 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         list.setOnItemClickListener(this);
 
         AppAccount.makeAvailable(this);
+
+        String installer = getPackageManager().getInstallerPackageName(BuildConfig.APPLICATION_ID);
+        if (installer == null || installer.startsWith("org.fdroid"))
+            new DonateDialogFragment().show(getSupportFragmentManager(), "donate");
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -172,6 +178,10 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
     public void onAddCalendar(View v) {
         startActivity(new Intent(this, AddCalendarActivity.class));
+    }
+
+    public void onDonate(MenuItem item) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Constants.donationUri));
     }
 
     @Override

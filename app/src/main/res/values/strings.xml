@@ -79,4 +79,9 @@
     <string name="app_info_web_site">Web site</string>
     <string name="app_info_uses_this_software">ICSdroid uses this software:</string>
 
+    <string name="donate_title">Open-Source Information</string>
+    <string name="donate_message">We\'re happy that you use ICSdroid, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSdroid, please consider a donation.</string>
+    <string name="donate_now">Show donation page</string>
+    <string name="donate_later">Maybe later</string>
+
 </resources>
