@@ -81,9 +81,11 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
         AppAccount.makeAvailable(this);
 
-        String installer = getPackageManager().getInstallerPackageName(BuildConfig.APPLICATION_ID);
-        if (installer == null || installer.startsWith("org.fdroid"))
-            new DonateDialogFragment().show(getSupportFragmentManager(), "donate");
+        if (savedInstanceState == null) {
+            String installer = getPackageManager().getInstallerPackageName(BuildConfig.APPLICATION_ID);
+            if (installer == null || installer.startsWith("org.fdroid"))
+                new DonateDialogFragment().show(getSupportFragmentManager(), "donate");
+        }
 
         getLoaderManager().initLoader(0, null, this);
     }
