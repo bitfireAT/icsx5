@@ -10,4 +10,4 @@
  * PURPOSE.  See the GNU General Public License for more details.
  */
 
-include ':app', ':ical4android'
+include ':app', ':ical4android', ':MemorizingTrustManager'

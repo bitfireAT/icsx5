@@ -22,6 +22,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -32,10 +33,15 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.Constants;
+import at.bitfire.icsdroid.MTMLoader;
 import at.bitfire.icsdroid.R;
+import de.duenndns.ssl.MemorizingTrustManager;
 import lombok.Cleanup;
 
 public class AddCalendarValidationFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<ResourceInfo> {
@@ -139,8 +145,10 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
                     conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
                 }
 
-                boolean readFromStream = false;
+                if (conn instanceof HttpsURLConnection)
+                    MTMLoader.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
 
+                boolean readFromStream = false;
                 if (conn instanceof HttpURLConnection) {
                     info.statusCode = ((HttpURLConnection)conn).getResponseCode();
                     info.statusMessage = ((HttpURLConnection)conn).getResponseMessage();
@@ -154,7 +162,6 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
                 if (readFromStream) {
                     @Cleanup InputStream is = conn.getInputStream();
-
                     Map<String, String> properties = new HashMap<>();
                     Event[] events = Event.fromStream(is, null, properties);
 

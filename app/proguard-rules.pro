@@ -21,3 +21,6 @@
 
 # unneeded libraries
 -dontwarn aQute.**
+
+# MemorizingTrustManager
+-dontwarn de.duenndns.ssl.MemorizingTrustManager

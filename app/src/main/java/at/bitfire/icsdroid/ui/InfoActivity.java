@@ -62,6 +62,7 @@ public class InfoActivity extends AppCompatActivity {
         addLibraryTab(tabs, "Commons", "Apache Commons", "https://commons.apache.org/", "LICENSE.commons");
         addLibraryTab(tabs, "bnd", "bnd, OSGi Core", "http://bnd.bndtools.org/", "LICENSE.bnd");
         addLibraryTab(tabs, "ical4j", "ical4j", "https://github.com/ical4j/ical4j/", "LICENSE.ical4j");
+        addLibraryTab(tabs, "MTM", "MemorizingTrustManager", "https://github.com/ge0rg/MemorizingTrustManager/", "LICENSE.mtm");
         addLibraryTab(tabs, "SLF4J", "SLF4J, SLF4J Android", "http://www.slf4j.org/", "LICENSE.slf4j");
     }
 

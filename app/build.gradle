@@ -20,8 +20,8 @@ android {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 4
-        versionName "1.0.1"
+        versionCode 5
+        versionName "1.1"
     }
     buildTypes {
         release {
@@ -46,6 +46,7 @@ android {
 
 dependencies {
     compile project(':ical4android')
+    compile project(':MemorizingTrustManager')
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:cardview-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'

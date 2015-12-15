@@ -42,6 +42,8 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
@@ -97,6 +99,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             boolean readFromStream = false;
+
+            if (conn instanceof HttpsURLConnection)
+                MTMLoader.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
 
             if (conn instanceof HttpURLConnection) {
                 HttpURLConnection httpConn = (HttpURLConnection)conn;

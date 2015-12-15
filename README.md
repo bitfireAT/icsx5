@@ -88,3 +88,4 @@ ICSdroid uses these libraries (more information available in the app):
   * [bnd, OSGI Core](http://bnd.bndtools.org) (Apache License 2.0)
   * [ical4j](https://github.com/ical4j/ical4j) (BSD 3-Clause License)
   * [slf4j](http://www.slf4j.org) (MIT License)
+* [MemorizingTrustManager](https://github.com/ge0rg/MemorizingTrustManager) (MIT License)
