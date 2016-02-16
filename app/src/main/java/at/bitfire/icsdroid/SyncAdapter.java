@@ -170,14 +170,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         // assume UTF-8 by default [RFC 5445 3.1.4]
         Charset charset = Charsets.UTF_8;
 
-        Matcher m = regexContentTypeCharset.matcher(contentType);
-        if (m.find())
-            try {
-                charset = Charset.forName(m.group(1));
-                Log.v(TAG, "Using charset " + charset.displayName());
-            } catch(IllegalCharsetNameException|UnsupportedCharsetException e) {
-                Log.e(TAG, "Illegal or unsupported character set, assuming UTF-8", e);
-            }
+        if (contentType != null) {
+            Matcher m = regexContentTypeCharset.matcher(contentType);
+            if (m.find())
+                try {
+                    charset = Charset.forName(m.group(1));
+                    Log.v(TAG, "Using charset " + charset.displayName());
+                } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+                    Log.e(TAG, "Illegal or unsupported character set, assuming UTF-8", e);
+                }
+        }
 
         return charset;
     }
