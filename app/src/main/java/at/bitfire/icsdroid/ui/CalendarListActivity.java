@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,6 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid.ui;
@@ -24,7 +25,6 @@ import android.content.SyncStatusObserver;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.provider.CalendarContract;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -51,9 +51,6 @@ import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
 public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
-    private static final String TAG = "icsdroid.CalendarList";
-    private final String DATA_SYNC_ACTIVE = "sync_active";
-
     Object syncStatusHandle;
     Handler syncStatusHandler;
 
@@ -112,8 +109,8 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         syncStatusHandler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
-                final boolean syncActive = AppAccount.isSyncActive(CalendarListActivity.this);
-                Log.d(CalendarListActivity.TAG, "Is sync. active? " + (syncActive ? "yes" : "no"));
+                final boolean syncActive = AppAccount.isSyncActive();
+                Log.d(Constants.TAG, "Is sync. active? " + (syncActive ? "yes" : "no"));
                 // workaround: see https://code.google.com/p/android/issues/detail?id=77712
                 refresher.post(new Runnable() {
                     @Override
@@ -191,9 +188,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
-        getContentResolver().requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
+        ContentResolver.requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
     }
 
     public void onShowInfo(MenuItem item) {
@@ -209,8 +204,6 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     /* list adapter */
 
     public static class CalendarListAdapter extends ArrayAdapter<LocalCalendar> {
-        private static final String TAG = "ICSdroid.CalendarList";
-
         final Context context;
 
         public CalendarListAdapter(Context context) {
@@ -239,7 +232,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             }
             ((TextView) v.findViewById(R.id.sync_status)).setText(syncStatus);
 
-            ((ColorButton) v.findViewById(R.id.color)).setColor(calendar.getColor().intValue());
+            ((ColorButton) v.findViewById(R.id.color)).setColor(calendar.getColor());
 
             String errorMessage = calendar.getErrorMessage();
             TextView textError = (TextView) v.findViewById(R.id.error_message);

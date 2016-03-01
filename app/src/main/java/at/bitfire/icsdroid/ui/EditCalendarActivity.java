@@ -45,6 +45,7 @@ import java.net.URL;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
+import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
@@ -151,8 +152,8 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
     public void onSave(MenuItem item) {
         boolean success = false;
-        try {
-            if (calendar != null) {
+        if (calendar != null) {
+            try {
                 ContentValues values = new ContentValues(2);
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, fragTitleColor.title);
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, fragTitleColor.color);
@@ -161,8 +162,9 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                 values.put(LocalCalendar.COLUMN_PASSWORD, fragCredentials.authRequired ? fragCredentials.password : null);
                 calendar.update(values);
                 success = true;
+            } catch (CalendarStorageException e) {
+                Log.e(Constants.TAG, "Couldn't update calendar", e);
             }
-        } catch (CalendarStorageException e) {
         }
         Toast.makeText(this, getString(success ? R.string.edit_calendar_saved : R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show();
         finish();
@@ -177,12 +179,13 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
     protected void onDelete() {
         boolean success = false;
-        try {
-            if (calendar != null) {
+        if (calendar != null) {
+            try {
                 calendar.delete();
                 success = true;
+            } catch (CalendarStorageException e) {
+                Log.e(Constants.TAG, "Couldn't delete calendar");
             }
-        } catch (CalendarStorageException e) {
         }
         Toast.makeText(this, getString(success ? R.string.edit_calendar_deleted : R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show();
         finish();
@@ -248,6 +251,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
                     if ("file".equals(url.getProtocol()))
                         ft.hide(fragCredentials);
                 } catch (MalformedURLException e) {
+                    Log.e(Constants.TAG, "Invalid calendar URL", e);
                 }
 
                 ft.commit();
@@ -255,7 +259,7 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
             switchSyncCalendar.setChecked(savedState == null ? calendar.isSynced() : savedState.getBoolean(STATE_SYNC_THIS));
 
-            setDirty(savedState == null ? false : savedState.getBoolean(STATE_DIRTY));
+            setDirty(savedState != null && savedState.getBoolean(STATE_DIRTY));
         }
     }
 

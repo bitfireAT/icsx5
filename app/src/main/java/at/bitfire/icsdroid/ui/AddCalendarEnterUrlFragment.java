@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,11 +8,11 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid.ui;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,22 +33,29 @@ import org.apache.commons.lang3.StringUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 
 public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher, CredentialsFragment.OnCredentialsChangeListener {
-    private static final String TAG = "ICSdroid.EnterUrl";
+    private CredentialsFragment credentials;
 
-    AddCalendarActivity activity;
-    CredentialsFragment credentials;
+    private EditText editURL;
+    private TextView insecureAuthWarning;
 
-    EditText editURL;
-    TextView insecureAuthWarning;
-
+    private ResourceInfo info = new ResourceInfo();
+    private static final String KEY_INFO = "info";
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = (AddCalendarActivity)activity;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null)
+            info = (ResourceInfo)savedInstanceState.getSerializable(KEY_INFO);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(KEY_INFO, info);
     }
 
     @Override
@@ -59,7 +66,7 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         credentials = new CredentialsFragment();
         credentials.setOnChangeListener(this);
         getChildFragmentManager().beginTransaction()
-                .add(R.id.credentials, credentials)
+                .replace(R.id.credentials, credentials)
                 .commit();
 
         insecureAuthWarning = (TextView)v.findViewById(R.id.insecure_authentication_warning);
@@ -82,8 +89,8 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem itemNext = menu.findItem(R.id.next);
-        boolean urlOK = activity.url != null,
-                authOK = !credentials.authRequired || (StringUtils.isNotBlank(credentials.username) && StringUtils.isNotBlank(credentials.password));
+        boolean urlOK = info.url != null,
+                authOK = !info.authRequired || (StringUtils.isNotBlank(info.username) && StringUtils.isNotBlank(info.password));
         itemNext.setEnabled(urlOK && authOK);
     }
 
@@ -92,9 +99,9 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
 
     @Override
     public void onChangeCredentials(boolean authRequired, String username, String password) {
-        activity.authRequired = authRequired;
-        activity.username = username;
-        activity.password = password;
+        info.authRequired = authRequired;
+        info.username = username;
+        info.password = password;
         updateHttpWarning();
         getActivity().invalidateOptionsMenu();
     }
@@ -111,27 +118,27 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
             editURL.setText(urlString);
         }
 
-        activity.url = null;
+        info.url = null;
         try {
             URL url = new URL(urlString);
             String protocol = url.getProtocol();
             if ("file".equals(protocol) && StringUtils.isNotEmpty(url.getPath())) {
-                activity.url = url;
+                info.url = url;
                 credentials.authRequired = false;
                 getChildFragmentManager().beginTransaction()
                         .hide(credentials)
                         .commit();
             } else if (("http".equals(protocol) || "https".equals(protocol)) && StringUtils.isNotBlank(url.getAuthority())) {
-                activity.url = url;
+                info.url = url;
                 getChildFragmentManager().beginTransaction()
                         .show(credentials)
                         .commit();
             }
         } catch (MalformedURLException e) {
-            Log.d(TAG, "Invalid URL", e);
+            Log.d(Constants.TAG, "Invalid URL", e);
         }
 
-        editURL.setTextColor(getResources().getColor(activity.url != null ?
+        editURL.setTextColor(getResources().getColor(info.url != null ?
                 android.support.v7.appcompat.R.color.abc_secondary_text_material_light :
                 R.color.redorange));
     }
@@ -144,8 +151,8 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
 
     void updateHttpWarning() {
         // warn if auth. required and not using HTTPS
-        if (credentials.authRequired && activity.url != null)
-            insecureAuthWarning.setVisibility("https".equals(activity.url.getProtocol()) ? View.GONE : View.VISIBLE);
+        if (info.authRequired && info.url != null)
+            insecureAuthWarning.setVisibility("https".equals(info.url.getProtocol()) ? View.GONE : View.VISIBLE);
         else
             insecureAuthWarning.setVisibility(View.GONE);
     }
@@ -156,7 +163,7 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.next) {
-            AddCalendarValidationFragment frag = new AddCalendarValidationFragment();
+            AddCalendarValidationFragment frag = AddCalendarValidationFragment.newInstance(info);
             frag.show(getFragmentManager(), "validation");
             return true;
         }

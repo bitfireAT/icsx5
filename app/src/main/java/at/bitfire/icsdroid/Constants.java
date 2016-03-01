@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,6 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid;
@@ -24,8 +25,11 @@ public class Constants {
         CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true);
     }
 
-    public static final String USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")";
+    public static final String TAG = "icsdroid";
 
-    public static final Uri donationUri = Uri.parse("https://icsdroid.bitfire.at/donate?pk_campaign=icsdroid-app");
+    public static final String USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")";
+    public static final int MAX_REDIRECTS = 5;
+
+    public static final Uri donationUri = Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app");
 
 }

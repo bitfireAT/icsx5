@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,6 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid;
@@ -21,11 +22,7 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.util.Log;
 
-import net.fortuna.ical4j.model.Content;
-
 public class AppAccount {
-    private static final String TAG = "ICSdroid.AppAccount";
-
     public static final long SYNC_INTERVAL_MANUALLY = -1;
 
     public static final Account account = new Account("ICSdroid", "at.bitfire.icsdroid");
@@ -34,14 +31,14 @@ public class AppAccount {
     public static void makeAvailable(Context context) {
         AccountManager am = AccountManager.get(context);
         if (am.getAccountsByType(account.type).length == 0) {
-            Log.i(TAG, "Account not found, creating");
+            Log.i(Constants.TAG, "Account not found, creating");
             am.addAccountExplicitly(AppAccount.account, null, null);
             ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 1);
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true);
         }
     }
 
-    public static boolean isSyncActive(Context context) {
+    public static boolean isSyncActive() {
         return ContentResolver.isSyncActive(AppAccount.account, CalendarContract.AUTHORITY);
     }
 
@@ -57,10 +54,10 @@ public class AppAccount {
 
     public static void setSyncInterval(long syncInterval) {
         if (syncInterval == -1) {
-            Log.i(TAG, "Disabling automatic synchronization");
+            Log.i(Constants.TAG, "Disabling automatic synchronization");
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, false);
         } else {
-            Log.i(TAG, "Setting automatic synchronization with interval of " + syncInterval + " seconds");
+            Log.i(Constants.TAG, "Setting automatic synchronization with interval of " + syncInterval + " seconds");
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true);
             ContentResolver.addPeriodicSync(account, CalendarContract.AUTHORITY, new Bundle(), syncInterval);
         }

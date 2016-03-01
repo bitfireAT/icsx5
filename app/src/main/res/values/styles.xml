@@ -16,7 +16,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/lightblue</item>
         <item name="colorPrimaryDark">@color/darkblue</item>
-        <item name="colorAccent">@color/lightblue</item>
+        <item name="colorAccent">@color/redorange</item>
     </style>
 
 </resources>

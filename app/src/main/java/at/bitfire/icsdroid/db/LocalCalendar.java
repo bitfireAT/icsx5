@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,6 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid.db;
@@ -19,16 +20,14 @@ import android.database.DatabaseUtils;
 import android.os.RemoteException;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
+import android.support.annotation.NonNull;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
-import java.util.Collections;
-import java.util.Date;
 
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidCalendarFactory;
-import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.AndroidEventFactory;
 import at.bitfire.ical4android.CalendarStorageException;
 import lombok.Getter;
@@ -48,7 +47,7 @@ public class LocalCalendar extends AndroidCalendar {
             eTag,                   // iCalendar ETag at last successful sync
             username,               // HTTP username (or null if no auth. required)
             password;               // HTTP password (or null if no auth. required)
-    @Getter long lastModified,      // iCalendar Last-Modified at last successful sync (or 0)
+    @Getter long lastModified,      // iCalendar Last-Modified at last successful sync (or 0 for none)
             lastSync;               // time of last sync
     @Getter String errorMessage;    // error message (HTTP status or exception name) of last sync (or null)
 
@@ -91,23 +90,29 @@ public class LocalCalendar extends AndroidCalendar {
         ContentValues values = new ContentValues(4);
         values.put(COLUMN_ETAG, this.eTag = eTag);
         values.put(COLUMN_LAST_MODIFIED, this.lastModified = lastModified);
-        values.put(COLUMN_LAST_SYNC, System.currentTimeMillis());
+        values.put(COLUMN_LAST_SYNC, lastSync = System.currentTimeMillis());
         values.putNull(COLUMN_ERROR_MESSAGE);
         update(values);
     }
 
     public void updateStatusNotModified() throws CalendarStorageException {
         ContentValues values = new ContentValues(1);
-        values.put(COLUMN_LAST_SYNC, new Date().getTime());
+        values.put(COLUMN_LAST_SYNC, lastSync = System.currentTimeMillis());
         update(values);
     }
 
     public void updateStatusError(String message) throws CalendarStorageException {
         ContentValues values = new ContentValues(4);
-        values.putNull(COLUMN_ETAG);
-        values.putNull(COLUMN_LAST_MODIFIED);
-        values.put(COLUMN_LAST_SYNC, System.currentTimeMillis());
-        values.put(COLUMN_ERROR_MESSAGE, message);
+        values.putNull(COLUMN_ETAG); eTag = null;
+        values.putNull(COLUMN_LAST_MODIFIED); lastModified = 0;
+        values.put(COLUMN_LAST_SYNC, lastSync = System.currentTimeMillis());
+        values.put(COLUMN_ERROR_MESSAGE, errorMessage = message);
+        update(values);
+    }
+
+    public void updateUrl(@NonNull String url) throws CalendarStorageException {
+        ContentValues values = new ContentValues(1);
+        values.put(Calendars.NAME, this.url = url);
         update(values);
     }
 

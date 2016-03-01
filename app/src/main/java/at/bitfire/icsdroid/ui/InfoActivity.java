@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 – 2015 Ricki Hirner (bitfire web engineering).
+ * Copyright (c) 2013 – 2016 Ricki Hirner (bitfire web engineering).
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation, either version 3 of the
@@ -8,6 +8,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
+ *
  */
 
 package at.bitfire.icsdroid.ui;
@@ -26,14 +27,11 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import at.bitfire.icsdroid.BuildConfig;
-import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
@@ -117,7 +115,7 @@ public class InfoActivity extends AppCompatActivity {
         public View createTabContent(String tag) {
             View v = getLayoutInflater().inflate(R.layout.app_info_icsdroid, tabs.getTabWidget(), false);
 
-            ((TextView)v.findViewById(R.id.icsdroid_version)).setText("ICSdroid/" + BuildConfig.VERSION_NAME);
+            ((TextView)v.findViewById(R.id.icsdroid_version)).setText(getString(R.string.app_name) + "/" + BuildConfig.VERSION_NAME);
 
             try {
                 @Cleanup InputStream is = getAssets().open("licenses/COPYING");
