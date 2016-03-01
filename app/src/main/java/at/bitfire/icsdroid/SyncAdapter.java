@@ -29,7 +29,6 @@ import android.util.Log;
 
 import org.apache.commons.codec.Charsets;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -75,7 +74,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
+    private void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
         String errorMessage = null;
         URLConnection conn = null;
 
@@ -217,7 +216,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return charset;
     }
 
-    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws FileNotFoundException, CalendarStorageException {
+    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws CalendarStorageException {
         Log.i(Constants.TAG, "Processing " + events.length + " events");
         String[] uids = new String[events.length];
 

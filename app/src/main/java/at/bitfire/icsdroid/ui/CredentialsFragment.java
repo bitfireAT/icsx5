@@ -35,11 +35,10 @@ public class CredentialsFragment extends Fragment implements CompoundButton.OnCh
     boolean authRequired;
     String username, password;
 
-    OnCredentialsChangeListener onChangeListener;
+    private OnCredentialsChangeListener onChangeListener;
 
-    Switch switchAuthRequired;
-    EditText editUsername, editPassword;
-    TextView textUsername, textPassword;
+    private EditText editUsername, editPassword;
+    private TextView textUsername, textPassword;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class CredentialsFragment extends Fragment implements CompoundButton.OnCh
             password = savedInstanceState.getString(ARG_PASSWORD);
         }
 
-        switchAuthRequired = (Switch)v.findViewById(R.id.requires_authentication);
+        Switch switchAuthRequired = (Switch)v.findViewById(R.id.requires_authentication);
         switchAuthRequired.setChecked(authRequired);
         switchAuthRequired.setOnCheckedChangeListener(this);
 

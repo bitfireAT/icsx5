@@ -11,6 +11,5 @@
   ~ PURPOSE.  See the GNU General Public License for more details.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+<PreferenceScreen>
 </PreferenceScreen>

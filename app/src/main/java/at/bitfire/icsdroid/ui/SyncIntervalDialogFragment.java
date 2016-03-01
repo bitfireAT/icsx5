@@ -30,8 +30,8 @@ import at.bitfire.icsdroid.R;
 
 public class SyncIntervalDialogFragment extends DialogFragment implements AdapterView.OnItemSelectedListener {
 
-    List<Long> syncIntervalSeconds = new LinkedList<>();
-    long syncInterval;
+    private List<Long> syncIntervalSeconds = new LinkedList<>();
+    private long syncInterval;
 
     public static SyncIntervalDialogFragment newInstance() {
         return new SyncIntervalDialogFragment();

@@ -45,12 +45,10 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
             STATE_COLOR = "color";
     public static final String ARG_INFO = "info";
 
-    ResourceInfo info;
+    private ResourceInfo info;
 
-    String title;
-    int color = 0xff2F80C7;
-
-    TitleColorFragment fragTitleColor;
+    private String title;
+    private int color = 0xff2F80C7;
 
     public static AddCalendarDetailsFragment newInstance(@NonNull ResourceInfo info) {
         AddCalendarDetailsFragment frag = new AddCalendarDetailsFragment();
@@ -79,7 +77,7 @@ public class AddCalendarDetailsFragment extends Fragment implements TitleColorFr
         } else
             title = info.calendarName;
 
-        fragTitleColor = new TitleColorFragment();
+        TitleColorFragment fragTitleColor = new TitleColorFragment();
         Bundle args = new Bundle(3);
         args.putString(TitleColorFragment.ARG_URL, info.url.toString());
         args.putString(TitleColorFragment.ARG_TITLE, title);

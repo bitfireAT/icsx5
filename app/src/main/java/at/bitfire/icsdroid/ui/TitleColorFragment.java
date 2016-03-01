@@ -32,16 +32,15 @@ public class TitleColorFragment extends Fragment implements TextWatcher {
             ARG_TITLE = "title",
             ARG_COLOR = "color";
 
-    TextView textURL;
-    String url;
+    private String url;
 
-    EditText editTitle;
+    private EditText editTitle;
     String title;
 
-    ColorButton colorButton;
+    private ColorButton colorButton;
     int color = 0xff2F80C7;
 
-    OnChangeListener listener;
+    private OnChangeListener listener;
 
 
     @Override
@@ -59,7 +58,7 @@ public class TitleColorFragment extends Fragment implements TextWatcher {
             color = inState.getInt(ARG_COLOR);
         }
 
-        textURL = (TextView) v.findViewById(R.id.url);
+        TextView textURL = (TextView)v.findViewById(R.id.url);
         textURL.setText(url);
 
         editTitle = (EditText) v.findViewById(R.id.title);

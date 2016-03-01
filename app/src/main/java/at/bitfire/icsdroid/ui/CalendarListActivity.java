@@ -51,13 +51,11 @@ import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
 public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
-    Object syncStatusHandle;
-    Handler syncStatusHandler;
+    private Object syncStatusHandle;
+    private Handler syncStatusHandler;
 
-    ListView list;
-    CalendarListAdapter listAdapter;
-
-    SwipeRefreshLayout refresher;
+    private CalendarListAdapter listAdapter;
+    private SwipeRefreshLayout refresher;
 
 
     @Override
@@ -72,7 +70,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
 
         refresher.setSize(SwipeRefreshLayout.LARGE);
 
-        list = (ListView)findViewById(R.id.calendar_list);
+        ListView list = (ListView)findViewById(R.id.calendar_list);
         list.setAdapter(listAdapter = new CalendarListAdapter(this));
         list.setOnItemClickListener(this);
 
@@ -248,8 +246,6 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     }
 
     protected static class CalendarListLoader extends Loader<LocalCalendar[]> {
-        private static final String TAG = "ICSdroid.CalendarsLoad";
-
         ContentProviderClient provider;
         ContentObserver observer;
 
@@ -285,7 +281,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
                     calendars = LocalCalendar.Factory.FACTORY.newArray(0);
                 deliverResult(calendars);
             } catch (CalendarStorageException e) {
-                Log.e(TAG, "Couldn't load calendar list", e);
+                Log.e(Constants.TAG, "Couldn't load calendar list", e);
             }
         }
 

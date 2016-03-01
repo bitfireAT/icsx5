@@ -59,14 +59,13 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
             STATE_PASSWORD = "password",
             STATE_DIRTY = "dirty";
 
-    Bundle savedState;
-    LocalCalendar calendar;
-    boolean dirty;           // indicates whether title/color have been changed by the user
+    private Bundle savedState;
+    private LocalCalendar calendar;
+    private boolean dirty;           // indicates whether title/color have been changed by the user
 
-    TitleColorFragment fragTitleColor;
-    Switch switchSyncCalendar;
-    CredentialsFragment fragCredentials;
-
+    private TitleColorFragment fragTitleColor;
+    private Switch switchSyncCalendar;
+    private CredentialsFragment fragCredentials;
 
     @Override
     protected void onCreate(Bundle inState) {

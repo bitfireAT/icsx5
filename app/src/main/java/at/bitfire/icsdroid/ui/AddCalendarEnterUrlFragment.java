@@ -149,7 +149,7 @@ public class AddCalendarEnterUrlFragment extends Fragment implements TextWatcher
         getActivity().invalidateOptionsMenu();
     }
 
-    void updateHttpWarning() {
+    private void updateHttpWarning() {
         // warn if auth. required and not using HTTPS
         if (info.authRequired && info.url != null)
             insecureAuthWarning.setVisibility("https".equals(info.url.getProtocol()) ? View.GONE : View.VISIBLE);
