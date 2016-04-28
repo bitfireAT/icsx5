@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">ICSdroid</string>
+  <string name="action_next">Következő</string>
+  <string name="calendar_list_info">Névjegy</string>
+  <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>
+  <string name="calendar_list_set_sync_interval">Szinkronizáció sűrűségének megadása</string>
+  <string name="calendar_list_sync_disabled">Szinkronizáció tiltva</string>
+  <string name="title_activity_calendar_list">Előfizetéseim</string>
+  <string name="activity_add_calendar">Feliratkozás egy naptárra</string>
+  <string name="add_calendar_authentication_without_https_warning">Harmadik felek hozzáférhetnek a felhasználói azonosítókhoz.  A biztonságos kapcsolathoz használjon HTTPS protokollt.</string>
+  <string name="add_calendar_create">Feliratkozás most</string>
+  <string name="add_calendar_created">A feliratkozás sikeres</string>
+  <string name="add_calendar_password">Jelszó</string>
+  <string name="add_calendar_requires_authentication">Azonosítás szükséges</string>
+  <string name="add_calendar_title">Cím és szín</string>
+  <string name="add_calendar_title_hint">Naptár neve</string>
+  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_user_name">Felhasználónév</string>
+  <string name="add_calendar_validating">A naptár ellenőrzése...</string>
+  <string name="activity_edit_calendar">Az előfizetés módosítása</string>
+  <string name="edit_calendar_cancel">Megszakít</string>
+  <string name="edit_calendar_delete">Előfizetés törlése</string>
+  <string name="edit_calendar_deleted">Az előfizetés törlése sikeres</string>
+  <string name="edit_calendar_failed">A művelet sikertelen</string>
+  <string name="edit_calendar_really_delete">Valóban szeretné az előfizetést törölni?</string>
+  <string name="edit_calendar_save">Mentés</string>
+  <string name="edit_calendar_saved">Változások mentve</string>
+  <string name="edit_calendar_sync_this_calendar">A naptár szinkronizálása</string>
+  <string name="edit_calendar_unsaved_changes">Vannak el nem mentett változások</string>
+  <string name="sync_error_title">Szinkronizációs hiba</string>
+  <string name="set_sync_interval_save">Mentés</string>
+  <string name="set_sync_interval_title">Szinkronizáció sűrűségének megadása:</string>
+  <string-array name="set_sync_interval_seconds">
+    <item>-1</item>
+    <item>300</item>
+    <item>600</item>
+    <item>900</item>
+    <item>3600</item>
+    <item>7200</item>
+    <item>14400</item>
+    <item>86400</item>
+    <item>604800</item>
+  </string-array>
+  <string-array name="set_sync_interval_names">
+    <item>Csak manuálisan</item>
+    <item>5 percenként</item>
+    <item>10 percenként</item>
+    <item>15 percenként</item>
+    <item>Óránként</item>
+    <item>2 óránként</item>
+    <item>4 óránként</item>
+    <item>Naponta</item>
+    <item>Hetente</item>
+  </string-array>
+  <string name="activity_app_info">Alkalmazásinformáció</string>
+  <string name="app_info_donate">Támogatás</string>
+  <string name="app_info_gpl_info">Copyright © 2013 - 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nA programhoz SEMMINEMŰ GARANCIA nem tartozik. Ez egy szabadon használható szoftver, amely a GNU GPL v3 (lásd alább) feltételei szerint nyugodtan terjeszthető.
+</string>
+  <string name="app_info_web_site">Honlap</string>
+  <string name="app_info_uses_this_software">Az ICSdroid használja az alábbi szoftvereket:</string>
+  <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>
+  <string name="donate_message">Örülünk, hogy használja a ICSdroidot. A ICSdroid nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>
+  <string name="donate_now">Tovább a támogatás-oldalra</string>
+  <string name="donate_later">Talán majd később</string>
+</resources>

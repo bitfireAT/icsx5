@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">ICSdroid</string>
+  <string name="action_next">Volgende</string>
+  <string name="calendar_list_info">Over ICSdroid</string>
+  <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
+  <string name="calendar_list_set_sync_interval">Zet sync.interval</string>
+  <string name="calendar_list_sync_disabled">Sync. uitgeschakeld</string>
+  <string name="title_activity_calendar_list">Mijn abonnementen</string>
+  <string name="activity_add_calendar">Abonneer op een kalender</string>
+  <string name="add_calendar_authentication_without_https_warning">Derden kunnen eenvoudig je credentials onderscheppen. Gebruik HTTPS voor veilige authenticatie.</string>
+  <string name="add_calendar_create">Abonneer nu</string>
+  <string name="add_calendar_created">Succesvol geabonneerd</string>
+  <string name="add_calendar_password">Wachtwoord</string>
+  <string name="add_calendar_requires_authentication">Vereist authenticatie</string>
+  <string name="add_calendar_title">Titel &amp; Kleur</string>
+  <string name="add_calendar_title_hint">Kalendernaam</string>
+  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_user_name">Gebruikersnaam</string>
+  <string name="add_calendar_validating">Kalenderbron aan het valideren...</string>
+  <string name="activity_edit_calendar">Bewerk abonnement</string>
+  <string name="edit_calendar_cancel">Annuleer</string>
+  <string name="edit_calendar_delete">Afmelden</string>
+  <string name="edit_calendar_deleted">Succesvol afgemeld</string>
+  <string name="edit_calendar_dismiss">Negeer</string>
+  <string name="edit_calendar_failed">Operatie gefaald</string>
+  <string name="edit_calendar_really_delete">Wilt u echt abonneren op deze kalender?</string>
+  <string name="edit_calendar_save">Bewaar</string>
+  <string name="edit_calendar_saved">Wijzigingen bewaard</string>
+  <string name="edit_calendar_sync_this_calendar">Synchroniseer deze kalender</string>
+  <string name="edit_calendar_unsaved_changes">Er zijn wijzigingen die niet zijn bewaard.</string>
+  <string name="sync_error_title">Synchronisatiefout</string>
+  <string name="set_sync_interval_save">Bewaar</string>
+  <string name="set_sync_interval_title">Zet sync.interval</string>
+  <string-array name="set_sync_interval_seconds">
+    <item>-1</item>
+    <item>300</item>
+    <item>600</item>
+    <item>900</item>
+    <item>3600</item>
+    <item>7200</item>
+    <item>14400</item>
+    <item>86400</item>
+    <item>604800</item>
+  </string-array>
+  <string-array name="set_sync_interval_names">
+    <item>Alleen handmatig</item>
+    <item>Elke 5 minuten</item>
+    <item>Elke 10 minuten</item>
+    <item>Elke 15 minuten</item>
+    <item>Elke uur</item>
+    <item>Elke 2 uren</item>
+    <item>Elke 4 uren</item>
+    <item>Eens per dag</item>
+    <item>Eens per week</item>
+  </string-array>
+  <string name="activity_app_info">Appinfo</string>
+  <string name="app_info_donate">Doneer</string>
+  <string name="app_info_gpl_info">Copyright © 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nDit programma komt met ABSOLUUT GEEN GARANTIE. Dit is vrije software, en u bent welkom deze te herdistribueren onder de voorwaarden van de GNU GPL v3 (zie onder).</string>
+  <string name="app_info_web_site">Website</string>
+  <string name="app_info_uses_this_software">ICSdroid gebruikt deze software:</string>
+  <string name="donate_title">Opensourceinformatie</string>
+  <string name="donate_message">We vinden het leuk dat u ICSdroid gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSdroid te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
+  <string name="donate_now">Toon donatiepagina</string>
+  <string name="donate_later">Misschien later</string>
+</resources>

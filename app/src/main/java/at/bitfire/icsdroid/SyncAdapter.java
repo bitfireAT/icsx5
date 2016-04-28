@@ -103,6 +103,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if (conn instanceof HttpURLConnection) {
                     HttpURLConnection httpConn = (HttpURLConnection)conn;
                     conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
+                    conn.setRequestProperty("Connection", "close");  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
                     httpConn.setInstanceFollowRedirects(false);
 
                     if (calendar.getUsername() != null && calendar.getPassword() != null) {

@@ -185,7 +185,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     public void onRefresh() {
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras);
     }
 
