@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.NotificationCompat;
 import android.util.Base64;
 import android.util.Log;
@@ -37,6 +38,11 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +58,14 @@ import at.bitfire.icsdroid.ui.CalendarListActivity;
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final Pattern regexContentTypeCharset = Pattern.compile("[; ]\\s*charset=\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE);
 
+    private final BlockingQueue<Runnable> syncQueue = new LinkedBlockingQueue<>();
+    private final ExecutorService syncExecutor = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors(),
+            5, TimeUnit.SECONDS,
+            syncQueue
+    );
+
     public SyncAdapter(Context context) {
         super(context, false);
     }
@@ -60,195 +74,238 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.i(Constants.TAG, "Synchronizing " + account.name + " on authority " + authority);
 
-        Thread.currentThread().setContextClassLoader(getContext().getClassLoader());
-
         try {
             LocalCalendar[] calendars = LocalCalendar.findAll(account, provider);
             for (LocalCalendar calendar : calendars)
                 if (calendar.isSynced())
-                    processEvents(calendar, syncResult);
+                    syncExecutor.execute(new ProcessEventsTask(calendar, syncResult));
+
+            syncExecutor.shutdown();
+            while (!syncExecutor.awaitTermination(1, TimeUnit.MINUTES))
+                Log.i(Constants.TAG, "Sync still running for another minute");
 
         } catch (CalendarStorageException e) {
             Log.e(Constants.TAG, "Calendar storage exception", e);
             syncResult.databaseError = true;
+        } catch (InterruptedException e) {
+            Log.e(Constants.TAG, "Thread interrupted", e);
         }
     }
 
-    private void processEvents(LocalCalendar calendar, SyncResult syncResult) throws CalendarStorageException {
-        String errorMessage = null;
-        URLConnection conn = null;
+    protected class ProcessEventsTask implements Runnable {
 
-        URL url = null;
-        try {
-            url = new URL(calendar.getUrl());
-        } catch (MalformedURLException e) {
-            Log.e(Constants.TAG, "Invalid calendar URL", e);
-            errorMessage = e.getLocalizedMessage();
+        final LocalCalendar calendar;
+        final SyncResult syncResult;
+
+        protected ProcessEventsTask(@NonNull LocalCalendar calendar, @NonNull SyncResult syncResult) {
+            this.calendar = calendar;
+            this.syncResult = syncResult;
+
+            Thread.currentThread().setContextClassLoader(getContext().getClassLoader());
         }
 
-        boolean followRedirect = url != null;
-        for (int redirect = 0; followRedirect && redirect < Constants.MAX_REDIRECTS; redirect++) {
-            followRedirect = false;
-
+        @Override
+        public void run() {
             try {
-                Log.i(Constants.TAG, "Fetching remote calendar " + url);
-                conn = url.openConnection();
+                processEvents();
+            } catch(CalendarStorageException e) {
+                Log.e(Constants.TAG, "Couldn't access local calendars", e);
+                syncResult.databaseError = true;
+            }
+            Log.i(Constants.TAG, "iCalendar file completely processed");
+        }
 
-                if (calendar.getLastModified() != 0)
-                    conn.setIfModifiedSince(calendar.getLastModified());
+        private void processEvents() throws CalendarStorageException {
+            String errorMessage = null;
+            URLConnection conn = null;
 
-                if (conn instanceof HttpsURLConnection)
-                    MTMLoader.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
+            URL url = null;
+            try {
+                url = new URL(calendar.getUrl());
+            } catch (MalformedURLException e) {
+                Log.e(Constants.TAG, "Invalid calendar URL", e);
+                errorMessage = e.getLocalizedMessage();
+            }
 
-                if (conn instanceof HttpURLConnection) {
-                    HttpURLConnection httpConn = (HttpURLConnection)conn;
-                    conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
-                    conn.setRequestProperty("Connection", "close");  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
-                    httpConn.setInstanceFollowRedirects(false);
+            boolean followRedirect = url != null;
+            for (int redirect = 0; followRedirect && redirect < Constants.MAX_REDIRECTS; redirect++) {
+                followRedirect = false;
 
-                    if (calendar.getUsername() != null && calendar.getPassword() != null) {
-                        String basicCredentials = calendar.getUsername() + ":" + calendar.getPassword();
-                        conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
-                    }
+                try {
+                    Log.i(Constants.TAG, "Fetching remote calendar " + url);
+                    conn = url.openConnection();
 
-                    if (calendar.getETag() != null)
-                        conn.setRequestProperty("If-None-Match", calendar.getETag());
+                    if (calendar.getLastModified() != 0)
+                        conn.setIfModifiedSince(calendar.getLastModified());
 
-                    final int statusCode = httpConn.getResponseCode();
+                    if (conn instanceof HttpsURLConnection)
+                        MTMLoader.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
 
-                    // handle 304 Not Modified
-                    if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                        conn = null;      // don't read input stream
-                        calendar.updateStatusNotModified();
-                        Log.i(Constants.TAG, "Calendar has not been modified since last sync (" + httpConn.getResponseMessage() + ")");
+                    if (conn instanceof HttpURLConnection) {
+                        HttpURLConnection httpConn = (HttpURLConnection)conn;
+                        conn.setRequestProperty("User-Agent", Constants.USER_AGENT);
+                        conn.setRequestProperty("Connection", "close");  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
+                        httpConn.setInstanceFollowRedirects(false);
 
-                    } else {
-                        // handle redirects
-                        String location = httpConn.getHeaderField("Location");
-                        if (statusCode / 100 == 3 && location != null) {
+                        if (calendar.getUsername() != null && calendar.getPassword() != null) {
+                            String basicCredentials = calendar.getUsername() + ":" + calendar.getPassword();
+                            conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.getBytes(), 0));
+                        }
+
+                        if (calendar.getETag() != null)
+                            conn.setRequestProperty("If-None-Match", calendar.getETag());
+
+                        final int statusCode = httpConn.getResponseCode();
+
+                        // handle 304 Not Modified
+                        if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             conn = null;      // don't read input stream
-                            Log.i(Constants.TAG, "Following redirect to " + location);
-                            url = new URL(url, location);
-                            followRedirect = true;
-                            if (statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                                Log.i(Constants.TAG, "Permanent redirect: saving new location");
-                                calendar.updateUrl(url.toString());
+                            calendar.updateStatusNotModified();
+                            Log.i(Constants.TAG, "Calendar has not been modified since last sync (" + httpConn.getResponseMessage() + ")");
+
+                        } else {
+                            // handle redirects
+                            String location = httpConn.getHeaderField("Location");
+                            if (statusCode / 100 == 3 && location != null) {
+                                conn = null;      // don't read input stream
+                                Log.i(Constants.TAG, "Following redirect to " + location);
+                                url = new URL(url, location);
+                                followRedirect = true;
+                                if (statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
+                                    Log.i(Constants.TAG, "Permanent redirect: saving new location");
+                                    calendar.updateUrl(url.toString());
+                                }
                             }
                         }
-                    }
 
-                    // only read stream if status is 200 OK
-                    if (conn != null && statusCode != HttpURLConnection.HTTP_OK) {
-                        conn = null;
-                        errorMessage = statusCode + " " + httpConn.getResponseMessage();
+                        // only read stream if status is 200 OK
+                        if (conn != null && statusCode != HttpURLConnection.HTTP_OK) {
+                            conn = null;
+                            errorMessage = statusCode + " " + httpConn.getResponseMessage();
+                        }
+                    } else
+                        // local file, always simulate HTTP status 200 OK
+                        assert conn != null;
+
+                } catch (IOException e) {
+                    Log.e(Constants.TAG, "Couldn't fetch calendar", e);
+                    errorMessage = e.getLocalizedMessage();
+                    synchronized(syncResult) {
+                        syncResult.stats.numIoExceptions++;
                     }
-                } else
-                    // local file, always simulate HTTP status 200 OK
-                    assert conn != null;
+                }
+            }
+
+            try {
+                if (conn != null) {
+                    Event[] events = Event.fromStream(
+                            conn.getInputStream(),
+                            charsetFromContentType(conn.getHeaderField("Content-Type"))
+                    );
+                    processEvents(events);
+
+                    String eTag = conn.getHeaderField("ETag");
+                    Log.i(Constants.TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + conn.getLastModified());
+                    calendar.updateStatusSuccess(eTag, conn.getLastModified());
+                }
 
             } catch (IOException e) {
-                Log.e(Constants.TAG, "Couldn't fetch calendar", e);
+                Log.e(Constants.TAG, "Couldn't read calendar", e);
                 errorMessage = e.getLocalizedMessage();
-                syncResult.stats.numIoExceptions++;
-            }
-        }
-
-        try {
-            if (conn != null) {
-                Event[] events = Event.fromStream(
-                        conn.getInputStream(),
-                        charsetFromContentType(conn.getHeaderField("Content-Type"))
-                );
-                processEvents(calendar, events, syncResult);
-
-                String eTag = conn.getHeaderField("ETag");
-                Log.i(Constants.TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + conn.getLastModified());
-                calendar.updateStatusSuccess(eTag, conn.getLastModified());
-            }
-
-        } catch (IOException e) {
-            Log.e(Constants.TAG, "Couldn't read calendar", e);
-            errorMessage = e.getLocalizedMessage();
-            syncResult.stats.numIoExceptions++;
-        } catch (InvalidCalendarException e) {
-            Log.e(Constants.TAG, "Couldn't parse calendar", e);
-            errorMessage = e.getLocalizedMessage();
-            syncResult.stats.numParseExceptions++;
-        } finally {
-            if (conn instanceof HttpURLConnection)
-                ((HttpURLConnection)conn).disconnect();
-        }
-
-        if (errorMessage != null) {
-            NotificationManager nm = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification notification = new NotificationCompat.Builder(getContext())
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setColor(calendar.getColor())
-                    .setGroup("ICSdroid")
-                    .setContentTitle(getContext().getString(R.string.sync_error_title))
-                    .setContentText(calendar.getDisplayName())
-                    .setSubText(errorMessage)
-                    .setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), CalendarListActivity.class), 0))
-                    .setAutoCancel(true)
-                    .setWhen(System.currentTimeMillis())
-                    .setOnlyAlertOnce(true)
-                    .build();
-            nm.notify(0, notification);
-            calendar.updateStatusError(errorMessage);
-        }
-    }
-
-    private Charset charsetFromContentType(String contentType) {
-        // assume UTF-8 by default [RFC 5445 3.1.4]
-        Charset charset = Charsets.UTF_8;
-
-        if (contentType != null) {
-            Matcher m = regexContentTypeCharset.matcher(contentType);
-            if (m.find())
-                try {
-                    charset = Charset.forName(m.group(1));
-                    Log.v(Constants.TAG, "Using charset " + charset.displayName());
-                } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-                    Log.e(Constants.TAG, "Illegal or unsupported character set, assuming UTF-8", e);
+                synchronized(syncResult) {
+                    syncResult.stats.numIoExceptions++;
                 }
+            } catch (InvalidCalendarException e) {
+                Log.e(Constants.TAG, "Couldn't parse calendar", e);
+                errorMessage = e.getLocalizedMessage();
+                synchronized(syncResult) {
+                    syncResult.stats.numParseExceptions++;
+                }
+            } finally {
+                if (conn instanceof HttpURLConnection)
+                    ((HttpURLConnection)conn).disconnect();
+            }
+
+            if (errorMessage != null) {
+                NotificationManager nm = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                Notification notification = new NotificationCompat.Builder(getContext())
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setCategory(NotificationCompat.CATEGORY_ERROR)
+                        .setColor(calendar.getColor())
+                        .setGroup("ICSdroid")
+                        .setContentTitle(getContext().getString(R.string.sync_error_title))
+                        .setContentText(calendar.getDisplayName())
+                        .setSubText(errorMessage)
+                        .setContentIntent(PendingIntent.getActivity(getContext(), 0, new Intent(getContext(), CalendarListActivity.class), 0))
+                        .setAutoCancel(true)
+                        .setWhen(System.currentTimeMillis())
+                        .setOnlyAlertOnce(true)
+                        .build();
+                nm.notify(0, notification);
+                calendar.updateStatusError(errorMessage);
+            }
         }
 
-        return charset;
-    }
+        private Charset charsetFromContentType(String contentType) {
+            // assume UTF-8 by default [RFC 5445 3.1.4]
+            Charset charset = Charsets.UTF_8;
 
-    private void processEvents(LocalCalendar calendar, Event[] events, SyncResult syncResult) throws CalendarStorageException {
-        Log.i(Constants.TAG, "Processing " + events.length + " events");
-        String[] uids = new String[events.length];
+            if (contentType != null) {
+                Matcher m = regexContentTypeCharset.matcher(contentType);
+                if (m.find())
+                    try {
+                        charset = Charset.forName(m.group(1));
+                        Log.v(Constants.TAG, "Using charset " + charset.displayName());
+                    } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+                        Log.e(Constants.TAG, "Illegal or unsupported character set, assuming UTF-8", e);
+                    }
+            }
 
-        int idx = 0;
-        for (Event event : events) {
-            final String uid = event.uid;
-            Log.d(Constants.TAG, "Found VEVENT: " + uid);
-            uids[idx++] = uid;
+            return charset;
+        }
 
-            LocalEvent[] localEvents = calendar.queryByUID(uid);
-            if (localEvents.length == 0) {
-                Log.d(Constants.TAG, uid + " not in local calendar, adding");
-                new LocalEvent(calendar, event).add();
-                syncResult.stats.numInserts++;
+        private void processEvents(Event[] events) throws CalendarStorageException {
+            Log.i(Constants.TAG, "Processing " + events.length + " events");
+            String[] uids = new String[events.length];
 
-            } else {
-                LocalEvent localEvent = localEvents[0];
-                if (event.lastModified == 0 || event.lastModified > localEvent.getLastModified()) {
-                    // no LAST-MODIFIED or LAST-MODIFIED has been increased
-                    localEvent.update(event);
-                    syncResult.stats.numUpdates++;
+            int idx = 0;
+            for (Event event : events) {
+                final String uid = event.uid;
+                Log.d(Constants.TAG, "Found VEVENT: " + uid);
+                uids[idx++] = uid;
+
+                LocalEvent[] localEvents = calendar.queryByUID(uid);
+                if (localEvents.length == 0) {
+                    Log.d(Constants.TAG, uid + " not in local calendar, adding");
+                    new LocalEvent(calendar, event).add();
+                    synchronized(syncResult) {
+                        syncResult.stats.numInserts++;
+                    }
+
                 } else {
-                    Log.d(Constants.TAG, uid + " has not been modified since last sync");
-                    syncResult.stats.numSkippedEntries++;
+                    LocalEvent localEvent = localEvents[0];
+                    if (event.lastModified == 0 || event.lastModified > localEvent.getLastModified()) {
+                        // no LAST-MODIFIED or LAST-MODIFIED has been increased
+                        localEvent.update(event);
+                        synchronized(syncResult) {
+                            syncResult.stats.numUpdates++;
+                        }
+                    } else {
+                        Log.d(Constants.TAG, uid + " has not been modified since last sync");
+                        synchronized(syncResult) {
+                            syncResult.stats.numSkippedEntries++;
+                        }
+                    }
                 }
             }
-        }
 
-        Log.i(Constants.TAG, "Deleting old events (retaining " + uids.length + " events by UID) …");
-        syncResult.stats.numDeletes = calendar.retainByUID(uids);
-        Log.i(Constants.TAG, "… " + syncResult.stats.numDeletes + " events deleted");
+            Log.i(Constants.TAG, "Deleting old events (retaining " + uids.length + " events by UID) …");
+            synchronized(syncResult) {
+                syncResult.stats.numDeletes += calendar.retainByUID(uids);
+            }
+            Log.i(Constants.TAG, "… " + syncResult.stats.numDeletes + " events deleted");
+        }
     }
+
 
 }
