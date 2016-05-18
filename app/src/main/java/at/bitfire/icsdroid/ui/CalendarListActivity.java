@@ -235,7 +235,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
             String errorMessage = calendar.getErrorMessage();
             TextView textError = (TextView) v.findViewById(R.id.error_message);
             if (errorMessage == null)
-                textError.setVisibility(View.INVISIBLE);
+                textError.setVisibility(View.GONE);
             else {
                 textError.setText(errorMessage);
                 textError.setVisibility(View.VISIBLE);

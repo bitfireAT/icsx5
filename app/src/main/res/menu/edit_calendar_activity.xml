@@ -16,8 +16,14 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        app:showAsAction="ifRoom"
+        android:onClick="onShare"
+        android:title="@string/edit_calendar_send_url"
+        android:icon="@drawable/ic_share"/>
+
+    <item
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel"
+        android:icon="@drawable/ic_close"
         android:id="@+id/cancel"
         android:onClick="onCancel"
         android:title="@string/edit_calendar_cancel"
@@ -25,14 +31,14 @@
 
     <item
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_trash"
+        android:icon="@drawable/ic_delete"
         android:id="@+id/delete"
         android:onClick="onAskDelete"
         android:title="@string/edit_calendar_delete" />
 
     <item
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_tick"
+        android:icon="@drawable/ic_check"
         android:id="@+id/save"
         android:onClick="onSave"
         android:title="@string/edit_calendar_save" />

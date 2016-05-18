@@ -23,12 +23,14 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -192,6 +194,16 @@ public class EditCalendarActivity extends AppCompatActivity implements LoaderMan
 
     public void onCancel(MenuItem item) {
         finish();
+    }
+
+    public void onShare(MenuItem item) {
+        if (calendar != null) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_SUBJECT, calendar.getDisplayName());
+            intent.putExtra(Intent.EXTRA_TEXT, calendar.getUrl());
+            intent.setType("text/plain");
+            startActivity(Intent.createChooser(intent, getString(R.string.edit_calendar_send_url)));
+        }
     }
 
 

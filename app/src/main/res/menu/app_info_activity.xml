@@ -16,7 +16,7 @@
 
     <item
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_globe"
+        android:icon="@drawable/ic_public"
         android:onClick="showWebSite"
         android:title="@string/app_info_web_site" />
 

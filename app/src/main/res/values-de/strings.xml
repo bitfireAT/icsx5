@@ -27,6 +27,7 @@
   <string name="edit_calendar_really_delete">Wollen Sie dieses Kalender-Abo wirklich entfernen?</string>
   <string name="edit_calendar_save">Speichern</string>
   <string name="edit_calendar_saved">Änderungen gespeichert</string>
+  <string name="edit_calendar_send_url">URL senden</string>
   <string name="edit_calendar_sync_this_calendar">Diesen Kalender aktualisieren</string>
   <string name="edit_calendar_unsaved_changes">Änderungen wurden noch nicht gespeichert.</string>
   <string name="sync_error_title">Fehler bei der Aktualisierung</string>

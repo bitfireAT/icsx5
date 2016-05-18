@@ -15,7 +15,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/create_calendar"
-          android:icon="@drawable/ic_action_tick"
+          android:icon="@drawable/ic_check"
           android:title="@string/add_calendar_create"
           app:showAsAction="always" />
 

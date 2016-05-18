@@ -44,6 +44,7 @@
     <string name="edit_calendar_really_delete">Do you really want to unsubscribe from this calendar?</string>
     <string name="edit_calendar_save">Save</string>
     <string name="edit_calendar_saved">Changes saved</string>
+    <string name="edit_calendar_send_url">Send URL</string>
     <string name="edit_calendar_sync_this_calendar">Synchronize this calendar</string>
     <string name="edit_calendar_unsaved_changes">There are unsaved changes.</string>
 
