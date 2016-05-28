@@ -103,6 +103,7 @@
         <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
+            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ui.CalendarListActivity"
             tools:ignore="UnusedAttribute"/>
 

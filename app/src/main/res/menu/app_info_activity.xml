@@ -14,15 +14,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_public"
-        android:onClick="showWebSite"
-        android:title="@string/app_info_web_site" />
+    <item app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_public"
+          android:onClick="showWebSite"
+          android:title="@string/app_info_web_site" />
 
-    <item
-        app:showAsAction="never"
-        android:onClick="showDonate"
-        android:title="@string/app_info_donate" />
+    <item app:showAsAction="ifRoom"
+          android:icon="@drawable/twitter_white"
+          android:onClick="showTwitter"
+          android:title="@string/app_info_twitter"/>
+
+    <item app:showAsAction="never"
+          android:onClick="showDonate"
+          android:title="@string/app_info_donate" />
 
 </menu>

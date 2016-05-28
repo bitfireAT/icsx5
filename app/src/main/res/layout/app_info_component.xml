@@ -20,37 +20,42 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="16dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="@string/app_info_uses_this_software"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/library_name"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            tools:text="Library Name"
+            tools:text="Component Name"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/library_url"
-            android:layout_marginTop="16dp"
-            tools:text="http://library.com"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/url"
+            android:layout_marginTop="8dp"
+            tools:text="https://example.com"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:autoLink="web"/>
 
         <TextView
+            android:id="@+id/copyright"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            tools:text="© Copyright"/>
+
+        <TextView
+            android:id="@+id/license"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            tools:text="Library License Text"
-            android:id="@+id/library_license"/>
+            tools:text="Library License Text"/>
 
     </LinearLayout>
 
