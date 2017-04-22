@@ -284,7 +284,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 } else {
                     LocalEvent localEvent = localEvents[0];
-                    if (event.lastModified == 0 || event.lastModified > localEvent.getLastModified()) {
+                    if (event.lastModified == null || event.lastModified.getDateTime().getTime() > localEvent.getLastModified()) {
                         // no LAST-MODIFIED or LAST-MODIFIED has been increased
                         localEvent.update(event);
                         synchronized(syncResult) {

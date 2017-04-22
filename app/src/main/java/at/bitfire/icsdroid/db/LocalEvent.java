@@ -16,6 +16,9 @@ import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
 import android.provider.CalendarContract;
 
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.property.LastModified;
+
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.AndroidEventFactory;
@@ -40,7 +43,7 @@ public class LocalEvent extends AndroidEvent {
         super(calendar, event);
 
         uid = event.uid;
-        lastModified = event.lastModified;
+        lastModified = event.lastModified.getDateTime().getTime();
     }
 
     @Override
@@ -48,7 +51,9 @@ public class LocalEvent extends AndroidEvent {
         super.populateEvent(values);
 
         uid = event.uid = values.getAsString(CalendarContract.Events._SYNC_ID);
-        lastModified = event.lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
+
+        lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
+        event.lastModified = new LastModified(new DateTime(lastModified));
     }
 
     @Override
