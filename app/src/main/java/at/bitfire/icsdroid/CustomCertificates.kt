@@ -6,16 +6,15 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid
 
-import android.content.Context;
+import android.content.Context
+import javax.net.ssl.HttpsURLConnection
 
-import javax.net.ssl.HttpsURLConnection;
+object CustomCertificates {
 
-public class MTMLoader {
-    private static final String TAG = "ICSdroid.MTMLoader";
-
-    public static void prepareHttpsURLConnection(Context context, HttpsURLConnection connection) {
+    @JvmStatic
+    fun prepareHttpsURLConnection(context: Context, connection: HttpsURLConnection) {
         /*try {
             MemorizingTrustManager mtm = new MemorizingTrustManager(context);
 

@@ -37,7 +37,7 @@ import javax.net.ssl.HttpsURLConnection;
 import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.Constants;
-import at.bitfire.icsdroid.MTMLoader;
+import at.bitfire.icsdroid.CustomCertificates;
 import at.bitfire.icsdroid.MiscUtils;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
@@ -142,7 +142,7 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
                     conn.setReadTimeout(20000);
 
                     if (conn instanceof HttpsURLConnection)
-                        MTMLoader.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
+                        CustomCertificates.prepareHttpsURLConnection(getContext(), (HttpsURLConnection)conn);
 
                     if (conn instanceof HttpURLConnection) {
                         HttpURLConnection httpConn = (HttpURLConnection)conn;
