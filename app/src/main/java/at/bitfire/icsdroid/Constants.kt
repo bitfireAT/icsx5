@@ -11,25 +11,25 @@
  *
  */
 
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid
 
 import android.net.Uri;
 import android.os.Build;
 
 import net.fortuna.ical4j.util.CompatibilityHints;
 
-public class Constants {
+object Constants {
 
-    static {
-        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true);
-        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true);
+    init {
+        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true)
+        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true)
     }
 
-    public static final String TAG = "icsdroid";
+    @JvmField val TAG = "icsdroid"
 
-    public static final String USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")";
-    public static final int MAX_REDIRECTS = 5;
+    @JvmField val USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")"
+    @JvmField val MAX_REDIRECTS = 5
 
-    public static final Uri donationUri = Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app");
+    @JvmField val donationUri = Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app")!!
 
 }
