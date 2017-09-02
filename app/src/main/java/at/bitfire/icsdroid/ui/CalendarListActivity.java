@@ -42,6 +42,8 @@ import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.icsdroid.AppAccount;
@@ -50,7 +52,7 @@ import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.R;
 import at.bitfire.icsdroid.db.LocalCalendar;
 
-public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LocalCalendar[]>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
+public class CalendarListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<LocalCalendar>>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
     private Object syncStatusHandle;
     private Handler syncStatusHandler;
 
@@ -143,12 +145,12 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     /* loader callbacks */
 
     @Override
-    public Loader<LocalCalendar[]> onCreateLoader(int id, Bundle args) {
+    public Loader<List<LocalCalendar>> onCreateLoader(int id, Bundle args) {
         return new CalendarListLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<LocalCalendar[]> loader, LocalCalendar[] calendars) {
+    public void onLoadFinished(Loader<List<LocalCalendar>> loader, List<LocalCalendar> calendars) {
         // we got our list of calendars
 
         // add them into the list
@@ -156,9 +158,9 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         listAdapter.addAll(calendars);
 
         // control the swipe refresher
-        if (calendars.length >= 1) {
+        if (calendars.size() >= 1) {
             // funny: use the calendar colors for the sync status
-            int colors[] = new int[calendars.length];
+            int colors[] = new int[calendars.size()];
             int idx = 0;
             for (LocalCalendar calendar : calendars)
                 colors[idx++] = 0xff000000 | calendar.getColor();
@@ -167,7 +169,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
     }
 
     @Override
-    public void onLoaderReset(Loader<LocalCalendar[]> loader) {
+    public void onLoaderReset(Loader<List<LocalCalendar>> loader) {
     }
 
 
@@ -245,7 +247,7 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         }
     }
 
-    protected static class CalendarListLoader extends Loader<LocalCalendar[]> {
+    protected static class CalendarListLoader extends Loader<List<LocalCalendar>> {
         ContentProviderClient provider;
         ContentObserver observer;
 
@@ -274,11 +276,11 @@ public class CalendarListActivity extends AppCompatActivity implements LoaderMan
         @Override
         public void onForceLoad() {
             try {
-                LocalCalendar[] calendars;
+                List<LocalCalendar> calendars;
                 if (provider != null)
                     calendars = LocalCalendar.findAll(AppAccount.account, provider);
                 else
-                    calendars = LocalCalendar.Factory.FACTORY.newArray(0);
+                    calendars = new LinkedList<>();
                 deliverResult(calendars);
             } catch (CalendarStorageException e) {
                 Log.e(Constants.TAG, "Couldn't load calendar list", e);

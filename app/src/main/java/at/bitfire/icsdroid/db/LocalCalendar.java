@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidCalendarFactory;
@@ -32,7 +33,7 @@ import at.bitfire.ical4android.AndroidEventFactory;
 import at.bitfire.ical4android.CalendarStorageException;
 import lombok.Getter;
 
-public class LocalCalendar extends AndroidCalendar {
+public class LocalCalendar extends AndroidCalendar<LocalEvent> {
 
     public static final String
             COLUMN_ETAG = Calendars.CAL_SYNC1,
@@ -62,11 +63,11 @@ public class LocalCalendar extends AndroidCalendar {
     }
 
     public static LocalCalendar findById(Account account, ContentProviderClient provider, long id) throws FileNotFoundException, CalendarStorageException {
-        return (LocalCalendar)AndroidCalendar.findByID(account, provider, Factory.FACTORY, id);
+        return AndroidCalendar.findByID(account, provider, Factory.FACTORY, id);
     }
 
-    public static LocalCalendar[] findAll(Account account, ContentProviderClient provider) throws CalendarStorageException {
-        return (LocalCalendar[])AndroidCalendar.find(account, provider, Factory.FACTORY, null, null);
+    public static List<LocalCalendar> findAll(Account account, ContentProviderClient provider) throws CalendarStorageException {
+        return AndroidCalendar.find(account, provider, Factory.FACTORY, null, null);
     }
 
 
@@ -116,8 +117,8 @@ public class LocalCalendar extends AndroidCalendar {
         update(values);
     }
 
-    public LocalEvent[] queryByUID(String uid) throws CalendarStorageException {
-        return (LocalEvent[])queryEvents(CalendarContract.Events._SYNC_ID + "=?", new String[] { uid });
+    public List<LocalEvent> queryByUID(String uid) throws CalendarStorageException {
+        return queryEvents(CalendarContract.Events._SYNC_ID + "=?", new String[] { uid });
     }
 
     public int retainByUID(String[] uids) throws CalendarStorageException {
@@ -127,28 +128,23 @@ public class LocalCalendar extends AndroidCalendar {
             escapedUIDs[idx++] = DatabaseUtils.sqlEscapeString(uid);
         String sqlUIDs = StringUtils.join(escapedUIDs, ",");
         try {
-            return provider.delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
+            return getProvider().delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
                     CalendarContract.Events.CALENDAR_ID + "=? AND (" +
                         CalendarContract.Events._SYNC_ID + " NOT IN (" + sqlUIDs + ") OR " +
                         CalendarContract.Events.ORIGINAL_SYNC_ID + " NOT IN (" + sqlUIDs + ")" +
-                    ")", new String[] { String.valueOf(id) });
+                    ")", new String[] { String.valueOf(getId()) });
         } catch (RemoteException e) {
             throw new CalendarStorageException("Couldn't delete local events");
         }
     }
 
 
-    public static class Factory implements AndroidCalendarFactory {
+    public static class Factory implements AndroidCalendarFactory<LocalCalendar> {
         public static final Factory FACTORY = new Factory();
 
         @Override
         public LocalCalendar newInstance(Account account, ContentProviderClient provider, long id) {
             return new LocalCalendar(account, provider, LocalEvent.LocalEventFactory.FACTORY, id);
-        }
-
-        @Override
-        public LocalCalendar[] newArray(int size) {
-            return new LocalCalendar[size];
         }
 
     }

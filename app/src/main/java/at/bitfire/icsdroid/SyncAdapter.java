@@ -28,23 +28,18 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Base64;
 import android.util.Log;
 
-import org.apache.commons.codec.Charsets;
-
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -54,9 +49,9 @@ import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.db.LocalCalendar;
 import at.bitfire.icsdroid.db.LocalEvent;
 import at.bitfire.icsdroid.ui.CalendarListActivity;
+import lombok.Cleanup;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-    private static final Pattern regexContentTypeCharset = Pattern.compile("[; ]\\s*charset=\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE);
 
     private final BlockingQueue<Runnable> syncQueue = new LinkedBlockingQueue<>();
     private final ExecutorService syncExecutor = new ThreadPoolExecutor(
@@ -75,7 +70,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(Constants.TAG, "Synchronizing " + account.name + " on authority " + authority);
 
         try {
-            LocalCalendar[] calendars = LocalCalendar.findAll(account, provider);
+            List<LocalCalendar> calendars = LocalCalendar.findAll(account, provider);
             for (LocalCalendar calendar : calendars)
                 if (calendar.isSynced())
                     syncExecutor.execute(new ProcessEventsTask(calendar, syncResult));
@@ -198,10 +193,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             try {
                 if (conn != null) {
-                    Event[] events = Event.fromStream(
-                            conn.getInputStream(),
-                            charsetFromContentType(conn.getHeaderField("Content-Type"))
-                    );
+                    @Cleanup InputStreamReader reader = new InputStreamReader(conn.getInputStream(),
+                            MiscUtils.charsetFromContentType(conn.getContentType()));
+                    List<Event> events = Event.fromReader(reader);
                     processEvents(events);
 
                     String eTag = conn.getHeaderField("ETag");
@@ -246,36 +240,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        private Charset charsetFromContentType(String contentType) {
-            // assume UTF-8 by default [RFC 5445 3.1.4]
-            Charset charset = Charsets.UTF_8;
-
-            if (contentType != null) {
-                Matcher m = regexContentTypeCharset.matcher(contentType);
-                if (m.find())
-                    try {
-                        charset = Charset.forName(m.group(1));
-                        Log.v(Constants.TAG, "Using charset " + charset.displayName());
-                    } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-                        Log.e(Constants.TAG, "Illegal or unsupported character set, assuming UTF-8", e);
-                    }
-            }
-
-            return charset;
-        }
-
-        private void processEvents(Event[] events) throws CalendarStorageException {
-            Log.i(Constants.TAG, "Processing " + events.length + " events");
-            String[] uids = new String[events.length];
+        private void processEvents(List<Event> events) throws CalendarStorageException {
+            Log.i(Constants.TAG, "Processing " + events.size() + " events");
+            String[] uids = new String[events.size()];
 
             int idx = 0;
             for (Event event : events) {
-                final String uid = event.uid;
+                final String uid = event.getUid();
                 Log.d(Constants.TAG, "Found VEVENT: " + uid);
                 uids[idx++] = uid;
 
-                LocalEvent[] localEvents = calendar.queryByUID(uid);
-                if (localEvents.length == 0) {
+                List<LocalEvent> localEvents = calendar.queryByUID(uid);
+                if (localEvents.size() == 0) {
                     Log.d(Constants.TAG, uid + " not in local calendar, adding");
                     new LocalEvent(calendar, event).add();
                     synchronized(syncResult) {
@@ -283,8 +259,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
 
                 } else {
-                    LocalEvent localEvent = localEvents[0];
-                    if (event.lastModified == null || event.lastModified.getDateTime().getTime() > localEvent.getLastModified()) {
+                    LocalEvent localEvent = localEvents.get(0);
+                    if (event.getLastModified() == null || event.getLastModified().getDateTime().getTime() > localEvent.getLastModified()) {
                         // no LAST-MODIFIED or LAST-MODIFIED has been increased
                         localEvent.update(event);
                         synchronized(syncResult) {

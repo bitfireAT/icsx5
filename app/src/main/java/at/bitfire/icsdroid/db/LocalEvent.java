@@ -19,9 +19,12 @@ import android.provider.CalendarContract;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.property.LastModified;
 
+import java.io.FileNotFoundException;
+
 import at.bitfire.ical4android.AndroidCalendar;
 import at.bitfire.ical4android.AndroidEvent;
 import at.bitfire.ical4android.AndroidEventFactory;
+import at.bitfire.ical4android.CalendarStorageException;
 import at.bitfire.ical4android.Event;
 import lombok.Getter;
 
@@ -42,22 +45,22 @@ public class LocalEvent extends AndroidEvent {
     public LocalEvent(AndroidCalendar calendar, Event event) {
         super(calendar, event);
 
-        uid = event.uid;
-        lastModified = event.lastModified.getDateTime().getTime();
+        uid = event.getUid();
+        lastModified = event.getLastModified().getDateTime().getTime();
     }
 
     @Override
-    protected void populateEvent(ContentValues values) {
+    protected void populateEvent(ContentValues values) throws FileNotFoundException, CalendarStorageException {
         super.populateEvent(values);
 
-        uid = event.uid = values.getAsString(CalendarContract.Events._SYNC_ID);
+        getEvent().setUid(uid = values.getAsString(CalendarContract.Events._SYNC_ID));
 
         lastModified = values.getAsLong(COLUMN_LAST_MODIFIED);
-        event.lastModified = new LastModified(new DateTime(lastModified));
+        getEvent().setLastModified(new LastModified(new DateTime(lastModified)));
     }
 
     @Override
-    protected void buildEvent(Event recurrence, Builder builder) {
+    protected void buildEvent(Event recurrence, Builder builder) throws FileNotFoundException, CalendarStorageException {
         super.buildEvent(recurrence, builder);
 
         if (recurrence == null) {
@@ -83,10 +86,6 @@ public class LocalEvent extends AndroidEvent {
             return new LocalEvent(calendar, event);
         }
 
-        @Override
-        public AndroidEvent[] newArray(int size) {
-            return new LocalEvent[size];
-        }
     }
 
 }

@@ -13,22 +13,14 @@
 package at.bitfire.icsdroid;
 
 import android.content.Context;
-import android.util.Log;
-
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 
 public class MTMLoader {
     private static final String TAG = "ICSdroid.MTMLoader";
 
     public static void prepareHttpsURLConnection(Context context, HttpsURLConnection connection) {
-        try {
+        /*try {
             MemorizingTrustManager mtm = new MemorizingTrustManager(context);
 
             SSLContext sc = SSLContext.getInstance("TLS");
@@ -38,7 +30,7 @@ public class MTMLoader {
             connection.setHostnameVerifier(mtm.wrapHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier()));
         } catch (NoSuchAlgorithmException|KeyManagementException e) {
             Log.e(TAG, "Couldn't initialize MemorizingTrustManager", e);
-        }
+        }*/
     }
 
 }

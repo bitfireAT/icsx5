@@ -29,11 +29,12 @@ import android.widget.Toast;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -42,6 +43,7 @@ import at.bitfire.ical4android.Event;
 import at.bitfire.ical4android.InvalidCalendarException;
 import at.bitfire.icsdroid.Constants;
 import at.bitfire.icsdroid.MTMLoader;
+import at.bitfire.icsdroid.MiscUtils;
 import at.bitfire.icsdroid.R;
 import lombok.Cleanup;
 
@@ -187,12 +189,13 @@ public class AddCalendarValidationFragment extends DialogFragment implements Loa
 
             try {
                 if (conn != null) {
-                    @Cleanup InputStream is = conn.getInputStream();
+                    @Cleanup InputStreamReader reader = new InputStreamReader(conn.getInputStream(),
+                            MiscUtils.charsetFromContentType(conn.getContentType()));
                     Map<String, String> properties = new HashMap<>();
-                    Event[] events = Event.fromStream(is, null, properties);
+                    List<Event> events = Event.fromReader(reader, properties);
 
                     info.calendarName = properties.get(Event.CALENDAR_NAME);
-                    info.eventsFound = events.length;
+                    info.eventsFound = events.size();
                 }
 
             } catch (IOException|InvalidCalendarException e) {
