@@ -1,9 +1,9 @@
 
 # ProGuard usage for ICSdroid:
-# 	shrinking		yes - main reason for using ProGuard
-# 	optimization		no - too risky
-# 	obfuscation		no - ICSdroid is open-source
-# 	preverification		no (Android default)
+# 	shrinking		    yes - main reason for using ProGuard
+# 	optimization	    no - too risky
+# 	obfuscation		    no - ICSdroid is open-source
+# 	preverification	    no (Android default)
 
 -dontobfuscate
 
@@ -17,10 +17,7 @@
 -dontwarn yuku.ambilwarna.widget.AmbilWarnaPrefWidgetView
 
 # keep ICSdroid and ical4android
--keep class at.bitfire.** { *; }	# all DAVdroid code is required
+-keep class at.bitfire.** { *; }	# all ICSdroid code is required
 
 # unneeded libraries
 -dontwarn aQute.**
-
-# MemorizingTrustManager
--dontwarn de.duenndns.ssl.MemorizingTrustManager

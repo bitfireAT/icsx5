@@ -107,10 +107,6 @@
             android:parentActivityName=".ui.CalendarListActivity"
             tools:ignore="UnusedAttribute"/>
 
-        <!-- MemorizingTrustManager -->
-        <activity
-            android:name="de.duenndns.ssl.MemorizingActivity"
-            android:theme="@style/Theme.AppCompat.Light.Dialog" />
     </application>
 
 </manifest>

@@ -6,25 +6,24 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package at.bitfire.icsdroid.ui;
+package at.bitfire.icsdroid.ui
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import at.bitfire.icsdroid.R;
 
-public class AddCalendarActivity extends AppCompatActivity {
+class AddCalendarActivity: AppCompatActivity() {
 
-    @Override
-    protected void onCreate(Bundle inState) {
-        super.onCreate(inState);
-        setContentView(R.layout.fragment_container);
+    override fun onCreate(inState: Bundle?) {
+        super.onCreate(inState)
+        setContentView(R.layout.fragment_container)
 
         if (inState == null)
-            getSupportFragmentManager()
+            supportFragmentManager
                     .beginTransaction()
-                    .add(R.id.fragment_container, new AddCalendarEnterUrlFragment())
-                    .commit();
+                    .add(R.id.fragment_container, AddCalendarEnterUrlFragment())
+                    .commit()
     }
 
 }

@@ -24,6 +24,7 @@
     <string name="title_activity_calendar_list">My subscriptions</string>
 
     <string name="activity_add_calendar">Subscribe to calendar</string>
+    <string name="add_calendar_need_valid_uri">Valid URI required</string>
     <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
     <string name="add_calendar_create">Subscribe now</string>
     <string name="add_calendar_created">Subscribed successfully</string>
