@@ -19,6 +19,8 @@ class AddCalendarActivity: AppCompatActivity() {
         super.onCreate(inState)
         setContentView(R.layout.fragment_container)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         if (inState == null)
             supportFragmentManager
                     .beginTransaction()

@@ -11,19 +11,19 @@ package at.bitfire.icsdroid.ui;
 import java.io.Serializable;
 import java.net.URL;
 
-public class ResourceInfo implements Serializable {
+class ResourceInfo: Serializable {
 
-    URL url;
-    boolean authRequired;
-    String username;
-    String password;
+    var url: URL? = null
+    var authRequired = false
+    var username: String? = null
+    var password: String? = null
 
-    Exception exception;
+    var exception: Exception? = null
 
-    int statusCode = -1;
-    String statusMessage;
+    var statusCode = -1
+    var statusMessage: String? = null
 
-    String calendarName;
-    int eventsFound = -1;
+    var calendarName: String? = null
+    var eventsFound = -1
 
 }

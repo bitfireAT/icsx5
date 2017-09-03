@@ -200,8 +200,7 @@ class SyncAdapter(
                     syncResult.stats.numParseExceptions++
                 }
             } finally {
-                if (conn is HttpURLConnection)
-                    conn.disconnect()
+                (conn as? HttpURLConnection)?.disconnect()
             }
 
             errorMessage?.let { msg ->

@@ -135,8 +135,9 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
 
     private fun updateHttpWarning() {
         // warn if auth. required and not using HTTPS
+        val url = info.url
         view!!.insecure_authentication_warning.visibility =
-                if (info.authRequired && info.url != null && !info.url.protocol.equals("https", true))
+                if (info.authRequired && url != null && !url.protocol.equals("https", true))
                     View.VISIBLE
                 else
                     View.GONE
