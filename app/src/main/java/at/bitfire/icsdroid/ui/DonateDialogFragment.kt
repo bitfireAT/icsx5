@@ -19,7 +19,7 @@ class DonateDialogFragment: DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?) =
             AlertDialog.Builder(activity)
-                .setIcon(R.drawable.ic_launcher)
+                .setIcon(R.mipmap.ic_launcher)
                 .setTitle(R.string.donate_title)
                 .setMessage(R.string.donate_message)
                 .setPositiveButton(R.string.donate_now, { _, _ ->

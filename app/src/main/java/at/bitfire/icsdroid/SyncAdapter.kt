@@ -116,7 +116,7 @@ class SyncAdapter(
 
                     if (conn is HttpURLConnection) {
                         conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
-                        conn.setRequestProperty("Connection", "close");  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
+                        conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
                         conn.instanceFollowRedirects = false
 
                         if (calendar.username != null && calendar.password != null) {
@@ -206,7 +206,7 @@ class SyncAdapter(
             errorMessage?.let { msg ->
                 val nm = NotificationManagerCompat.from(context)
                 val notification = NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setCategory(NotificationCompat.CATEGORY_ERROR)
                         .setGroup("ICSdroid")
                         .setContentTitle(context.getString(R.string.sync_error_title))

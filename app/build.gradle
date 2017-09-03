@@ -34,10 +34,8 @@ android {
         }
     }
     lintOptions {
-        disable 'IconColors'
-        disable 'IconDensities'
+        disable 'ExtraTranslation', 'MissingTranslation'
         disable 'InvalidPackage'
-        disable 'MissingTranslation'
         disable 'OldTargetApi'
         disable 'PrivateResource'
     }
