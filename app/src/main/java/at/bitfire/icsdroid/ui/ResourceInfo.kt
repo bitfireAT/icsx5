@@ -14,7 +14,6 @@ import java.net.URL;
 class ResourceInfo: Serializable {
 
     var url: URL? = null
-    var authRequired = false
     var username: String? = null
     var password: String? = null
 

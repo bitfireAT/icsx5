@@ -32,9 +32,6 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         private val STATE_TITLE = "title"
         private val STATE_COLOR = "color"
 
-        var DEFAULT_COLOR = 0xFF2F80C7.toInt()
-
-
         fun newInstance(info: ResourceInfo): AddCalendarDetailsFragment {
             val frag = AddCalendarDetailsFragment()
             val args = Bundle(1)
@@ -48,7 +45,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
     private lateinit var info: ResourceInfo
 
     private var title: String? = null
-    private var color: Int = DEFAULT_COLOR
+    private var color: Int = LocalCalendar.DEFAULT_COLOR
 
 
 
@@ -124,8 +121,8 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         calInfo.put(Calendars.OWNER_ACCOUNT, AppAccount.account.name)
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
-        calInfo.put(LocalCalendar.COLUMN_USERNAME, if (info.authRequired) info.username else null)
-        calInfo.put(LocalCalendar.COLUMN_PASSWORD, if (info.authRequired) info.password else null)
+        calInfo.put(LocalCalendar.COLUMN_USERNAME, info.username)
+        calInfo.put(LocalCalendar.COLUMN_PASSWORD, info.password)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
 
         val client: ContentProviderClient? = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)

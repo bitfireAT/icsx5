@@ -29,12 +29,14 @@ class LocalCalendar private constructor(
 
     companion object {
 
-        @JvmField val COLUMN_ETAG = Calendars.CAL_SYNC1
-        @JvmField val COLUMN_USERNAME = Calendars.CAL_SYNC2
-        @JvmField val COLUMN_PASSWORD = Calendars.CAL_SYNC3
-        @JvmField val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
-        @JvmField val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
-        @JvmField val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
+        val DEFAULT_COLOR = 0xFF2F80C7.toInt()
+
+        val COLUMN_ETAG = Calendars.CAL_SYNC1
+        val COLUMN_USERNAME = Calendars.CAL_SYNC2
+        val COLUMN_PASSWORD = Calendars.CAL_SYNC3
+        val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
+        val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
+        val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
 
         @JvmStatic
         @Throws(FileNotFoundException::class, CalendarStorageException::class)

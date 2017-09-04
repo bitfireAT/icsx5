@@ -51,7 +51,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
         loaderManager.initLoader(0, arguments, this)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val progress = ProgressDialog(activity)
         progress.setMessage(getString(R.string.add_calendar_validating))
         return progress
@@ -127,7 +127,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
                         conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
                         conn.instanceFollowRedirects = false
 
-                        if (info.authRequired) {
+                        if (info.username != null && info.password != null) {
                             val basicCredentials = "${info.username}:${info.password}"
                             conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
                         }

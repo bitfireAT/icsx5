@@ -33,16 +33,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
     lintOptions {
         disable 'ExtraTranslation', 'MissingTranslation'
         disable 'InvalidPackage'
         disable 'OldTargetApi'
         disable 'PrivateResource'
-    }
-    packagingOptions {
-        exclude 'LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
     }
 }
 

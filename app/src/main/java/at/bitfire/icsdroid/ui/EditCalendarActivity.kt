@@ -29,8 +29,7 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.edit_calendar.*
-import java.net.MalformedURLException
-import java.net.URL
+import java.net.URI
 
 class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<LocalCalendar?> {
 
@@ -44,40 +43,37 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         private val STATE_DIRTY = "dirty"
     }
 
-    private var savedState: Bundle? = null
     private var dirty = false      // indicates whether title/color have been changed by the user
+        set(value) {
+            field = value
+            invalidateOptionsMenu()
+        }
     private var calendar: LocalCalendar? = null
 
     private var fragTitleColor: TitleColorFragment? = null
     private var fragCredentials: CredentialsFragment? = null
+
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
         setContentView(R.layout.edit_calendar)
 
         sync_calendar.setOnClickListener({ _ ->
-            setDirty(true)
+            dirty = true
         })
 
         // load calendar from provider
         loaderManager.initLoader(0, null, this)
-
-        savedState = inState
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        fragTitleColor?.let {
-            outState.putString(STATE_TITLE, it.title)
-            outState.putInt(STATE_COLOR, it.color)
-        }
-        outState.putBoolean(STATE_SYNC_THIS, sync_calendar.isChecked)
-        fragCredentials?.let {
-            outState.putBoolean(STATE_REQUIRE_AUTH, it.authRequired)
-            outState.putString(STATE_USERNAME, it.username)
-            outState.putString(STATE_PASSWORD, it.password)
-        }
         outState.putBoolean(STATE_DIRTY, dirty)
+    }
+
+    override fun onRestoreInstanceState(inState: Bundle?) {
+        super.onRestoreInstanceState(inState)
+        inState?.getBoolean(STATE_DIRTY)?.let { dirty = it }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -95,16 +91,13 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 .setVisible(dirty)
 
         val titleOK = !fragTitleColor?.title.isNullOrBlank()
-        val authOK = fragCredentials?.let { !it.authRequired || (!it.username.isNullOrBlank() && !it.password.isNullOrBlank()) } ?: false
+        val authOK = fragCredentials?.let {
+            !it.requiresAuth || (!it.username.isNullOrEmpty() && !it.password.isNullOrEmpty())
+        } ?: false
         menu.findItem(R.id.save)
                 .setEnabled(dirty && titleOK && authOK)
                 .setVisible(dirty && titleOK && authOK)
         return true
-    }
-
-    private fun setDirty(dirty: Boolean) {
-        this.dirty = dirty
-        invalidateOptionsMenu()
     }
 
 
@@ -129,8 +122,10 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, fragTitleColor?.color)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (sync_calendar.isChecked) 1 else 0)
                 fragCredentials?.let {
-                    values.put(LocalCalendar.COLUMN_USERNAME, if (it.authRequired) it.username else null)
-                    values.put(LocalCalendar.COLUMN_PASSWORD, if (it.authRequired) it.password else null)
+                    if (it.requiresAuth) {
+                        values.put(LocalCalendar.COLUMN_USERNAME, it.username)
+                        values.put(LocalCalendar.COLUMN_PASSWORD, it.password)
+                    }
                 }
                 it.update(values)
                 success = true
@@ -183,67 +178,60 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     override fun onCreateLoader(id: Int, args: Bundle?) =
             CalendarLoader(this, intent.data)
 
-    override fun onLoadFinished(loader: Loader<LocalCalendar?>, calendar: LocalCalendar?) = if (calendar == null)
-        // calendar not available (anymore), close activity
-        finish()
-    else {
-        this.calendar = calendar
-        val state = savedState
+    override fun onLoadFinished(loader: Loader<LocalCalendar?>, calendar: LocalCalendar?) {
+        if (calendar == null)
+            // calendar not available (anymore), close activity
+            finish()
+        else {
+            this.calendar = calendar
 
-        if (fragTitleColor == null) {
-            val frag = TitleColorFragment()
-            val args = Bundle(3)
-            args.putString(TitleColorFragment.ARG_URL, calendar.name)
-            args.putString(TitleColorFragment.ARG_TITLE, if (state == null) calendar.displayName else state.getString(STATE_TITLE))
-            args.putInt(TitleColorFragment.ARG_COLOR, if (state == null) (calendar.color ?: AddCalendarDetailsFragment.DEFAULT_COLOR) else state.getInt(STATE_COLOR))
-            frag.arguments = args
-            frag.setOnChangeListener(object: TitleColorFragment.OnChangeListener {
-                override fun onChangeTitleColor(title: String?, color: Int) {
-                    setDirty(true)
-                }
-            })
+            fragTitleColor = supportFragmentManager.findFragmentById(R.id.title_color) as? TitleColorFragment
+            if (fragTitleColor == null) {
+                val frag = TitleColorFragment()
+                val args = Bundle(3)
+                args.putString(TitleColorFragment.ARG_URL, calendar.name)
+                args.putString(TitleColorFragment.ARG_TITLE, calendar.displayName)
+                args.putInt(TitleColorFragment.ARG_COLOR, calendar.color ?: LocalCalendar.DEFAULT_COLOR)
+                frag.arguments = args
+                frag.setOnChangeListener(object : TitleColorFragment.OnChangeListener {
+                    override fun onChangeTitleColor(title: String?, color: Int) {
+                        dirty = true
+                    }
+                })
 
-            fragTitleColor = frag
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.title_color, fragTitleColor)
-                    .commit()
-        }
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.title_color, frag)
+                        .commit()
+                fragTitleColor = frag
 
-        if (fragCredentials == null) {
-            val frag = CredentialsFragment()
-            val args = Bundle(3)
-            val authRequired = if (state == null)
-                (calendar.username != null && calendar.password != null)
-            else
-                state.getBoolean(STATE_REQUIRE_AUTH)
-            args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, authRequired)
-            args.putString(CredentialsFragment.ARG_USERNAME, if (state == null) calendar.username else state.getString(STATE_USERNAME))
-            args.putString(CredentialsFragment.ARG_PASSWORD, if (state == null) calendar.password else state.getString(STATE_PASSWORD))
-            frag.arguments = args
-            frag.setOnChangeListener(object: CredentialsFragment.OnCredentialsChangeListener {
-                override fun onChangeCredentials(authRequired: Boolean, username: String?, password: String?) {
-                    setDirty(true)
-                }
-            })
-
-            fragCredentials = frag
-            val ft = supportFragmentManager.beginTransaction()
-            ft.replace(R.id.credentials, fragCredentials)
-
-            try {
-                val url = URL(calendar.url)
-                if (url.protocol.equals("file", true))
-                    ft.hide(fragCredentials)
-            } catch(e: MalformedURLException) {
-                Log.e(Constants.TAG, "Invalid calendar URL", e)
+                sync_calendar.isChecked = calendar.isSynced
             }
 
-            ft.commit()
+            fragCredentials = supportFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment
+            if (fragCredentials == null) try {
+                val uri = URI(calendar.url)
+                if (!uri.scheme.equals("file", true)) {
+                    val frag = CredentialsFragment()
+                    val args = Bundle(3)
+                    args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, calendar.username != null && calendar.password != null)
+                    args.putString(CredentialsFragment.ARG_USERNAME, calendar.username)
+                    args.putString(CredentialsFragment.ARG_PASSWORD, calendar.password)
+                    frag.arguments = args
+                    frag.setOnChangeListener(object : CredentialsFragment.OnCredentialsChangeListener {
+                        override fun onChangeCredentials(username: String?, password: String?) {
+                            dirty = true
+                        }
+                    })
+
+                    val ft = supportFragmentManager.beginTransaction()
+                            .replace(R.id.credentials, frag)
+                            .commit()
+                    fragCredentials = frag
+                }
+            } catch(e: Exception) {
+                Log.e(Constants.TAG, "Invalid calendar URI", e)
+            }
         }
-
-        sync_calendar.isChecked = if (state == null) calendar.isSynced else state.getBoolean(STATE_SYNC_THIS)
-
-        setDirty(state != null && state.getBoolean(STATE_DIRTY))
     }
 
     override fun onLoaderReset(loader: Loader<LocalCalendar?>) {

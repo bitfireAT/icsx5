@@ -12,6 +12,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.ContentResolver
 import android.content.Context
+import android.os.Bundle
 import android.provider.CalendarContract
 import android.util.Log
 
@@ -56,7 +57,7 @@ object AppAccount {
         } else {
             Log.i(Constants.TAG, "Setting automatic synchronization with interval of $syncInterval seconds")
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true)
-            ContentResolver.addPeriodicSync(account, CalendarContract.AUTHORITY, null, syncInterval)
+            ContentResolver.addPeriodicSync(account, CalendarContract.AUTHORITY, Bundle(), syncInterval)
         }
     }
 

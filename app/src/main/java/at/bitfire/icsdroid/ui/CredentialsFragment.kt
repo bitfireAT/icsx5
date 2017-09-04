@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.credentials.view.*
+import org.apache.commons.lang3.StringUtils
 
 class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, TextWatcher {
 
@@ -27,50 +28,48 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
         val ARG_PASSWORD = "password"
     }
 
-    var authRequired = false
-    var username: String? = null
-    var password: String? = null
-
     private var onChangeListener: OnCredentialsChangeListener? = null
 
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val v = inflater.inflate(R.layout.credentials, container, false)
-
-        if (savedInstanceState == null && arguments != null) {
-            val args = arguments
-            authRequired = args.getBoolean(ARG_AUTH_REQUIRED)
-            username = args.getString(ARG_USERNAME)
-            password = args.getString(ARG_PASSWORD)
-        } else if (savedInstanceState != null) {
-            authRequired = savedInstanceState.getBoolean(ARG_AUTH_REQUIRED)
-            username = savedInstanceState.getString(ARG_USERNAME)
-            password = savedInstanceState.getString(ARG_PASSWORD)
+    var requiresAuth
+        get() = view?.requires_authentication?.isChecked ?: false
+        set(value) {
+            view?.requires_authentication?.isChecked = value
+            updateViews()
         }
 
-        v.requires_authentication.isChecked = authRequired
+    var username: String?
+        get() = StringUtils.trimToNull(view?.user_name?.text.toString())
+        set(value) {
+            view?.user_name?.setText(value)
+            updateViews()
+        }
+    var password: String?
+        get() = StringUtils.trimToNull(view?.password?.text.toString())
+        set(value) {
+            view?.password?.setText(value)
+            updateViews()
+        }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
+        val v = inflater.inflate(R.layout.credentials, container, false)
+
+        arguments?.let { args ->
+            v.requires_authentication.isChecked = args.getBoolean(ARG_AUTH_REQUIRED)
+            v.user_name.setText(args.getString(ARG_USERNAME))
+            v.password.setText(args.getString(ARG_PASSWORD))
+        }
+
         v.requires_authentication.setOnCheckedChangeListener(this)
-
-        v.user_name.setText(username)
         v.user_name.addTextChangedListener(this)
-
-        v.password.setText(password)
         v.password.addTextChangedListener(this)
 
         updateViews()
         return v
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(ARG_AUTH_REQUIRED, authRequired)
-        outState.putString(ARG_USERNAME, username)
-        outState.putString(ARG_PASSWORD, password)
-    }
-
 
     interface OnCredentialsChangeListener {
-        fun onChangeCredentials(authRequired: Boolean, username: String?, password: String?)
+        fun onChangeCredentials(username: String?, password: String?)
     }
 
     fun setOnChangeListener(listener: OnCredentialsChangeListener) {
@@ -78,13 +77,12 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
     }
 
     private fun notifyListener() {
-        onChangeListener?.onChangeCredentials(authRequired,
-                if (authRequired) username else null, if (authRequired) password else null)
+        onChangeListener?.onChangeCredentials(if (requiresAuth) username else null, if (requiresAuth) password else null)
     }
 
     private fun updateViews() {
         view?.let { v ->
-            if (authRequired) {
+            if (v.requires_authentication.isChecked) {
                 v.user_name_label.visibility = View.VISIBLE
                 v.user_name.visibility = View.VISIBLE
                 v.password_label.visibility = View.VISIBLE
@@ -100,7 +98,6 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
 
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        authRequired = isChecked
         updateViews()
         notifyListener()
     }
@@ -112,8 +109,6 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
     }
 
     override fun afterTextChanged(s: Editable) {
-        username = view!!.user_name.text.toString()
-        password = view!!.password.text.toString()
         notifyListener()
     }
 

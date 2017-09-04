@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.calendar_title_color.view.*
 import yuku.ambilwarna.AmbilWarnaDialog
 
@@ -29,28 +30,21 @@ class TitleColorFragment: Fragment(), TextWatcher {
 
     private var url: String? = null
     var title: String? = null
-    var color = AddCalendarDetailsFragment.DEFAULT_COLOR
+    var color = LocalCalendar.DEFAULT_COLOR
 
     private var listener: OnChangeListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val v = inflater.inflate(R.layout.calendar_title_color, container, false)
 
-        if (inState == null) {
-            url = arguments.getString(ARG_URL)
-            title = arguments.getString(ARG_TITLE)
-            color = arguments.getInt(ARG_COLOR)
-        } else {
-            url = inState.getString(ARG_URL)
-            title = inState.getString(ARG_TITLE)
-            color = inState.getInt(ARG_COLOR)
-        }
-
+        url = arguments.getString(ARG_URL)
         v.url.text = url
 
+        title = arguments.getString(ARG_TITLE)
         v.title.setText(title)
         v.title.addTextChangedListener(this)
 
+        color = arguments.getInt(ARG_COLOR)
         v.color.setColor(color)
         v.color.setOnClickListener({ _ ->
             AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {
@@ -66,13 +60,6 @@ class TitleColorFragment: Fragment(), TextWatcher {
         })
 
         return v
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(ARG_URL, url)
-        outState.putString(ARG_TITLE, title)
-        outState.putInt(ARG_COLOR, color)
     }
 
 
@@ -99,4 +86,5 @@ class TitleColorFragment: Fragment(), TextWatcher {
     private fun notifyListener() {
         listener?.onChangeTitleColor(title, color)
     }
+
 }

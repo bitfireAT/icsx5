@@ -38,7 +38,7 @@ class ColorButton(
 
 
     fun setColor(color: Int) {
-        paint.setColor(0xFF000000.toInt() or color)
+        paint.color = 0xFF000000.toInt() or color
         invalidate()
     }
 
