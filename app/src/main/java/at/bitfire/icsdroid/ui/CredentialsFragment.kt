@@ -26,6 +26,17 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
         val ARG_AUTH_REQUIRED = "auth_required"
         val ARG_USERNAME = "username"
         val ARG_PASSWORD = "password"
+
+        fun newInstance(username: String? = null, password: String? = null): CredentialsFragment {
+            val frag = CredentialsFragment()
+            val args = Bundle(3)
+            args.putBoolean(ARG_AUTH_REQUIRED, username != null || password != null)
+            args.putString(ARG_USERNAME, username)
+            args.putString(ARG_PASSWORD, password)
+            frag.arguments = args
+            return frag
+        }
+
     }
 
     private var onChangeListener: OnCredentialsChangeListener? = null

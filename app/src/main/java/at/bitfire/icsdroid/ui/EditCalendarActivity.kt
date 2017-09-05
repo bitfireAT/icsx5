@@ -223,12 +223,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 if (!uri.scheme.equals("file", true)) {
                     val (username, password) = CalendarCredentials.getCredentials(this, calendar)
 
-                    val frag = CredentialsFragment()
-                    val args = Bundle(3)
-                    args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, username != null && password != null)
-                    args.putString(CredentialsFragment.ARG_USERNAME, username)
-                    args.putString(CredentialsFragment.ARG_PASSWORD, password)
-                    frag.arguments = args
+                    val frag = CredentialsFragment.newInstance(username, password)
                     frag.setOnChangeListener(object : CredentialsFragment.OnCredentialsChangeListener {
                         override fun onChangeCredentials(username: String?, password: String?) {
                             dirty = true

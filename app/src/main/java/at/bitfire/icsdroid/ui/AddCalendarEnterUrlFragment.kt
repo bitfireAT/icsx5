@@ -33,19 +33,29 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         val v = inflater.inflate(R.layout.add_calendar_enter_url, container, false)
         setHasOptionsMenu(true)
 
+        var username: String? = null
+        var password: String? = null
+
+        activity.intent.data?.let { uri ->
+            // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
+            uri.userInfo?.let {
+                val info = it.split(':', limit = 2).iterator()
+                if (info.hasNext())
+                    username = info.next()
+                if (info.hasNext())
+                    password = info.next()
+            }
+            v.url.setText(URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null).toString())
+        }
+
         credentials = childFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment ?: {
-            val frag = CredentialsFragment()
+            val frag = CredentialsFragment.newInstance(username, password)
             frag.setOnChangeListener(this)
             childFragmentManager.beginTransaction()
                     .replace(R.id.credentials, frag)
                     .commit()
             frag
         }()
-
-        activity.intent.data?.let {
-            // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
-            v.url.setText(it.toString())
-        }
 
         return v
     }
@@ -73,7 +83,7 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         if (v.url.text.isNotEmpty() && !urlOK)
             v.url.error = getString(R.string.add_calendar_need_valid_uri)
 
-        val authOK = !credentials.requiresAuth || (!credentials.username.isNullOrBlank() && !credentials.password.isNullOrBlank())
+        val authOK = !credentials.requiresAuth || (credentials.username != null && credentials.password != null)
 
         val permOK = if (uri?.scheme.equals("file", true))
             ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
