@@ -33,6 +33,7 @@ class SyncIntervalDialogFragment: DialogFragment() {
         if (syncIntervalSeconds.contains(currentSyncInterval))
             v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 
+
         builder .setView(v)
                 .setPositiveButton(R.string.set_sync_interval_save, { _, _ ->
                     AppAccount.setSyncInterval(syncIntervalSeconds.get(v.sync_interval.selectedItemPosition))

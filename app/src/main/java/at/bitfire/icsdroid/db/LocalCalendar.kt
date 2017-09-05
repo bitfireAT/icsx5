@@ -78,7 +78,7 @@ class LocalCalendar private constructor(
     }
 
     @Throws(CalendarStorageException::class)
-    fun updateStatusSuccess(eTag: String, lastModified: Long) {
+    fun updateStatusSuccess(eTag: String?, lastModified: Long) {
         this.eTag = eTag
         this.lastModified = lastModified
         lastSync = System.currentTimeMillis()

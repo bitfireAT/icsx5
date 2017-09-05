@@ -8,13 +8,17 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.LoaderManager
 import android.content.*
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Bundle
 import android.os.Handler
 import android.provider.CalendarContract
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -51,10 +55,8 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         refresh.setSize(SwipeRefreshLayout.LARGE)
 
         listAdapter = CalendarListAdapter(this)
-        calendar_list.setAdapter(listAdapter)
+        calendar_list.adapter = listAdapter
         calendar_list.onItemClickListener = this
-
-        AppAccount.makeAvailable(this)
 
         if (savedInstanceState == null && packageName != callingPackage) {
             val installer = packageManager.getInstallerPackageName(BuildConfig.APPLICATION_ID)
@@ -62,7 +64,18 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 DonateDialogFragment().show(supportFragmentManager, "donate")
         }
 
-        loaderManager.initLoader(0, null, this)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
+            loaderManager.initLoader(0, null, this)
+        else
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
+            loaderManager.initLoader(0, null, this)
+        else
+            finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -208,8 +221,8 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     class CalendarListLoader(
             context: Context
     ): Loader<List<LocalCalendar>>(context) {
-        var provider: ContentProviderClient? = null
-        lateinit var observer: ContentObserver
+        private var provider: ContentProviderClient? = null
+        private lateinit var observer: ContentObserver
 
         @SuppressLint("Recycle")
         override fun onStartLoading() {

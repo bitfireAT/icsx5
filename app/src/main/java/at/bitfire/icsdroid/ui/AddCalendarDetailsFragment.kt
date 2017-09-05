@@ -126,15 +126,15 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
 
         val client: ContentProviderClient? = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-        try {
+        return try {
             client?.let { AndroidCalendar.create(AppAccount.account, it, calInfo) }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
             activity.invalidateOptionsMenu()
-            return true
+            true
         } catch(e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
             Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
-            return false
+            false
         } finally {
             client?.release()
         }

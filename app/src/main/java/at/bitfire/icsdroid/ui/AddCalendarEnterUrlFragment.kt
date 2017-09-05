@@ -8,8 +8,12 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -38,13 +42,17 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
             frag
         }()
 
-        v.url.addTextChangedListener(this)
         activity.intent.data?.let {
             // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
             v.url.setText(it.toString())
         }
 
         return v
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        validateUrl()
+        view.url.addTextChangedListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -55,8 +63,9 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         val v = requireNotNull(view)
 
         val itemNext = menu.findItem(R.id.next)
+        var uri: URI? = null
         val urlOK = try {
-            val uri = URI(v.url.text.toString())
+            uri = URI(v.url.text.toString())
             uri.scheme.equals("file", true) || uri.scheme.equals("http", true) || uri.scheme.equals("https", true)
         } catch(e: URISyntaxException) {
             false
@@ -66,14 +75,19 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
 
         val authOK = !credentials.requiresAuth || (!credentials.username.isNullOrBlank() && !credentials.password.isNullOrBlank())
 
-        itemNext.isEnabled = urlOK && authOK
+        val permOK = if (uri?.scheme.equals("file", true))
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        else
+            true
+
+        itemNext.isEnabled = urlOK && authOK && permOK
     }
 
 
     /* dynamic changes */
 
     override fun onChangeCredentials(username: String?, password: String?) {
-        updateHttpWarning()
+        validateUrl()
         activity.invalidateOptionsMenu()
     }
 
@@ -81,6 +95,14 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        validateUrl()
+    }
+
+    override fun afterTextChanged(s: Editable) {
+        activity.invalidateOptionsMenu()
+    }
+
+    private fun validateUrl() {
         var uri: URI
 
         val view = requireNotNull(view)
@@ -99,10 +121,15 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         try {
             when {
                 uri.scheme.equals("file", true) && !uri.path.isNullOrBlank() -> {
+                    // local file:
+                    // 1. no need for auth
                     credentials.requiresAuth = false
                     childFragmentManager.beginTransaction()
                             .hide(credentials)
                             .commit()
+                    // 2. permission required
+                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
                 }
                 (uri.scheme.equals("http", true) || uri.scheme.equals("https", true)) && !uri.authority.isNullOrBlank() -> {
                     childFragmentManager.beginTransaction()
@@ -114,21 +141,16 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
             Log.d(Constants.TAG, "Invalid URL", e)
             view.url.error = e.localizedMessage
         }
-    }
 
-    override fun afterTextChanged(s: Editable) {
-        updateHttpWarning()
-        activity.invalidateOptionsMenu()
-    }
-
-    private fun updateHttpWarning() {
         // warn if auth. required and not using HTTPS
-        val url = view!!.url.text.toString()
-        view!!.insecure_authentication_warning.visibility =
-                if (credentials.requiresAuth && !url.startsWith("https", true))
+        view.insecure_authentication_warning.visibility =
+                if (credentials.requiresAuth && !uri.scheme.equals("https", true))
                     View.VISIBLE
                 else
                     View.GONE
+    }
+
+    private fun updateHttpWarning() {
     }
 
 

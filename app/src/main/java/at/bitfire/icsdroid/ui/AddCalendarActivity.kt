@@ -8,10 +8,14 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-
-import at.bitfire.icsdroid.R;
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
+import at.bitfire.icsdroid.R
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -21,11 +25,26 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CALENDAR), 0)
+
         if (inState == null)
             supportFragmentManager
                     .beginTransaction()
                     .add(R.id.fragment_container, AddCalendarEnterUrlFragment())
                     .commit()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        permissions.forEachIndexed { idx, perm ->
+            if (grantResults[idx] != PackageManager.PERMISSION_GRANTED)
+                when (perm) {
+                    Manifest.permission.WRITE_CALENDAR ->
+                        finish()
+                    Manifest.permission.READ_EXTERNAL_STORAGE ->
+                        Toast.makeText(this, R.string.permission_required_external_storage, Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
 }

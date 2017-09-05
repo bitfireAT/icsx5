@@ -8,10 +8,9 @@
 
 package at.bitfire.icsdroid
 
-import android.net.Uri;
-import android.os.Build;
-
-import net.fortuna.ical4j.util.CompatibilityHints;
+import android.net.Uri
+import android.os.Build
+import net.fortuna.ical4j.util.CompatibilityHints
 
 object Constants {
 

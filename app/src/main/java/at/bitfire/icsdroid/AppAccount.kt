@@ -18,12 +18,11 @@ import android.util.Log
 
 object AppAccount {
 
-    @JvmField val SYNC_INTERVAL_MANUALLY = -1L
+    val SYNC_INTERVAL_MANUALLY = -1L
 
-    @JvmField val account = Account("ICSdroid", "at.bitfire.icsdroid")
+    val account = Account("ICSdroid", "at.bitfire.icsdroid")
 
 
-    @JvmStatic
     fun makeAvailable(context: Context) {
         val am = AccountManager.get(context)
         if (am.getAccountsByType(account.type).isEmpty()) {
@@ -34,11 +33,9 @@ object AppAccount {
         }
     }
 
-    @JvmStatic
     fun isSyncActive() =
             ContentResolver.isSyncActive(AppAccount.account, CalendarContract.AUTHORITY)
 
-    @JvmStatic
     fun getSyncInterval(context: Context): Long {
         makeAvailable(context)
 
@@ -49,7 +46,6 @@ object AppAccount {
         return syncInterval
     }
 
-    @JvmStatic
     fun setSyncInterval(syncInterval: Long) {
         if (syncInterval == SYNC_INTERVAL_MANUALLY) {
             Log.i(Constants.TAG, "Disabling automatic synchronization")

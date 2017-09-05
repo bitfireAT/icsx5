@@ -8,12 +8,15 @@
 
 package at.bitfire.icsdroid
 
+import android.Manifest
 import android.accounts.Account
 import android.app.PendingIntent
 import android.content.*
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat
 import android.util.Base64
 import android.util.Log
 import at.bitfire.ical4android.CalendarStorageException
@@ -65,6 +68,19 @@ class SyncAdapter(
         }
     }
 
+    override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
+        val nm = NotificationManagerCompat.from(context)
+        val notification = NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_perm_settings_white)
+                .setContentTitle(context.getString(R.string.sync_permission_required))
+                .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, CalendarListActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
+                .setAutoCancel(true)
+                .setLocalOnly(true)
+                .build()
+        nm.notify(0, notification)
+    }
 
     private inner class ProcessEventsTask(
             val calendar: LocalCalendar,
@@ -105,7 +121,11 @@ class SyncAdapter(
             var redirect = 0
             do {
                 try {
-                    Log.i(Constants.TAG, "Fetching remote calendar $url")
+                    if (url.protocol.equals("file", true) &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                        throw IOException(context.getString(R.string.sync_permission_required))
+
+                    Log.i(Constants.TAG, "Fetching calendar $url")
                     conn = url.openConnection()
 
                     if (calendar.lastModified != 0L)
@@ -210,8 +230,8 @@ class SyncAdapter(
                         .setCategory(NotificationCompat.CATEGORY_ERROR)
                         .setGroup("ICSdroid")
                         .setContentTitle(context.getString(R.string.sync_error_title))
-                        .setContentText(calendar.displayName)
-                        .setSubText(msg)
+                        .setContentText(msg)
+                        .setSubText(calendar.displayName)
                         .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, CalendarListActivity::class.java), 0))
                         .setAutoCancel(true)
                         .setWhen(System.currentTimeMillis())
