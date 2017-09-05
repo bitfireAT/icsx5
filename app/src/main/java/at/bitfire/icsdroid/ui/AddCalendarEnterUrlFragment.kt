@@ -95,10 +95,10 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        validateUrl()
     }
 
     override fun afterTextChanged(s: Editable) {
+        validateUrl()
         activity.invalidateOptionsMenu()
     }
 
@@ -113,10 +113,13 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
             return
         }
 
-        if (uri.scheme.equals("webcal", true))
+        if (uri.scheme.equals("webcal", true)) {
             uri = URI("http", uri.authority, uri.path, uri.query, null)
-        else if (uri.scheme.equals("webcals", true))
+            view.url.setText(uri.toString())
+        } else if (uri.scheme.equals("webcals", true)) {
             uri = URI("https", uri.authority, uri.path, uri.query, null)
+            view.url.setText(uri.toString())
+        }
 
         try {
             when {
