@@ -14,10 +14,16 @@ import android.app.LoaderManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.PowerManager
 import android.provider.CalendarContract
+import android.provider.Settings
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
@@ -42,6 +48,8 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     private var syncStatusHandler: Handler? = null
 
     private var listAdapter: CalendarListAdapter? = null
+
+    private var snackBar: Snackbar? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +77,13 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             loaderManager.initLoader(0, null, this)
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
+
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentDestroyed(fm: FragmentManager?, f: Fragment?) {
+                if (f is SyncIntervalDialogFragment)
+                    checkSyncSettings()
+            }
+        }, false)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -93,7 +108,6 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     override fun onResume() {
         super.onResume()
-
         val handler = Handler(Handler.Callback {
             val syncActive = AppAccount.isSyncActive()
             Log.d(Constants.TAG, "Is sync. active? ${if (syncActive) "yes" else "no"}")
@@ -106,6 +120,8 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this)
         handler.sendEmptyMessage(0)
         syncStatusHandler = handler
+
+        checkSyncSettings()
     }
 
     override fun onPause() {
@@ -114,12 +130,40 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             ContentResolver.removeStatusChangeListener(syncStatusHandle)
     }
 
-
-    /* (sync) status changes */
-
     override fun onStatusChanged(which: Int) {
         if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE)
             syncStatusHandler?.sendEmptyMessage(0)
+    }
+
+    private fun checkSyncSettings() {
+        snackBar?.dismiss()
+
+        when {
+            AppAccount.getSyncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
+                snackBar = Snackbar.make(coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE)
+                snackBar?.show()
+            }
+
+            !ContentResolver.getMasterSyncAutomatically() -> {
+                snackBar = Snackbar.make(coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.calendar_list_master_sync_enable, {
+                            ContentResolver.setMasterSyncAutomatically(true)
+                        })
+                snackBar?.show()
+            }
+
+            // Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
+            Build.VERSION.SDK_INT >= 23 &&
+                    !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
+                    AppAccount.getSyncInterval(this) < 86400 -> {
+                snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.calendar_list_battery_whitelist_settings, { _ ->
+                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                            startActivity(intent)
+                        })
+                snackBar?.show()
+            }
+        }
     }
 
 
@@ -176,7 +220,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     }
 
     fun onSetSyncInterval(item: MenuItem) {
-        SyncIntervalDialogFragment().show(fragmentManager, "sync_interval")
+        SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
     }
 
 

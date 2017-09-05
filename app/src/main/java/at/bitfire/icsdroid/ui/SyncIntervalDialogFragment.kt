@@ -11,8 +11,8 @@ package at.bitfire.icsdroid.ui
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
 import android.os.Bundle
+import android.support.v4.app.DialogFragment
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.set_sync_interval.view.*
@@ -33,10 +33,9 @@ class SyncIntervalDialogFragment: DialogFragment() {
         if (syncIntervalSeconds.contains(currentSyncInterval))
             v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 
-
         builder .setView(v)
                 .setPositiveButton(R.string.set_sync_interval_save, { _, _ ->
-                    AppAccount.setSyncInterval(syncIntervalSeconds.get(v.sync_interval.selectedItemPosition))
+                    AppAccount.setSyncInterval(syncIntervalSeconds[v.sync_interval.selectedItemPosition])
                 })
 
         return builder.create()

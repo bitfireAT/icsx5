@@ -62,11 +62,12 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
         v.requires_authentication.setOnCheckedChangeListener(this)
         v.user_name.addTextChangedListener(this)
         v.password.addTextChangedListener(this)
-
-        updateViews()
         return v
     }
 
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        updateViews()
+    }
 
     interface OnCredentialsChangeListener {
         fun onChangeCredentials(username: String?, password: String?)
