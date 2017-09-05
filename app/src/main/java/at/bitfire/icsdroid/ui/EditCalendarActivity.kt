@@ -30,6 +30,7 @@ import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.edit_calendar.*
 import java.net.URI
@@ -41,8 +42,8 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         private val STATE_COLOR = "color"
         private val STATE_SYNC_THIS = "sync_this"
         private val STATE_REQUIRE_AUTH = "requires_auth"
-        private val STATE_USERNAME = "username"
-        private val STATE_PASSWORD = "password"
+        private val STATE_USERNAME = "legacyUsername"
+        private val STATE_PASSWORD = "legacyPassword"
         private val STATE_DIRTY = "dirty"
     }
 
@@ -121,19 +122,21 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     fun onSave(item: MenuItem?) {
         var success = false
-        calendar?.let {
+        calendar?.let { calendar ->
             try {
-                val values = ContentValues(5)
+                val values = ContentValues(3)
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, fragTitleColor?.title)
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, fragTitleColor?.color)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (sync_calendar.isChecked) 1 else 0)
+                calendar.update(values)
+
                 fragCredentials?.let {
-                    if (it.requiresAuth) {
-                        values.put(LocalCalendar.COLUMN_USERNAME, it.username)
-                        values.put(LocalCalendar.COLUMN_PASSWORD, it.password)
-                    }
+                    if (it.requiresAuth)
+                        CalendarCredentials.putCredentials(this, calendar, it.username, it.password)
+                    else
+                        CalendarCredentials.putCredentials(this, calendar, null, null)
                 }
-                it.update(values)
+
                 success = true
             } catch(e: CalendarStorageException) {
                 Log.e(Constants.TAG, "Couldn't update calendar", e)
@@ -155,6 +158,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         calendar?.let {
             try {
                 it.delete()
+                CalendarCredentials.putCredentials(this, it, null, null)
                 success = true
             } catch(e: CalendarStorageException) {
                 Log.e(Constants.TAG, "Couldn't delete calendar")
@@ -217,11 +221,13 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             if (fragCredentials == null) try {
                 val uri = URI(calendar.url)
                 if (!uri.scheme.equals("file", true)) {
+                    val (username, password) = CalendarCredentials.getCredentials(this, calendar)
+
                     val frag = CredentialsFragment()
                     val args = Bundle(3)
-                    args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, calendar.username != null && calendar.password != null)
-                    args.putString(CredentialsFragment.ARG_USERNAME, calendar.username)
-                    args.putString(CredentialsFragment.ARG_PASSWORD, calendar.password)
+                    args.putBoolean(CredentialsFragment.ARG_AUTH_REQUIRED, username != null && password != null)
+                    args.putString(CredentialsFragment.ARG_USERNAME, username)
+                    args.putString(CredentialsFragment.ARG_PASSWORD, password)
                     frag.arguments = args
                     frag.setOnChangeListener(object : CredentialsFragment.OnCredentialsChangeListener {
                         override fun onChangeCredentials(username: String?, password: String?) {

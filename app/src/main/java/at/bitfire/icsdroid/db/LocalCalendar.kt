@@ -19,7 +19,6 @@ import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
 import java.io.FileNotFoundException
-import java.util.*
 
 class LocalCalendar private constructor(
         account: Account,
@@ -32,18 +31,19 @@ class LocalCalendar private constructor(
         val DEFAULT_COLOR = 0xFF2F80C7.toInt()
 
         val COLUMN_ETAG = Calendars.CAL_SYNC1
-        val COLUMN_USERNAME = Calendars.CAL_SYNC2
-        val COLUMN_PASSWORD = Calendars.CAL_SYNC3
         val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
         val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
         val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
 
-        @JvmStatic
+        @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
+        val COLUMN_USERNAME = Calendars.CAL_SYNC2
+        @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
+        val COLUMN_PASSWORD = Calendars.CAL_SYNC3
+
         @Throws(FileNotFoundException::class, CalendarStorageException::class)
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
                 AndroidCalendar.findByID(account, provider, Factory, id)
 
-        @JvmStatic
         @Throws(CalendarStorageException::class)
         fun findAll(account: Account, provider: ContentProviderClient) =
                 AndroidCalendar.find(account, provider, Factory, null, null)
@@ -52,8 +52,11 @@ class LocalCalendar private constructor(
 
     var url: String? = null             // URL of iCalendar file
     var eTag: String? = null            // iCalendar ETag at last successful sync
-    var username: String? = null        // HTTP username (or null if no auth. required)
-    var password: String? = null        // HTTP password (or null if no auth. required)
+
+    @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
+    var legacyUsername: String? = null        // HTTP username (or null if no auth. required)
+    @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
+    var legacyPassword: String? = null        // HTTP password (or null if no auth. required)
 
     var lastModified = 0L               // iCalendar Last-Modified at last successful sync (or 0 for none)
     var lastSync = 0L                   // time of last sync (0 if none)
@@ -67,8 +70,9 @@ class LocalCalendar private constructor(
     override fun populate(info: ContentValues) {
         super.populate(info)
         url = info.getAsString(Calendars.NAME)
-        username = info.getAsString(COLUMN_USERNAME)
-        password = info.getAsString(COLUMN_PASSWORD)
+
+        legacyUsername = info.getAsString(COLUMN_USERNAME)
+        legacyPassword = info.getAsString(COLUMN_PASSWORD)
 
         eTag = info.getAsString(COLUMN_ETAG)
         info.getAsLong(COLUMN_LAST_MODIFIED)?.let { lastModified = it }
@@ -130,11 +134,7 @@ class LocalCalendar private constructor(
 
     @Throws(CalendarStorageException::class)
     fun retainByUID(uids: List<String>): Int {
-        //String[] escapedUIDs = new String[uids.size()];
-        val escapedUIDs = LinkedList<String>()
-        for (uid in uids)
-            escapedUIDs += DatabaseUtils.sqlEscapeString(uid)
-        val sqlUIDs = escapedUIDs.joinToString(",")
+        val sqlUIDs = uids.map { DatabaseUtils.sqlEscapeString(it) }.joinToString(",")
         try {
             return provider.delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
                     "${CalendarContract.Events.CALENDAR_ID}=? AND (" +

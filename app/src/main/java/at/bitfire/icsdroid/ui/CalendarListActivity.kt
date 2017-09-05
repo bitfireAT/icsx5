@@ -66,7 +66,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         calendar_list.adapter = listAdapter
         calendar_list.onItemClickListener = this
 
-        if (savedInstanceState == null && packageName != callingPackage) {
+        if (getPreferences(0).getLong(DonateDialogFragment.PREF_NEXT_REMINDER, 0) < System.currentTimeMillis()) {
             val installer = packageManager.getInstallerPackageName(BuildConfig.APPLICATION_ID)
             if (installer == null || installer.startsWith("org.fdroid"))
                 DonateDialogFragment().show(supportFragmentManager, "donate")
@@ -137,6 +137,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     private fun checkSyncSettings() {
         snackBar?.dismiss()
+        snackBar = null
 
         when {
             AppAccount.getSyncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
@@ -202,10 +203,6 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     fun onAddCalendar(v: View) {
         startActivity(Intent(this, AddCalendarActivity::class.java))
-    }
-
-    fun onDonate(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Constants.donationUri))
     }
 
     override fun onRefresh() {

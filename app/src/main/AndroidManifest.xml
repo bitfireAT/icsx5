@@ -53,7 +53,6 @@
         </service>
         <service
             android:name=".SyncAdapterService"
-            android:process=":sync"
             android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>

@@ -19,11 +19,6 @@
           android:onClick="onSetSyncInterval"
           app:showAsAction="never"/>
 
-    <item
-        app:showAsAction="never"
-        android:onClick="onDonate"
-        android:title="@string/app_info_donate" />
-
     <item android:title="@string/calendar_list_info"
           android:onClick="onShowInfo"
           app:showAsAction="never"/>

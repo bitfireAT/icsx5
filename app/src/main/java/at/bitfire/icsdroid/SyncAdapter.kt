@@ -21,6 +21,7 @@ import android.util.Base64
 import android.util.Log
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.CalendarListActivity
@@ -139,8 +140,10 @@ class SyncAdapter(
                         conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
                         conn.instanceFollowRedirects = false
 
-                        if (calendar.username != null && calendar.password != null) {
-                            val basicCredentials = "${calendar.username}:${calendar.password}"
+                        val (username, password) = CalendarCredentials.getCredentials(context, calendar)
+                        if (username != null && password != null) {
+                            Log.i(Constants.TAG, "Adding basic authorization headers")
+                            val basicCredentials = "$username:$password"
                             conn.setRequestProperty("Authorization", "Basic " + Base64.encode(basicCredentials.toByteArray(), Base64.NO_WRAP))
                         }
 

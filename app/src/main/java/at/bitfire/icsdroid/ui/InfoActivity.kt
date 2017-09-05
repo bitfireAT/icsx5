@@ -68,10 +68,6 @@ class InfoActivity: AppCompatActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsdroidapp")))
     }
 
-    fun showDonate(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app&pk_kwd=info-activity")))
-    }
-
 
     class TabsAdapter(
             fm: FragmentManager

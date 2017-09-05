@@ -9,6 +9,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.content.ContentProviderClient
+import android.content.ContentUris
 import android.content.ContentValues
 import android.os.Bundle
 import android.provider.CalendarContract
@@ -21,6 +22,7 @@ import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 
 class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListener {
@@ -112,7 +114,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
     private fun createCalendar(): Boolean {
         AppAccount.makeAvailable(context)
 
-        val calInfo = ContentValues(11)
+        val calInfo = ContentValues(9)
         calInfo.put(Calendars.ACCOUNT_NAME, AppAccount.account.name)
         calInfo.put(Calendars.ACCOUNT_TYPE, AppAccount.account.type)
         calInfo.put(Calendars.NAME, info.url.toString())
@@ -121,13 +123,15 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         calInfo.put(Calendars.OWNER_ACCOUNT, AppAccount.account.name)
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
-        calInfo.put(LocalCalendar.COLUMN_USERNAME, info.username)
-        calInfo.put(LocalCalendar.COLUMN_PASSWORD, info.password)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
 
         val client: ContentProviderClient? = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
         return try {
-            client?.let { AndroidCalendar.create(AppAccount.account, it, calInfo) }
+            client?.let {
+                val uri = AndroidCalendar.create(AppAccount.account, it, calInfo)
+                val calendar = LocalCalendar.findById(AppAccount.account, client, ContentUris.parseId(uri))
+                CalendarCredentials.putCredentials(activity, calendar, info.username, info.password)
+            }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
             activity.invalidateOptionsMenu()
             true

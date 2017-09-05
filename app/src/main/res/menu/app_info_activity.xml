@@ -24,8 +24,4 @@
           android:onClick="showTwitter"
           android:title="@string/app_info_twitter"/>
 
-    <item app:showAsAction="never"
-          android:onClick="showDonate"
-          android:title="@string/app_info_donate" />
-
 </menu>
