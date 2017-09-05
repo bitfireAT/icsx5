@@ -12,7 +12,7 @@
 -dontwarn org.codehaus.groovy.**
 -dontwarn org.apache.commons.logging.**		# Commons logging is not available
 -dontwarn net.fortuna.ical4j.model.**		# ignore warnings from Groovy dependency
--keep class net.fortuna.ical4j.model.** { *; }	# keep all model classes (properties/factories, created at runtime)
+-keep class net.fortuna.ical4j.** { *; }	# keep all ical4j classes (properties/factories, created at runtime)
 
 -dontwarn yuku.ambilwarna.widget.AmbilWarnaPrefWidgetView
 
