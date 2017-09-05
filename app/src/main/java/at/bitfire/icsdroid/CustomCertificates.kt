@@ -9,23 +9,27 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
+import android.util.Log
+import at.bitfire.cert4android.CustomCertManager
 import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
 
 object CustomCertificates {
 
     @JvmStatic
-    fun prepareHttpsURLConnection(context: Context, connection: HttpsURLConnection) {
-        /*try {
-            MemorizingTrustManager mtm = new MemorizingTrustManager(context);
+    fun prepareHttpsURLConnection(context: Context, connection: HttpsURLConnection, foreground: Boolean) {
+        try {
+            val manager = CustomCertManager(context, true)
+            manager.appInForeground = foreground
 
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, new X509TrustManager[] { mtm }, null);
+            val sc = SSLContext.getInstance("TLS")
+            sc.init(null, arrayOf(manager), null)
 
-            connection.setSSLSocketFactory(sc.getSocketFactory());
-            connection.setHostnameVerifier(mtm.wrapHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier()));
-        } catch (NoSuchAlgorithmException|KeyManagementException e) {
-            Log.e(TAG, "Couldn't initialize MemorizingTrustManager", e);
-        }*/
+            connection.sslSocketFactory = sc.socketFactory
+            connection.hostnameVerifier = manager.hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier())
+        } catch(e: Exception) {
+            Log.e(Constants.TAG, "Couldn't initialize cert4android", e)
+        }
     }
 
 }

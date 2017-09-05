@@ -121,7 +121,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
                     conn.readTimeout = 20000
 
                     if (conn is HttpsURLConnection)
-                        CustomCertificates.prepareHttpsURLConnection(context, conn)
+                        CustomCertificates.prepareHttpsURLConnection(context, conn, true)
 
                     if (conn is HttpURLConnection) {
                         conn.setRequestProperty("User-Agent", Constants.USER_AGENT)

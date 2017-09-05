@@ -132,7 +132,7 @@ class SyncAdapter(
                         conn.ifModifiedSince = calendar.lastModified
 
                     if (conn is HttpsURLConnection)
-                        CustomCertificates.prepareHttpsURLConnection(context, conn)
+                        CustomCertificates.prepareHttpsURLConnection(context, conn, false)
 
                     if (conn is HttpURLConnection) {
                         conn.setRequestProperty("User-Agent", Constants.USER_AGENT)

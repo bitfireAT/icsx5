@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    compile project(':cert4android')
     compile project(':ical4android')
 
     compile 'com.android.support:appcompat-v7:26.0.1'
