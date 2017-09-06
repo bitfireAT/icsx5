@@ -45,7 +45,10 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
                 if (info.hasNext())
                     password = info.next()
             }
-            v.url.setText(URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null).toString())
+            try {
+                v.url.setText(URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null).toString())
+            } catch(ignored: URISyntaxException) {
+            }
         }
 
         credentials = childFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment ?: {
