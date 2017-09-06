@@ -80,8 +80,14 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="file" android:host="*" android:pathPattern=".*\\.ics"/>
+                <data android:scheme="file" android:host="*" android:pathPattern=".*\\..*\\.ics"/>
+                <data android:scheme="file" android:host="*" android:pathPattern=".*\\..*\\..*\\.ics"/>
                 <data android:scheme="http" android:host="*" android:pathPattern=".*\\.ics"/>
+                <data android:scheme="http" android:host="*" android:pathPattern=".*\\..*\\.ics"/>
+                <data android:scheme="http" android:host="*" android:pathPattern=".*\\..*\\..*\\.ics"/>
                 <data android:scheme="https" android:host="*" android:pathPattern=".*\\.ics"/>
+                <data android:scheme="https" android:host="*" android:pathPattern=".*\\..*\\.ics"/>
+                <data android:scheme="https" android:host="*" android:pathPattern=".*\\..*\\..*\\.ics"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

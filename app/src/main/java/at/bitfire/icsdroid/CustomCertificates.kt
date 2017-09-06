@@ -17,11 +17,15 @@ import javax.net.ssl.SSLContext
 object CustomCertificates {
 
     @JvmStatic
-    fun prepareHttpsURLConnection(context: Context, connection: HttpsURLConnection, foreground: Boolean) {
-        try {
-            val manager = CustomCertManager(context, true)
-            manager.appInForeground = foreground
+    fun certManager(context: Context, foreground: Boolean = false): CustomCertManager {
+        val manager = CustomCertManager(context, true)
+        manager.appInForeground = foreground
+        return manager
+    }
 
+    @JvmStatic
+    fun prepareURLConnection(manager: CustomCertManager, connection: HttpsURLConnection) {
+        try {
             val sc = SSLContext.getInstance("TLS")
             sc.init(null, arrayOf(manager), null)
 

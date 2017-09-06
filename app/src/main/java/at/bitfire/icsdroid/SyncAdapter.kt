@@ -19,6 +19,7 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.util.Base64
 import android.util.Log
+import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -117,113 +118,120 @@ class SyncAdapter(
             }
 
             var conn: URLConnection? = null
+            var certManager: CustomCertManager? = null
 
-            var followRedirect = false
-            var redirect = 0
-            do {
-                try {
-                    if (url.protocol.equals("file", true) &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                        throw IOException(context.getString(R.string.sync_permission_required))
+            try {
+                var followRedirect = false
+                var redirect = 0
+                do {
+                    try {
+                        if (url.protocol.equals("file", true) &&
+                                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                            throw IOException(context.getString(R.string.sync_permission_required))
 
-                    Log.i(Constants.TAG, "Fetching calendar $url")
-                    conn = url.openConnection()
+                        Log.i(Constants.TAG, "Fetching calendar $url")
+                        conn = url.openConnection()
 
-                    if (calendar.lastModified != 0L)
-                        conn.ifModifiedSince = calendar.lastModified
+                        if (calendar.lastModified != 0L)
+                            conn.ifModifiedSince = calendar.lastModified
 
-                    if (conn is HttpsURLConnection)
-                        CustomCertificates.prepareHttpsURLConnection(context, conn, false)
-
-                    if (conn is HttpURLConnection) {
-                        conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
-                        conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
-                        conn.instanceFollowRedirects = false
-
-                        val (username, password) = CalendarCredentials.getCredentials(context, calendar)
-                        if (username != null && password != null) {
-                            Log.i(Constants.TAG, "Adding basic authorization headers")
-                            val basicCredentials = "$username:$password"
-                            conn.setRequestProperty("Authorization", "Basic " + Base64.encode(basicCredentials.toByteArray(), Base64.NO_WRAP))
+                        if (conn is HttpsURLConnection) {
+                            certManager = CustomCertificates.certManager(context, false)
+                            CustomCertificates.prepareURLConnection(certManager, conn)
                         }
 
-                        val eTag = calendar.eTag
-                        if (eTag != null)
-                            conn.setRequestProperty("If-None-Match", eTag)
+                        if (conn is HttpURLConnection) {
+                            conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
+                            conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
+                            conn.instanceFollowRedirects = false
 
-                        val statusCode = conn.responseCode
+                            val (username, password) = CalendarCredentials.getCredentials(context, calendar)
+                            if (username != null && password != null) {
+                                Log.i(Constants.TAG, "Adding basic authorization headers")
+                                val basicCredentials = "$username:$password"
+                                conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
+                            }
 
-                        // handle 304 Not Modified
-                        if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                            Log.i(Constants.TAG, "Calendar has not been modified since last sync (${conn.responseMessage})")
+                            val eTag = calendar.eTag
+                            if (eTag != null)
+                                conn.setRequestProperty("If-None-Match", eTag)
 
-                            conn.disconnect()   // don't read input stream
-                            conn = null
+                            val statusCode = conn.responseCode
 
-                            calendar.updateStatusNotModified()
-                        } else {
-                            // handle redirects
-                            val location = conn.getHeaderField("Location")
-                            if (statusCode/100 == 3 && location != null) {
+                            // handle 304 Not Modified
+                            if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                                Log.i(Constants.TAG, "Calendar has not been modified since last sync (${conn.responseMessage})")
+
                                 conn.disconnect()   // don't read input stream
                                 conn = null
 
-                                Log.i(Constants.TAG, "Following redirect to $location")
-                                url = URL(url, location)
-                                followRedirect = true
-                                if (statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                                    Log.i(Constants.TAG, "Permanent redirect: saving new location")
-                                    calendar.updateUrl(url.toString())
+                                calendar.updateStatusNotModified()
+                            } else {
+                                // handle redirects
+                                val location = conn.getHeaderField("Location")
+                                if (statusCode/100 == 3 && location != null) {
+                                    conn.disconnect()   // don't read input stream
+                                    conn = null
+
+                                    Log.i(Constants.TAG, "Following redirect to $location")
+                                    url = URL(url, location)
+                                    followRedirect = true
+                                    if (statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
+                                        Log.i(Constants.TAG, "Permanent redirect: saving new location")
+                                        calendar.updateUrl(url.toString())
+                                    }
                                 }
                             }
-                        }
 
-                        // only read stream if status is 200 OK
-                        if (conn is HttpURLConnection && statusCode != HttpURLConnection.HTTP_OK) {
-                            errorMessage = "$statusCode ${conn.responseMessage}"
-                            conn.disconnect()
-                            conn = null
+                            // only read stream if status is 200 OK
+                            if (conn is HttpURLConnection && statusCode != HttpURLConnection.HTTP_OK) {
+                                errorMessage = "$statusCode ${conn.responseMessage}"
+                                conn.disconnect()
+                                conn = null
+                            }
+                        } else
+                            // local file, always simulate HTTP status 200 OK
+                            requireNotNull(conn)
+
+                    } catch(e: IOException) {
+                        Log.e(Constants.TAG, "Couldn't fetch calendar", e)
+                        errorMessage = e.localizedMessage
+                        synchronized(syncResult) {
+                            syncResult.stats.numIoExceptions++
                         }
-                    } else
-                        // local file, always simulate HTTP status 200 OK
-                        requireNotNull(conn)
+                    }
+                    redirect++
+                } while (followRedirect && redirect < Constants.MAX_REDIRECTS)
+
+                try {
+                    conn?.let {
+                        InputStreamReader(it.getInputStream(), MiscUtils.charsetFromContentType(it.contentType)).use { reader ->
+                            val events = Event.fromReader(reader)
+                            processEvents(events)
+
+                            val eTag = it.getHeaderField("ETag")
+                            Log.i(Constants.TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + it.lastModified)
+                            calendar.updateStatusSuccess(eTag, it.lastModified)
+                        }
+                    }
 
                 } catch(e: IOException) {
-                    Log.e(Constants.TAG, "Couldn't fetch calendar", e)
+                    Log.e(Constants.TAG, "Couldn't read calendar", e)
                     errorMessage = e.localizedMessage
                     synchronized(syncResult) {
                         syncResult.stats.numIoExceptions++
                     }
-                }
-                redirect++
-            } while (followRedirect && redirect < Constants.MAX_REDIRECTS)
-
-            try {
-                conn?.let {
-                    InputStreamReader(it.getInputStream(), MiscUtils.charsetFromContentType(it.contentType)).use { reader ->
-                        val events = Event.fromReader(reader)
-                        processEvents(events)
-
-                        val eTag = it.getHeaderField("ETag")
-                        Log.i(Constants.TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + it.lastModified)
-                        calendar.updateStatusSuccess(eTag, it.lastModified)
+                } catch(e: Exception) {
+                    Log.e(Constants.TAG, "Couldn't process calendar", e)
+                    errorMessage = e.localizedMessage
+                    synchronized(syncResult) {
+                        syncResult.stats.numParseExceptions++
                     }
-                }
-
-            } catch(e: IOException) {
-                Log.e(Constants.TAG, "Couldn't read calendar", e)
-                errorMessage = e.localizedMessage
-                synchronized(syncResult) {
-                    syncResult.stats.numIoExceptions++
-                }
-            } catch(e: Exception) {
-                Log.e(Constants.TAG, "Couldn't process calendar", e)
-                errorMessage = e.localizedMessage
-                synchronized(syncResult) {
-                    syncResult.stats.numParseExceptions++
+                } finally {
+                    (conn as? HttpURLConnection)?.disconnect()
                 }
             } finally {
-                (conn as? HttpURLConnection)?.disconnect()
+                certManager?.close()
             }
 
             errorMessage?.let { msg ->

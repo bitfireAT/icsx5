@@ -99,10 +99,8 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
 
     /* dynamic changes */
 
-    override fun onChangeCredentials(username: String?, password: String?) {
-        validateUrl()
-        activity.invalidateOptionsMenu()
-    }
+    override fun onChangeCredentials(username: String?, password: String?) =
+            validateUrl()
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
     }
@@ -110,10 +108,8 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
     }
 
-    override fun afterTextChanged(s: Editable) {
-        validateUrl()
-        activity.invalidateOptionsMenu()
-    }
+    override fun afterTextChanged(s: Editable) =
+            validateUrl()
 
     private fun validateUrl() {
         var uri: URI
@@ -164,9 +160,8 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
                     View.VISIBLE
                 else
                     View.GONE
-    }
 
-    private fun updateHttpWarning() {
+        activity.invalidateOptionsMenu()
     }
 
 

@@ -19,6 +19,7 @@ import android.support.v4.content.Loader
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.CustomCertificates
@@ -109,73 +110,79 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
             info.exception = null
 
             var conn: URLConnection? = null
-
-            var url = info.url
-            var followRedirect: Boolean
-            var redirect = 0
-            do {
-                followRedirect = false
-                try {
-                    conn = url!!.openConnection()
-                    conn.connectTimeout = 7000
-                    conn.readTimeout = 20000
-
-                    if (conn is HttpsURLConnection)
-                        CustomCertificates.prepareHttpsURLConnection(context, conn, true)
-
-                    if (conn is HttpURLConnection) {
-                        conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
-                        conn.instanceFollowRedirects = false
-
-                        if (info.username != null && info.password != null) {
-                            val basicCredentials = "${info.username}:${info.password}"
-                            conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
-                        }
-
-                        info.statusCode = conn.responseCode
-                        info.statusMessage = conn.responseMessage
-
-                        // handle redirects
-                        val location = conn.getHeaderField("Location")
-                        if (info.statusCode/100 == 3 && location != null) {
-                            Log.i(Constants.TAG, "Following redirect to " + location)
-                            url = URL(url, location)
-                            followRedirect = true
-                            if (info.statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                                Log.i(Constants.TAG, "Permanent redirect: saving new location")
-                                info.url = url
-                            }
-                        }
-
-                        // only read stream if status is 200 OK
-                        if (info.statusCode != HttpURLConnection.HTTP_OK) {
-                            conn.disconnect()
-                            conn = null
-                        }
-
-                    } else
-                        // local file, always simulate HTTP status 200 OK
-                        info.statusCode = HttpURLConnection.HTTP_OK
-
-                } catch (e: IOException) {
-                    info.exception = e
-                }
-            } while (followRedirect && redirect++ < Constants.MAX_REDIRECTS)
-
+            var certManager: CustomCertManager? = null
             try {
-                conn?.let {
-                    InputStreamReader(it.getInputStream(), MiscUtils.charsetFromContentType(it.contentType)).use { reader ->
-                        val properties = mutableMapOf<String, String>()
-                        val events = Event.fromReader(reader, properties)
+                var url = info.url
+                var followRedirect: Boolean
+                var redirect = 0
+                do {
+                    followRedirect = false
+                    try {
+                        conn = url!!.openConnection()
+                        conn.connectTimeout = 7000
+                        conn.readTimeout = 20000
 
-                        info.calendarName = properties[Event.CALENDAR_NAME]
-                        info.eventsFound = events.size
+                        if (conn is HttpsURLConnection) {
+                            certManager = CustomCertificates.certManager(context, true)
+                            CustomCertificates.prepareURLConnection(certManager, conn)
+                        }
+
+                        if (conn is HttpURLConnection) {
+                            conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
+                            conn.instanceFollowRedirects = false
+
+                            if (info.username != null && info.password != null) {
+                                val basicCredentials = "${info.username}:${info.password}"
+                                conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
+                            }
+
+                            info.statusCode = conn.responseCode
+                            info.statusMessage = conn.responseMessage
+
+                            // handle redirects
+                            val location = conn.getHeaderField("Location")
+                            if (info.statusCode/100 == 3 && location != null) {
+                                Log.i(Constants.TAG, "Following redirect to " + location)
+                                url = URL(url, location)
+                                followRedirect = true
+                                if (info.statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
+                                    Log.i(Constants.TAG, "Permanent redirect: saving new location")
+                                    info.url = url
+                                }
+                            }
+
+                            // only read stream if status is 200 OK
+                            if (info.statusCode != HttpURLConnection.HTTP_OK) {
+                                conn.disconnect()
+                                conn = null
+                            }
+
+                        } else
+                            // local file, always simulate HTTP status 200 OK
+                            info.statusCode = HttpURLConnection.HTTP_OK
+
+                    } catch (e: IOException) {
+                        info.exception = e
                     }
+                } while (followRedirect && redirect++ < Constants.MAX_REDIRECTS)
+
+                try {
+                    conn?.let {
+                        InputStreamReader(it.getInputStream(), MiscUtils.charsetFromContentType(it.contentType)).use { reader ->
+                            val properties = mutableMapOf<String, String>()
+                            val events = Event.fromReader(reader, properties)
+
+                            info.calendarName = properties[Event.CALENDAR_NAME]
+                            info.eventsFound = events.size
+                        }
+                    }
+                } catch(e: Exception) {
+                    info.exception = e
+                } finally {
+                    (conn as? HttpURLConnection)?.disconnect()
                 }
-            } catch(e: Exception) {
-                info.exception = e
             } finally {
-                (conn as? HttpURLConnection)?.disconnect()
+                certManager?.close()
             }
 
             loaded = true
