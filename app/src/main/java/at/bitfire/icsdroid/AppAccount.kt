@@ -37,8 +37,6 @@ object AppAccount {
             ContentResolver.isSyncActive(AppAccount.account, CalendarContract.AUTHORITY)
 
     fun getSyncInterval(context: Context): Long {
-        makeAvailable(context)
-
         var syncInterval = SYNC_INTERVAL_MANUALLY
         if (ContentResolver.getSyncAutomatically(account, CalendarContract.AUTHORITY))
             for (sync in ContentResolver.getPeriodicSyncs(account, CalendarContract.AUTHORITY))
