@@ -24,6 +24,7 @@ import android.text.Spanned
 import android.text.util.Linkify
 import android.util.Log
 import android.view.*
+import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.app_info_activity.*
@@ -36,7 +37,7 @@ class InfoActivity: AppCompatActivity() {
 
     companion object {
         val components = arrayOf(
-                arrayOf("ICSdroid", "ICSdroid", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsdroid.bitfire.at", "gpl-3.0-standalone.html"),
+                arrayOf("ICSdroid", "ICSdroid/${BuildConfig.VERSION_NAME}", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsdroid.bitfire.at", "gpl-3.0-standalone.html"),
                 arrayOf("AmbilWarna", "AmbilWarna (Android Color Picker)", "Yuku", "https://github.com/yukuku/ambilwarna", "apache2.html"),
                 arrayOf("Apache Commons", "Apache Commons", "Apache Software Foundation", "http://commons.apache.org/", "apache2.html"),
                 arrayOf("ical4j", "ical4j", "Ben Fortuna", "https://ical4j.github.io", "bsd-3clause.html")
