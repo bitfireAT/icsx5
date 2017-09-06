@@ -16,6 +16,7 @@
 
     <string name="action_next">Next</string>
 
+    <string name="calendar_list_empty_info">To subscribe to a Webcal feed, use the + button or open a Webcal URL.</string>
     <string name="calendar_list_info">About ICSdroid</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>

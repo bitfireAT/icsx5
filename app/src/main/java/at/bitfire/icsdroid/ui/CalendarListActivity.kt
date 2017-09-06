@@ -65,6 +65,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         listAdapter = CalendarListAdapter(this)
         calendar_list.adapter = listAdapter
         calendar_list.onItemClickListener = this
+        calendar_list.emptyView = emptyInfo
 
         if (getPreferences(0).getLong(DonateDialogFragment.PREF_NEXT_REMINDER, 0) < System.currentTimeMillis()) {
             val installer = packageManager.getInstallerPackageName(BuildConfig.APPLICATION_ID)
