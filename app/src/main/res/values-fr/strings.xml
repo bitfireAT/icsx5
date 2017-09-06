@@ -27,6 +27,7 @@
   <string name="edit_calendar_really_delete">Voulez-vous vraiment vous désabonner de ce calendrier ?</string>
   <string name="edit_calendar_save">Enregistrer</string>
   <string name="edit_calendar_saved">Modifications enregistrées</string>
+  <string name="edit_calendar_send_url">Envoyer l\'URL</string>
   <string name="edit_calendar_sync_this_calendar">Synchroniser ce calendrier</string>
   <string name="edit_calendar_unsaved_changes">Il y a des modifications non enregistrées.</string>
   <string name="sync_error_title">Erreur de synchronisation</string>
@@ -56,9 +57,8 @@
   </string-array>
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_donate">Faire un don</string>
-  <string name="app_info_gpl_info">Copyright © 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nCe programme est livré SANS AUCUNE GARANTIE. Ceci est un programme libre et vous êtes encouragé à le redistribuer sous les conditions GNU GPL v3 (voir ci-dessous).</string>
+  <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
   <string name="app_info_web_site">Site internet</string>
-  <string name="app_info_uses_this_software">ICSdroid utilise ce logiciel : </string>
   <string name="donate_title">Information Open Source</string>
   <string name="donate_message">Nous sommes ravis que vous utilisiez ICSdroid, un logiciel libre (GPLv3). ICSdroid a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
   <string name="donate_now">Montrer la page de dons</string>

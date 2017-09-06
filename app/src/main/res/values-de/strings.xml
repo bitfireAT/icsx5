@@ -2,12 +2,20 @@
 <resources>
   <string name="app_name">ICSdroid</string>
   <string name="action_next">Weiter</string>
+  <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
   <string name="calendar_list_info">Über ICSdroid</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
   <string name="calendar_list_sync_disabled">Automatische Aktualisierung deaktiviert</string>
+  <string name="calendar_list_sync_interval_manually">Automatische Synchronisierung deaktiviert</string>
+  <string name="calendar_list_master_sync_disabled">Automatische Synchronisierung systemweit deaktiviert</string>
+  <string name="calendar_list_master_sync_enable">Aktivieren</string>
+  <string name="calendar_list_battery_whitelist">Für kurze Intervalle: Akku-Optimierung für
+ICSdroid deaktivieren</string>
+  <string name="calendar_list_battery_whitelist_settings">Einstellungen</string>
   <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="activity_add_calendar">Kalender abonnieren</string>
+  <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
   <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
   <string name="add_calendar_create">Kalender abonnieren</string>
   <string name="add_calendar_created">Kalender erfolgreich abonniert</string>
@@ -57,11 +65,13 @@
   </string-array>
   <string name="activity_app_info">Über ICSdroid</string>
   <string name="app_info_donate">Spenden</string>
-  <string name="app_info_gpl_info">Copyright © 2013 – 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nFür diese Anwendung besteht KEINERLEI GARANTIE. Sie ist freie Software, die Sie unter den Bedingungen der GNU GPL v3 (siehe unten) weitergeben dürfen.</string>
+  <string name="app_info_twitter">Aktuelles</string>
   <string name="app_info_web_site">Homepage</string>
-  <string name="app_info_uses_this_software">ICSdroid verwendet folgende Software:</string>
   <string name="donate_title">Open-Source-Information</string>
   <string name="donate_message">Wir freuen uns, dass Sie ICSdroid und damit Open-Source-Software (GPLv3) verwenden. Nachdem es viel Arbeit war und noch ist, ICSdroid zu entwickeln und zu warten, gibt es die Möglichkeit, uns zu spenden.</string>
   <string name="donate_now">Spendenseite anzeigen</string>
   <string name="donate_later">Vielleicht später</string>
+  <string name="sync_permission_required">Berechtigung benötigt</string>
+  <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
+  <string name="permission_required_external_storage">Datenspeicher-Berechtigung zum Zugriff auf lokale iCalendar-Dateien benötigt</string>
 </resources>

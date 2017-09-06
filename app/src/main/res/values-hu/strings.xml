@@ -55,10 +55,7 @@
   </string-array>
   <string name="activity_app_info">Alkalmazásinformáció</string>
   <string name="app_info_donate">Támogatás</string>
-  <string name="app_info_gpl_info">Copyright © 2013 - 2015 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).\n\nA programhoz SEMMINEMŰ GARANCIA nem tartozik. Ez egy szabadon használható szoftver, amely a GNU GPL v3 (lásd alább) feltételei szerint nyugodtan terjeszthető.
-</string>
   <string name="app_info_web_site">Honlap</string>
-  <string name="app_info_uses_this_software">Az ICSdroid használja az alábbi szoftvereket:</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>
   <string name="donate_message">Örülünk, hogy használja a ICSdroidot. A ICSdroid nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>
   <string name="donate_now">Tovább a támogatás-oldalra</string>
