@@ -295,7 +295,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     class SaveDismissDialogFragment: DialogFragment() {
 
-        override fun onCreateDialog(savedInstanceState: Bundle) =
+        override fun onCreateDialog(savedInstanceState: Bundle?) =
                 AlertDialog.Builder(activity)
                         .setTitle(R.string.edit_calendar_unsaved_changes)
                         .setPositiveButton(R.string.edit_calendar_save, { dialog, _ ->
