@@ -178,6 +178,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
                     }
                 } catch(e: Exception) {
                     info.exception = e
+                    Log.e(Constants.TAG, "Couldn't parse iCalendar", e)
                 } finally {
                     (conn as? HttpURLConnection)?.disconnect()
                 }

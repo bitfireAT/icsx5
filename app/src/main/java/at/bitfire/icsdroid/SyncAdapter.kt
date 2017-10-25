@@ -89,11 +89,9 @@ class SyncAdapter(
             val syncResult: SyncResult
     ): Runnable {
 
-        init {
-            Thread.currentThread().contextClassLoader = context.classLoader
-        }
-
         override fun run() {
+            Thread.currentThread().contextClassLoader = context.classLoader
+
             try {
                 processEvents()
             } catch(e: CalendarStorageException) {
