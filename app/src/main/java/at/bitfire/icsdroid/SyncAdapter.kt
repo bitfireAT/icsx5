@@ -255,7 +255,7 @@ class SyncAdapter(
         private fun processEvents(events: List<Event>) {
             Log.i(Constants.TAG, "Processing ${events.size} events")
             //String[] uids = new String[events.size()];
-            val uids = LinkedList<String>()
+            val uids = HashSet<String>(events.size)
 
             for (event in events) {
                 val uid = event.uid!!

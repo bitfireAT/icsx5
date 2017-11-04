@@ -98,7 +98,7 @@ class InfoActivity: AppCompatActivity() {
         }
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-            val info = components[arguments.getInt(KEY_POSITION)]
+            val info = components[arguments!!.getInt(KEY_POSITION)]
 
             val v = inflater.inflate(R.layout.app_info_component, container, false)
 
@@ -117,7 +117,7 @@ class InfoActivity: AppCompatActivity() {
         }
 
         override fun onCreateLoader(id: Int, args: Bundle) =
-                LicenseLoader(context, args.getString(KEY_LICENSE_FILE))
+                LicenseLoader(activity!!, args.getString(KEY_LICENSE_FILE))
 
         override fun onLoadFinished(loader: Loader<Spanned?>, text: Spanned?) {
             text?.let {

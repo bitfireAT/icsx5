@@ -62,7 +62,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
     // loader callbacks
 
     override fun onCreateLoader(id: Int, args: Bundle?) =
-            ResourceInfoLoader(activity, args?.getSerializable(ARG_INFO) as ResourceInfo)
+            ResourceInfoLoader(activity!!, args?.getSerializable(ARG_INFO) as ResourceInfo)
 
     override fun onLoadFinished(loader: Loader<ResourceInfo>, info: ResourceInfo) {
         dialog.dismiss()
@@ -79,7 +79,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
             if (info.calendarName.isNullOrBlank())
                 info.calendarName = info.url?.file
 
-            fragmentManager
+            fragmentManager!!
                     .beginTransaction()
                     .replace(R.id.fragment_container, AddCalendarDetailsFragment.newInstance(info))
                     .addToBackStack(null)

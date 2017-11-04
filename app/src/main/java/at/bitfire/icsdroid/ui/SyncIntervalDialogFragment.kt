@@ -24,12 +24,12 @@ class SyncIntervalDialogFragment: DialogFragment() {
         val builder = AlertDialog.Builder(activity)
 
         // read sync intervals from resources
-        val syncIntervalSeconds = activity.resources.getStringArray(R.array.set_sync_interval_seconds)
+        val syncIntervalSeconds = activity!!.resources.getStringArray(R.array.set_sync_interval_seconds)
                 .map { it.toLong() }
 
-        val v = activity.layoutInflater.inflate(R.layout.set_sync_interval, null)
+        val v = activity!!.layoutInflater.inflate(R.layout.set_sync_interval, null)
 
-        val currentSyncInterval = AppAccount.getSyncInterval(activity)
+        val currentSyncInterval = AppAccount.getSyncInterval(activity!!)
         if (syncIntervalSeconds.contains(currentSyncInterval))
             v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 

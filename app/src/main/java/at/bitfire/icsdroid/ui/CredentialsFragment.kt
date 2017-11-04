@@ -76,7 +76,7 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
         return v
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         updateViews()
     }
 

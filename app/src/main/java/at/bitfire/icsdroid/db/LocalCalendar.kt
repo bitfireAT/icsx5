@@ -10,11 +10,13 @@ package at.bitfire.icsdroid.db
 
 import android.accounts.Account
 import android.content.ContentProviderClient
+import android.content.ContentUris
 import android.content.ContentValues
 import android.database.DatabaseUtils
 import android.os.RemoteException
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
+import android.provider.CalendarContract.Events
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
@@ -130,17 +132,26 @@ class LocalCalendar private constructor(
 
     @Throws(CalendarStorageException::class)
     fun queryByUID(uid: String) =
-            queryEvents("${CalendarContract.Events._SYNC_ID}=?", arrayOf(uid))
+            queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
     @Throws(CalendarStorageException::class)
-    fun retainByUID(uids: List<String>): Int {
-        val sqlUIDs = uids.map { DatabaseUtils.sqlEscapeString(it) }.joinToString(",")
+    fun retainByUID(uids: Set<String>): Int {
+        var deleted = 0
         try {
-            return provider.delete(syncAdapterURI(CalendarContract.Events.CONTENT_URI),
-                    "${CalendarContract.Events.CALENDAR_ID}=? AND (" +
-                            "${CalendarContract.Events._SYNC_ID} NOT IN ($sqlUIDs) OR " +
-                            "${CalendarContract.Events.ORIGINAL_SYNC_ID} NOT IN ($sqlUIDs)" +
-                    ")", arrayOf(id.toString()))
+            provider.query(syncAdapterURI(Events.CONTENT_URI, account),
+                    arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
+                    "${Events.CALENDAR_ID}=?", arrayOf(id.toString()), null).use { row ->
+                while (row.moveToNext()) {
+                    val eventId = row.getLong(0)
+                    val syncId = row.getString(1)
+                    val originalSyncId = row.getString(2)
+                    if (!uids.contains(syncId) && !uids.contains(originalSyncId)) {
+                        provider.delete(syncAdapterURI(ContentUris.withAppendedId(Events.CONTENT_URI, eventId), account), null, null)
+                        deleted++
+                    }
+                }
+            }
+            return deleted
         } catch(e: RemoteException) {
             throw CalendarStorageException("Couldn't delete local events")
         }

@@ -35,7 +35,8 @@ android {
     }
     lintOptions {
         disable 'ExtraTranslation', 'MissingTranslation'
-        disable 'IconLauncherFormat'      // build tools still too dump for Android 8 icons
+        disable 'InvalidPackage'
+        disable 'OnClick'
         disable 'PrivateResource'
     }
 }

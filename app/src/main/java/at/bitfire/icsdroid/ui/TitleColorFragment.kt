@@ -37,14 +37,14 @@ class TitleColorFragment: Fragment(), TextWatcher {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val v = inflater.inflate(R.layout.calendar_title_color, container, false)
 
-        url = arguments.getString(ARG_URL)
+        url = arguments!!.getString(ARG_URL)
         v.url.text = url
 
-        title = arguments.getString(ARG_TITLE)
+        title = arguments!!.getString(ARG_TITLE)
         v.title.setText(title)
         v.title.addTextChangedListener(this)
 
-        color = arguments.getInt(ARG_COLOR)
+        color = arguments!!.getInt(ARG_COLOR)
         v.color.setColor(color)
         v.color.setOnClickListener({ _ ->
             AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {

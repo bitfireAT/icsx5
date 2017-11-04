@@ -36,7 +36,7 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         var username: String? = null
         var password: String? = null
 
-        activity.intent.data?.let { uri ->
+        activity?.intent?.data?.let { uri ->
             // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
             uri.userInfo?.let {
                 val info = it.split(':', limit = 2).iterator()
@@ -89,7 +89,7 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
         val authOK = !credentials.requiresAuth || (credentials.username != null && credentials.password != null)
 
         val permOK = if (uri?.scheme.equals("file", true))
-            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         else
             true
 
@@ -140,8 +140,8 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
                             .hide(credentials)
                             .commit()
                     // 2. permission required
-                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
+                    if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                        ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
                 }
                 (uri.scheme.equals("http", true) || uri.scheme.equals("https", true)) && !uri.authority.isNullOrBlank() -> {
                     childFragmentManager.beginTransaction()
@@ -161,7 +161,7 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
                 else
                     View.GONE
 
-        activity.invalidateOptionsMenu()
+        activity?.invalidateOptionsMenu()
     }
 
 

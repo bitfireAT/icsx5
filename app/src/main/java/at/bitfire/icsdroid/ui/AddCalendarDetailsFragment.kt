@@ -53,7 +53,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        info = arguments.getSerializable(ARG_INFO) as ResourceInfo
+        info = arguments!!.getSerializable(ARG_INFO) as ResourceInfo
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -97,7 +97,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
     override fun onOptionsItemSelected(item: MenuItem) =
             if (item.itemId == R.id.create_calendar) {
                 if (createCalendar())
-                    activity.finish()
+                    activity!!.finish()
                 true
             } else
                 false
@@ -107,12 +107,12 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         this.title = title
         this.color = color
 
-        activity.invalidateOptionsMenu()
+        activity!!.invalidateOptionsMenu()
     }
 
 
     private fun createCalendar(): Boolean {
-        AppAccount.makeAvailable(context)
+        AppAccount.makeAvailable(activity!!)
 
         val calInfo = ContentValues(9)
         calInfo.put(Calendars.ACCOUNT_NAME, AppAccount.account.name)
@@ -125,15 +125,15 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         calInfo.put(Calendars.VISIBLE, 1)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
 
-        val client: ContentProviderClient? = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+        val client: ContentProviderClient? = activity!!.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
         return try {
             client?.let {
                 val uri = AndroidCalendar.create(AppAccount.account, it, calInfo)
                 val calendar = LocalCalendar.findById(AppAccount.account, client, ContentUris.parseId(uri))
-                CalendarCredentials.putCredentials(activity, calendar, info.username, info.password)
+                CalendarCredentials.putCredentials(activity!!, calendar, info.username, info.password)
             }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
-            activity.invalidateOptionsMenu()
+            activity!!.invalidateOptionsMenu()
             true
         } catch(e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)

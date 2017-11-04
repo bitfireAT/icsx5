@@ -22,18 +22,18 @@ class DonateDialogFragment: DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?) =
-            AlertDialog.Builder(activity)
+            AlertDialog.Builder(activity!!)
                 .setIcon(R.mipmap.ic_launcher)
                 .setTitle(R.string.donate_title)
                 .setMessage(R.string.donate_message)
                 .setPositiveButton(R.string.donate_now, { _, _ ->
-                    activity.getPreferences(0).edit()
+                    activity!!.getPreferences(0).edit()
                             .putLong(PREF_NEXT_REMINDER, System.currentTimeMillis() + 60*86400000L)
                             .apply()
                     startActivity(Intent(Intent.ACTION_VIEW, Constants.donationUri))
                 })
                 .setNegativeButton(R.string.donate_later, { _, _ ->
-                    activity.getPreferences(0).edit()
+                    activity!!.getPreferences(0).edit()
                             .putLong(PREF_NEXT_REMINDER, System.currentTimeMillis() + 14*86400000L)
                             .apply()
                     dismiss()
