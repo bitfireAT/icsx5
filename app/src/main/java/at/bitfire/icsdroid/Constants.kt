@@ -14,11 +14,6 @@ import net.fortuna.ical4j.util.CompatibilityHints
 
 object Constants {
 
-    init {
-        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true)
-        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true)
-    }
-
     @JvmField val TAG = "icsdroid"
 
     @JvmField val USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")"
