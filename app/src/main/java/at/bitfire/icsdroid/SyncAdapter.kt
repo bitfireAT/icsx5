@@ -254,7 +254,6 @@ class SyncAdapter(
 
         private fun processEvents(events: List<Event>) {
             Log.i(Constants.TAG, "Processing ${events.size} events")
-            //String[] uids = new String[events.size()];
             val uids = HashSet<String>(events.size)
 
             for (event in events) {
@@ -272,9 +271,22 @@ class SyncAdapter(
 
                 } else {
                     val localEvent = localEvents.first()
-                    val lastModified = event.lastModified
+                    var lastModified = event.lastModified
+
+                    if (lastModified != null) {
+                        // process LAST-MODIFIED of exceptions
+                        for (exception in event.exceptions) {
+                            val exLastModified = exception.lastModified
+                            if (exLastModified == null) {
+                                lastModified = null
+                                break
+                            } else if (lastModified != null && exLastModified.dateTime.after(lastModified.date))
+                                lastModified = exLastModified
+                        }
+                    }
+
                     if (lastModified == null || lastModified.dateTime.time > localEvent.lastModified) {
-                        // no LAST-MODIFIED or LAST-MODIFIED has been increased
+                        // either there is no LAST-MODIFIED, or LAST-MODIFIED has been increased
                         localEvent.update(event)
                         synchronized(syncResult) {
                             syncResult.stats.numUpdates++
