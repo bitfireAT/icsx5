@@ -24,6 +24,8 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.ui.AddCalendarActivity.Companion.EXTRA_COLOR
+import at.bitfire.icsdroid.ui.AddCalendarActivity.Companion.EXTRA_TITLE
 
 class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListener {
 
@@ -63,8 +65,10 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         if (inState != null) {
             title = inState.getString(STATE_TITLE)
             color = inState.getInt(STATE_COLOR)
-        } else
-            title = info.calendarName
+        } else {
+            title = activity?.intent?.getStringExtra(EXTRA_TITLE) ?: info.calendarName
+            color = activity?.intent?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR) ?: LocalCalendar.DEFAULT_COLOR
+        }
 
         val fragTitleColor = TitleColorFragment()
         val args = Bundle(3)
