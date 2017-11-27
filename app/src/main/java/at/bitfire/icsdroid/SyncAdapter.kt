@@ -15,7 +15,6 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.util.Base64
 import android.util.Log
@@ -26,6 +25,7 @@ import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.CalendarListActivity
+import at.bitfire.icsdroid.ui.NotificationUtils
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -71,9 +71,9 @@ class SyncAdapter(
     }
 
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
-        val nm = NotificationManagerCompat.from(context)
-        val notification = NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_perm_settings_white)
+        val nm = NotificationUtils.createChannels(context)
+        val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
+                .setSmallIcon(R.drawable.ic_sync_problem_white)
                 .setContentTitle(context.getString(R.string.sync_permission_required))
                 .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
@@ -114,6 +114,10 @@ class SyncAdapter(
                 calendar.updateStatusError(errorMessage)
                 return
             }
+
+            // dismiss old notifications
+            val notificationManager = NotificationUtils.createChannels(context)
+            notificationManager.cancel(calendar.id.toString(), 0)
 
             var conn: URLConnection? = null
             var certManager: CustomCertManager? = null
@@ -215,13 +219,13 @@ class SyncAdapter(
 
                 } catch(e: IOException) {
                     Log.e(Constants.TAG, "Couldn't read calendar", e)
-                    errorMessage = e.localizedMessage
+                    errorMessage = errorMessage ?: e.localizedMessage
                     synchronized(syncResult) {
                         syncResult.stats.numIoExceptions++
                     }
                 } catch(e: Exception) {
                     Log.e(Constants.TAG, "Couldn't process calendar", e)
-                    errorMessage = e.localizedMessage
+                    errorMessage = errorMessage ?: e.localizedMessage
                     synchronized(syncResult) {
                         syncResult.stats.numParseExceptions++
                     }
@@ -233,9 +237,8 @@ class SyncAdapter(
             }
 
             errorMessage?.let { msg ->
-                val nm = NotificationManagerCompat.from(context)
-                val notification = NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
+                        .setSmallIcon(R.drawable.ic_sync_problem_white)
                         .setCategory(NotificationCompat.CATEGORY_ERROR)
                         .setGroup("ICSdroid")
                         .setContentTitle(context.getString(R.string.sync_error_title))
@@ -246,7 +249,7 @@ class SyncAdapter(
                         .setWhen(System.currentTimeMillis())
                         .setOnlyAlertOnce(true)
                 calendar.color?.let { notification.color = it }
-                nm.notify(0, notification.build())
+                notificationManager.notify(calendar.id.toString(), 0, notification.build())
 
                 calendar.updateStatusError(msg)
             }
