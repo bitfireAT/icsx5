@@ -14,9 +14,9 @@ import android.content.Context
 
 object CalendarCredentials {
 
-    private val PREF_CREDENTIALS = "basicAuth"
+    private const val PREF_CREDENTIALS = "basicAuth"
 
-    @SuppressLint("CommitPrefEdits")
+    @SuppressLint("ApplySharedPref")
     fun getCredentials(context: Context, calendar: LocalCalendar): Pair<String?, String?> {
         val prefs = context.getSharedPreferences(PREF_CREDENTIALS, 0)
         val url = calendar.url!!

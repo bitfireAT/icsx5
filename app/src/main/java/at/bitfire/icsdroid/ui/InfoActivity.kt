@@ -30,7 +30,6 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.app_info_activity.*
 import kotlinx.android.synthetic.main.app_info_component.view.*
-import org.apache.commons.codec.Charsets
 import org.apache.commons.io.IOUtils
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -86,8 +85,8 @@ class InfoActivity: AppCompatActivity() {
 
         companion object {
 
-            val KEY_POSITION = "position"
-            val KEY_LICENSE_FILE = "license_file"
+            const val KEY_POSITION = "position"
+            const val KEY_LICENSE_FILE = "license_file"
 
             fun instantiate(position: Int): ComponentFragment {
                 val frag = ComponentFragment()

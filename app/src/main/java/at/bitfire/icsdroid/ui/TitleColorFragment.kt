@@ -23,9 +23,9 @@ import yuku.ambilwarna.AmbilWarnaDialog
 class TitleColorFragment: Fragment(), TextWatcher {
 
     companion object {
-        val ARG_URL = "url"
-        val ARG_TITLE = "title"
-        val ARG_COLOR = "color"
+        const val ARG_URL = "url"
+        const val ARG_TITLE = "title"
+        const val ARG_COLOR = "color"
     }
 
     private var url: String? = null

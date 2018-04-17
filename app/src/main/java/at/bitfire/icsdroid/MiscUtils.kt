@@ -9,18 +9,17 @@
 package at.bitfire.icsdroid
 
 import android.util.Log
-import org.apache.commons.codec.Charsets
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
 object MiscUtils {
 
     private val regexContentTypeCharset = Pattern.compile("[; ]\\s*charset=\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE)
 
-    @JvmStatic
     fun charsetFromContentType(contentType: String?): Charset {
         // assume UTF-8 by default [RFC 5445 3.1.4]
-        var charset = Charsets.UTF_8
+        var charset = StandardCharsets.UTF_8
 
         contentType?.let {
             val m = regexContentTypeCharset.matcher(it)

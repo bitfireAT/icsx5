@@ -16,7 +16,7 @@ import at.bitfire.icsdroid.R
 
 object NotificationUtils {
 
-    val CHANNEL_SYNC = "sync"
+    const val CHANNEL_SYNC = "sync"
 
 
     fun createChannels(context: Context): NotificationManager {

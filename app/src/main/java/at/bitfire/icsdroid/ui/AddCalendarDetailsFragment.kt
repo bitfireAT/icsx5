@@ -31,10 +31,10 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
 
     companion object {
 
-        val ARG_INFO = "info"
+        const val ARG_INFO = "info"
 
-        private val STATE_TITLE = "title"
-        private val STATE_COLOR = "color"
+        private const val STATE_TITLE = "title"
+        private const val STATE_COLOR = "color"
 
         fun newInstance(info: ResourceInfo): AddCalendarDetailsFragment {
             val frag = AddCalendarDetailsFragment()

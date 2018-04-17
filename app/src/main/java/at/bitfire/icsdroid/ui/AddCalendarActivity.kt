@@ -20,8 +20,8 @@ import at.bitfire.icsdroid.R
 class AddCalendarActivity: AppCompatActivity() {
 
     companion object {
-        val EXTRA_TITLE = "title"
-        val EXTRA_COLOR = "color"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_COLOR = "color"
     }
 
     override fun onCreate(inState: Bundle?) {

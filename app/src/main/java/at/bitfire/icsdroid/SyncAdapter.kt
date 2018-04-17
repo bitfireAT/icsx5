@@ -101,7 +101,6 @@ class SyncAdapter(
             Log.i(Constants.TAG, "iCalendar file completely processed")
         }
 
-        @Throws(CalendarStorageException::class)
         private fun processEvents() {
             var errorMessage: String? = null
 

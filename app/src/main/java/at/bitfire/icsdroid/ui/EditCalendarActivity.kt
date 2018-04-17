@@ -10,17 +10,18 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.app.DialogFragment
-import android.app.LoaderManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.app.LoaderManager
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.Loader
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -35,16 +36,16 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.edit_calendar.*
 import java.net.URI
 
-class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<LocalCalendar?> {
+class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<LocalCalendar> {
 
     companion object {
-        private val STATE_TITLE = "title"
-        private val STATE_COLOR = "color"
-        private val STATE_SYNC_THIS = "sync_this"
-        private val STATE_REQUIRE_AUTH = "requires_auth"
-        private val STATE_USERNAME = "legacyUsername"
-        private val STATE_PASSWORD = "legacyPassword"
-        private val STATE_DIRTY = "dirty"
+        private const val STATE_TITLE = "title"
+        private const val STATE_COLOR = "color"
+        private const val STATE_SYNC_THIS = "sync_this"
+        private const val STATE_REQUIRE_AUTH = "requires_auth"
+        private const val STATE_USERNAME = "legacyUsername"
+        private const val STATE_PASSWORD = "legacyPassword"
+        private const val STATE_DIRTY = "dirty"
     }
 
     private var dirty = false      // indicates whether title/color have been changed by the user
@@ -68,7 +69,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED)
             // load calendar from provider
-            loaderManager.initLoader(0, null, this)
+            supportLoaderManager.initLoader(0, null, this)
         else
             finish()
     }
@@ -112,7 +113,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     override fun onBackPressed() {
         if (dirty)
-            fragmentManager.beginTransaction()
+            supportFragmentManager.beginTransaction()
                     .add(SaveDismissDialogFragment(), null)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit()
@@ -147,7 +148,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     }
 
     fun onAskDelete(item: MenuItem) {
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .add(DeleteDialogFragment(), null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit()
@@ -188,7 +189,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     override fun onCreateLoader(id: Int, args: Bundle?) =
             CalendarLoader(this, intent.data)
 
-    override fun onLoadFinished(loader: Loader<LocalCalendar?>, calendar: LocalCalendar?) {
+    override fun onLoadFinished(loader: Loader<LocalCalendar>, calendar: LocalCalendar?) {
         if (calendar == null)
             // calendar not available (anymore), close activity
             finish()
@@ -241,7 +242,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         }
     }
 
-    override fun onLoaderReset(loader: Loader<LocalCalendar?>) {
+    override fun onLoaderReset(loader: Loader<LocalCalendar>) {
         calendar = null
     }
 
@@ -251,7 +252,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     class CalendarLoader(
             context: Context,
             private val uri: Uri
-    ): Loader<LocalCalendar?>(context) {
+    ): Loader<LocalCalendar>(context) {
         val TAG = "ICSdroid.Calendar"
 
         private var loaded = false
@@ -296,7 +297,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     class SaveDismissDialogFragment: DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?) =
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(requireActivity())
                         .setTitle(R.string.edit_calendar_unsaved_changes)
                         .setPositiveButton(R.string.edit_calendar_save, { dialog, _ ->
                             dialog.dismiss()
@@ -316,7 +317,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     class DeleteDialogFragment: DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?) =
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(requireActivity())
                         .setMessage(R.string.edit_calendar_really_delete)
                         .setPositiveButton(R.string.edit_calendar_delete, { dialog, _ ->
                             dialog.dismiss()

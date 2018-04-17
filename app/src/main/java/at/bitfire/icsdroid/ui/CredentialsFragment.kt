@@ -23,9 +23,9 @@ import org.apache.commons.lang3.StringUtils
 class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, TextWatcher {
 
     companion object {
-        val ARG_AUTH_REQUIRED = "auth_required"
-        val ARG_USERNAME = "username"
-        val ARG_PASSWORD = "password"
+        const val ARG_AUTH_REQUIRED = "auth_required"
+        const val ARG_USERNAME = "username"
+        const val ARG_PASSWORD = "password"
 
         fun newInstance(username: String? = null, password: String? = null): CredentialsFragment {
             val frag = CredentialsFragment()

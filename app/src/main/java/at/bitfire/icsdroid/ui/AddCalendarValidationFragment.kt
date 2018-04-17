@@ -35,7 +35,7 @@ import javax.net.ssl.HttpsURLConnection
 class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallbacks<ResourceInfo> {
 
     companion object {
-        val ARG_INFO = "info"
+        const val ARG_INFO = "info"
 
         fun newInstance(info: ResourceInfo): AddCalendarValidationFragment {
             val frag = AddCalendarValidationFragment()
@@ -142,7 +142,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
                             // handle redirects
                             val location = conn.getHeaderField("Location")
                             if (info.statusCode/100 == 3 && location != null) {
-                                Log.i(Constants.TAG, "Following redirect to " + location)
+                                Log.i(Constants.TAG, "Following redirect to $location")
                                 url = URL(url, location)
                                 followRedirect = true
                                 if (info.statusCode == HttpURLConnection.HTTP_MOVED_PERM) {

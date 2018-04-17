@@ -10,7 +10,6 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.LoaderManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -24,7 +23,9 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
+import android.support.v4.app.LoaderManager
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.Loader
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -75,7 +76,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            loaderManager.initLoader(0, null, this)
+            supportLoaderManager.initLoader(0, null, this)
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
@@ -89,7 +90,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            loaderManager.initLoader(0, null, this)
+            supportLoaderManager.initLoader(0, null, this)
         else
             finish()
     }

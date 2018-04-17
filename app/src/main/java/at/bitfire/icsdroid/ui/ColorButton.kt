@@ -8,12 +8,12 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.shapes.OvalShape;
-import android.util.AttributeSet;
-import android.view.View;
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.shapes.OvalShape
+import android.util.AttributeSet
+import android.view.View
 
 class ColorButton(
         context: Context,

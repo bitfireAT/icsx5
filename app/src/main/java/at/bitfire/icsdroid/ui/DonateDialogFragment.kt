@@ -18,7 +18,7 @@ import at.bitfire.icsdroid.R
 class DonateDialogFragment: DialogFragment() {
 
     companion object {
-        val PREF_NEXT_REMINDER = "nextDonationReminder"
+        const val PREF_NEXT_REMINDER = "nextDonationReminder"
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?) =

@@ -18,7 +18,7 @@ import android.util.Log
 
 object AppAccount {
 
-    val SYNC_INTERVAL_MANUALLY = -1L
+    const val SYNC_INTERVAL_MANUALLY = -1L
 
     val account = Account("ICSdroid", "at.bitfire.icsdroid")
 

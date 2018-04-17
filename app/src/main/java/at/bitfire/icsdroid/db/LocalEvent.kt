@@ -37,13 +37,13 @@ class LocalEvent: AndroidEvent {
         lastModified = event.lastModified?.dateTime?.time ?: 0
     }
 
-    override fun populateEvent(values: ContentValues) {
-        super.populateEvent(values)
+    override fun populateEvent(row: ContentValues) {
+        super.populateEvent(row)
 
         val event = requireNotNull(event)
-        event.uid = values.getAsString(CalendarContract.Events._SYNC_ID)
+        event.uid = row.getAsString(CalendarContract.Events._SYNC_ID)
 
-        values.getAsLong(COLUMN_LAST_MODIFIED).let {
+        row.getAsLong(COLUMN_LAST_MODIFIED).let {
             lastModified = it
             event.lastModified = LastModified(DateTime(it))
         }
