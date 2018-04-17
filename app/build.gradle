@@ -12,7 +12,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.1"
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
@@ -41,12 +41,14 @@ android {
 }
 
 dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     compile project(':cert4android')
     compile project(':ical4android')
 
-    compile 'com.android.support:appcompat-v7:27.0.1'
-    compile 'com.android.support:cardview-v7:27.0.1'
-    compile 'com.android.support:design:27.0.1'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:cardview-v7:27.1.1'
+    compile 'com.android.support:design:27.1.1'
 
     compile 'com.github.yukuku:ambilwarna:2.0.1'
     compile 'commons-io:commons-io:2.6'

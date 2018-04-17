@@ -8,6 +8,7 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -32,6 +33,7 @@ import kotlinx.android.synthetic.main.app_info_component.view.*
 import org.apache.commons.codec.Charsets
 import org.apache.commons.io.IOUtils
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 
 class InfoActivity: AppCompatActivity() {
 
@@ -80,7 +82,7 @@ class InfoActivity: AppCompatActivity() {
 
     }
 
-    class ComponentFragment: Fragment(), LoaderManager.LoaderCallbacks<Spanned?> {
+    class ComponentFragment: Fragment(), LoaderManager.LoaderCallbacks<Spanned> {
 
         companion object {
 
@@ -97,6 +99,7 @@ class InfoActivity: AppCompatActivity() {
 
         }
 
+        @SuppressLint("SetTextI18n")
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
             val info = components[arguments!!.getInt(KEY_POSITION)]
 
@@ -116,8 +119,8 @@ class InfoActivity: AppCompatActivity() {
             return v
         }
 
-        override fun onCreateLoader(id: Int, args: Bundle) =
-                LicenseLoader(activity!!, args.getString(KEY_LICENSE_FILE))
+        override fun onCreateLoader(id: Int, args: Bundle?) =
+                LicenseLoader(activity!!, args!!.getString(KEY_LICENSE_FILE))
 
         override fun onLoadFinished(loader: Loader<Spanned?>, text: Spanned?) {
             text?.let {
@@ -128,7 +131,7 @@ class InfoActivity: AppCompatActivity() {
             }
         }
 
-        override fun onLoaderReset(loader: Loader<Spanned?>) {
+        override fun onLoaderReset(loader: Loader<Spanned>) {
         }
 
     }
@@ -136,7 +139,7 @@ class InfoActivity: AppCompatActivity() {
     class LicenseLoader(
             context: Context,
             private val fileName: String
-    ): AsyncTaskLoader<Spanned?>(context) {
+    ): AsyncTaskLoader<Spanned>(context) {
 
         var text: Spanned? = null
 
@@ -151,7 +154,7 @@ class InfoActivity: AppCompatActivity() {
         override fun loadInBackground(): Spanned? {
             try {
                 context.resources.assets.open(fileName)?.use {
-                    val html = IOUtils.toString(it, Charsets.UTF_8 /* UTF-8 */)
+                    val html = IOUtils.toString(it, StandardCharsets.UTF_8)
                     text = Html.fromHtml(html)
                     return text
                 }

@@ -21,15 +21,15 @@ import net.fortuna.ical4j.model.property.LastModified
 class LocalEvent: AndroidEvent {
 
     companion object {
-        val COLUMN_LAST_MODIFIED = CalendarContract.Events.SYNC_DATA2
+        const val COLUMN_LAST_MODIFIED = CalendarContract.Events.SYNC_DATA2
     }
 
     var uid: String? = null
     var lastModified = 0L
 
-    private constructor(calendar: AndroidCalendar<AndroidEvent>, id: Long, baseInfo: ContentValues?): super(calendar, id, baseInfo) {
-        uid = baseInfo?.getAsString(CalendarContract.Events._SYNC_ID)
-        lastModified = baseInfo?.getAsLong(COLUMN_LAST_MODIFIED) ?: 0
+    private constructor(calendar: AndroidCalendar<AndroidEvent>, values: ContentValues): super(calendar, values) {
+        uid = values.getAsString(CalendarContract.Events._SYNC_ID)
+        lastModified = values.getAsLong(COLUMN_LAST_MODIFIED) ?: 0
     }
 
     constructor(calendar: AndroidCalendar<AndroidEvent>, event: Event): super(calendar, event) {
@@ -64,11 +64,8 @@ class LocalEvent: AndroidEvent {
 
     object Factory: AndroidEventFactory<LocalEvent> {
 
-        override fun newInstance(calendar: AndroidCalendar<AndroidEvent>, id: Long, baseInfo: ContentValues?) =
-                LocalEvent(calendar, id, baseInfo)
-
-        override fun newInstance(calendar: AndroidCalendar<AndroidEvent>, event: Event) =
-                LocalEvent(calendar, event)
+        override fun fromProvider(calendar: AndroidCalendar<AndroidEvent>, values: ContentValues) =
+                LocalEvent(calendar, values)
 
     }
 

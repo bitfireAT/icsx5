@@ -30,23 +30,21 @@ class LocalCalendar private constructor(
 
     companion object {
 
-        val DEFAULT_COLOR = 0xFF2F80C7.toInt()
+        const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
 
-        val COLUMN_ETAG = Calendars.CAL_SYNC1
-        val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
-        val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
-        val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
+        const val COLUMN_ETAG = Calendars.CAL_SYNC1
+        const val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
+        const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
+        const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
 
         @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
         val COLUMN_USERNAME = Calendars.CAL_SYNC2
         @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
         val COLUMN_PASSWORD = Calendars.CAL_SYNC3
 
-        @Throws(FileNotFoundException::class, CalendarStorageException::class)
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
                 AndroidCalendar.findByID(account, provider, Factory, id)
 
-        @Throws(CalendarStorageException::class)
         fun findAll(account: Account, provider: ContentProviderClient) =
                 AndroidCalendar.find(account, provider, Factory, null, null)
 
@@ -65,10 +63,6 @@ class LocalCalendar private constructor(
     var errorMessage: String? = null    // error message (HTTP status or exception name) of last sync (or null)
 
 
-    override fun eventBaseInfoColumns() =
-            arrayOf(CalendarContract.Events._ID, CalendarContract.Events._SYNC_ID, LocalEvent.COLUMN_LAST_MODIFIED)
-
-
     override fun populate(info: ContentValues) {
         super.populate(info)
         url = info.getAsString(Calendars.NAME)
@@ -83,7 +77,6 @@ class LocalCalendar private constructor(
         errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE)
     }
 
-    @Throws(CalendarStorageException::class)
     fun updateStatusSuccess(eTag: String?, lastModified: Long) {
         this.eTag = eTag
         this.lastModified = lastModified
@@ -97,7 +90,6 @@ class LocalCalendar private constructor(
         update(values)
     }
 
-    @Throws(CalendarStorageException::class)
     fun updateStatusNotModified() {
         lastSync = System.currentTimeMillis()
 
@@ -106,7 +98,6 @@ class LocalCalendar private constructor(
         update(values)
     }
 
-    @Throws(CalendarStorageException::class)
     fun updateStatusError(message: String) {
         eTag = null
         lastModified = 0
@@ -121,7 +112,6 @@ class LocalCalendar private constructor(
         update(values)
     }
 
-    @Throws(CalendarStorageException::class)
     fun updateUrl(url: String) {
         this.url = url
 
@@ -130,11 +120,9 @@ class LocalCalendar private constructor(
         update(values)
     }
 
-    @Throws(CalendarStorageException::class)
     fun queryByUID(uid: String) =
             queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
-    @Throws(CalendarStorageException::class)
     fun retainByUID(uids: Set<String>): Int {
         var deleted = 0
         try {
