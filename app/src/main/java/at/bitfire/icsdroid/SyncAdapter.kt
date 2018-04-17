@@ -21,6 +21,7 @@ import android.util.Log
 import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
@@ -42,6 +43,10 @@ class SyncAdapter(
         context: Context
 ): AbstractThreadedSyncAdapter(context, false) {
 
+    companion object {
+        val runningSyncs: MutableSet<Account> = Collections.synchronizedSet(mutableSetOf<Account>())
+    }
+
     private val syncQueue = LinkedBlockingQueue<Runnable>()
     private val syncExecutor = ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(),
@@ -52,6 +57,12 @@ class SyncAdapter(
 
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
         Log.i(Constants.TAG, "Synchronizing ${account.name} on authority $authority")
+
+        // prevent multiple syncs to be run for the same account, which happens on some devices
+        if (!runningSyncs.add(account)) {
+            Log.w(TAG, "There's already another $authority sync running for $account, aborting")
+            return
+        }
 
         try {
             LocalCalendar.findAll(account, provider)
@@ -67,6 +78,8 @@ class SyncAdapter(
             syncResult.databaseError = true
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
+        } finally {
+            runningSyncs -= account
         }
     }
 
