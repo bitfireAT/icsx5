@@ -1,13 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">ICSdroid</string>
+  <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <string name="action_next">Suivant</string>
+  <string name="calendar_list_empty_info">Pour s\'abonner à un flux Webcal, utilisez le bouton + ou ouvrez une URL Webcal</string>
   <string name="calendar_list_info">À propos d\'ICSdroid</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Intervalle de synchro.</string>
   <string name="calendar_list_sync_disabled">Synchro. désactivée</string>
+  <string name="calendar_list_sync_interval_manually">Synchro. automatique désactivée</string>
+  <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <string name="title_activity_calendar_list">Mes abonnements</string>
   <string name="activity_add_calendar">S\'abonner à un calendrier</string>
+  <string name="add_calendar_need_valid_uri">URL valide requise</string>
   <string name="add_calendar_authentication_without_https_warning">Des intervenants extérieurs peuvent facilement intercepter vos identifiants. Utilisez le protocole HTTPS pour sécuriser votre authentification.</string>
   <string name="add_calendar_create">S\'abonner maintenant</string>
   <string name="add_calendar_created">Abonnement réussi</string>
@@ -58,7 +63,7 @@
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_donate">Faire un don</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
-  <string name="app_info_web_site">Site internet</string>
+  <string name="app_info_web_site">Site web</string>
   <string name="donate_title">Information Open Source</string>
   <string name="donate_message">Nous sommes ravis que vous utilisiez ICSdroid, un logiciel libre (GPLv3). ICSdroid a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
   <string name="donate_now">Montrer la page de dons</string>

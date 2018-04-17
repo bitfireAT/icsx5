@@ -1,13 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">ICSdroid</string>
+  <string name="notification_channel_sync_problem">Syncproblemen</string>
   <string name="action_next">Volgende</string>
+  <string name="calendar_list_empty_info">Om te abonneren op een Webcal-feed, gebruikt de +-knop of open een Webcal-URL.</string>
   <string name="calendar_list_info">Over ICSdroid</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
   <string name="calendar_list_set_sync_interval">Zet sync.interval</string>
   <string name="calendar_list_sync_disabled">Sync. uitgeschakeld</string>
+  <string name="calendar_list_sync_interval_manually">Automatische sync is uitgeschakeld</string>
+  <string name="calendar_list_master_sync_disabled">Systeembreed automatisch syncen is uitgeschakeld</string>
+  <string name="calendar_list_master_sync_enable">Actief</string>
+  <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSdroid voor korte syncintervallen</string>
+  <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
   <string name="title_activity_calendar_list">Mijn abonnementen</string>
   <string name="activity_add_calendar">Abonneer op een kalender</string>
+  <string name="add_calendar_need_valid_uri">Geldige URL is vereist</string>
   <string name="add_calendar_authentication_without_https_warning">Derden kunnen eenvoudig je credentials onderscheppen. Gebruik HTTPS voor veilige authenticatie.</string>
   <string name="add_calendar_create">Abonneer nu</string>
   <string name="add_calendar_created">Succesvol geabonneerd</string>
@@ -63,4 +71,7 @@
   <string name="donate_message">We vinden het leuk dat u ICSdroid gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSdroid te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
   <string name="donate_now">Toon donatiepagina</string>
   <string name="donate_later">Misschien later</string>
+  <string name="sync_permission_required">Toestemming nodig</string>
+  <string name="sync_permission_required_sync_calendar">Toestemming is nodig om je kalender te syncen</string>
+  <string name="permission_required_external_storage">Opslagtoestemming is nodig om toegang te krijgen tot lokale iCalendar-bestanden </string>
 </resources>
