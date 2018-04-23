@@ -10,12 +10,13 @@ package at.bitfire.icsdroid
 
 import android.net.Uri
 import android.os.Build
+import at.bitfire.ical4android.Constants
 
 object Constants {
 
     const val TAG = "icsdroid"
 
-    val USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (Android/" + Build.VERSION.RELEASE + ")"
+    val USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (ical4j/" + Constants.ical4jVersion + " Android/" + Build.VERSION.RELEASE + ")"
     const val MAX_REDIRECTS = 5
 
     val donationUri = Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app")!!
