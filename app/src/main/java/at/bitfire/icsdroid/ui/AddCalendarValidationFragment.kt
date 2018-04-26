@@ -112,15 +112,13 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
             var conn: URLConnection? = null
             var certManager: CustomCertManager? = null
             try {
-                var url = info.url
+                var url = info.url!!
                 var followRedirect: Boolean
                 var redirect = 0
                 do {
                     followRedirect = false
                     try {
-                        conn = url!!.openConnection()
-                        conn.connectTimeout = 7000
-                        conn.readTimeout = 20000
+                        conn = MiscUtils.prepareConnection(url)
 
                         if (conn is HttpsURLConnection) {
                             certManager = CustomCertificates.certManager(context, true)
@@ -128,7 +126,6 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
                         }
 
                         if (conn is HttpURLConnection) {
-                            conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
                             conn.instanceFollowRedirects = false
 
                             if (info.username != null && info.password != null) {

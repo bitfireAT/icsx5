@@ -9,6 +9,9 @@
 package at.bitfire.icsdroid
 
 import android.util.Log
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLConnection
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
@@ -33,6 +36,23 @@ object MiscUtils {
         }
 
         return charset
+    }
+
+    /**
+     * Opens a connection from an URL and prepares some settings like timoues and
+     * request headers (User-Agent, Accept, etc.).
+     */
+    fun prepareConnection(url: URL): URLConnection {
+        val conn = url.openConnection()
+        conn.connectTimeout = 7000
+        conn.readTimeout = 20000
+
+        if (conn is HttpURLConnection) {
+            conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
+            conn.setRequestProperty("Accept", "text/calendar")
+        }
+
+        return conn
     }
 
 }

@@ -144,7 +144,7 @@ class SyncAdapter(
                             throw IOException(context.getString(R.string.sync_permission_required))
 
                         Log.i(Constants.TAG, "Fetching calendar $url")
-                        conn = url.openConnection()
+                        conn = MiscUtils.prepareConnection(url)
 
                         if (calendar.lastModified != 0L)
                             conn.ifModifiedSince = calendar.lastModified
@@ -155,7 +155,6 @@ class SyncAdapter(
                         }
 
                         if (conn is HttpURLConnection) {
-                            conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
                             conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
                             conn.instanceFollowRedirects = false
 
