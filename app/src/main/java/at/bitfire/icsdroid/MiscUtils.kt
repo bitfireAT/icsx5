@@ -39,7 +39,7 @@ object MiscUtils {
     }
 
     /**
-     * Opens a connection from an URL and prepares some settings like timouts
+     * Opens a connection from an URL and prepares some settings like timeouts
      * and request headers (User-Agent, Accept, etc.).
      */
     fun prepareConnection(url: URL): URLConnection {
@@ -49,7 +49,7 @@ object MiscUtils {
 
         if (conn is HttpURLConnection) {
             conn.setRequestProperty("User-Agent", Constants.USER_AGENT)
-            conn.setRequestProperty("Accept", "text/calendar")
+            conn.setRequestProperty("Accept", "text/calendar, */*;q=0.9")
         }
 
         return conn
