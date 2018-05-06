@@ -39,8 +39,8 @@ object MiscUtils {
     }
 
     /**
-     * Opens a connection from an URL and prepares some settings like timoues and
-     * request headers (User-Agent, Accept, etc.).
+     * Opens a connection from an URL and prepares some settings like timouts
+     * and request headers (User-Agent, Accept, etc.).
      */
     fun prepareConnection(url: URL): URLConnection {
         val conn = url.openConnection()
