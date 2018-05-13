@@ -10,7 +10,10 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ContentProviderClient
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.net.Uri
@@ -19,6 +22,7 @@ import android.provider.CalendarContract
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.app.LoaderManager
+import android.support.v4.app.ShareCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
@@ -39,12 +43,6 @@ import java.net.URI
 class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<LocalCalendar> {
 
     companion object {
-        private const val STATE_TITLE = "title"
-        private const val STATE_COLOR = "color"
-        private const val STATE_SYNC_THIS = "sync_this"
-        private const val STATE_REQUIRE_AUTH = "requires_auth"
-        private const val STATE_USERNAME = "legacyUsername"
-        private const val STATE_PASSWORD = "legacyPassword"
         private const val STATE_DIRTY = "dirty"
     }
 
@@ -175,11 +173,12 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     fun onShare(item: MenuItem) {
         calendar?.let {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.putExtra(Intent.EXTRA_SUBJECT, it.displayName)
-            intent.putExtra(Intent.EXTRA_TEXT, it.url)
-            intent.type = "text/plain"
-            startActivity(Intent.createChooser(intent, getString(R.string.edit_calendar_send_url)))
+            ShareCompat.IntentBuilder.from(this)
+                    .setSubject(it.displayName)
+                    .setText(it.url)
+                    .setType("text/plain")
+                    .setChooserTitle(R.string.edit_calendar_send_url)
+                    .startChooser()
         }
     }
 
