@@ -55,9 +55,9 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
             updateViews()
         }
     var password: String?
-        get() = StringUtils.trimToNull(view?.password?.text.toString())
+        get() = StringUtils.trimToNull(view?.password?.editText?.text.toString())
         set(value) {
-            view?.password?.setText(value)
+            view?.password?.editText?.setText(value)
             updateViews()
         }
 
@@ -67,12 +67,12 @@ class CredentialsFragment: Fragment(), CompoundButton.OnCheckedChangeListener, T
         arguments?.let { args ->
             v.requires_authentication.isChecked = args.getBoolean(ARG_AUTH_REQUIRED)
             v.user_name.setText(args.getString(ARG_USERNAME))
-            v.password.setText(args.getString(ARG_PASSWORD))
+            v.password.editText?.setText(args.getString(ARG_PASSWORD))
         }
 
         v.requires_authentication.setOnCheckedChangeListener(this)
         v.user_name.addTextChangedListener(this)
-        v.password.addTextChangedListener(this)
+        v.password.editText?.addTextChangedListener(this)
         return v
     }
 
