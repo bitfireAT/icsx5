@@ -12,7 +12,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import at.bitfire.icsdroid.R
@@ -30,8 +29,10 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CALENDAR), 0)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
         if (inState == null)
             supportFragmentManager
@@ -44,6 +45,7 @@ class AddCalendarActivity: AppCompatActivity() {
         permissions.forEachIndexed { idx, perm ->
             if (grantResults[idx] != PackageManager.PERMISSION_GRANTED)
                 when (perm) {
+                    Manifest.permission.READ_CALENDAR,
                     Manifest.permission.WRITE_CALENDAR ->
                         finish()
                     Manifest.permission.READ_EXTERNAL_STORAGE ->

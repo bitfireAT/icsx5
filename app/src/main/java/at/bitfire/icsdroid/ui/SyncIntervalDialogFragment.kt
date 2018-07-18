@@ -24,19 +24,19 @@ class SyncIntervalDialogFragment: DialogFragment() {
         val builder = AlertDialog.Builder(activity)
 
         // read sync intervals from resources
-        val syncIntervalSeconds = activity!!.resources.getStringArray(R.array.set_sync_interval_seconds)
+        val syncIntervalSeconds = requireActivity().resources.getStringArray(R.array.set_sync_interval_seconds)
                 .map { it.toLong() }
 
-        val v = activity!!.layoutInflater.inflate(R.layout.set_sync_interval, null)
+        val v = requireActivity().layoutInflater.inflate(R.layout.set_sync_interval, null)
 
-        val currentSyncInterval = AppAccount.getSyncInterval(activity!!)
+        val currentSyncInterval = AppAccount.getSyncInterval(requireActivity())
         if (syncIntervalSeconds.contains(currentSyncInterval))
             v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 
         builder .setView(v)
-                .setPositiveButton(R.string.set_sync_interval_save, { _, _ ->
+                .setPositiveButton(R.string.set_sync_interval_save) { _, _ ->
                     AppAccount.setSyncInterval(syncIntervalSeconds[v.sync_interval.selectedItemPosition])
-                })
+                }
 
         return builder.create()
     }

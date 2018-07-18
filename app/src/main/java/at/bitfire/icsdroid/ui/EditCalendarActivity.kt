@@ -19,10 +19,7 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.FragmentTransaction
-import android.support.v4.app.LoaderManager
-import android.support.v4.app.ShareCompat
+import android.support.v4.app.*
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
@@ -61,11 +58,11 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         super.onCreate(inState)
         setContentView(R.layout.edit_calendar)
 
-        sync_calendar.setOnClickListener({ _ ->
+        sync_calendar.setOnClickListener { _ ->
             dirty = true
-        })
+        }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED)
             // load calendar from provider
             supportLoaderManager.initLoader(0, null, this)
         else
@@ -298,14 +295,14 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         override fun onCreateDialog(savedInstanceState: Bundle?) =
                 AlertDialog.Builder(requireActivity())
                         .setTitle(R.string.edit_calendar_unsaved_changes)
-                        .setPositiveButton(R.string.edit_calendar_save, { dialog, _ ->
+                        .setPositiveButton(R.string.edit_calendar_save) { dialog, _ ->
                             dialog.dismiss()
                             (activity as? EditCalendarActivity)?.onSave(null)
-                        })
-                        .setNegativeButton(R.string.edit_calendar_dismiss, { dialog, _ ->
+                        }
+                        .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
                             dialog.dismiss()
                             (activity as? EditCalendarActivity)?.onCancel(null)
-                        })
+                        }
                         .create()!!
 
     }
@@ -318,13 +315,13 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         override fun onCreateDialog(savedInstanceState: Bundle?) =
                 AlertDialog.Builder(requireActivity())
                         .setMessage(R.string.edit_calendar_really_delete)
-                        .setPositiveButton(R.string.edit_calendar_delete, { dialog, _ ->
+                        .setPositiveButton(R.string.edit_calendar_delete) { dialog, _ ->
                             dialog.dismiss()
                             (activity as EditCalendarActivity?)?.onDelete()
-                        })
-                        .setNegativeButton(R.string.edit_calendar_cancel, { dialog, _ ->
+                        }
+                        .setNegativeButton(R.string.edit_calendar_cancel) { dialog, _ ->
                             dialog.dismiss()
-                        })
+                        }
                         .create()!!
 
     }

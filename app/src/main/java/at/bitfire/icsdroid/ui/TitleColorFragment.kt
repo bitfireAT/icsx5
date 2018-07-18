@@ -46,7 +46,7 @@ class TitleColorFragment: Fragment(), TextWatcher {
 
         color = arguments!!.getInt(ARG_COLOR)
         v.color.setColor(color)
-        v.color.setOnClickListener({ _ ->
+        v.color.setOnClickListener { _ ->
             AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {
                 override fun onCancel(ambilWarnaDialog: AmbilWarnaDialog) {
                 }
@@ -57,7 +57,7 @@ class TitleColorFragment: Fragment(), TextWatcher {
                     notifyListener()
                 }
             }).show()
-        })
+        }
 
         return v
     }

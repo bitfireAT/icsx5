@@ -119,7 +119,7 @@ class InfoActivity: AppCompatActivity() {
         }
 
         override fun onCreateLoader(id: Int, args: Bundle?) =
-                LicenseLoader(activity!!, args!!.getString(KEY_LICENSE_FILE))
+                LicenseLoader(requireActivity(), args!!.getString(KEY_LICENSE_FILE))
 
         override fun onLoadFinished(loader: Loader<Spanned?>, text: Spanned?) {
             text?.let {

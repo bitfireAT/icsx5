@@ -24,7 +24,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.LoaderManager
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.Loader
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
@@ -74,8 +73,8 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 DonateDialogFragment().show(supportFragmentManager, "donate")
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
             supportLoaderManager.initLoader(0, null, this)
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
@@ -114,9 +113,9 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             val syncActive = AppAccount.isSyncActive()
             Log.d(Constants.TAG, "Is sync. active? ${if (syncActive) "yes" else "no"}")
             // workaround: see https://code.google.com/p/android/issues/detail?id=77712
-            refresh.post({
+            refresh.post {
                 refresh.isRefreshing = syncActive
-            })
+            }
             true
         })
         syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this)
@@ -149,9 +148,9 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
             !ContentResolver.getMasterSyncAutomatically() -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_master_sync_enable, {
+                        .setAction(R.string.calendar_list_master_sync_enable) {
                             ContentResolver.setMasterSyncAutomatically(true)
-                        })
+                        }
                 snackBar?.show()
             }
 
@@ -160,10 +159,10 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
                     AppAccount.getSyncInterval(this) < 86400 -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_battery_whitelist_settings, { _ ->
+                        .setAction(R.string.calendar_list_battery_whitelist_settings) { _ ->
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             startActivity(intent)
-                        })
+                        }
                 snackBar?.show()
             }
         }
