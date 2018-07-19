@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.support.v4.app.*
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.Loader
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -62,7 +61,8 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             dirty = true
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
             // load calendar from provider
             supportLoaderManager.initLoader(0, null, this)
         else
