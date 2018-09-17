@@ -33,10 +33,7 @@ object AppAccount {
         }
     }
 
-    fun isSyncActive() =
-            ContentResolver.isSyncActive(AppAccount.account, CalendarContract.AUTHORITY)
-
-    fun getSyncInterval(context: Context): Long {
+    fun syncInterval(): Long {
         var syncInterval = SYNC_INTERVAL_MANUALLY
         if (ContentResolver.getSyncAutomatically(account, CalendarContract.AUTHORITY))
             for (sync in ContentResolver.getPeriodicSyncs(account, CalendarContract.AUTHORITY))
@@ -44,7 +41,7 @@ object AppAccount {
         return syncInterval
     }
 
-    fun setSyncInterval(syncInterval: Long) {
+    fun syncInterval(syncInterval: Long) {
         if (syncInterval == SYNC_INTERVAL_MANUALLY) {
             Log.i(Constants.TAG, "Disabling automatic synchronization")
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, false)

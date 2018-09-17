@@ -49,6 +49,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
+    implementation 'android.arch.work:work-runtime-ktx:1.0.0-alpha08'
 
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'commons-io:commons-io:2.6'

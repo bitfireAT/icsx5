@@ -10,12 +10,12 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.arch.lifecycle.Observer
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.PowerManager
 import android.provider.CalendarContract
 import android.provider.Settings
@@ -31,21 +31,16 @@ import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.work.State
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.BuildConfig
-import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.calendar_list_activity.*
 import kotlinx.android.synthetic.main.calendar_list_item.view.*
 import java.text.DateFormat
 import java.util.*
 
-class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<List<LocalCalendar>>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver {
-
-    private var syncStatusHandle: Any? = null
-    private var syncStatusHandler: Handler? = null
+class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<List<LocalCalendar>>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private var listAdapter: CalendarListAdapter? = null
 
@@ -85,6 +80,17 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                     checkSyncSettings()
             }
         }, false)
+
+        SyncWorker.liveStatus().observe(this, Observer { statuses ->
+            val running = statuses?.any { it.state == State.RUNNING } ?: false
+            Log.d(Constants.TAG, "Sync running: $running")
+            refresh.isRefreshing = running
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SyncWorker.liveStatus().removeObservers(this)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -109,31 +115,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
     override fun onResume() {
         super.onResume()
-        val handler = Handler(Handler.Callback {
-            val syncActive = AppAccount.isSyncActive()
-            Log.d(Constants.TAG, "Is sync. active? ${if (syncActive) "yes" else "no"}")
-            // workaround: see https://code.google.com/p/android/issues/detail?id=77712
-            refresh.post {
-                refresh.isRefreshing = syncActive
-            }
-            true
-        })
-        syncStatusHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, this)
-        handler.sendEmptyMessage(0)
-        syncStatusHandler = handler
-
         checkSyncSettings()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (syncStatusHandle != null)
-            ContentResolver.removeStatusChangeListener(syncStatusHandle)
-    }
-
-    override fun onStatusChanged(which: Int) {
-        if (which == ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE)
-            syncStatusHandler?.sendEmptyMessage(0)
     }
 
     private fun checkSyncSettings() {
@@ -141,11 +123,13 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         snackBar = null
 
         when {
-            AppAccount.getSyncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
+            // periodic sync not enabled
+            AppAccount.syncInterval() == AppAccount.SYNC_INTERVAL_MANUALLY -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE)
                 snackBar?.show()
             }
 
+            // automatic sync not enabled
             !ContentResolver.getMasterSyncAutomatically() -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.calendar_list_master_sync_enable) {
@@ -154,10 +138,10 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 snackBar?.show()
             }
 
-            // Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
+            // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
             Build.VERSION.SDK_INT >= 23 &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
-                    AppAccount.getSyncInterval(this) < 86400 -> {
+                    AppAccount.syncInterval() < 86400 -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.calendar_list_battery_whitelist_settings) { _ ->
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
@@ -207,10 +191,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     }
 
     override fun onRefresh() {
-        val extras = Bundle(2)
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true)
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true)
-        ContentResolver.requestSync(AppAccount.account, CalendarContract.AUTHORITY, extras)
+        SyncWorker.run()
     }
 
     fun onShowInfo(item: MenuItem) {
