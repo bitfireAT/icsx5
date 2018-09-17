@@ -47,13 +47,15 @@
                 <TextView
                     android:id="@+id/url"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textIsSelectable="true"/>
 
                 <EditText
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/add_calendar_title_hint"/>
+                    android:hint="@string/add_calendar_title_hint"
+                    android:inputType="text"/>
 
             </LinearLayout>
 
