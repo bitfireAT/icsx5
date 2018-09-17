@@ -75,7 +75,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
-            override fun onFragmentDestroyed(fm: FragmentManager?, f: Fragment?) {
+            override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
                 if (f is SyncIntervalDialogFragment)
                     checkSyncSettings()
             }
