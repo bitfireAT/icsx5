@@ -1,0 +1,11 @@
+ICSdroid allows you to add/subscribe and manage external (Webcal) and local (i.e. Dropbox, adb push etc) iCalendar/.ics files on your Android device.
+
+Add high days and holidays, your sports teams events, time tables of your school/university or any other event files that come in ics/ical format. The app will import these events for you and displays it in your favorite calendar app on your Android – it integrates seamlessly into your device.
+
+* Subscribe to Webcal feeds (= synchronize at regular intervals) e.g. shared calendars from icloud.com
+* Subscribe to local .ics (iCalendar) calendar files
+* Allows to open webcal:// and webcals:// URLs, e.g. from your Web browser
+* Seamless integration to other calendar apps
+* Set a sync schedule
+* Intelligent update checker to save bandwidth
+* Authentication and HTTPS supported
