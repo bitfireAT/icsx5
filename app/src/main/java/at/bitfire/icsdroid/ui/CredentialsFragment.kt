@@ -9,13 +9,13 @@
 package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.fragment.app.Fragment
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.credentials.view.*
 import org.apache.commons.lang3.StringUtils

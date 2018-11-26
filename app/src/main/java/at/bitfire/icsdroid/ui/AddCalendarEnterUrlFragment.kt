@@ -11,12 +11,12 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.add_calendar_enter_url.view.*

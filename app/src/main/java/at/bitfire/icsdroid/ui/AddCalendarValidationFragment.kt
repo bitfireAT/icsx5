@@ -12,13 +12,13 @@ import android.app.Dialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.AsyncTaskLoader
-import android.support.v4.content.Loader
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.AsyncTaskLoader
+import androidx.loader.content.Loader
 import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.Constants
@@ -49,7 +49,7 @@ class AddCalendarValidationFragment: DialogFragment(), LoaderManager.LoaderCallb
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loaderManager.initLoader(0, arguments, this)
+        LoaderManager.getInstance(this).initLoader(0, arguments, this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

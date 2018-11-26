@@ -9,14 +9,13 @@
 package at.bitfire.icsdroid
 
 import android.accounts.Account
+import android.annotation.SuppressLint
 import android.content.ContentProviderClient
+import android.content.Context
 import android.os.Build
 import android.provider.CalendarContract
 import android.util.Log
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Worker
+import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.db.LocalCalendar
 import java.util.concurrent.LinkedBlockingQueue
@@ -24,7 +23,10 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-class SyncWorker: Worker() {
+class SyncWorker(
+        context: Context,
+        workerParams: WorkerParameters
+): Worker(context, workerParams) {
 
     companion object {
 
@@ -42,7 +44,7 @@ class SyncWorker: Worker() {
                     .enqueue()
         }
 
-        fun liveStatus() = WorkManager.getInstance().getStatusesForUniqueWork(NAME)
+        fun liveStatus() = WorkManager.getInstance().getWorkInfosForUniqueWorkLiveData(NAME)
 
     }
 
@@ -54,6 +56,7 @@ class SyncWorker: Worker() {
             syncQueue
     )
 
+    @SuppressLint("Recycle")
     override fun doWork(): Result {
         if (syncRunning.get()) {
             Log.w(Constants.TAG, "There's already another sync running, aborting")

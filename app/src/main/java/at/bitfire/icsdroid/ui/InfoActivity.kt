@@ -13,18 +13,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.AsyncTaskLoader
-import android.support.v4.content.Loader
-import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.text.Spanned
 import android.text.util.Linkify
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.AsyncTaskLoader
+import androidx.loader.content.Loader
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
@@ -113,13 +113,13 @@ class InfoActivity: AppCompatActivity() {
             // load and format license text
             val args = Bundle(1)
             args.putString(KEY_LICENSE_FILE, "license/${info[4]}")
-            loaderManager.initLoader(0, args, this)
+            LoaderManager.getInstance(this).initLoader(0, args, this)
 
             return v
         }
 
         override fun onCreateLoader(id: Int, args: Bundle?) =
-                LicenseLoader(requireActivity(), args!!.getString(KEY_LICENSE_FILE))
+                LicenseLoader(requireActivity(), args!!.getString(KEY_LICENSE_FILE)!!)
 
         override fun onLoadFinished(loader: Loader<Spanned?>, text: Spanned?) {
             text?.let {
@@ -152,7 +152,7 @@ class InfoActivity: AppCompatActivity() {
 
         override fun loadInBackground(): Spanned? {
             try {
-                context.resources.assets.open(fileName)?.use {
+                context.resources.assets.open(fileName).use {
                     val html = IOUtils.toString(it, StandardCharsets.UTF_8)
                     text = Html.fromHtml(html)
                     return text

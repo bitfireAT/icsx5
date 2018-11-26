@@ -10,8 +10,8 @@ package at.bitfire.icsdroid.ui;
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 

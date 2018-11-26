@@ -12,7 +12,7 @@ import android.accounts.Account
 import android.app.PendingIntent
 import android.content.*
 import android.os.Bundle
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 

@@ -10,7 +10,6 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.arch.lifecycle.Observer
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -19,28 +18,33 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.CalendarContract
 import android.provider.Settings
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.Loader
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.work.State
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.Loader
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.WorkInfo
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.db.LocalCalendar
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.calendar_list_activity.*
 import kotlinx.android.synthetic.main.calendar_list_item.view.*
 import java.text.DateFormat
 import java.util.*
 
-class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<List<LocalCalendar>>, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+class CalendarListActivity:
+        AppCompatActivity(),
+        LoaderManager.LoaderCallbacks<List<LocalCalendar>>,
+        AdapterView.OnItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private var listAdapter: CalendarListAdapter? = null
 
@@ -70,7 +74,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            supportLoaderManager.initLoader(0, null, this)
+            LoaderManager.getInstance(this).initLoader(0, null, this)
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
@@ -82,7 +86,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         }, false)
 
         SyncWorker.liveStatus().observe(this, Observer { statuses ->
-            val running = statuses?.any { it.state == State.RUNNING } ?: false
+            val running = statuses.any { it.state == WorkInfo.State.RUNNING } ?: false
             Log.d(Constants.TAG, "Sync running: $running")
             refresh.isRefreshing = running
         })
@@ -213,7 +217,7 @@ class CalendarListActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             val v = convertView ?:
                     LayoutInflater.from(context).inflate(R.layout.calendar_list_item, parent, false)
 
-            val calendar = getItem(position)
+            val calendar = getItem(position)!!
             v.url.text = calendar.url
             v.title.text = calendar.displayName
 

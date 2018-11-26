@@ -12,7 +12,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.set_sync_interval.view.*

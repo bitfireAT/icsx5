@@ -19,14 +19,18 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
-import android.support.v4.app.*
-import android.support.v4.content.Loader
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ShareCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentTransaction
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.Loader
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
@@ -64,7 +68,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
             // load calendar from provider
-            supportLoaderManager.initLoader(0, null, this)
+            LoaderManager.getInstance(this).initLoader(0, null, this)
         else
             finish()
     }
@@ -183,7 +187,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     /* loader callbacks */
 
     override fun onCreateLoader(id: Int, args: Bundle?) =
-            CalendarLoader(this, intent.data)
+            CalendarLoader(this, intent.data!!)
 
     override fun onLoadFinished(loader: Loader<LocalCalendar>, calendar: LocalCalendar?) {
         if (calendar == null)
@@ -249,7 +253,9 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             context: Context,
             private val uri: Uri
     ): Loader<LocalCalendar>(context) {
-        val TAG = "ICSdroid.Calendar"
+        companion object {
+            const val TAG = "ICSdroid.Calendar"
+        }
 
         private var loaded = false
 
