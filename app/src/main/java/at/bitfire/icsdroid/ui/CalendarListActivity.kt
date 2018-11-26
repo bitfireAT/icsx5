@@ -66,11 +66,11 @@ class CalendarListActivity:
         calendar_list.onItemClickListener = this
         calendar_list.emptyView = emptyInfo
 
-        if (getPreferences(0).getLong(DonateDialogFragment.PREF_NEXT_REMINDER, 0) < System.currentTimeMillis()) {
-            val installer = packageManager.getInstallerPackageName(BuildConfig.APPLICATION_ID)
-            if (installer == null || installer.startsWith("org.fdroid"))
-                DonateDialogFragment().show(supportFragmentManager, "donate")
-        }
+        // startup fragments
+        if (savedInstanceState == null)
+            ServiceLoader
+                    .load(StartupFragment::class.java)
+                    .forEach { it.initiate(this, supportFragmentManager) }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)

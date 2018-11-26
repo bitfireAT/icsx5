@@ -8,10 +8,12 @@
 
 package at.bitfire.icsdroid.ui;
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 
@@ -27,18 +29,28 @@ class DonateDialogFragment: DialogFragment() {
                 .setTitle(R.string.donate_title)
                 .setMessage(R.string.donate_message)
                 .setPositiveButton(R.string.donate_now) { _, _ ->
-                    activity!!.getPreferences(0).edit()
+                    requireActivity().getPreferences(0).edit()
                             .putLong(PREF_NEXT_REMINDER, System.currentTimeMillis() + 60*86400000L)
                             .apply()
                     startActivity(Intent(Intent.ACTION_VIEW, Constants.donationUri))
                 }
                 .setNegativeButton(R.string.donate_later) { _, _ ->
-                    activity!!.getPreferences(0).edit()
+                    requireActivity().getPreferences(0).edit()
                             .putLong(PREF_NEXT_REMINDER, System.currentTimeMillis() + 14*86400000L)
                             .apply()
                     dismiss()
                 }
                 .setCancelable(false)
                 .create()!!
+
+
+    class Factory: StartupFragment {
+
+        override fun initiate(activity: Activity, fragmentManager: FragmentManager) {
+            if (activity.getPreferences(0).getLong(PREF_NEXT_REMINDER, 0) < System.currentTimeMillis())
+                DonateDialogFragment().show(fragmentManager, "donate")
+        }
+
+    }
 
 }
