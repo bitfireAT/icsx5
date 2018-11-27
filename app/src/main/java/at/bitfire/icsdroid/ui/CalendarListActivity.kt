@@ -70,7 +70,7 @@ class CalendarListActivity:
         if (savedInstanceState == null)
             ServiceLoader
                     .load(StartupFragment::class.java)
-                    .forEach { it.initiate(this, supportFragmentManager) }
+                    .forEach { it.initialize(this) }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)

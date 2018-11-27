@@ -1,10 +1,9 @@
 package at.bitfire.icsdroid.ui
 
-import android.app.Activity
-import androidx.fragment.app.FragmentManager
+import androidx.appcompat.app.AppCompatActivity
 
 interface StartupFragment {
 
-    fun initiate(activity: Activity, fragmentManager: FragmentManager)
+    fun initialize(activity: AppCompatActivity)
 
 }
