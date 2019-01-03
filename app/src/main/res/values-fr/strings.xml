@@ -1,10 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">ICSdroid</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <string name="action_next">Suivant</string>
   <string name="calendar_list_empty_info">Pour s\'abonner à un flux Webcal, utilisez le bouton + ou ouvrez une URL Webcal</string>
-  <string name="calendar_list_info">À propos d\'ICSdroid</string>
+  <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Intervalle de synchro.</string>
   <string name="calendar_list_sync_disabled">Synchro. désactivée</string>
@@ -38,17 +37,6 @@
   <string name="sync_error_title">Erreur de synchronisation</string>
   <string name="set_sync_interval_save">Enregistrer</string>
   <string name="set_sync_interval_title">Intervalle de synchro.</string>
-  <string-array name="set_sync_interval_seconds">
-    <item>-1</item>
-    <item>300</item>
-    <item>600</item>
-    <item>900</item>
-    <item>3600</item>
-    <item>7200</item>
-    <item>14400</item>
-    <item>86400</item>
-    <item>604800</item>
-  </string-array>
   <string-array name="set_sync_interval_names">
     <item>Manuelle</item>
     <item>Toutes les 5 minutes</item>
@@ -65,7 +53,7 @@
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
   <string name="app_info_web_site">Site web</string>
   <string name="donate_title">Information Open Source</string>
-  <string name="donate_message">Nous sommes ravis que vous utilisiez ICSdroid, un logiciel libre (GPLv3). ICSdroid a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
+  <string name="donate_message">Nous sommes ravis que vous utilisiez ICSx⁵, un logiciel libre (GPLv3). ICSx⁵ a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
   <string name="donate_now">Montrer la page de dons</string>
   <string name="donate_later">Peut-être plus tard</string>
 </resources>

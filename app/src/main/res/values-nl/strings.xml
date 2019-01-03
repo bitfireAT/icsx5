@@ -1,17 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">ICSdroid</string>
   <string name="notification_channel_sync_problem">Syncproblemen</string>
   <string name="action_next">Volgende</string>
   <string name="calendar_list_empty_info">Om te abonneren op een Webcal-feed, gebruikt de +-knop of open een Webcal-URL.</string>
-  <string name="calendar_list_info">Over ICSdroid</string>
+  <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
   <string name="calendar_list_set_sync_interval">Zet sync.interval</string>
   <string name="calendar_list_sync_disabled">Sync. uitgeschakeld</string>
   <string name="calendar_list_sync_interval_manually">Automatische sync is uitgeschakeld</string>
   <string name="calendar_list_master_sync_disabled">Systeembreed automatisch syncen is uitgeschakeld</string>
   <string name="calendar_list_master_sync_enable">Actief</string>
-  <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSdroid voor korte syncintervallen</string>
+  <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSx⁵ voor korte syncintervallen</string>
   <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
   <string name="title_activity_calendar_list">Mijn abonnementen</string>
   <string name="activity_add_calendar">Abonneer op een kalender</string>
@@ -41,34 +40,12 @@
   <string name="sync_error_title">Synchronisatiefout</string>
   <string name="set_sync_interval_save">Bewaar</string>
   <string name="set_sync_interval_title">Zet sync.interval</string>
-  <string-array name="set_sync_interval_seconds">
-    <item>-1</item>
-    <item>300</item>
-    <item>600</item>
-    <item>900</item>
-    <item>3600</item>
-    <item>7200</item>
-    <item>14400</item>
-    <item>86400</item>
-    <item>604800</item>
-  </string-array>
-  <string-array name="set_sync_interval_names">
-    <item>Alleen handmatig</item>
-    <item>Elke 5 minuten</item>
-    <item>Elke 10 minuten</item>
-    <item>Elke 15 minuten</item>
-    <item>Elke uur</item>
-    <item>Elke 2 uren</item>
-    <item>Elke 4 uren</item>
-    <item>Eens per dag</item>
-    <item>Eens per week</item>
-  </string-array>
   <string name="activity_app_info">Appinfo</string>
   <string name="app_info_donate">Doneer</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>
   <string name="app_info_web_site">Website</string>
   <string name="donate_title">Opensourceinformatie</string>
-  <string name="donate_message">We vinden het leuk dat u ICSdroid gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSdroid te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
+  <string name="donate_message">We vinden het leuk dat u ICSx⁵ gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSx⁵ te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
   <string name="donate_now">Toon donatiepagina</string>
   <string name="donate_later">Misschien later</string>
   <string name="sync_permission_required">Toestemming nodig</string>

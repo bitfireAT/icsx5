@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">ICSdroid</string>
   <string name="action_next">Következő</string>
   <string name="calendar_list_info">Névjegy</string>
   <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>
@@ -31,17 +30,6 @@
   <string name="sync_error_title">Szinkronizációs hiba</string>
   <string name="set_sync_interval_save">Mentés</string>
   <string name="set_sync_interval_title">Szinkronizáció sűrűségének megadása:</string>
-  <string-array name="set_sync_interval_seconds">
-    <item>-1</item>
-    <item>300</item>
-    <item>600</item>
-    <item>900</item>
-    <item>3600</item>
-    <item>7200</item>
-    <item>14400</item>
-    <item>86400</item>
-    <item>604800</item>
-  </string-array>
   <string-array name="set_sync_interval_names">
     <item>Csak manuálisan</item>
     <item>5 percenként</item>
@@ -57,7 +45,7 @@
   <string name="app_info_donate">Támogatás</string>
   <string name="app_info_web_site">Honlap</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>
-  <string name="donate_message">Örülünk, hogy használja a ICSdroidot. A ICSdroid nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>
+  <string name="donate_message">Örülünk, hogy használja a ICSx⁵ot. A ICSx⁵ nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>
   <string name="donate_now">Tovább a támogatás-oldalra</string>
   <string name="donate_later">Talán majd később</string>
 </resources>

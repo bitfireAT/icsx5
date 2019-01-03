@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -A android
-android=([cs]=cz [de]=de [fr]=fr [hu]=hu [nl]=nl)
+android=([cs]=cs [de]=de [fr]=fr [hu]=hu [nl]=nl)
 
 for lang in ${!android[@]}
 do

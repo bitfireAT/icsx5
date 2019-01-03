@@ -8,7 +8,7 @@
   -->
 
 <resources>
-    <string name="app_name">ICSx⁵</string>
+    <string name="app_name" translatable="false">ICSx⁵</string>
     <string name="account_name">Calendar subscriptions</string>
     <string name="account_type" translatable="false">at.bitfire.icsdroid</string>
 
