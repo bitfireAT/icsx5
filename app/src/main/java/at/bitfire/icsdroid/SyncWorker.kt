@@ -60,7 +60,7 @@ class SyncWorker(
     override fun doWork(): Result {
         if (syncRunning.get()) {
             Log.w(Constants.TAG, "There's already another sync running, aborting")
-            return Result.SUCCESS
+            return Result.success()
         }
 
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
@@ -75,7 +75,7 @@ class SyncWorker(
                     providerClient.release()
             }
         }
-        return Result.FAILURE
+        return Result.failure()
     }
 
     private fun performSync(account: Account, provider: ContentProviderClient): Result {
@@ -95,7 +95,7 @@ class SyncWorker(
             Log.e(Constants.TAG, "Thread interrupted", e)
         }
 
-        return Result.SUCCESS
+        return Result.success()
     }
 
 }
