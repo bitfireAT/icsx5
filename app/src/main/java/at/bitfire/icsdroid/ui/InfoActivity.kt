@@ -41,7 +41,7 @@ class InfoActivity: AppCompatActivity() {
                 arrayOf("ICSx⁵", "ICSx⁵/${BuildConfig.VERSION_NAME}", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsx5.bitfire.at", "gpl-3.0-standalone.html"),
                 arrayOf("AmbilWarna", "AmbilWarna (Android Color Picker)", "Yuku", "https://github.com/yukuku/ambilwarna", "apache2.html"),
                 arrayOf("Apache Commons", "Apache Commons", "Apache Software Foundation", "http://commons.apache.org/", "apache2.html"),
-                arrayOf("ical4j", "ical4j", "Ben Fortuna", "https://ical4j.github.io", "bsd-3clause.html")
+                arrayOf("ical4j", "ical4j/${at.bitfire.ical4android.BuildConfig.version_ical4j}", "Ben Fortuna", "https://ical4j.github.io", "bsd-3clause.html")
         )
     }
 
