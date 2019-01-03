@@ -1,32 +1,30 @@
 
-ICSdroid
+ICSx⁵
 ========
 
-Please see the [ICSdroid Web site](https://icsdroid.bitfire.at) for comprehensive information about ICSdroid.
+Please see the [ICSx⁵ Web site](https://icsx5.bitfire.at) for comprehensive information about ICSx⁵.
 
-ICSdroid is licensed under the [GPLv3 License](LICENSE).
+ICSx⁵ is licensed under the [GPLv3 License](LICENSE).
 
-News and updates: [@icsdroidapp](https://twitter.com/icsdroidapp)
+News and updates: [@icsx5app](https://twitter.com/icsx5app)
 
-Help and discussion: [ICSdroid forum](https://icsdroid.bitfire.at/forums/)
+Help and discussion: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
 
-ICSdroid is a Android 4.0+ app to subscribe to remote or local iCalendar files (like
+ICSx⁵ is a Android 4.0+ app to subscribe to remote or local iCalendar files (like
 time tables of your school/university or event files of your sports team).
-
-[![Flattr this!](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=bitfire&url=https://icsdroid.bitfire.at&title=ICSdroid&category=software)
 
 
 License 
 =======
 
-Copyright (C) 2013 – 2016 bitfire web engineering (Ricki Hirner, Bernhard Stockmann).
+Copyright (C) [bitfire web engineering](https://www.bitfire.at) (Stockmann, Hirner GesnbR).
 
 This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome
 to redistribute it under the conditions of the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
 
-ICSdroid uses these libraries (more information available in the app):
+ICSx⁵ uses these libraries (more information available in the app):
 
-* [Android Color Picker](https://github.com/yukuku/ambilwarna) (Apache License 2.0)
+* [Ambilwarna Color Picker](https://github.com/yukuku/ambilwarna) (Apache License 2.0)
 * [Android Support Library](https://developer.android.com/tools/support-library/) (Apache License 2.0)
 * [Apache Commons](https://commons.apache.org) (Apache License 2.0)
 * [ical4android](https://gitlab.com/bitfireAT/ical4android) (GPLv3)

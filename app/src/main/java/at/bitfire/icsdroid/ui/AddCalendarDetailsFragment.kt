@@ -14,10 +14,10 @@ import android.content.ContentValues
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
-import androidx.fragment.app.Fragment
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
@@ -116,15 +116,15 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
 
 
     private fun createCalendar(): Boolean {
-        AppAccount.makeAvailable(requireActivity())
+        val account = AppAccount.get(requireActivity())
 
         val calInfo = ContentValues(9)
-        calInfo.put(Calendars.ACCOUNT_NAME, AppAccount.account.name)
-        calInfo.put(Calendars.ACCOUNT_TYPE, AppAccount.account.type)
+        calInfo.put(Calendars.ACCOUNT_NAME, account.name)
+        calInfo.put(Calendars.ACCOUNT_TYPE, account.type)
         calInfo.put(Calendars.NAME, info.url.toString())
         calInfo.put(Calendars.CALENDAR_DISPLAY_NAME, title)
         calInfo.put(Calendars.CALENDAR_COLOR, color)
-        calInfo.put(Calendars.OWNER_ACCOUNT, AppAccount.account.name)
+        calInfo.put(Calendars.OWNER_ACCOUNT, account.name)
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
@@ -132,8 +132,8 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
         val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
         return try {
             client?.let {
-                val uri = AndroidCalendar.create(AppAccount.account, it, calInfo)
-                val calendar = LocalCalendar.findById(AppAccount.account, client, ContentUris.parseId(uri))
+                val uri = AndroidCalendar.create(account, it, calInfo)
+                val calendar = LocalCalendar.findById(account, client, ContentUris.parseId(uri))
                 CalendarCredentials.putCredentials(requireActivity(), calendar, info.username, info.password)
             }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()

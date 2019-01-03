@@ -38,7 +38,7 @@ class InfoActivity: AppCompatActivity() {
 
     companion object {
         val components = arrayOf(
-                arrayOf("ICSdroid", "ICSdroid/${BuildConfig.VERSION_NAME}", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsdroid.bitfire.at", "gpl-3.0-standalone.html"),
+                arrayOf("ICSx⁵", "ICSx⁵/${BuildConfig.VERSION_NAME}", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsx5.bitfire.at", "gpl-3.0-standalone.html"),
                 arrayOf("AmbilWarna", "AmbilWarna (Android Color Picker)", "Yuku", "https://github.com/yukuku/ambilwarna", "apache2.html"),
                 arrayOf("Apache Commons", "Apache Commons", "Apache Software Foundation", "http://commons.apache.org/", "apache2.html"),
                 arrayOf("ical4j", "ical4j", "Ben Fortuna", "https://ical4j.github.io", "bsd-3clause.html")
@@ -63,11 +63,11 @@ class InfoActivity: AppCompatActivity() {
     }
 
     fun showWebSite(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://icsdroid.bitfire.at/?pk_campaign=icsdroid-app&pk_kwd=info-activity")))
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity")))
     }
 
     fun showTwitter(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsdroidapp")))
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsx5app")))
     }
 
 

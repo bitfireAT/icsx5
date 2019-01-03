@@ -128,7 +128,7 @@ class CalendarListActivity:
 
         when {
             // periodic sync not enabled
-            AppAccount.syncInterval() == AppAccount.SYNC_INTERVAL_MANUALLY -> {
+            AppAccount.syncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE)
                 snackBar?.show()
             }
@@ -145,7 +145,7 @@ class CalendarListActivity:
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
             Build.VERSION.SDK_INT >= 23 &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
-                    AppAccount.syncInterval() < 86400 -> {
+                    AppAccount.syncInterval(this) < 86400 -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.calendar_list_battery_whitelist_settings) { _ ->
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
@@ -271,7 +271,7 @@ class CalendarListActivity:
             try {
                 var calendars: List<LocalCalendar>? = null
                 provider?.let {
-                    calendars = LocalCalendar.findAll(AppAccount.account, it)
+                    calendars = LocalCalendar.findAll(AppAccount.get(context), it)
                 }
                 deliverResult(calendars)
             } catch(e: CalendarStorageException) {

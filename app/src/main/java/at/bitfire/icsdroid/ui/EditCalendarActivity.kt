@@ -254,7 +254,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             private val uri: Uri
     ): Loader<LocalCalendar>(context) {
         companion object {
-            const val TAG = "ICSdroid.Calendar"
+            const val TAG = "ICSx5.Calendar"
         }
 
         private var loaded = false
@@ -283,7 +283,7 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
             var calendar: LocalCalendar? = null
             provider?.let {
                 try {
-                    calendar = LocalCalendar.findById(AppAccount.account, it, ContentUris.parseId(uri))
+                    calendar = LocalCalendar.findById(AppAccount.get(context), it, ContentUris.parseId(uri))
                 } catch(e: Exception) {
                     Log.e(TAG, "Couldn't load calendar data", e)
                 }

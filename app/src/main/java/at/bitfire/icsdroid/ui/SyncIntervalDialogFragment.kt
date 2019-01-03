@@ -29,13 +29,13 @@ class SyncIntervalDialogFragment: DialogFragment() {
 
         val v = requireActivity().layoutInflater.inflate(R.layout.set_sync_interval, null)
 
-        val currentSyncInterval = AppAccount.syncInterval()
+        val currentSyncInterval = AppAccount.syncInterval(requireActivity())
         if (syncIntervalSeconds.contains(currentSyncInterval))
             v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 
         builder .setView(v)
                 .setPositiveButton(R.string.set_sync_interval_save) { _, _ ->
-                    AppAccount.syncInterval(syncIntervalSeconds[v.sync_interval.selectedItemPosition])
+                    AppAccount.syncInterval(requireActivity(), syncIntervalSeconds[v.sync_interval.selectedItemPosition])
                 }
 
         return builder.create()

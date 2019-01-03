@@ -1,8 +1,8 @@
 
-# ProGuard usage for ICSdroid:
+# ProGuard usage for ICSx⁵:
 #       shrinking        yes (main reason for using ProGuard)
 #       optimization     yes
-#       obfuscation      no (ICSdroid is open-source)
+#       obfuscation      no (ICSx⁵ is open-source)
 #       preverification  no
 
 -dontobfuscate
@@ -22,5 +22,5 @@
 -keep class net.fortuna.ical4j.** { *; }  # keep all model classes (properties/factories, created at runtime)
 -keep class org.threeten.bp.** { *; }     # keep ThreeTen (for time zone processing)
 
-# keep ICSdroid and ical4android
--keep class at.bitfire.** { *; }	# all ICSdroid code is required
+# keep ICSx⁵ and ical4android
+-keep class at.bitfire.** { *; }	# all ICSx⁵ code is required

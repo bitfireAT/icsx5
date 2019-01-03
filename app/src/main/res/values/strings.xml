@@ -8,20 +8,23 @@
   -->
 
 <resources>
-    <string name="app_name">ICSdroid</string>
+    <string name="app_name">ICSx⁵</string>
+    <string name="account_name">Calendar subscriptions</string>
+    <string name="account_type" translatable="false">at.bitfire.icsdroid</string>
+
+    <!-- common strings -->
+    <string name="action_next">Next</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
 
-    <string name="action_next">Next</string>
-
     <string name="calendar_list_empty_info">To subscribe to a Webcal feed, use the + button or open a Webcal URL.</string>
-    <string name="calendar_list_info">About ICSdroid</string>
+    <string name="calendar_list_info">About ICSx⁵</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_sync_disabled">Sync. disabled</string>
     <string name="calendar_list_sync_interval_manually">Automatic sync disabled</string>
     <string name="calendar_list_master_sync_disabled">System-wide automatic sync is disabled</string>
     <string name="calendar_list_master_sync_enable">Activate</string>
-    <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSdroid for short sync intervals</string>
+    <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
 
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -55,7 +58,7 @@
     <string name="sync_error_title">Synchronization error</string>
     <string name="set_sync_interval_save">Save</string>
     <string name="set_sync_interval_title">Set sync. interval:</string>
-    <string-array name="set_sync_interval_seconds">
+    <string-array name="set_sync_interval_seconds" translatable="false">
         <item>-1</item>
         <item>300</item>
         <item>600</item>
@@ -84,7 +87,7 @@
     <string name="app_info_web_site">Web site</string>
 
     <string name="donate_title">Open-Source Information</string>
-    <string name="donate_message">We\'re happy that you use ICSdroid, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSdroid, please consider a donation.</string>
+    <string name="donate_message">We\'re happy that you use ICSx⁵, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSx⁵, please consider a donation.</string>
     <string name="donate_now">Show donation page</string>
     <string name="donate_later">Maybe later</string>
 

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SyncWorker(
-        context: Context,
+        val context: Context,
         workerParams: WorkerParameters
 ): Worker(context, workerParams) {
 
@@ -66,7 +66,7 @@ class SyncWorker(
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
                 syncRunning.set(true)
-                return performSync(AppAccount.account, providerClient)
+                return performSync(AppAccount.get(context), providerClient)
             } finally {
                 syncRunning.set(false)
                 if (Build.VERSION.SDK_INT >= 24)

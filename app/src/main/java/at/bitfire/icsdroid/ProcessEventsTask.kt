@@ -170,7 +170,7 @@ class ProcessEventsTask(
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                     .setSmallIcon(R.drawable.ic_sync_problem_white)
                     .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setGroup("ICSdroid")
+                    .setGroup("ICSx⁵")
                     .setContentTitle(context.getString(R.string.sync_error_title))
                     .setContentText(msg)
                     .setSubText(calendar.displayName)

@@ -14,11 +14,11 @@ import at.bitfire.ical4android.Constants
 
 object Constants {
 
-    const val TAG = "icsdroid"
+    const val TAG = "icsx5"
 
-    val USER_AGENT = "ICSdroid/" + BuildConfig.VERSION_NAME + " (ical4j/" + Constants.ical4jVersion + " Android/" + Build.VERSION.RELEASE + ")"
+    val USER_AGENT = "ICSx5/" + BuildConfig.VERSION_NAME + " (ical4j/" + Constants.ical4jVersion + " Android/" + Build.VERSION.RELEASE + ")"
     const val MAX_REDIRECTS = 5
 
-    val donationUri = Uri.parse("https://icsdroid.bitfire.at/donate/?pk_campaign=icsdroid-app")!!
+    val donationUri = Uri.parse("https://icsx5.bitfire.at/donate/?pk_campaign=icsx5-app")!!
 
 }

@@ -20,35 +20,42 @@ object AppAccount {
 
     const val SYNC_INTERVAL_MANUALLY = -1L
 
-    val account = Account("ICSdroid", "at.bitfire.icsdroid")
+    fun get(context: Context): Account {
+        val accountType = context.getString(R.string.account_type)
 
-
-    fun makeAvailable(context: Context) {
         val am = AccountManager.get(context)
-        if (am.getAccountsByType(account.type).isEmpty()) {
-            Log.i(Constants.TAG, "Account not found, creating")
-            am.addAccountExplicitly(AppAccount.account, null, null)
+        val existingAccount = am.getAccountsByType(accountType).firstOrNull()
+        if (existingAccount != null)
+            return existingAccount
+
+        Log.i(Constants.TAG, "Account not found, creating")
+        val account = Account(context.getString(R.string.account_name), accountType)
+        if (am.addAccountExplicitly(account, null, null)) {
             ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 1)
             ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true)
+            return account
         }
+
+        throw IllegalStateException("Couldn't create app account")
     }
 
-    fun syncInterval(): Long {
+
+    fun syncInterval(context: Context): Long {
         var syncInterval = SYNC_INTERVAL_MANUALLY
-        if (ContentResolver.getSyncAutomatically(account, CalendarContract.AUTHORITY))
-            for (sync in ContentResolver.getPeriodicSyncs(account, CalendarContract.AUTHORITY))
+        if (ContentResolver.getSyncAutomatically(get(context), CalendarContract.AUTHORITY))
+            for (sync in ContentResolver.getPeriodicSyncs(get(context), CalendarContract.AUTHORITY))
                 syncInterval = sync.period
         return syncInterval
     }
 
-    fun syncInterval(syncInterval: Long) {
+    fun syncInterval(context: Context, syncInterval: Long) {
         if (syncInterval == SYNC_INTERVAL_MANUALLY) {
             Log.i(Constants.TAG, "Disabling automatic synchronization")
-            ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, false)
+            ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, false)
         } else {
             Log.i(Constants.TAG, "Setting automatic synchronization with interval of $syncInterval seconds")
-            ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true)
-            ContentResolver.addPeriodicSync(account, CalendarContract.AUTHORITY, Bundle(), syncInterval)
+            ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, true)
+            ContentResolver.addPeriodicSync(get(context), CalendarContract.AUTHORITY, Bundle(), syncInterval)
         }
     }
 
