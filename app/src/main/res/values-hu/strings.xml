@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--common strings-->
   <string name="action_next">Következő</string>
   <string name="calendar_list_info">Névjegy</string>
   <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>

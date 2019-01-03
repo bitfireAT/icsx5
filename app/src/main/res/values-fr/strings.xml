@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
+  <!--common strings-->
   <string name="action_next">Suivant</string>
+  <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <string name="calendar_list_empty_info">Pour s\'abonner à un flux Webcal, utilisez le bouton + ou ouvrez une URL Webcal</string>
   <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Intervalle de synchro.</string>
   <string name="calendar_list_sync_disabled">Synchro. désactivée</string>
   <string name="calendar_list_sync_interval_manually">Synchro. automatique désactivée</string>
+  <string name="calendar_list_master_sync_disabled">La synchro. globale automatique est désactivée</string>
+  <string name="calendar_list_master_sync_enable">Activer</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <string name="title_activity_calendar_list">Mes abonnements</string>
   <string name="activity_add_calendar">S\'abonner à un calendrier</string>
@@ -56,4 +59,7 @@
   <string name="donate_message">Nous sommes ravis que vous utilisiez ICSx⁵, un logiciel libre (GPLv3). ICSx⁵ a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
   <string name="donate_now">Montrer la page de dons</string>
   <string name="donate_later">Peut-être plus tard</string>
+  <string name="sync_permission_required">Autorisation requise</string>
+  <string name="sync_permission_required_sync_calendar">Autorisation nécessaire pour la synchro. de votre calendrier</string>
+  <string name="permission_required_external_storage">Autorisation de Stockage nécessaire pour l\'accès aux fichiers iCalendar locaux</string>
 </resources>

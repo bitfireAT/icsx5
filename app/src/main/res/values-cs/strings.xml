@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--common strings-->
   <string name="action_next">Další</string>
   <string name="calendar_list_info">O aplikaci ICSx⁵</string>
   <string name="calendar_list_set_sync_interval">Nastavit interval synchronizace</string>

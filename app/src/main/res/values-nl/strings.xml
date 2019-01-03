@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="notification_channel_sync_problem">Syncproblemen</string>
+  <!--common strings-->
   <string name="action_next">Volgende</string>
+  <string name="notification_channel_sync_problem">Syncproblemen</string>
   <string name="calendar_list_empty_info">Om te abonneren op een Webcal-feed, gebruikt de +-knop of open een Webcal-URL.</string>
   <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
@@ -40,6 +41,17 @@
   <string name="sync_error_title">Synchronisatiefout</string>
   <string name="set_sync_interval_save">Bewaar</string>
   <string name="set_sync_interval_title">Zet sync.interval</string>
+  <string-array name="set_sync_interval_names">
+    <item>Alleen handmatig</item>
+    <item>Elke 5 minuten</item>
+    <item>Elke 10 minuten</item>
+    <item>Elke 15 minuten</item>
+    <item>Elke uur</item>
+    <item>Elke 2 uren</item>
+    <item>Elke 4 uren</item>
+    <item>Eens per dag</item>
+    <item>Eens per week</item>
+  </string-array>
   <string name="activity_app_info">Appinfo</string>
   <string name="app_info_donate">Doneer</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>

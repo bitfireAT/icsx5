@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="notification_channel_sync_problem">Sync-Probleme</string>
+  <string name="account_name">Kalender-Abos</string>
+  <!--common strings-->
   <string name="action_next">Weiter</string>
+  <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
