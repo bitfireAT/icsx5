@@ -60,8 +60,6 @@
     <string name="set_sync_interval_title">Set sync. interval:</string>
     <string-array name="set_sync_interval_seconds" translatable="false">
         <item>-1</item>
-        <item>300</item>
-        <item>600</item>
         <item>900</item>
         <item>3600</item>
         <item>7200</item>
@@ -71,8 +69,6 @@
     </string-array>
     <string-array name="set_sync_interval_names">
         <item>Only manually</item>
-        <item>Every 5 minutes</item>
-        <item>Every 10 minutes</item>
         <item>Every 15 minutes</item>
         <item>Every hour</item>
         <item>Every 2 hours</item>
