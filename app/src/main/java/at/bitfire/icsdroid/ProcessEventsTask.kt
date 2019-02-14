@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import at.bitfire.cert4android.CustomCertManager
+import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -35,6 +36,9 @@ class ProcessEventsTask(
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
+            // provide iCalendar event color values to Android
+            AndroidCalendar.insertColors(calendar.provider, calendar.account)
+
             processEvents()
         } catch(e: CalendarStorageException) {
             Log.e(Constants.TAG, "Couldn't access local calendars", e)
