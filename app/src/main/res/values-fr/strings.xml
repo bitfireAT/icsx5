@@ -40,17 +40,6 @@
   <string name="sync_error_title">Erreur de synchronisation</string>
   <string name="set_sync_interval_save">Enregistrer</string>
   <string name="set_sync_interval_title">Intervalle de synchro.</string>
-  <string-array name="set_sync_interval_names">
-    <item>Manuelle</item>
-    <item>Toutes les 5 minutes</item>
-    <item>Toutes les 10 minutes</item>
-    <item>Toutes les 15 minutes</item>
-    <item>Toutes les heures</item>
-    <item>Toutes les 2 heures</item>
-    <item>Toutes les 4 heures</item>
-    <item>Une fois par jour</item>
-    <item>Une fois par semaine</item>
-  </string-array>
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_donate">Faire un don</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>

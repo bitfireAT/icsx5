@@ -1,0 +1,11 @@
+Mit ICSx⁵ können externe (Webcal) und lokale (aus Dropbox, adb push usw.) Kalender/.ics-Dateien mit Ihrem Android-Gerät synchronisiert werden.
+
+Fügen Sie Feiertage und Ferien, Sportereignisse, Stundenpläne und andere .ics/iCal-Dateien hinzu. ICSx⁵ importiert diese Ereignisse in regelmäßigen Intervallen und zeigt sie in Ihrer bevorzugten Android-Kalender-App an – nahtlos ins System integriert.
+
+* Webcal-Feeds abonnieren (= in regelmäßigen Abständen synchronisieren), zB geteilte Kalender von icloud.com
+* lokale .ics (iCalendar)-Dateien abonnieren
+* webcal:// und webcals://-URLs können direkt aus dem Web-Browser geöffnet werden
+* nahtlose Integration mit diversen Kalenderapps
+* Synchronisations-Intervall einstellbar
+* intelligente Prüfung auf Aktualisierungen, um Bandbreite zu sparen
+* unterstützt HTTP-Authentifizierung und HTTPS
