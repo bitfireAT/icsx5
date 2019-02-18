@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="account_name">Abonnements à des calendriers</string>
   <!--common strings-->
   <string name="action_next">Suivant</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
@@ -11,6 +12,7 @@
   <string name="calendar_list_sync_interval_manually">Synchro. automatique désactivée</string>
   <string name="calendar_list_master_sync_disabled">La synchro. globale automatique est désactivée</string>
   <string name="calendar_list_master_sync_enable">Activer</string>
+  <string name="calendar_list_battery_whitelist">Batterie : Ajoutez ICSx⁵ aux exceptions pour des intervalles de synchronisation courts</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <string name="title_activity_calendar_list">Mes abonnements</string>
   <string name="activity_add_calendar">S\'abonner à un calendrier</string>
@@ -40,6 +42,15 @@
   <string name="sync_error_title">Erreur de synchronisation</string>
   <string name="set_sync_interval_save">Enregistrer</string>
   <string name="set_sync_interval_title">Intervalle de synchro.</string>
+  <string-array name="set_sync_interval_names">
+    <item>Uniquement manuelle</item>
+    <item>Toutes les 15 minutes</item>
+    <item>Toutes les heures</item>
+    <item>Toutes les 2 heures</item>
+    <item>Toutes les 4 heures</item>
+    <item>Une fois par jour</item>
+    <item>Une fois par semaine</item>
+  </string-array>
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_donate">Faire un don</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>

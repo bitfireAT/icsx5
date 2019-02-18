@@ -43,6 +43,15 @@ ICSx⁵ deaktivieren</string>
   <string name="sync_error_title">Fehler bei der Aktualisierung</string>
   <string name="set_sync_interval_save">Speichern</string>
   <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Nur manuell</item>
+    <item>Alle 15 Minuten</item>
+    <item>Jede Stunde</item>
+    <item>Alle 2 Stunden</item>
+    <item>Alle 4 Stunden</item>
+    <item>Einmal täglich</item>
+    <item>Einmal wöchentlich</item>
+  </string-array>
   <string name="activity_app_info">Über ICSx⁵</string>
   <string name="app_info_donate">Spenden</string>
   <string name="app_info_twitter">Aktuelles</string>
