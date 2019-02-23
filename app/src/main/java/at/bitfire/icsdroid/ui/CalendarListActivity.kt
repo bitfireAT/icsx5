@@ -9,7 +9,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.app.Application
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -26,9 +26,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
+import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
 import at.bitfire.ical4android.CalendarStorageException
@@ -39,13 +40,14 @@ import kotlinx.android.synthetic.main.calendar_list_activity.*
 import kotlinx.android.synthetic.main.calendar_list_item.view.*
 import java.text.DateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
 class CalendarListActivity:
         AppCompatActivity(),
-        LoaderManager.LoaderCallbacks<List<LocalCalendar>>,
         AdapterView.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
+    var calendarModel: CalendarModel? = null
     private var listAdapter: CalendarListAdapter? = null
 
     private var snackBar: Snackbar? = null
@@ -74,7 +76,7 @@ class CalendarListActivity:
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            LoaderManager.getInstance(this).initLoader(0, null, this)
+            createCalendarModel()
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
@@ -92,16 +94,32 @@ class CalendarListActivity:
         })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        SyncWorker.liveStatus().removeObservers(this)
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            supportLoaderManager.initLoader(0, null, this)
+            createCalendarModel()
         else
             finish()
+    }
+
+    private fun createCalendarModel() {
+        calendarModel = ViewModelProviders.of(this).get(CalendarModel::class.java).apply {
+            liveData.observe(this@CalendarListActivity, Observer<List<LocalCalendar>> { calendars ->
+                // We got a list of calendars! Add them into the list
+                listAdapter?.clear()
+                listAdapter?.addAll(calendars)
+
+                // control the swipe refresher
+                if (calendars.isNotEmpty()) {
+                    // funny: use the calendar colors for the sync status
+                    val colors = LinkedList<Int>()
+                    calendars.forEach { calendar ->
+                        calendar.color?.let { colors += 0xff000000.toInt() or it }
+                    }
+                    if (colors.isNotEmpty())
+                        refresh?.setColorSchemeColors(*colors.toIntArray())
+                }
+            })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -157,37 +175,6 @@ class CalendarListActivity:
     }
 
 
-    /* loader callbacks */
-
-    override fun onCreateLoader(id: Int, args: Bundle?) =
-            CalendarListLoader(this)
-
-    override fun onLoadFinished(loader: Loader<List<LocalCalendar>>, calendars: List<LocalCalendar>?) {
-        // we got our list of calendars
-
-        // add them into the list
-        listAdapter?.clear()
-
-        calendars?.let {
-            listAdapter?.addAll(calendars)
-
-            // control the swipe refresher
-            if (calendars.isNotEmpty()) {
-                // funny: use the calendar colors for the sync status
-                val colors = LinkedList<Int>()
-                calendars.forEach { calendar ->
-                    calendar.color?.let { colors += 0xff000000.toInt() or it }
-                }
-                if (colors.isNotEmpty())
-                    refresh?.setColorSchemeColors(*colors.toIntArray())
-            }
-        }
-    }
-
-    override fun onLoaderReset(loader: Loader<List<LocalCalendar>>) {
-    }
-
-
     /* actions */
 
     fun onAddCalendar(v: View) {
@@ -207,7 +194,54 @@ class CalendarListActivity:
     }
 
 
-    /* list adapter */
+    class CalendarModel(
+            application: Application
+    ): AndroidViewModel(application) {
+        private var provider = application.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
+
+        val liveData = CalendarLiveData(application, provider)
+
+        override fun onCleared() {
+            provider.release()
+        }
+
+        fun reload() {
+            liveData.loadData()
+        }
+    }
+
+    class CalendarLiveData(
+            val context: Context,
+            val provider: ContentProviderClient
+    ): LiveData<List<LocalCalendar>>() {
+        private val resolver = context.contentResolver
+
+        private val observer = object: ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                loadData()
+            }
+        }
+
+        override fun onActive() {
+            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, observer)
+            loadData()
+        }
+
+        override fun onInactive() {
+            resolver.unregisterContentObserver(observer)
+        }
+
+        fun loadData() {
+            thread {
+                try {
+                    postValue(LocalCalendar.findAll(AppAccount.get(context), provider))
+                } catch(e: CalendarStorageException) {
+                    Log.e(Constants.TAG, "Couldn't load calendar list", e)
+                }
+            }
+        }
+    }
+
 
     private class CalendarListAdapter(
             context: Context
@@ -215,7 +249,7 @@ class CalendarListActivity:
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val v = convertView ?:
-                    LayoutInflater.from(context).inflate(R.layout.calendar_list_item, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.calendar_list_item, parent, false)
 
             val calendar = getItem(position)!!
             v.url.text = calendar.url
@@ -243,42 +277,6 @@ class CalendarListActivity:
 
             return v
         }
-    }
-
-    class CalendarListLoader(
-            context: Context
-    ): Loader<List<LocalCalendar>>(context) {
-        private var provider: ContentProviderClient? = null
-        private lateinit var observer: ContentObserver
-
-        @SuppressLint("Recycle")
-        override fun onStartLoading() {
-            val resolver = context.contentResolver
-            provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-
-            observer = ForceLoadContentObserver()
-            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, observer)
-
-            forceLoad()
-        }
-
-        override fun onStopLoading() {
-            context.contentResolver.unregisterContentObserver(observer)
-            provider?.release()
-        }
-
-        override fun onForceLoad() {
-            try {
-                var calendars: List<LocalCalendar>? = null
-                provider?.let {
-                    calendars = LocalCalendar.findAll(AppAccount.get(context), it)
-                }
-                deliverResult(calendars)
-            } catch(e: CalendarStorageException) {
-                Log.e(Constants.TAG, "Couldn't load calendar list", e)
-            }
-        }
-
     }
 
 }

@@ -9,11 +9,12 @@
 package at.bitfire.icsdroid.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.accounts.Account
+import android.app.Application
 import android.content.ContentProviderClient
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
-import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.net.Uri
@@ -29,8 +30,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
@@ -38,9 +41,8 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.edit_calendar.*
-import java.net.URI
 
-class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<LocalCalendar> {
+class EditCalendarActivity: AppCompatActivity() {
 
     companion object {
         private const val STATE_DIRTY = "dirty"
@@ -66,10 +68,14 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            // load calendar from provider
-            LoaderManager.getInstance(this).initLoader(0, null, this)
-        else
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+            // permissions OK, load calendar from provider
+            val model = ViewModelProviders.of(this).get(CalendarModel::class.java)
+            val uri = intent.data ?: throw IllegalArgumentException("Intent data must be calendar URI")
+            model.getCalendar(uri)?.observe(this, Observer { calendar ->
+                updateCalendar(calendar)
+            })
+        } else
             finish()
     }
 
@@ -105,6 +111,54 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
                 .setEnabled(dirty && titleOK && authOK)
                 .setVisible(dirty && titleOK && authOK)
         return true
+    }
+
+    private fun updateCalendar(calendar: LocalCalendar) {
+        this.calendar = calendar
+
+        fragTitleColor = supportFragmentManager.findFragmentById(R.id.title_color) as? TitleColorFragment
+        if (fragTitleColor == null) {
+            val frag = TitleColorFragment()
+            val args = Bundle(3)
+            args.putString(TitleColorFragment.ARG_URL, calendar.name)
+            args.putString(TitleColorFragment.ARG_TITLE, calendar.displayName)
+            args.putInt(TitleColorFragment.ARG_COLOR, calendar.color ?: LocalCalendar.DEFAULT_COLOR)
+            frag.arguments = args
+            frag.setOnChangeListener(object : TitleColorFragment.OnChangeListener {
+                override fun onChangeTitleColor(title: String?, color: Int) {
+                    dirty = true
+                }
+            })
+
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.title_color, frag)
+                    .commit()
+            fragTitleColor = frag
+
+            sync_calendar.isChecked = calendar.isSynced
+        }
+
+        fragCredentials = supportFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment
+        if (fragCredentials == null) try {
+            val uri = Uri.parse(calendar.url)
+            if (!uri.scheme.equals("file", true)) {
+                val (username, password) = CalendarCredentials.getCredentials(this, calendar)
+
+                val frag = CredentialsFragment.newInstance(username, password)
+                frag.setOnChangeListener(object : CredentialsFragment.OnCredentialsChangeListener {
+                    override fun onChangeCredentials(username: String?, password: String?) {
+                        dirty = true
+                    }
+                })
+
+                val ft = supportFragmentManager.beginTransaction()
+                        .replace(R.id.credentials, frag)
+                        .commit()
+                fragCredentials = frag
+            }
+        } catch(e: Exception) {
+            Log.e(Constants.TAG, "Invalid calendar URI", e)
+        }
     }
 
 
@@ -184,111 +238,48 @@ class EditCalendarActivity: AppCompatActivity(), LoaderManager.LoaderCallbacks<L
     }
 
 
-    /* loader callbacks */
+    /* view model and data source */
 
-    override fun onCreateLoader(id: Int, args: Bundle?) =
-            CalendarLoader(this, intent.data!!)
+    class CalendarModel(
+            application: Application
+    ): AndroidViewModel(application) {
 
-    override fun onLoadFinished(loader: Loader<LocalCalendar>, calendar: LocalCalendar?) {
-        if (calendar == null)
-            // calendar not available (anymore), close activity
-            finish()
-        else {
-            this.calendar = calendar
+        val provider: ContentProviderClient? = application.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
-            fragTitleColor = supportFragmentManager.findFragmentById(R.id.title_color) as? TitleColorFragment
-            if (fragTitleColor == null) {
-                val frag = TitleColorFragment()
-                val args = Bundle(3)
-                args.putString(TitleColorFragment.ARG_URL, calendar.name)
-                args.putString(TitleColorFragment.ARG_TITLE, calendar.displayName)
-                args.putInt(TitleColorFragment.ARG_COLOR, calendar.color ?: LocalCalendar.DEFAULT_COLOR)
-                frag.arguments = args
-                frag.setOnChangeListener(object : TitleColorFragment.OnChangeListener {
-                    override fun onChangeTitleColor(title: String?, color: Int) {
-                        dirty = true
-                    }
-                })
-
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.title_color, frag)
-                        .commit()
-                fragTitleColor = frag
-
-                sync_calendar.isChecked = calendar.isSynced
-            }
-
-            fragCredentials = supportFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment
-            if (fragCredentials == null) try {
-                val uri = URI(calendar.url)
-                if (!uri.scheme.equals("file", true)) {
-                    val (username, password) = CalendarCredentials.getCredentials(this, calendar)
-
-                    val frag = CredentialsFragment.newInstance(username, password)
-                    frag.setOnChangeListener(object : CredentialsFragment.OnCredentialsChangeListener {
-                        override fun onChangeCredentials(username: String?, password: String?) {
-                            dirty = true
-                        }
-                    })
-
-                    val ft = supportFragmentManager.beginTransaction()
-                            .replace(R.id.credentials, frag)
-                            .commit()
-                    fragCredentials = frag
-                }
-            } catch(e: Exception) {
-                Log.e(Constants.TAG, "Invalid calendar URI", e)
-            }
-        }
-    }
-
-    override fun onLoaderReset(loader: Loader<LocalCalendar>) {
-        calendar = null
-    }
-
-
-    /* loader */
-
-    class CalendarLoader(
-            context: Context,
-            private val uri: Uri
-    ): Loader<LocalCalendar>(context) {
-        companion object {
-            const val TAG = "ICSx5.Calendar"
-        }
-
-        private var loaded = false
-
-        private var provider: ContentProviderClient? = null
-        private lateinit var observer: ContentObserver
-
-        @SuppressLint("Recycle")
-        override fun onStartLoading() {
-            val resolver = context.contentResolver
-            provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-
-            observer = ForceLoadContentObserver()
-            resolver.registerContentObserver(uri, false, observer)
-
-            if (!loaded)
-                forceLoad()
-        }
-
-        override fun onStopLoading() {
-            context.contentResolver.unregisterContentObserver(observer)
+        override fun onCleared() {
             provider?.release()
         }
 
-        override fun onForceLoad() {
-            var calendar: LocalCalendar? = null
-            provider?.let {
-                try {
-                    calendar = LocalCalendar.findById(AppAccount.get(context), it, ContentUris.parseId(uri))
-                } catch(e: Exception) {
-                    Log.e(TAG, "Couldn't load calendar data", e)
+        fun getCalendar(uri: Uri) =
+                provider?.let {
+                    CalendarData(getApplication<Application>().contentResolver, provider, AppAccount.get(getApplication()), uri)
                 }
+    }
+
+    class CalendarData(
+            private val resolver: ContentResolver,
+            private val provider: ContentProviderClient,
+            private val account: Account,
+            private val uri: Uri
+    ): LiveData<LocalCalendar>() {
+
+        private val observer = object: ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                loadData()
             }
-            deliverResult(calendar)
+        }
+
+        override fun onActive() {
+            resolver.registerContentObserver(uri, false, observer)
+            loadData()
+        }
+
+        override fun onInactive() {
+            resolver.unregisterContentObserver(observer)
+        }
+
+        fun loadData() {
+            postValue(LocalCalendar.findById(account, provider, ContentUris.parseId(uri)))
         }
 
     }

@@ -9,6 +9,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -22,9 +23,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.AsyncTaskLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
@@ -33,6 +35,7 @@ import kotlinx.android.synthetic.main.app_info_component.view.*
 import org.apache.commons.io.IOUtils
 import java.io.IOException
 import java.nio.charset.StandardCharsets
+import kotlin.concurrent.thread
 
 class InfoActivity: AppCompatActivity() {
 
@@ -81,7 +84,7 @@ class InfoActivity: AppCompatActivity() {
 
     }
 
-    class ComponentFragment: Fragment(), LoaderManager.LoaderCallbacks<Spanned> {
+    class ComponentFragment: Fragment() {
 
         companion object {
 
@@ -111,56 +114,45 @@ class InfoActivity: AppCompatActivity() {
             v.url.text = info[3]
 
             // load and format license text
-            val args = Bundle(1)
-            args.putString(KEY_LICENSE_FILE, "license/${info[4]}")
-            LoaderManager.getInstance(this).initLoader(0, args, this)
+            val model = ViewModelProviders.of(this).get(LicenseModel::class.java)
+            model.getHtml(info[4]).observe(this, Observer { formattedText ->
+                v.license.apply {
+                    text = formattedText
+                    autoLinkMask = Linkify.WEB_URLS
+                }
+            })
 
             return v
         }
 
-        override fun onCreateLoader(id: Int, args: Bundle?) =
-                LicenseLoader(requireActivity(), args!!.getString(KEY_LICENSE_FILE)!!)
+    }
 
-        override fun onLoadFinished(loader: Loader<Spanned?>, text: Spanned?) {
-            text?.let {
-                view?.license?.let {
-                    it.autoLinkMask = Linkify.WEB_URLS
-                    it.text = text
-                }
-            }
-        }
 
-        override fun onLoaderReset(loader: Loader<Spanned>) {
-        }
+    class LicenseModel(
+            application: Application
+    ): AndroidViewModel(application) {
+
+        fun getHtml(fileName: String) =
+                LicenseData(getApplication(), "license/$fileName")
 
     }
 
-    class LicenseLoader(
+    class LicenseData(
             context: Context,
-            private val fileName: String
-    ): AsyncTaskLoader<Spanned>(context) {
+            fileName: String
+    ): LiveData<Spanned>() {
 
-        var text: Spanned? = null
-
-        override fun onStartLoading() {
-            Log.v(Constants.TAG, "Loading license text from $fileName")
-            if (text == null)
-                forceLoad()
-            else
-                deliverResult(text)
-        }
-
-        override fun loadInBackground(): Spanned? {
-            try {
-                context.resources.assets.open(fileName).use {
-                    val html = IOUtils.toString(it, StandardCharsets.UTF_8)
-                    text = Html.fromHtml(html)
-                    return text
+        init {
+            thread {
+                try {
+                    context.resources.assets.open(fileName).use {
+                        val html = IOUtils.toString(it, StandardCharsets.UTF_8)
+                        postValue(Html.fromHtml(html))
+                    }
+                } catch(e: IOException) {
+                    Log.e(Constants.TAG, "Couldn't load license text", e)
                 }
-            } catch(e: IOException) {
-                Log.e(Constants.TAG, "Couldn't load license text", e)
             }
-            return null
         }
 
     }

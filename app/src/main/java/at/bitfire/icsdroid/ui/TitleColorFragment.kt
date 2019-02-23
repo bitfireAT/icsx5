@@ -9,12 +9,12 @@
 package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.android.synthetic.main.calendar_title_color.view.*
