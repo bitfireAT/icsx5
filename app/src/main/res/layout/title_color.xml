@@ -6,14 +6,14 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable name="model" type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel"/>
     </data>
 
     <LinearLayout
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

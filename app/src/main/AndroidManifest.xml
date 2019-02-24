@@ -107,14 +107,14 @@
             android:name=".ui.EditCalendarActivity"
             android:label="@string/activity_edit_calendar"
             android:windowSoftInputMode="stateHidden"
-            android:parentActivityName=".ui.CalendarListActivity"
-            tools:ignore="UnusedAttribute"/>
+            android:parentActivityName=".ui.CalendarListActivity"/>
+
+        <activity android:name=".ui.ColorPickerActivity" />
         <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".ui.CalendarListActivity"
-            tools:ignore="UnusedAttribute"/>
+            android:parentActivityName=".ui.CalendarListActivity"/>
 
     </application>
 

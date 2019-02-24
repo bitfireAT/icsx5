@@ -8,6 +8,7 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,39 +16,49 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
+import at.bitfire.icsdroid.db.LocalCalendar
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.android.synthetic.main.title_color.view.*
-import yuku.ambilwarna.AmbilWarnaDialog
 
 class TitleColorFragment: Fragment() {
 
+    lateinit var model: TitleColorModel
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val model = ViewModelProviders.of(requireActivity()).get(TitleColorModel::class.java)
+        model = ViewModelProviders.of(requireActivity()).get(TitleColorModel::class.java)
         val binding = DataBindingUtil.inflate<TitleColorBinding>(inflater, R.layout.title_color, container, false)
         binding.lifecycleOwner = this
         binding.setVariable(BR.model, model)
 
         val v = binding.root
-        model.color.value?.let { color ->
-            v.color.setOnClickListener {
-                AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {
-                    override fun onCancel(ambilWarnaDialog: AmbilWarnaDialog) {
-                    }
-
-                    override fun onOk(ambilWarnaDialog: AmbilWarnaDialog, newColor: Int) {
-                        model.color.value = 0xFF000000.toInt() or newColor
-                        v.color.setColor(color)
-                    }
-                }).show()
+        v.color.setOnClickListener {
+            val intent = Intent(requireActivity(), ColorPickerActivity::class.java)
+            model.color.value?.let {
+                intent.putExtra(ColorPickerActivity.EXTRA_COLOR, it)
             }
+            startActivityForResult(intent, 0)
+
         }
+        model.color.observe(this, Observer { color ->
+            if (color != null)
+                v.color.setColor(color)
+        })
+
         return v
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+        result?.let {
+            model.color.value = it.getIntExtra(ColorPickerActivity.EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+        }
+    }
 
     class TitleColorModel: ViewModel() {
         var url = MutableLiveData<String>()
