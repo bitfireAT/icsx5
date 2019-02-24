@@ -9,82 +9,58 @@
 package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.db.LocalCalendar
-import kotlinx.android.synthetic.main.calendar_title_color.view.*
+import at.bitfire.icsdroid.databinding.TitleColorBinding
+import kotlinx.android.synthetic.main.title_color.view.*
 import yuku.ambilwarna.AmbilWarnaDialog
 
-class TitleColorFragment: Fragment(), TextWatcher {
-
-    companion object {
-        const val ARG_URL = "url"
-        const val ARG_TITLE = "title"
-        const val ARG_COLOR = "color"
-    }
-
-    private var url: String? = null
-    var title: String? = null
-    var color = LocalCalendar.DEFAULT_COLOR
-
-    private var listener: OnChangeListener? = null
+class TitleColorFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val v = inflater.inflate(R.layout.calendar_title_color, container, false)
+        val model = ViewModelProviders.of(requireActivity()).get(TitleColorModel::class.java)
+        val binding = DataBindingUtil.inflate<TitleColorBinding>(inflater, R.layout.title_color, container, false)
+        binding.lifecycleOwner = this
+        binding.setVariable(BR.model, model)
 
-        url = arguments!!.getString(ARG_URL)
-        v.url.text = url
+        val v = binding.root
+        model.color.value?.let { color ->
+            v.color.setOnClickListener {
+                AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {
+                    override fun onCancel(ambilWarnaDialog: AmbilWarnaDialog) {
+                    }
 
-        title = arguments!!.getString(ARG_TITLE)
-        v.title.setText(title)
-        v.title.addTextChangedListener(this)
-
-        color = arguments!!.getInt(ARG_COLOR)
-        v.color.setColor(color)
-        v.color.setOnClickListener { _ ->
-            AmbilWarnaDialog(activity, color, object: AmbilWarnaDialog.OnAmbilWarnaListener {
-                override fun onCancel(ambilWarnaDialog: AmbilWarnaDialog) {
-                }
-
-                override fun onOk(ambilWarnaDialog: AmbilWarnaDialog, newColor: Int) {
-                    color = 0xFF000000.toInt() or newColor
-                    v.color.setColor(color)
-                    notifyListener()
-                }
-            }).show()
+                    override fun onOk(ambilWarnaDialog: AmbilWarnaDialog, newColor: Int) {
+                        model.color.value = 0xFF000000.toInt() or newColor
+                        v.color.setColor(color)
+                    }
+                }).show()
+            }
         }
-
         return v
     }
 
 
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-    }
+    class TitleColorModel: ViewModel() {
+        var url = MutableLiveData<String>()
 
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-    }
+        var originalTitle: String? = null
+        val title = MutableLiveData<String>()
 
-    override fun afterTextChanged(s: Editable) {
-        title = view!!.title.text.toString()
-        notifyListener()
-    }
+        var originalColor: Int? = null
+        val color = MutableLiveData<Int>()
 
-
-    interface OnChangeListener {
-        fun onChangeTitleColor(title: String?, color: Int)
-    }
-
-    fun setOnChangeListener(listener: OnChangeListener) {
-        this.listener = listener
-    }
-
-    private fun notifyListener() {
-        listener?.onChangeTitleColor(title, color)
+        fun dirty() =
+                originalTitle != title.value ||
+                originalColor != color.value
     }
 
 }

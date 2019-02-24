@@ -8,14 +8,11 @@
 
 package at.bitfire.icsdroid.ui;
 
-import java.io.Serializable;
-import java.net.URL;
+import java.net.URL
 
-class ResourceInfo: Serializable {
+class ResourceInfo {
 
     var url: URL? = null
-    var username: String? = null
-    var password: String? = null
 
     var exception: Exception? = null
 

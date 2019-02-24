@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.LocalCalendar
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -23,9 +25,13 @@ class AddCalendarActivity: AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
+    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
+
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
         setContentView(R.layout.fragment_container)
+
+        titleColorModel = ViewModelProviders.of(this).get(TitleColorFragment.TitleColorModel::class.java)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -34,11 +40,23 @@ class AddCalendarActivity: AppCompatActivity() {
             ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
-        if (inState == null)
+        if (inState == null) {
             supportFragmentManager
                     .beginTransaction()
                     .add(R.id.fragment_container, AddCalendarEnterUrlFragment())
                     .commit()
+
+            intent?.apply {
+                data?.let { uri ->
+                    titleColorModel.url.value = uri.toString()
+                }
+                getStringExtra(EXTRA_TITLE)?.let {
+                    titleColorModel.title.value = it
+                }
+                if (hasExtra(EXTRA_COLOR))
+                    titleColorModel.color.value = getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

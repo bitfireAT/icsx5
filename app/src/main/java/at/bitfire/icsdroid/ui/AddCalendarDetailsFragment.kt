@@ -18,75 +18,41 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
-import at.bitfire.icsdroid.ui.AddCalendarActivity.Companion.EXTRA_COLOR
-import at.bitfire.icsdroid.ui.AddCalendarActivity.Companion.EXTRA_TITLE
 
-class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListener {
+class AddCalendarDetailsFragment: Fragment() {
 
-    companion object {
-
-        const val ARG_INFO = "info"
-
-        private const val STATE_TITLE = "title"
-        private const val STATE_COLOR = "color"
-
-        fun newInstance(info: ResourceInfo): AddCalendarDetailsFragment {
-            val frag = AddCalendarDetailsFragment()
-            val args = Bundle(1)
-            args.putSerializable(ARG_INFO, info)
-            frag.arguments = args
-            return frag
-        }
-
-    }
-
-    private lateinit var info: ResourceInfo
-
-    private var title: String? = null
-    private var color: Int = LocalCalendar.DEFAULT_COLOR
-
-
+    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
+    private lateinit var validationModel: AddCalendarValidationFragment.ValidationModel
+    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        info = arguments!!.getSerializable(ARG_INFO) as ResourceInfo
+
+        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
+        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
+        validationModel = ViewModelProviders.of(requireActivity()).get(AddCalendarValidationFragment.ValidationModel::class.java)
+
+        val invalidateOptionsMenu = Observer<Any> {
+            requireActivity().invalidateOptionsMenu()
+        }
+        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
+        titleColorModel.title.observe(this, invalidateOptionsMenu)
+        titleColorModel.color.observe(this, invalidateOptionsMenu)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val v = inflater.inflate(R.layout.add_calendar_details, container, false)
         setHasOptionsMenu(true)
 
-        if (inState != null) {
-            title = inState.getString(STATE_TITLE)
-            color = inState.getInt(STATE_COLOR)
-        } else {
-            title = activity?.intent?.getStringExtra(EXTRA_TITLE) ?: info.calendarName
-            color = activity?.intent?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR) ?: LocalCalendar.DEFAULT_COLOR
-        }
-
-        val fragTitleColor = TitleColorFragment()
-        val args = Bundle(3)
-        args.putString(TitleColorFragment.ARG_URL, info.url.toString())
-        args.putString(TitleColorFragment.ARG_TITLE, title)
-        args.putInt(TitleColorFragment.ARG_COLOR, color)
-        fragTitleColor.arguments = args
-        fragTitleColor.setOnChangeListener(this)
-        childFragmentManager.beginTransaction()
-                .replace(R.id.title_color, fragTitleColor)
-                .commit()
         return v
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(STATE_TITLE, title)
-        outState.putInt(STATE_COLOR, color)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -95,7 +61,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val itemGo = menu.findItem(R.id.create_calendar)
-        itemGo.isEnabled = !title.isNullOrBlank()
+        itemGo.isEnabled = !titleColorModel.title.value.isNullOrBlank()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
@@ -107,23 +73,15 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
                 false
 
 
-    override fun onChangeTitleColor(title: String?, color: Int) {
-        this.title = title
-        this.color = color
-
-        requireActivity().invalidateOptionsMenu()
-    }
-
-
     private fun createCalendar(): Boolean {
         val account = AppAccount.get(requireActivity())
 
         val calInfo = ContentValues(9)
         calInfo.put(Calendars.ACCOUNT_NAME, account.name)
         calInfo.put(Calendars.ACCOUNT_TYPE, account.type)
-        calInfo.put(Calendars.NAME, info.url.toString())
-        calInfo.put(Calendars.CALENDAR_DISPLAY_NAME, title)
-        calInfo.put(Calendars.CALENDAR_COLOR, color)
+        calInfo.put(Calendars.NAME, titleColorModel.url.value)
+        calInfo.put(Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
+        calInfo.put(Calendars.CALENDAR_COLOR, titleColorModel.color.value)
         calInfo.put(Calendars.OWNER_ACCOUNT, account.name)
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
@@ -134,7 +92,7 @@ class AddCalendarDetailsFragment: Fragment(), TitleColorFragment.OnChangeListene
             client?.let {
                 val uri = AndroidCalendar.create(account, it, calInfo)
                 val calendar = LocalCalendar.findById(account, client, ContentUris.parseId(uri))
-                CalendarCredentials.putCredentials(requireActivity(), calendar, info.username, info.password)
+                CalendarCredentials.putCredentials(requireActivity(), calendar, credentialsModel.username.value, credentialsModel.password.value)
             }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
             requireActivity().invalidateOptionsMenu()

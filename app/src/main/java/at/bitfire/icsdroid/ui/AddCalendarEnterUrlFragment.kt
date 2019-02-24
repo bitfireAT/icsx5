@@ -11,60 +11,46 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import androidx.core.app.ActivityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import kotlinx.android.synthetic.main.add_calendar_enter_url.view.*
 import java.net.URI
 import java.net.URISyntaxException
-import java.net.URL
 
-class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.OnCredentialsChangeListener {
+class AddCalendarEnterUrlFragment: Fragment() {
 
-    private lateinit var credentials: CredentialsFragment
+    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
+    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val v = inflater.inflate(R.layout.add_calendar_enter_url, container, false)
-        setHasOptionsMenu(true)
+        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
+        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
 
-        var username: String? = null
-        var password: String? = null
-
-        activity?.intent?.data?.let { uri ->
-            // This causes the onTextChanged listeners to be activated - credentials and insecureAuthWarning are already required!
-            uri.userInfo?.let {
-                val info = it.split(':', limit = 2).iterator()
-                if (info.hasNext())
-                    username = info.next()
-                if (info.hasNext())
-                    password = info.next()
-            }
-            try {
-                v.url.setText(URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null).toString())
-            } catch(ignored: URISyntaxException) {
-            }
+        val invalidate = Observer<Any> {
+            requireActivity().invalidateOptionsMenu()
         }
+        titleColorModel.url.observe(this, invalidate)
+        credentialsModel.requiresAuth.observe(this, invalidate)
 
-        credentials = childFragmentManager.findFragmentById(R.id.credentials) as? CredentialsFragment ?: {
-            val frag = CredentialsFragment.newInstance(username, password)
-            frag.setOnChangeListener(this)
-            childFragmentManager.beginTransaction()
-                    .replace(R.id.credentials, frag)
-                    .commit()
-            frag
-        }()
+        val binding = DataBindingUtil.inflate<AddCalendarEnterUrlBinding>(inflater, R.layout.add_calendar_enter_url, container, false)
+        binding.lifecycleOwner = this
+        binding.setVariable(BR.model, titleColorModel)
 
-        return v
+        setHasOptionsMenu(true)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         validateUrl()
-        view.url.addTextChangedListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -73,94 +59,88 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val v = requireNotNull(view)
-
         val itemNext = menu.findItem(R.id.next)
-        var uri: URI? = null
-        val urlOK = try {
-            uri = URI(v.url.text.toString())
-            uri.scheme.equals("file", true) || uri.scheme.equals("http", true) || uri.scheme.equals("https", true)
-        } catch(e: URISyntaxException) {
-            false
-        }
-        if (v.url.text.isNotEmpty() && !urlOK)
-            v.url.error = getString(R.string.add_calendar_need_valid_uri)
 
-        val authOK = !credentials.requiresAuth || (credentials.username != null && credentials.password != null)
+        val url = validateUrl()
 
-        val permOK = if (uri?.scheme.equals("file", true))
+        val authOK = if (credentialsModel.requiresAuth.value == true)
+                !credentialsModel.username.value.isNullOrEmpty() && !credentialsModel.password.value.isNullOrEmpty()
+        else
+            true
+
+        val permOK = if (url?.scheme.equals("file", true))
             ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         else
             true
 
-        itemNext.isEnabled = urlOK && authOK && permOK
+        itemNext.isEnabled = url != null && authOK && permOK
     }
 
 
     /* dynamic changes */
 
-    override fun onChangeCredentials(username: String?, password: String?) =
-            validateUrl()
-
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-    }
-
-    override fun afterTextChanged(s: Editable) =
-            validateUrl()
-
-    private fun validateUrl() {
-        var uri: URI
-
+    private fun validateUrl(): URI? {
         val view = requireNotNull(view)
+
+        var url: URI
         try {
-            uri = URI(view.url.text.toString())
+            url = URI(titleColorModel.url.value ?: return null)
         } catch(e: URISyntaxException) {
             Log.d(Constants.TAG, "Invalid URL", e)
-            return
+            view.url.error = e.localizedMessage
+            return null
         }
 
-        if (uri.scheme.equals("webcal", true)) {
-            uri = URI("http", uri.authority, uri.path, uri.query, null)
-            view.url.setText(uri.toString())
-        } else if (uri.scheme.equals("webcals", true)) {
-            uri = URI("https", uri.authority, uri.path, uri.query, null)
-            view.url.setText(uri.toString())
+        Log.i(Constants.TAG, url.toString())
+
+        if (url.scheme.equals("webcal", true)) {
+            url = URI("http", url.authority, url.path, url.query, null)
+            titleColorModel.url.value = url.toString()
+            return null
+        } else if (url.scheme.equals("webcals", true)) {
+            url = URI("https", url.authority, url.path, url.query, null)
+            titleColorModel.url.value = url.toString()
+            return null
         }
 
-        try {
-            when {
-                uri.scheme.equals("file", true) && !uri.path.isNullOrBlank() -> {
+        when (url.scheme?.toLowerCase()) {
+            "file" -> {
+                if (url.path != null) {
                     // local file:
                     // 1. no need for auth
-                    credentials.requiresAuth = false
-                    childFragmentManager.beginTransaction()
-                            .hide(credentials)
-                            .commit()
+                    credentialsModel.requiresAuth.value = false
                     // 2. permission required
                     if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                         ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
                 }
-                (uri.scheme.equals("http", true) || uri.scheme.equals("https", true)) && !uri.authority.isNullOrBlank() -> {
-                    childFragmentManager.beginTransaction()
-                            .show(credentials)
-                            .commit()
+            }
+            "http", "https" -> {
+                // extract user name and password from URL
+                url.userInfo?.let { userInfo ->
+                    val credentials = userInfo.split(':')
+                    credentialsModel.requiresAuth.value = true
+                    credentialsModel.username.value = credentials.elementAtOrNull(0)
+                    credentialsModel.password.value = credentials.elementAtOrNull(1)
+
+                    val urlWithoutPassword = URI(url.scheme, null, url.host, url.port, url.path, url.query, null)
+                    titleColorModel.url.value = urlWithoutPassword.toString()
+                    return null
                 }
             }
-        } catch(e: Exception) {
-            Log.d(Constants.TAG, "Invalid URL", e)
-            view.url.error = e.localizedMessage
+            else -> {
+                view.url.error = getString(R.string.add_calendar_need_valid_uri)
+                return null
+            }
         }
 
         // warn if auth. required and not using HTTPS
         view.insecure_authentication_warning.visibility =
-                if (credentials.requiresAuth && !uri.scheme.equals("https", true))
+                if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
                     View.VISIBLE
                 else
                     View.GONE
 
-        activity?.invalidateOptionsMenu()
+        return url
     }
 
 
@@ -168,14 +148,7 @@ class AddCalendarEnterUrlFragment: Fragment(), TextWatcher, CredentialsFragment.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.next) {
-            val info = ResourceInfo()
-            info.url = URL(view!!.url.text.toString())
-            if (credentials.requiresAuth) {
-                info.username = credentials.username
-                info.password = credentials.password
-            }
-            val frag = AddCalendarValidationFragment.newInstance(info)
-            frag.show(fragmentManager, "validation")
+            AddCalendarValidationFragment().show(fragmentManager, "validation")
             return true
         }
         return false

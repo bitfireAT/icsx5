@@ -37,24 +37,19 @@ import kotlin.concurrent.thread
 
 class AddCalendarValidationFragment: DialogFragment() {
 
-    companion object {
-        const val ARG_INFO = "info"
-
-        fun newInstance(info: ResourceInfo): AddCalendarValidationFragment {
-            val frag = AddCalendarValidationFragment()
-            val args = Bundle(1)
-            args.putSerializable(ARG_INFO, info)
-            frag.arguments = args
-            return frag
-        }
-
-    }
+    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
+    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
+    private lateinit var validationModel: ValidationModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val model = ViewModelProviders.of(this).get(CalendarSourceModel::class.java)
-        model.getSourceInfo(arguments!!.getSerializable(ARG_INFO) as ResourceInfo).observe(this, Observer { info ->
+        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
+        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
+
+        validationModel = ViewModelProviders.of(requireActivity()).get(ValidationModel::class.java)
+        val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
+        validationModel.results(url, credentialsModel.username.value, credentialsModel.password.value).observe(this, Observer { info ->
             dialog.dismiss()
 
             val errorMessage = when {
@@ -66,12 +61,14 @@ class AddCalendarValidationFragment: DialogFragment() {
             }
 
             if (errorMessage == null) {
-                if (info.calendarName.isNullOrBlank())
-                    info.calendarName = info.url?.file
+                titleColorModel.url.value = info.url.toString()
+
+                if (titleColorModel.title.value.isNullOrBlank())
+                    titleColorModel.title.value = info.calendarName ?: info.url?.file
 
                 requireFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, AddCalendarDetailsFragment.newInstance(info))
+                        .replace(R.id.fragment_container, AddCalendarDetailsFragment())
                         .addToBackStack(null)
                         .commitAllowingStateLoss()
             } else
@@ -88,28 +85,32 @@ class AddCalendarValidationFragment: DialogFragment() {
 
     /* model and data source */
 
-    class CalendarSourceModel(
+    class ValidationModel(
             application: Application
     ): AndroidViewModel(application) {
 
-        fun getSourceInfo(resourceInfo: ResourceInfo) =
-                CalendarSourceInfo(getApplication(), resourceInfo)
+        fun results(url: URL, username: String?, password: String?) =
+                CalendarSourceInfo(getApplication(), url, username, password)
 
     }
 
     class CalendarSourceInfo(
             context: Context,
-            info: ResourceInfo
+            originalUrl: URL,
+            username: String?,
+            password: String?
     ): LiveData<ResourceInfo>() {
 
         init {
+            val info = ResourceInfo()
+
             thread {
                 info.exception = null
+                var url = originalUrl
 
                 var conn: URLConnection? = null
                 var certManager: CustomCertManager? = null
                 try {
-                    var url = info.url!!
                     var followRedirect: Boolean
                     var redirect = 0
                     do {
@@ -125,8 +126,8 @@ class AddCalendarValidationFragment: DialogFragment() {
                             if (conn is HttpURLConnection) {
                                 conn.instanceFollowRedirects = false
 
-                                if (info.username != null && info.password != null) {
-                                    val basicCredentials = "${info.username}:${info.password}"
+                                if (username != null && password != null) {
+                                    val basicCredentials = "$username:$password"
                                     conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
                                 }
 
@@ -180,6 +181,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                     certManager?.close()
                 }
 
+                info.url = url
                 postValue(info)
             }
         }

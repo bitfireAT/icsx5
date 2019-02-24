@@ -47,7 +47,7 @@ class CalendarListActivity:
         AdapterView.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
-    var calendarModel: CalendarModel? = null
+    private lateinit var model: CalendarModel
     private var listAdapter: CalendarListAdapter? = null
 
     private var snackBar: Snackbar? = null
@@ -60,13 +60,25 @@ class CalendarListActivity:
 
         refresh.setColorSchemeColors(resources.getColor(R.color.lightblue))
         refresh.setOnRefreshListener(this)
-
         refresh.setSize(SwipeRefreshLayout.LARGE)
 
         listAdapter = CalendarListAdapter(this)
         calendar_list.adapter = listAdapter
         calendar_list.onItemClickListener = this
         calendar_list.emptyView = emptyInfo
+
+        model = ViewModelProviders.of(this).get(CalendarModel::class.java)
+        model.calendars.observe(this, Observer { calendars ->
+            listAdapter?.clear()
+            listAdapter?.addAll(calendars)
+
+            if (calendars.isNotEmpty()) {
+                // funny: use the calendar colors for the sync status
+                val colors = calendars.mapNotNull { it.color }.map { it or 0xff000000.toInt() }
+                if (colors.isNotEmpty())
+                    refresh?.setColorSchemeColors(*colors.toIntArray())
+            }
+        })
 
         // startup fragments
         if (savedInstanceState == null)
@@ -76,10 +88,11 @@ class CalendarListActivity:
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            createCalendarModel()
+            model.reload()
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
+        // check sync settings when sync interval has been edited
         supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
                 if (f is SyncIntervalDialogFragment)
@@ -87,6 +100,7 @@ class CalendarListActivity:
             }
         }, false)
 
+        // observe whether a sync is running
         SyncWorker.liveStatus().observe(this, Observer { statuses ->
             val running = statuses.any { it.state == WorkInfo.State.RUNNING } ?: false
             Log.d(Constants.TAG, "Sync running: $running")
@@ -96,30 +110,9 @@ class CalendarListActivity:
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            createCalendarModel()
+            model.reload()
         else
             finish()
-    }
-
-    private fun createCalendarModel() {
-        calendarModel = ViewModelProviders.of(this).get(CalendarModel::class.java).apply {
-            liveData.observe(this@CalendarListActivity, Observer<List<LocalCalendar>> { calendars ->
-                // We got a list of calendars! Add them into the list
-                listAdapter?.clear()
-                listAdapter?.addAll(calendars)
-
-                // control the swipe refresher
-                if (calendars.isNotEmpty()) {
-                    // funny: use the calendar colors for the sync status
-                    val colors = LinkedList<Int>()
-                    calendars.forEach { calendar ->
-                        calendar.color?.let { colors += 0xff000000.toInt() or it }
-                    }
-                    if (colors.isNotEmpty())
-                        refresh?.setColorSchemeColors(*colors.toIntArray())
-                }
-            })
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -199,14 +192,14 @@ class CalendarListActivity:
     ): AndroidViewModel(application) {
         private var provider = application.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
 
-        val liveData = CalendarLiveData(application, provider)
+        val calendars = CalendarLiveData(application, provider)
 
         override fun onCleared() {
             provider.release()
         }
 
         fun reload() {
-            liveData.loadData()
+            calendars.loadData()
         }
     }
 

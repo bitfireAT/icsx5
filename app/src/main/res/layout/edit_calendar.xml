@@ -6,34 +6,42 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="model" type="at.bitfire.icsdroid.ui.EditCalendarActivity.CalendarModel"/>
+    </data>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <FrameLayout
-            android:id="@+id/title_color"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <Switch
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:id="@+id/sync_calendar"
-            android:text="@string/edit_calendar_sync_this_calendar" />
+            android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/credentials"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <fragment
+                android:id="@id/title_color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:name="at.bitfire.icsdroid.ui.TitleColorFragment"/>
 
-    </LinearLayout>
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:checked="@={model.active}"
+                android:text="@string/edit_calendar_sync_this_calendar" />
 
-</ScrollView>
+            <fragment
+                android:id="@id/credentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</layout>

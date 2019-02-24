@@ -6,49 +6,48 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="model" type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel"/>
+    </data>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_calendar_url"/>
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/url"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="https://example.com/calendar.ics"
-            android:inputType="textUri"
-            android:singleLine="true"
-            tools:ignore="HardcodedText"/>
+            <EditText
+                android:id="@+id/url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/add_calendar_url"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:text="@={model.url}"/>
 
-        <TextView
-            android:id="@+id/insecure_authentication_warning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_warning"
-            android:drawableStart="@drawable/ic_warning"
-            android:drawablePadding="8dp"
-            android:padding="16dp"
-            android:text="@string/add_calendar_authentication_without_https_warning"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:visibility="gone"/>
+            <TextView
+                android:id="@+id/insecure_authentication_warning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_warning"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
+                android:text="@string/add_calendar_authentication_without_https_warning"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:visibility="gone"/>
 
-        <FrameLayout
-            android:id="@+id/credentials"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <fragment
+                android:id="@+id/credentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
 
-    </LinearLayout>
+        </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+</layout>
