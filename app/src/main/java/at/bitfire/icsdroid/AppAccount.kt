@@ -20,6 +20,7 @@ object AppAccount {
 
     const val SYNC_INTERVAL_MANUALLY = -1L
 
+    @Synchronized
     fun get(context: Context): Account {
         val accountType = context.getString(R.string.account_type)
 
