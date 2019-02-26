@@ -10,7 +10,10 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.app.Application
-import android.content.*
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Build
@@ -47,7 +50,6 @@ class CalendarListActivity:
         AdapterView.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
-    private lateinit var model: CalendarModel
     private var listAdapter: CalendarListAdapter? = null
 
     private var snackBar: Snackbar? = null
@@ -67,19 +69,6 @@ class CalendarListActivity:
         calendar_list.onItemClickListener = this
         calendar_list.emptyView = emptyInfo
 
-        model = ViewModelProviders.of(this).get(CalendarModel::class.java)
-        model.calendars.observe(this, Observer { calendars ->
-            listAdapter?.clear()
-            listAdapter?.addAll(calendars)
-
-            if (calendars.isNotEmpty()) {
-                // funny: use the calendar colors for the sync status
-                val colors = calendars.mapNotNull { it.color }.map { it or 0xff000000.toInt() }
-                if (colors.isNotEmpty())
-                    refresh?.setColorSchemeColors(*colors.toIntArray())
-            }
-        })
-
         // startup fragments
         if (savedInstanceState == null)
             ServiceLoader
@@ -88,7 +77,7 @@ class CalendarListActivity:
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            model.reload()
+            connectModel()
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
@@ -110,7 +99,7 @@ class CalendarListActivity:
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            model.reload()
+            connectModel()
         else
             finish()
     }
@@ -132,6 +121,7 @@ class CalendarListActivity:
         super.onResume()
         checkSyncSettings()
     }
+
 
     private fun checkSyncSettings() {
         snackBar?.dismiss()
@@ -167,6 +157,21 @@ class CalendarListActivity:
         }
     }
 
+    private fun connectModel() {
+        val model = ViewModelProviders.of(this).get(CalendarModel::class.java)
+        model.calendars.observe(this, Observer { calendars ->
+            listAdapter?.clear()
+            listAdapter?.addAll(calendars)
+
+            if (calendars.isNotEmpty()) {
+                // funny: use the calendar colors for the sync status
+                val colors = calendars.mapNotNull { it.color }.map { it or 0xff000000.toInt() }
+                if (colors.isNotEmpty())
+                    refresh?.setColorSchemeColors(*colors.toIntArray())
+            }
+        })
+    }
+
 
     /* actions */
 
@@ -187,16 +192,13 @@ class CalendarListActivity:
     }
 
 
+    /**
+     * Data model for this view. Must only be created when the app has calendar permissions!
+     */
     class CalendarModel(
             application: Application
     ): AndroidViewModel(application) {
-        private var provider = application.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
-
-        val calendars = CalendarLiveData(application, provider)
-
-        override fun onCleared() {
-            provider.release()
-        }
+        val calendars = CalendarLiveData(application)
 
         fun reload() {
             calendars.loadData()
@@ -204,8 +206,7 @@ class CalendarListActivity:
     }
 
     class CalendarLiveData(
-            val context: Context,
-            val provider: ContentProviderClient
+            val context: Context
     ): LiveData<List<LocalCalendar>>() {
         private val resolver = context.contentResolver
 
@@ -226,11 +227,15 @@ class CalendarListActivity:
 
         fun loadData() {
             thread {
-                try {
-                    postValue(LocalCalendar.findAll(AppAccount.get(context), provider))
-                } catch(e: CalendarStorageException) {
-                    Log.e(Constants.TAG, "Couldn't load calendar list", e)
-                }
+                val provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+                if (provider != null)
+                    try {
+                        postValue(LocalCalendar.findAll(AppAccount.get(context), provider))
+                    } catch(e: CalendarStorageException) {
+                        Log.e(Constants.TAG, "Couldn't load calendar list", e)
+                    } finally {
+                        provider.release()
+                    }
             }
         }
     }

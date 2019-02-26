@@ -42,8 +42,8 @@ class InfoActivity: AppCompatActivity() {
     companion object {
         val components = arrayOf(
                 arrayOf("ICSx⁵", "ICSx⁵/${BuildConfig.VERSION_NAME}", "Ricki Hirner, Bernhard Stockmann (bitfire.at)", "https://icsx5.bitfire.at", "gpl-3.0-standalone.html"),
-                arrayOf("ColorPicker", "Color Picker", "Jared Rummler", "https://github.com/jaredrummler/ColorPicker", "mit.html"),
                 arrayOf("Apache Commons", "Apache Commons", "Apache Software Foundation", "http://commons.apache.org/", "apache2.html"),
+                arrayOf("ColorPicker", "Color Picker", "Jared Rummler", "https://github.com/jaredrummler/ColorPicker", "mit.html"),
                 arrayOf("ical4j", "ical4j/${at.bitfire.ical4android.BuildConfig.version_ical4j}", "Ben Fortuna", "https://ical4j.github.io", "bsd-3clause.html")
         )
     }
@@ -89,7 +89,6 @@ class InfoActivity: AppCompatActivity() {
         companion object {
 
             const val KEY_POSITION = "position"
-            const val KEY_LICENSE_FILE = "license_file"
 
             fun instantiate(position: Int): ComponentFragment {
                 val frag = ComponentFragment()

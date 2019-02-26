@@ -23,8 +23,6 @@ import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
 import at.bitfire.icsdroid.db.LocalCalendar
-import com.jaredrummler.android.colorpicker.ColorPickerDialog
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.android.synthetic.main.title_color.view.*
 
 class TitleColorFragment: Fragment() {
