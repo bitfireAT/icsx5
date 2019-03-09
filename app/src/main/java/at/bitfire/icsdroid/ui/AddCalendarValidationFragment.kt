@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.R
-import net.fortuna.ical4j.model.property.LastModified
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -111,7 +110,8 @@ class AddCalendarValidationFragment: DialogFragment() {
                 }
             }
 
-            // TODO authentication
+            downloader.username = username
+            downloader.password = password
 
             Thread(downloader).start()
         }

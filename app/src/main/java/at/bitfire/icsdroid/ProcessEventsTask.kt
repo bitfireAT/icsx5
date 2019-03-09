@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.CalendarListActivity
@@ -90,6 +91,11 @@ class ProcessEventsTask(
                 Log.w(Constants.TAG, "Sync error", error)
                 errorMessage = error.localizedMessage
             }
+        }
+
+        CalendarCredentials.getCredentials(context, calendar).let { (username, password) ->
+            downloader.username = username
+            downloader.password = password
         }
 
         if (calendar.eTag != null)

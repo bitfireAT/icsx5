@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.internal.http.HttpDate
@@ -24,12 +25,14 @@ open class CalendarFetcher(
     }
 
     // TODO custom certificates
-    // TODO authentication
 
     private var redirectCount = 0
 
     var ifModifiedSince: Long? = null
     var ifNoneMatch: String? = null
+
+    var username: String? = null
+    var password: String? = null
 
 
     override fun run() {
@@ -62,6 +65,13 @@ open class CalendarFetcher(
 
         try {
             File(url.toURI()).let { file ->
+                ifModifiedSince?.let {  timestamp ->
+                    if (file.lastModified() <= timestamp) {
+                        onRedirect(304, null)
+                        return
+                    }
+                }
+
                 file.inputStream().use { content ->
                     onSuccess(content, null, null, file.lastModified())
                 }
@@ -69,7 +79,6 @@ open class CalendarFetcher(
         } catch (e: Exception) {
             onError(e)
         }
-        throw NotImplementedError()
     }
 
     private fun fetchNetwork() {
@@ -77,14 +86,15 @@ open class CalendarFetcher(
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
                 .url(url)
 
+        if (username != null && password != null)
+            request.addHeader("Authorization", "Basic " + Credentials.basic(username, password, Charsets.UTF_8))
+
         ifModifiedSince?.let {
             request.addHeader("If-Modified-Since", HttpDate.format(Date(it)))
         }
         ifNoneMatch?.let {
             request.addHeader("If-None-Match", it)
         }
-
-        // TODO authentication
 
         try {
             val response = HttpClient.okHttpClient.newCall(request.build()).execute()
