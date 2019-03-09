@@ -1,31 +1,24 @@
 package at.bitfire.icsdroid
 
-import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
-import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
-import java.io.IOException
+import okhttp3.MediaType
+import okhttp3.internal.http.StatusLine
+import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import java.net.URLConnection
 import java.util.*
-import javax.net.ssl.HttpsURLConnection
 
 class ProcessEventsTask(
         val context: Context,
@@ -47,134 +40,70 @@ class ProcessEventsTask(
     }
 
     private fun processEvents() {
-        var errorMessage: String? = null
-
-        var url: URL
+        val url: URL
         try {
             url = URL(calendar.url)
         } catch(e: MalformedURLException) {
             Log.e(Constants.TAG, "Invalid calendar URL", e)
-            errorMessage = e.localizedMessage
-            calendar.updateStatusError(errorMessage)
+            calendar.updateStatusError(e.localizedMessage)
             return
         }
+        Log.i(Constants.TAG, "Synchronizing $url")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(calendar.id.toString(), 0)
+        var errorMessage: String? = null
 
-        var conn: URLConnection? = null
-        var certManager: CustomCertManager? = null
-
-        try {
-            var followRedirect = false
-            var redirect = 0
-            do {
-                try {
-                    if (url.protocol.equals("file", true) &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                        throw IOException(context.getString(R.string.sync_permission_required))
-
-                    Log.i(Constants.TAG, "Fetching calendar $url")
-                    conn = MiscUtils.prepareConnection(url)
-
-                    if (calendar.lastModified != 0L)
-                        conn.ifModifiedSince = calendar.lastModified
-
-                    if (conn is HttpsURLConnection) {
-                        certManager = CustomCertificates.certManager(context, false)
-                        CustomCertificates.prepareURLConnection(certManager, conn)
-                    }
-
-                    if (conn is HttpURLConnection) {
-                        conn.setRequestProperty("Connection", "close")  // workaround for AndroidHttpClient bug, which causes "Unexpected Status Line" exceptions
-                        conn.instanceFollowRedirects = false
-
-                        val (username, password) = CalendarCredentials.getCredentials(context, calendar)
-                        if (username != null && password != null) {
-                            Log.i(Constants.TAG, "Adding basic authorization headers")
-                            val basicCredentials = "$username:$password"
-                            conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(basicCredentials.toByteArray(), Base64.NO_WRAP))
-                        }
-
-                        val eTag = calendar.eTag
-                        if (eTag != null)
-                            conn.setRequestProperty("If-None-Match", eTag)
-
-                        val statusCode = conn.responseCode
-
-                        // handle 304 Not Modified
-                        if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                            Log.i(Constants.TAG, "Calendar has not been modified since last sync (${conn.responseMessage})")
-
-                            conn.disconnect()   // don't read input stream
-                            conn = null
-
-                            calendar.updateStatusNotModified()
-                        } else {
-                            // handle redirects
-                            val location = conn.getHeaderField("Location")
-                            if (statusCode/100 == 3 && location != null) {
-                                conn.disconnect()   // don't read input stream
-                                conn = null
-
-                                Log.i(Constants.TAG, "Following redirect to $location")
-                                url = URL(url, location)
-                                followRedirect = true
-                                if (statusCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                                    Log.i(Constants.TAG, "Permanent redirect: saving new location")
-                                    calendar.updateUrl(url.toString())
-                                }
-                            }
-                        }
-
-                        // only read stream if status is 200 OK
-                        if (conn is HttpURLConnection && statusCode != HttpURLConnection.HTTP_OK) {
-                            errorMessage = "$statusCode ${conn.responseMessage}"
-                            conn.disconnect()
-                            conn = null
-                        }
-                    } else
-                    // local file, always simulate HTTP status 200 OK
-                        requireNotNull(conn)
-
-                } catch(e: IOException) {
-                    Log.e(Constants.TAG, "Couldn't fetch calendar", e)
-                    errorMessage = e.localizedMessage
-                }
-                redirect++
-            } while (followRedirect && redirect < Constants.MAX_REDIRECTS)
-
-            try {
-                conn?.let {
-                    InputStreamReader(it.getInputStream(), MiscUtils.charsetFromContentType(it.contentType)).use { reader ->
+        val downloader = object: CalendarFetcher(context, url) {
+            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+                InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
+                    try {
                         val events = Event.fromReader(reader)
                         processEvents(events)
 
-                        val eTag = it.getHeaderField("ETag")
-                        Log.i(Constants.TAG, "Calendar sync successful, saving sync state ETag=" + eTag + ", lastModified=" + it.lastModified)
-                        calendar.updateStatusSuccess(eTag, it.lastModified)
+                        Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
+                        calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
+                    } catch (e: Exception) {
+                        Log.e(Constants.TAG, "Couldn't process events", e)
+                        errorMessage = e.localizedMessage
                     }
                 }
-
-            } catch(e: IOException) {
-                Log.e(Constants.TAG, "Couldn't read calendar", e)
-                errorMessage = errorMessage ?: e.localizedMessage
-            } catch(e: Exception) {
-                Log.e(Constants.TAG, "Couldn't process calendar", e)
-                errorMessage = errorMessage ?: e.localizedMessage
-            } finally {
-                (conn as? HttpURLConnection)?.disconnect()
             }
-        } finally {
-            certManager?.close()
+
+            override fun onRedirect(httpCode: Int, target: URL?) {
+                if (httpCode == 304 /* Not modified */) {
+                    Log.i(Constants.TAG, "Calendar has not been modified since last sync")
+                    calendar.updateStatusNotModified()
+                } else if (target != null) {
+                    if (httpCode == StatusLine.HTTP_PERM_REDIRECT) {
+                        Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
+                        calendar.updateUrl(target.toString())
+                    }
+
+                    // follow redirect
+                    super.onRedirect(httpCode, target)
+                }
+            }
+
+            override fun onError(error: Exception) {
+                Log.w(Constants.TAG, "Sync error", error)
+                errorMessage = error.localizedMessage
+            }
         }
+
+        if (calendar.eTag != null)
+            downloader.ifNoneMatch = calendar.eTag
+        if (calendar.lastModified != 0L)
+            downloader.ifModifiedSince = calendar.lastModified
+
+        downloader.run()
 
         errorMessage?.let { msg ->
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                     .setSmallIcon(R.drawable.ic_sync_problem_white)
                     .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setGroup("ICSx⁵")
+                    .setGroup(context.getString(R.string.app_name))
                     .setContentTitle(context.getString(R.string.sync_error_title))
                     .setContentText(msg)
                     .setSubText(calendar.displayName)

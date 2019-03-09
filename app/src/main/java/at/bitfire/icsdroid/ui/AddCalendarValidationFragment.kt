@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.R
+import net.fortuna.ical4j.model.property.LastModified
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -89,8 +90,8 @@ class AddCalendarValidationFragment: DialogFragment() {
         init {
             val info = ResourceInfo()
 
-            val downloader = object: CalendarFetcher(originalUrl) {
-                override fun onSuccess(data: InputStream, contentType: MediaType?) {
+            val downloader = object: CalendarFetcher(context, originalUrl) {
+                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
                         val events = Event.fromReader(reader, properties)
@@ -109,6 +110,9 @@ class AddCalendarValidationFragment: DialogFragment() {
                     info.exception = error
                 }
             }
+
+            // TODO authentication
+
             Thread(downloader).start()
         }
 
