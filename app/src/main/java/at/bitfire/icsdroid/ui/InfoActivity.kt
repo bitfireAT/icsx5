@@ -48,6 +48,8 @@ class InfoActivity: AppCompatActivity() {
         )
     }
 
+    // TODO donation button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

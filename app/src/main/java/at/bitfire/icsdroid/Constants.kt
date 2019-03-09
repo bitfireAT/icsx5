@@ -16,7 +16,7 @@ object Constants {
 
     const val TAG = "icsx5"
 
-    val USER_AGENT = "ICSx5/" + BuildConfig.VERSION_NAME + " (ical4j/" + Constants.ical4jVersion + " Android/" + Build.VERSION.RELEASE + ")"
+    val USER_AGENT = "ICSx5/${BuildConfig.VERSION_NAME} (ical4j/${Constants.ical4jVersion} okhttp/${BuildConfig.okhttpVersion} Android/${Build.VERSION.RELEASE})"
     const val MAX_REDIRECTS = 5
 
     val donationUri = Uri.parse("https://icsx5.bitfire.at/donate/?pk_campaign=icsx5-app")!!

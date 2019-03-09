@@ -16,9 +16,6 @@ class ResourceInfo {
 
     var exception: Exception? = null
 
-    var statusCode = -1
-    var statusMessage: String? = null
-
     var calendarName: String? = null
     var eventsFound = -1
 

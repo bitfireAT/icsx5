@@ -77,7 +77,7 @@ class CalendarListActivity:
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            connectModel()
+            getModel()
         else
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
 
@@ -99,7 +99,7 @@ class CalendarListActivity:
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            connectModel()
+            getModel()
         else
             finish()
     }
@@ -157,7 +157,7 @@ class CalendarListActivity:
         }
     }
 
-    private fun connectModel() {
+    private fun getModel() {
         val model = ViewModelProviders.of(this).get(CalendarModel::class.java)
         model.calendars.observe(this, Observer { calendars ->
             listAdapter?.clear()
