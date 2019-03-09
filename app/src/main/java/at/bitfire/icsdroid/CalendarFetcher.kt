@@ -24,8 +24,6 @@ open class CalendarFetcher(
         const val MAX_REDIRECT_COUNT = 5
     }
 
-    // TODO custom certificates
-
     private var redirectCount = 0
 
     var ifModifiedSince: Long? = null
@@ -33,6 +31,8 @@ open class CalendarFetcher(
 
     var username: String? = null
     var password: String? = null
+
+    var inForeground = false
 
 
     override fun run() {
@@ -97,7 +97,8 @@ open class CalendarFetcher(
         }
 
         try {
-            val response = HttpClient.okHttpClient.newCall(request.build()).execute()
+            val client = HttpClient(context, inForeground)
+            val response = client.okHttpClient.newCall(request.build()).execute()
             if (response.isSuccessful)
                 response.body()?.use { body ->
                     onSuccess(

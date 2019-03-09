@@ -29,6 +29,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import kotlinx.android.synthetic.main.app_info_activity.*
 import kotlinx.android.synthetic.main.app_info_component.view.*

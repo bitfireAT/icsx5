@@ -107,11 +107,15 @@ class AddCalendarValidationFragment: DialogFragment() {
 
                 override fun onError(error: Exception) {
                     info.exception = error
+                    postValue(info)
                 }
             }
 
             downloader.username = username
             downloader.password = password
+
+            // directly ask for confirmation of custom certificates
+            downloader.inForeground = true
 
             Thread(downloader).start()
         }
