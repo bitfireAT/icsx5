@@ -1,0 +1,11 @@
+ICSx⁵ staat je toe externe (Webcal) en lokale (bijvoorbeeld Dropbox, adb push, etc.) iCalendar/.ics bestanden op jouw Androidapparaat toe te voegen, abonneren of te beheren.
+
+Voeg feestdagen, evenementen van jouw sportteam, roosters van jouw school/universiteit of andere evenementenbestanden toe die in ics/ical-formaat zijn. Deze app importeert de evenementen voor je en toont ze in je favoriete kalenderapp op jouw Androidapparaat – het integreert naadloos.
+
+* Abonneer op Webcal-feeds (= synchroniseer op reguliere intervallen) bijvoorbeeld gedeelde kalenders van icloud.com
+* Abonneer op lokale .ics (iCalendar) kalenderbestanden
+* Sta toe om webcal:// en webcals:// URL's te openen, bijvoorbeeld vanuit jouw webbrowser
+* Naadloze integratie met andere kalenderapps
+* Stel een synchroniseerschema in
+* Slimme updatechecker om bandbreedte te besparen
+* Authenticatie en HTTPS-ondersteuning

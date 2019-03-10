@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">Suscripciones de calendario</string>
+  <!--common strings-->
+  <string name="action_next">Siguiente</string>
+  <string name="notification_channel_sync_problem">Problemas de sincronización</string>
+  <string name="calendar_list_empty_info">Para suscribirte a una fuente webcal, usa el botón + o abre una URL webcal.</string>
+  <string name="calendar_list_info">Acerca de ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">aún no se ha sincronizado</string>
+  <string name="calendar_list_set_sync_interval">Marcar intervalo de sincronización</string>
+  <string name="calendar_list_sync_disabled">Sincronización desactivada</string>
+  <string name="calendar_list_sync_interval_manually">Sincronización automática desactivada</string>
+  <string name="calendar_list_master_sync_disabled">La sincronización automática está desactivada en todo el sistema</string>
+  <string name="calendar_list_master_sync_enable">Activar</string>
+  <string name="calendar_list_battery_whitelist">Batería: Meter ICSx⁵ en lista blanca para intervalos de sinc. cortos</string>
+  <string name="calendar_list_battery_whitelist_settings">Configuración</string>
+  <string name="title_activity_calendar_list">Mis suscripciones</string>
+  <string name="activity_add_calendar">Suscribirse a calendario</string>
+  <string name="add_calendar_need_valid_uri">Se requiere una URI válida</string>
+  <string name="add_calendar_authentication_without_https_warning">Terceras partes pueden interceptar tus credencias con facilidad. Usa HTTPS para una autenticación segura.</string>
+  <string name="add_calendar_create">Suscribirse ahora</string>
+  <string name="add_calendar_created">Suscrito con éxito</string>
+  <string name="add_calendar_password">Contraseña</string>
+  <string name="add_calendar_requires_authentication">Requiere autenticación</string>
+  <string name="add_calendar_title">Título y color</string>
+  <string name="add_calendar_title_hint">Nombre del calendario</string>
+  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_user_name">Nombre de usuario</string>
+  <string name="add_calendar_validating">Validando recurso de calendario…</string>
+  <string name="activity_edit_calendar">Editar suscripción</string>
+  <string name="edit_calendar_cancel">Cancelar</string>
+  <string name="edit_calendar_delete">Abandonar suscripción</string>
+  <string name="edit_calendar_deleted">Suscripción abandonada con éxito</string>
+  <string name="edit_calendar_dismiss">Descartar</string>
+  <string name="edit_calendar_failed">La operación ha fallado</string>
+  <string name="edit_calendar_really_delete">¿Estás seguro de que quieres abandonar la suscripción a este calendario?</string>
+  <string name="edit_calendar_save">Guardar</string>
+  <string name="edit_calendar_saved">Cambios guardados</string>
+  <string name="edit_calendar_send_url">Enviar URL</string>
+  <string name="edit_calendar_sync_this_calendar">Sincronizar este calendario</string>
+  <string name="edit_calendar_unsaved_changes">Hay cambios sin guardar.</string>
+  <string name="sync_error_title">Error en la sincronización</string>
+  <string name="set_sync_interval_save">Guardar</string>
+  <string name="set_sync_interval_title">Establecer intervalo de sincronización:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Solo manualmente</item>
+    <item>Cada 15 minutos</item>
+    <item>Cada hora</item>
+    <item>Cada 2 horas</item>
+    <item>Cada 4 horas</item>
+    <item>Una vez al día</item>
+    <item>Una vez a la semana</item>
+  </string-array>
+  <string name="activity_app_info">Info de la app</string>
+  <string name="app_info_donate">Donar</string>
+  <string name="app_info_twitter">Noticias y actualizaciones</string>
+  <string name="app_info_web_site">Sitio web</string>
+  <string name="donate_title">Información de código abierto</string>
+  <string name="donate_message">Nos alegra que uses ICSx⁵, que es software de código abierto (GPL v.3). Puesto que ha sido y sigue siendo mucho trabajo desarrollar y mantener ICSx⁵, por favor, considera hacer una donación.</string>
+  <string name="donate_now">Mostrar página de donaciones</string>
+  <string name="donate_later">Quizás más tarde</string>
+  <string name="sync_permission_required">Permiso requerido</string>
+  <string name="sync_permission_required_sync_calendar">Se necesita permiso para sincronizar tu calendario</string>
+  <string name="permission_required_external_storage">El permiso de almacenamiento se necesita para acceder a los archivos iCalendar locales</string>
+</resources>
