@@ -38,8 +38,14 @@ class AddCalendarEnterUrlFragment: Fragment() {
         val invalidate = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
         }
-        titleColorModel.url.observe(this, invalidate)
-        credentialsModel.requiresAuth.observe(this, invalidate)
+        arrayOf(
+                titleColorModel.url,
+                credentialsModel.requiresAuth,
+                credentialsModel.username,
+                credentialsModel.password
+        ).forEach {
+            it.observe(this, invalidate)
+        }
 
         val binding = DataBindingUtil.inflate<AddCalendarEnterUrlBinding>(inflater, R.layout.add_calendar_enter_url, container, false)
         binding.lifecycleOwner = this

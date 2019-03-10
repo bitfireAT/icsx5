@@ -3,6 +3,7 @@ package at.bitfire.icsdroid
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -87,7 +88,7 @@ open class CalendarFetcher(
                 .url(url)
 
         if (username != null && password != null)
-            request.addHeader("Authorization", "Basic " + Credentials.basic(username, password, Charsets.UTF_8))
+            request.addHeader("Authorization", Credentials.basic(username, password, Charsets.UTF_8))
 
         ifModifiedSince?.let {
             request.addHeader("If-Modified-Since", HttpDate.format(Date(it)))
@@ -97,23 +98,25 @@ open class CalendarFetcher(
         }
 
         try {
-            val client = HttpClient(context, inForeground)
-            val response = client.okHttpClient.newCall(request.build()).execute()
-            if (response.isSuccessful)
-                response.body()?.use { body ->
-                    onSuccess(
-                            body.byteStream(),
-                            body.contentType(),
-                            response.header("ETag"),
-                            response.header("Last-Modified")?.let {
-                                HttpDate.parse(it)?.time
-                            }
-                    )
-                }
-            else if (response.isRedirect || response.code() == 304)
-                onRedirect(response.code(), response.header("Location")?.let { location ->
-                    URL(url, location)
-                })
+            HttpClient.get(context).okHttpClient.newCall(request.build()).execute().use { response ->
+                if (response.isSuccessful)
+                    response.body()?.let { body ->
+                        onSuccess(
+                                body.byteStream(),
+                                body.contentType(),
+                                response.header("ETag"),
+                                response.header("Last-Modified")?.let {
+                                    HttpDate.parse(it)?.time
+                                }
+                        )
+                    }
+                else if (response.isRedirect || response.code() == 304)
+                    onRedirect(response.code(), response.header("Location")?.let { location ->
+                        URL(url, location)
+                    })
+                else
+                    onError(throw IOException("HTTP ${response.code()} ${response.message()}"))
+            }
         } catch (e: Exception) {
             onError(e)
         }

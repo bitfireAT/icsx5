@@ -9,12 +9,30 @@ import okhttp3.Response
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
 
-class HttpClient(
-        context: Context,
-        foreground: Boolean
+class HttpClient private constructor(
+        context: Context
 ) {
 
-    private val certManager = CustomCertManager(context, appInForeground = foreground)
+    companion object {
+        var INSTANCE: HttpClient? = null
+
+        @Synchronized
+        fun get(context: Context): HttpClient {
+            INSTANCE?.let { return it }
+            HttpClient(context.applicationContext).let {
+                INSTANCE = it
+                return it
+            }
+        }
+
+        fun setForeground(foreground: Boolean) {
+            INSTANCE?.certManager?.appInForeground = foreground
+        }
+    }
+
+    // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
+    // so we don't need to close it
+    private val certManager = CustomCertManager(context)
 
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(UserAgentInterceptor)

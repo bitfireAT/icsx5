@@ -68,6 +68,16 @@ class InfoActivity: AppCompatActivity() {
         return true
     }
 
+    override fun onPause() {
+        super.onPause()
+        HttpClient.setForeground(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        HttpClient.setForeground(true)
+    }
+
     fun showWebSite(item: MenuItem) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity")))
     }

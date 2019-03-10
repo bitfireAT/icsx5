@@ -13,6 +13,7 @@ import android.app.Dialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
@@ -21,6 +22,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.CalendarFetcher
+import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import okhttp3.MediaType
 import java.io.InputStream
@@ -65,6 +68,16 @@ class AddCalendarValidationFragment: DialogFragment() {
         val progress = ProgressDialog(activity)
         progress.setMessage(getString(R.string.add_calendar_validating))
         return progress
+    }
+
+    override fun onPause() {
+        super.onPause()
+        HttpClient.setForeground(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        HttpClient.setForeground(true)
     }
 
 
