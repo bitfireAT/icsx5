@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package at.bitfire.icsdroid;
+package at.bitfire.icsdroid
 
 import android.app.Service
 import android.content.Intent

@@ -9,6 +9,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentUris
 import android.content.ContentValues
@@ -235,6 +236,7 @@ class EditCalendarActivity: AppCompatActivity() {
         val active = MutableLiveData<Boolean>()
 
         fun loadCalendar(uri: Uri) {
+            @SuppressLint("Recycle")
             val provider = getApplication<Application>().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY) ?: return
             try {
                 calendar.value = LocalCalendar.findById(AppAccount.get(getApplication()), provider, ContentUris.parseId(uri))

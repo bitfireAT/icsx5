@@ -91,7 +91,7 @@ class CalendarListActivity:
 
         // observe whether a sync is running
         SyncWorker.liveStatus().observe(this, Observer { statuses ->
-            val running = statuses.any { it.state == WorkInfo.State.RUNNING } ?: false
+            val running = statuses.any { it.state == WorkInfo.State.RUNNING }
             Log.d(Constants.TAG, "Sync running: $running")
             refresh.isRefreshing = running
         })
@@ -148,7 +148,7 @@ class CalendarListActivity:
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
                     AppAccount.syncInterval(this) < 86400 -> {
                 snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_battery_whitelist_settings) { _ ->
+                        .setAction(R.string.calendar_list_battery_whitelist_settings) {
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             startActivity(intent)
                         }
@@ -207,10 +207,6 @@ class CalendarListActivity:
             application: Application
     ): AndroidViewModel(application) {
         val calendars = CalendarLiveData(application)
-
-        fun reload() {
-            calendars.loadData()
-        }
     }
 
     class CalendarLiveData(

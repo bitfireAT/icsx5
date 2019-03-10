@@ -11,11 +11,9 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProviders
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
 
 class AddCalendarActivity: AppCompatActivity() {
@@ -29,7 +27,6 @@ class AddCalendarActivity: AppCompatActivity() {
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
-        setContentView(R.layout.fragment_container)
 
         titleColorModel = ViewModelProviders.of(this).get(TitleColorFragment.TitleColorModel::class.java)
 
@@ -43,7 +40,7 @@ class AddCalendarActivity: AppCompatActivity() {
         if (inState == null) {
             supportFragmentManager
                     .beginTransaction()
-                    .add(R.id.fragment_container, AddCalendarEnterUrlFragment())
+                    .add(android.R.id.content, AddCalendarEnterUrlFragment())
                     .commit()
 
             intent?.apply {

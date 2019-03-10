@@ -3,7 +3,6 @@ package at.bitfire.icsdroid
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -62,7 +61,7 @@ open class CalendarFetcher(
 
     private fun fetchFile() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            throw IOException(context.getString(R.string.sync_permission_required))
+            throw IOException(context.getString(R.string.permission_required_external_storage))
 
         try {
             File(url.toURI()).let { file ->

@@ -55,9 +55,7 @@
             tools:text="LAST ERROR"
             android:textColor="@color/redorange"
             android:layout_alignBaseline="@id/sync_status"
-            android:layout_toRightOf="@id/sync_status"
             android:layout_toEndOf="@id/sync_status"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:id="@+id/error_message"/>
 

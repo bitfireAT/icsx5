@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package at.bitfire.icsdroid.ui;
+package at.bitfire.icsdroid.ui
 
 import java.net.URL
 

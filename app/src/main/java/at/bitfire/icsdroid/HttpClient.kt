@@ -14,7 +14,7 @@ class HttpClient private constructor(
 ) {
 
     companion object {
-        var INSTANCE: HttpClient? = null
+        private var INSTANCE: HttpClient? = null
 
         @Synchronized
         fun get(context: Context): HttpClient {
