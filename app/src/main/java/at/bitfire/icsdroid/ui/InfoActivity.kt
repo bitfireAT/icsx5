@@ -36,6 +36,7 @@ import kotlinx.android.synthetic.main.app_info_component.view.*
 import org.apache.commons.io.IOUtils
 import java.io.IOException
 import java.nio.charset.StandardCharsets
+import java.util.*
 import kotlin.concurrent.thread
 
 class InfoActivity: AppCompatActivity() {
@@ -49,8 +50,6 @@ class InfoActivity: AppCompatActivity() {
         )
     }
 
-    // TODO donation button
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +60,11 @@ class InfoActivity: AppCompatActivity() {
 
         viewpager.adapter = TabsAdapter(supportFragmentManager)
         tabs.setupWithViewPager(viewpager)
+
+        if (savedInstanceState == null)
+            ServiceLoader.load(StartupFragment::class.java).forEach { factory ->
+                factory.initialize(this)
+            }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
