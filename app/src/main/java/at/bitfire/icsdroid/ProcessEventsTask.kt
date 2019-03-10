@@ -6,7 +6,6 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
@@ -34,8 +33,9 @@ class ProcessEventsTask(
             AndroidCalendar.insertColors(calendar.provider, calendar.account)
 
             processEvents()
-        } catch(e: CalendarStorageException) {
-            Log.e(Constants.TAG, "Couldn't access local calendars", e)
+        } catch(e: Exception) {
+            Log.e(Constants.TAG, "Couldn't sync calendar", e)
+            calendar.updateStatusError(e.localizedMessage)
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }

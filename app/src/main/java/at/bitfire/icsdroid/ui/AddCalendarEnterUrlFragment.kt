@@ -82,6 +82,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
         itemNext.isEnabled = url != null && authOK && permOK
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        Log.i(Constants.TAG, "Received request permissions! $requestCode")
+        if (grantResults.contains(PackageManager.PERMISSION_GRANTED))
+            requireActivity().invalidateOptionsMenu()
+    }
 
     /* dynamic changes */
 
@@ -117,7 +122,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     credentialsModel.requiresAuth.value = false
                     // 2. permission required
                     if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
+                        requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
                 }
             }
             "http", "https" -> {

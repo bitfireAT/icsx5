@@ -60,14 +60,14 @@ class AddCalendarActivity: AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         permissions.forEachIndexed { idx, perm ->
             if (grantResults[idx] != PackageManager.PERMISSION_GRANTED)
                 when (perm) {
                     Manifest.permission.READ_CALENDAR,
                     Manifest.permission.WRITE_CALENDAR ->
                         finish()
-                    Manifest.permission.READ_EXTERNAL_STORAGE ->
-                        Toast.makeText(this, R.string.permission_required_external_storage, Toast.LENGTH_SHORT).show()
                 }
         }
     }

@@ -161,10 +161,18 @@ class CalendarListActivity:
         val model = ViewModelProviders.of(this).get(CalendarModel::class.java)
         model.calendars.observe(this, Observer { calendars ->
             listAdapter?.clear()
-            listAdapter?.addAll(calendars)
 
             if (calendars.isNotEmpty()) {
-                // funny: use the calendar colors for the sync status
+                listAdapter?.addAll(calendars)
+
+                val requiresStoragePermission =
+                        calendars.any {
+                            it.url?.startsWith("file:", true) ?: false
+                        }
+                if (requiresStoragePermission && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+
+                // funny: use the calendar colors for the sync status indicator
                 val colors = calendars.mapNotNull { it.color }.map { it or 0xff000000.toInt() }
                 if (colors.isNotEmpty())
                     refresh?.setColorSchemeColors(*colors.toIntArray())
