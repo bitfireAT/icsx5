@@ -20,8 +20,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
 
-        versionCode 31
-        versionName "1.8-beta1"
+        versionCode 32
+        versionName "1.8"
 
         buildConfigField "String", "okhttpVersion", "\"$okhttp_version\""
     }
