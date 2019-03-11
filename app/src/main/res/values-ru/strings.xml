@@ -52,7 +52,6 @@
     <item>Раз в неделю</item>
   </string-array>
   <string name="activity_app_info">Информация о приложении</string>
-  <string name="app_info_donate">Пожертвовать</string>
   <string name="app_info_twitter">Новости &amp; обновления</string>
   <string name="app_info_web_site">Веб страница</string>
   <string name="donate_title">Сведения об открытом коде</string>

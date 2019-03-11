@@ -32,7 +32,6 @@
   <string name="set_sync_interval_save">Mentés</string>
   <string name="set_sync_interval_title">Szinkronizáció sűrűségének megadása:</string>
   <string name="activity_app_info">Alkalmazásinformáció</string>
-  <string name="app_info_donate">Támogatás</string>
   <string name="app_info_web_site">Honlap</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>
   <string name="donate_message">Örülünk, hogy használja a ICSx⁵ot. A ICSx⁵ nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>

@@ -52,7 +52,6 @@
     <item>Eens per week</item>
   </string-array>
   <string name="activity_app_info">Appinfo</string>
-  <string name="app_info_donate">Doneer</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>
   <string name="app_info_web_site">Website</string>
   <string name="donate_title">Opensourceinformatie</string>

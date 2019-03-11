@@ -52,7 +52,6 @@
     <item>Una vez a la semana</item>
   </string-array>
   <string name="activity_app_info">Info de la app</string>
-  <string name="app_info_donate">Donar</string>
   <string name="app_info_twitter">Noticias y actualizaciones</string>
   <string name="app_info_web_site">Sitio web</string>
   <string name="donate_title">Información de código abierto</string>

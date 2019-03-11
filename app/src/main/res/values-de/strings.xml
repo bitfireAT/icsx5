@@ -53,7 +53,6 @@ ICSx⁵ deaktivieren</string>
     <item>Einmal wöchentlich</item>
   </string-array>
   <string name="activity_app_info">Über ICSx⁵</string>
-  <string name="app_info_donate">Spenden</string>
   <string name="app_info_twitter">Aktuelles</string>
   <string name="app_info_web_site">Homepage</string>
   <string name="donate_title">Open-Source-Information</string>
