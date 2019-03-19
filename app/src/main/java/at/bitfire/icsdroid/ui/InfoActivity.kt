@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import com.mikepenz.aboutlibraries.LibsBuilder
 
@@ -30,9 +31,10 @@ class InfoActivity: AppCompatActivity() {
                 aboutAppName = getString(R.string.app_name)
                 aboutAppSpecial1 = getString(R.string.app_info_gplv3)
                 aboutAppSpecial1Description = getString(R.string.app_info_gplv3_note)
-                aboutAppSpecial2 = getString(R.string.app_info_donate)
-                aboutAppSpecial2Description = getString(R.string.donate_message) + "\n\n" +
-                        "<a href=\"${DonateDialogFragment.donationUri}\">${getString(R.string.donate_now)}</a>"
+                if (BuildConfig.FLAVOR != "gplay") {
+                    aboutAppSpecial2 = getString(R.string.app_info_donate)
+                    aboutAppSpecial2Description = getString(R.string.donate_message)
+                }
                 aboutDescription = getString(R.string.app_info_description)
                 aboutVersionString = getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR)
                 showLicense = true
