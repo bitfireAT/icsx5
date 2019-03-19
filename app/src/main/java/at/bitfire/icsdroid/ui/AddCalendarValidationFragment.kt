@@ -11,12 +11,11 @@ package at.bitfire.icsdroid.ui
 import android.app.Application
 import android.app.Dialog
 import android.app.ProgressDialog
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
@@ -41,13 +40,13 @@ class AddCalendarValidationFragment: DialogFragment() {
         credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
 
         validationModel = ViewModelProviders.of(requireActivity()).get(ValidationModel::class.java)
-        val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
-        validationModel.results(url, credentialsModel.username.value, credentialsModel.password.value).observe(this, Observer { info ->
+        validationModel.result.observe(this, Observer { info ->
             dialog.dismiss()
 
             val errorMessage = info.exception?.localizedMessage
             if (errorMessage == null) {
                 titleColorModel.url.value = info.url.toString()
+                titleColorModel.color.value = resources.getColor(R.color.colorPrimary)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.url?.file
@@ -60,6 +59,9 @@ class AddCalendarValidationFragment: DialogFragment() {
             } else
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_SHORT).show()
         })
+
+        val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
+        validationModel.initialize(url, credentialsModel.username.value, credentialsModel.password.value)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -85,22 +87,18 @@ class AddCalendarValidationFragment: DialogFragment() {
             application: Application
     ): AndroidViewModel(application) {
 
-        fun results(url: URL, username: String?, password: String?) =
-                CalendarSourceInfo(getApplication(), url, username, password)
+        val result = MutableLiveData<ResourceInfo>()
+        var initialized = false
 
-    }
+        fun initialize(originalUrl: URL, username: String?, password: String?) {
+            synchronized(initialized) {
+                if (initialized)
+                    return
+                initialized = true
+            }
 
-    class CalendarSourceInfo(
-            context: Context,
-            originalUrl: URL,
-            username: String?,
-            password: String?
-    ): LiveData<ResourceInfo>() {
-
-        init {
             val info = ResourceInfo()
-
-            val downloader = object: CalendarFetcher(context, originalUrl) {
+            val downloader = object: CalendarFetcher(getApplication(), originalUrl) {
                 override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
@@ -113,12 +111,12 @@ class AddCalendarValidationFragment: DialogFragment() {
                         info.eventsFound = events.size
                     }
 
-                    postValue(info)
+                    result.postValue(info)
                 }
 
                 override fun onError(error: Exception) {
                     info.exception = error
-                    postValue(info)
+                    result.postValue(info)
                 }
             }
 

@@ -42,13 +42,7 @@ class TitleColorFragment: Fragment() {
                 intent.putExtra(ColorPickerActivity.EXTRA_COLOR, it)
             }
             startActivityForResult(intent, 0)
-
         }
-        model.color.observe(this, Observer { color ->
-            if (color != null)
-                v.color.setColor(color)
-        })
-
         return v
     }
 

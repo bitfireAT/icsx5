@@ -14,6 +14,7 @@ import android.graphics.Paint
 import android.graphics.drawable.shapes.OvalShape
 import android.util.AttributeSet
 import android.view.View
+import at.bitfire.icsdroid.R
 
 class ColorButton(
         context: Context,
@@ -24,7 +25,6 @@ class ColorButton(
     private var paint = Paint()
 
     init {
-        paint.color = 0xFFFF0000.toInt()
         paint.isAntiAlias = true
     }
 
