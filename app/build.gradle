@@ -23,7 +23,7 @@ android {
         versionCode 33
         versionName "1.8.1"
 
-        buildConfigField "String", "okhttpVersion", "\"$okhttp_version\""
+        buildConfigField "String", "okhttpVersion", "\"${versions.okhttp}\""
     }
 
     compileOptions {
@@ -62,7 +62,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
 
     implementation project(':cert4android')
     implementation project(':ical4android')
@@ -72,11 +72,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'androidx.work:work-runtime-ktx:2.0.0'
+    implementation 'androidx.work:work-runtime-ktx:2.0.1'
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation 'com.mikepenz:aboutlibraries:6.2.3'
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
     implementation 'commons-io:commons-io:2.6'
 }
