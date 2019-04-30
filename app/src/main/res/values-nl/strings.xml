@@ -52,6 +52,24 @@
     <item>Eens per week</item>
   </string-array>
   <string name="activity_app_info">Appinfo</string>
+  <string name="app_info_version">Versie %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Dit programma is vrije software: je mag deze herdistribueren en/of het aanpassen
+onder dezelfde voorwaarden van de GNU General Public License zoals is gepubliceert door
+de Free Software Foundation, ofwel versie 3 van de License, of
+(naar eigen keuze) elke latere versie.
+
+Dit programma is gedistribueerd in de hoop dat het nuttig zal zijn,
+maar ZONDER ENIGE GARANTIE; zelf zonder geïmpliceerde garantie van
+VERHANDELBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL.  Zie de
+GNU General Public License voor meer details.
+
+Met dit programma zou je een kopie van de GNU General Public License
+ontvangen moeten hebben.  Als dat niet het geval is, zie <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    ]]></string>
+  <string name="app_info_donate">Doneer</string>
+  <string name="app_info_description">Aboneer op Webcal-feeds</string>
+  <string name="app_info_libraries">Bibliotheken</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>
   <string name="app_info_web_site">Website</string>
   <string name="donate_title">Opensourceinformatie</string>
