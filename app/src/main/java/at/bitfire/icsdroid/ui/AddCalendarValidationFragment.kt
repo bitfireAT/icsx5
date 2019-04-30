@@ -12,6 +12,7 @@ import android.app.Application
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
@@ -20,6 +21,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.CalendarFetcher
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import okhttp3.MediaType
@@ -39,7 +41,7 @@ class AddCalendarValidationFragment: DialogFragment() {
         titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
         credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
 
-        validationModel = ViewModelProviders.of(requireActivity()).get(ValidationModel::class.java)
+        validationModel = ViewModelProviders.of(this).get(ValidationModel::class.java)
         validationModel.result.observe(this, Observer { info ->
             dialog.dismiss()
 
@@ -61,7 +63,10 @@ class AddCalendarValidationFragment: DialogFragment() {
         })
 
         val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
-        validationModel.initialize(url, credentialsModel.username.value, credentialsModel.password.value)
+        val authenticate = credentialsModel.requiresAuth.value ?: false
+        validationModel.initialize(url,
+                if (authenticate) credentialsModel.username.value else null,
+                if (authenticate) credentialsModel.password.value else null)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -81,14 +86,14 @@ class AddCalendarValidationFragment: DialogFragment() {
     }
 
 
-    /* model and data source */
+    /* activityModel and data source */
 
-    class ValidationModel(
+    private class ValidationModel(
             application: Application
     ): AndroidViewModel(application) {
 
         val result = MutableLiveData<ResourceInfo>()
-        var initialized = false
+        private var initialized = false
 
         fun initialize(originalUrl: URL, username: String?, password: String?) {
             synchronized(initialized) {
@@ -96,6 +101,8 @@ class AddCalendarValidationFragment: DialogFragment() {
                     return
                 initialized = true
             }
+
+            Log.i(Constants.TAG, "Validating Webcal feed $originalUrl (authentication: $username)")
 
             val info = ResourceInfo()
             val downloader = object: CalendarFetcher(getApplication(), originalUrl) {

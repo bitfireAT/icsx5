@@ -30,7 +30,6 @@ import at.bitfire.icsdroid.db.LocalCalendar
 class AddCalendarDetailsFragment: Fragment() {
 
     private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
-    private lateinit var validationModel: AddCalendarValidationFragment.ValidationModel
     private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +37,6 @@ class AddCalendarDetailsFragment: Fragment() {
 
         titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
         credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
-        validationModel = ViewModelProviders.of(requireActivity()).get(AddCalendarValidationFragment.ValidationModel::class.java)
 
         val invalidateOptionsMenu = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
