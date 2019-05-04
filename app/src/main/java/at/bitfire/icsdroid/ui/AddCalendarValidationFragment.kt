@@ -48,7 +48,8 @@ class AddCalendarValidationFragment: DialogFragment() {
             val errorMessage = info.exception?.localizedMessage
             if (errorMessage == null) {
                 titleColorModel.url.value = info.url.toString()
-                titleColorModel.color.value = resources.getColor(R.color.colorPrimary)
+                if (titleColorModel.color.value == null)
+                    titleColorModel.color.value = resources.getColor(R.color.colorPrimary)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.url?.file
