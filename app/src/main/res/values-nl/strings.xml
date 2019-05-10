@@ -4,6 +4,8 @@
   <!--common strings-->
   <string name="action_next">Volgende</string>
   <string name="notification_channel_sync_problem">Syncproblemen</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Mijn abonnementen</string>
   <string name="calendar_list_empty_info">Om te abonneren op een Webcal-feed, gebruikt de +-knop of open een Webcal-URL.</string>
   <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
@@ -14,7 +16,7 @@
   <string name="calendar_list_master_sync_enable">Actief</string>
   <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSx⁵ voor korte syncintervallen</string>
   <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
-  <string name="title_activity_calendar_list">Mijn abonnementen</string>
+  <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Abonneer op een kalender</string>
   <string name="add_calendar_need_valid_uri">Geldige URL is vereist</string>
   <string name="add_calendar_authentication_without_https_warning">Derden kunnen eenvoudig je credentials onderscheppen. Gebruik HTTPS voor veilige authenticatie.</string>
@@ -27,6 +29,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
   <string name="add_calendar_validating">Kalenderbron aan het valideren...</string>
+  <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Bewerk abonnement</string>
   <string name="edit_calendar_cancel">Annuleer</string>
   <string name="edit_calendar_delete">Afmelden</string>
@@ -39,6 +42,7 @@
   <string name="edit_calendar_send_url">Verzend URL</string>
   <string name="edit_calendar_sync_this_calendar">Synchroniseer deze kalender</string>
   <string name="edit_calendar_unsaved_changes">Er zijn wijzigingen die niet zijn bewaard.</string>
+  <!--synchronization-->
   <string name="sync_error_title">Synchronisatiefout</string>
   <string name="set_sync_interval_save">Bewaar</string>
   <string name="set_sync_interval_title">Zet sync.interval</string>
@@ -51,6 +55,10 @@
     <item>Eens per dag</item>
     <item>Eens per week</item>
   </string-array>
+  <string name="sync_permission_required">Toestemming nodig</string>
+  <string name="sync_permission_required_sync_calendar">Toestemming is nodig om je kalender te syncen</string>
+  <string name="permission_required_external_storage">Opslagtoestemming is nodig om toegang te krijgen tot lokale iCalendar-bestanden </string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Appinfo</string>
   <string name="app_info_version">Versie %1$s-%2$s</string>
   <string name="app_info_gplv3_note"><![CDATA[
@@ -76,7 +84,4 @@ ontvangen moeten hebben.  Als dat niet het geval is, zie <a href="https://www.gn
   <string name="donate_message">We vinden het leuk dat u ICSx⁵ gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSx⁵ te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
   <string name="donate_now">Toon donatiepagina</string>
   <string name="donate_later">Misschien later</string>
-  <string name="sync_permission_required">Toestemming nodig</string>
-  <string name="sync_permission_required_sync_calendar">Toestemming is nodig om je kalender te syncen</string>
-  <string name="permission_required_external_storage">Opslagtoestemming is nodig om toegang te krijgen tot lokale iCalendar-bestanden </string>
 </resources>

@@ -4,6 +4,8 @@
   <!--common strings-->
   <string name="action_next">Далее</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Мои подписки</string>
   <string name="calendar_list_empty_info">Для подписки на Webcal ленту, используйте кнопку + или откройте Webcal URL-ссылку.</string>
   <string name="calendar_list_info">Об ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ещё не синхронизировано</string>
@@ -14,7 +16,7 @@
   <string name="calendar_list_master_sync_enable">Активировать</string>
   <string name="calendar_list_battery_whitelist">Батарея: добавьте ICSx⁵ в исключения для частой синхронизации</string>
   <string name="calendar_list_battery_whitelist_settings">Настройки</string>
-  <string name="title_activity_calendar_list">Мои подписки</string>
+  <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Подписаться на календарь</string>
   <string name="add_calendar_need_valid_uri">Требуется действительный URI</string>
   <string name="add_calendar_authentication_without_https_warning">Ваши данные легко могут быть перехвачены третьими лицами. Используйте HTTPS  для безопасной аутентификации.</string>
@@ -27,6 +29,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
   <string name="add_calendar_validating">Проверка источника календаря...</string>
+  <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Изменить подписку</string>
   <string name="edit_calendar_cancel">Отмена</string>
   <string name="edit_calendar_delete">Отписаться</string>
@@ -39,6 +42,7 @@
   <string name="edit_calendar_send_url">Отправить URL-ссылку</string>
   <string name="edit_calendar_sync_this_calendar">Синхронизировать этот календарь</string>
   <string name="edit_calendar_unsaved_changes">Имеются несохранённые изменения.</string>
+  <!--synchronization-->
   <string name="sync_error_title">Ошибка синхронизации</string>
   <string name="set_sync_interval_save">Сохранить</string>
   <string name="set_sync_interval_title">Задать интервал синхронизации:</string>
@@ -51,6 +55,10 @@
     <item>Раз в день</item>
     <item>Раз в неделю</item>
   </string-array>
+  <string name="sync_permission_required">Необходим доступ</string>
+  <string name="sync_permission_required_sync_calendar">Необходимо разрешение для синхронизации вашего календаря</string>
+  <string name="permission_required_external_storage">Необходимо разрешение на доступ к хранилищу для работы с локальными iCalendar файлами</string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_twitter">Новости &amp; обновления</string>
   <string name="app_info_web_site">Веб страница</string>
@@ -58,7 +66,4 @@
   <string name="donate_message">Мы рады тому, что вы используете приложение ICSx⁵, которое представляет собой программное обеспечение с открытым кодом (GPLv3). По причине того, что было потрачено, и ещё необходимо, много усилий для разработки и обслуживания ICSx⁵, пожалуйста, рассмотрите возможность пожертвования.</string>
   <string name="donate_now">Показать страницу для пожертвования</string>
   <string name="donate_later">Возможно, позже</string>
-  <string name="sync_permission_required">Необходим доступ</string>
-  <string name="sync_permission_required_sync_calendar">Необходимо разрешение для синхронизации вашего календаря</string>
-  <string name="permission_required_external_storage">Необходимо разрешение на доступ к хранилищу для работы с локальными iCalendar файлами</string>
 </resources>

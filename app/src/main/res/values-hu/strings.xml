@@ -2,11 +2,13 @@
 <resources>
   <!--common strings-->
   <string name="action_next">Következő</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Előfizetéseim</string>
   <string name="calendar_list_info">Névjegy</string>
   <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>
   <string name="calendar_list_set_sync_interval">Szinkronizáció sűrűségének megadása</string>
   <string name="calendar_list_sync_disabled">Szinkronizáció tiltva</string>
-  <string name="title_activity_calendar_list">Előfizetéseim</string>
+  <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Feliratkozás egy naptárra</string>
   <string name="add_calendar_authentication_without_https_warning">Harmadik felek hozzáférhetnek a felhasználói azonosítókhoz.  A biztonságos kapcsolathoz használjon HTTPS protokollt.</string>
   <string name="add_calendar_create">Feliratkozás most</string>
@@ -18,6 +20,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
   <string name="add_calendar_validating">A naptár ellenőrzése...</string>
+  <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Az előfizetés módosítása</string>
   <string name="edit_calendar_cancel">Megszakít</string>
   <string name="edit_calendar_delete">Előfizetés törlése</string>
@@ -28,9 +31,11 @@
   <string name="edit_calendar_saved">Változások mentve</string>
   <string name="edit_calendar_sync_this_calendar">A naptár szinkronizálása</string>
   <string name="edit_calendar_unsaved_changes">Vannak el nem mentett változások</string>
+  <!--synchronization-->
   <string name="sync_error_title">Szinkronizációs hiba</string>
   <string name="set_sync_interval_save">Mentés</string>
   <string name="set_sync_interval_title">Szinkronizáció sűrűségének megadása:</string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Alkalmazásinformáció</string>
   <string name="app_info_web_site">Honlap</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>

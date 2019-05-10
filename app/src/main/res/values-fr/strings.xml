@@ -4,6 +4,8 @@
   <!--common strings-->
   <string name="action_next">Suivant</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Mes abonnements</string>
   <string name="calendar_list_empty_info">Pour s\'abonner à un flux Webcal, utilisez le bouton + ou ouvrez une URL Webcal</string>
   <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
@@ -14,7 +16,7 @@
   <string name="calendar_list_master_sync_enable">Activer</string>
   <string name="calendar_list_battery_whitelist">Batterie : Ajoutez ICSx⁵ aux exceptions pour des intervalles de synchronisation courts</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
-  <string name="title_activity_calendar_list">Mes abonnements</string>
+  <!--AddCalendarActivity-->
   <string name="activity_add_calendar">S\'abonner à un calendrier</string>
   <string name="add_calendar_need_valid_uri">URL valide requise</string>
   <string name="add_calendar_authentication_without_https_warning">Des intervenants extérieurs peuvent facilement intercepter vos identifiants. Utilisez le protocole HTTPS pour sécuriser votre authentification.</string>
@@ -27,6 +29,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Nom d\'utilisateur</string>
   <string name="add_calendar_validating">Validation du calendrier…</string>
+  <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Modifier l\'abonnement</string>
   <string name="edit_calendar_cancel">Annuler</string>
   <string name="edit_calendar_delete">Se désabonner</string>
@@ -39,6 +42,7 @@
   <string name="edit_calendar_send_url">Envoyer l\'URL</string>
   <string name="edit_calendar_sync_this_calendar">Synchroniser ce calendrier</string>
   <string name="edit_calendar_unsaved_changes">Il y a des modifications non enregistrées.</string>
+  <!--synchronization-->
   <string name="sync_error_title">Erreur de synchronisation</string>
   <string name="set_sync_interval_save">Enregistrer</string>
   <string name="set_sync_interval_title">Intervalle de synchro.</string>
@@ -51,6 +55,10 @@
     <item>Une fois par jour</item>
     <item>Une fois par semaine</item>
   </string-array>
+  <string name="sync_permission_required">Autorisation requise</string>
+  <string name="sync_permission_required_sync_calendar">Autorisation nécessaire pour la synchro. de votre calendrier</string>
+  <string name="permission_required_external_storage">Autorisation de Stockage nécessaire pour l\'accès aux fichiers iCalendar locaux</string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
   <string name="app_info_web_site">Site web</string>
@@ -58,7 +66,4 @@
   <string name="donate_message">Nous sommes ravis que vous utilisiez ICSx⁵, un logiciel libre (GPLv3). ICSx⁵ a demandé et demande encore beaucoup de travail pour le développer et le maintenir, aidez-nous grâce à un don.</string>
   <string name="donate_now">Montrer la page de dons</string>
   <string name="donate_later">Peut-être plus tard</string>
-  <string name="sync_permission_required">Autorisation requise</string>
-  <string name="sync_permission_required_sync_calendar">Autorisation nécessaire pour la synchro. de votre calendrier</string>
-  <string name="permission_required_external_storage">Autorisation de Stockage nécessaire pour l\'accès aux fichiers iCalendar locaux</string>
 </resources>

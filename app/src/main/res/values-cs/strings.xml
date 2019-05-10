@@ -2,18 +2,23 @@
 <resources>
   <!--common strings-->
   <string name="action_next">Další</string>
+  <!--CalendarListActivity-->
   <string name="calendar_list_info">O aplikaci ICSx⁵</string>
   <string name="calendar_list_set_sync_interval">Nastavit interval synchronizace</string>
   <string name="calendar_list_sync_disabled">Synchronizace vypnuta</string>
   <string name="calendar_list_sync_interval_manually">Automatická synchronizace vypnuta</string>
   <string name="calendar_list_battery_whitelist_settings">Nastavení</string>
+  <!--AddCalendarActivity-->
   <string name="add_calendar_password">Heslo</string>
   <string name="add_calendar_requires_authentication">Vyžaduje autentizaci</string>
   <string name="add_calendar_user_name">Uživatelské jméno</string>
+  <!--EditCalendarActivity-->
   <string name="edit_calendar_cancel">Zrušit</string>
   <string name="edit_calendar_failed">Operace selhala</string>
   <string name="edit_calendar_save">Uložit</string>
+  <!--synchronization-->
   <string name="set_sync_interval_save">Uložit</string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Informace o aplikaci</string>
   <string name="donate_later">Možná později</string>
 </resources>

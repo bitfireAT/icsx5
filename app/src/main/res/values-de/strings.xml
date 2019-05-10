@@ -3,7 +3,10 @@
   <string name="account_name">Kalender-Abos</string>
   <!--common strings-->
   <string name="action_next">Weiter</string>
+  <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
   <string name="notification_channel_sync_problem">Sync-Probleme</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
@@ -15,7 +18,7 @@
   <string name="calendar_list_battery_whitelist">Für kurze Intervalle: Akku-Optimierung für
 ICSx⁵ deaktivieren</string>
   <string name="calendar_list_battery_whitelist_settings">Einstellungen</string>
-  <string name="title_activity_calendar_list">Abonnierte Kalender</string>
+  <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Kalender abonnieren</string>
   <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
   <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
@@ -28,6 +31,7 @@ ICSx⁵ deaktivieren</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
+  <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Kalender-Abo bearbeiten</string>
   <string name="edit_calendar_cancel">Abbrechen</string>
   <string name="edit_calendar_delete">Abo löschen</string>
@@ -40,6 +44,7 @@ ICSx⁵ deaktivieren</string>
   <string name="edit_calendar_send_url">URL senden</string>
   <string name="edit_calendar_sync_this_calendar">Diesen Kalender aktualisieren</string>
   <string name="edit_calendar_unsaved_changes">Änderungen wurden noch nicht gespeichert.</string>
+  <!--synchronization-->
   <string name="sync_error_title">Fehler bei der Aktualisierung</string>
   <string name="set_sync_interval_save">Speichern</string>
   <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
@@ -52,14 +57,19 @@ ICSx⁵ deaktivieren</string>
     <item>Einmal täglich</item>
     <item>Einmal wöchentlich</item>
   </string-array>
+  <string name="sync_permission_required">Berechtigung benötigt</string>
+  <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
+  <string name="permission_required_external_storage">Datenspeicher-Berechtigung zum Zugriff auf lokale iCalendar-Dateien benötigt</string>
+  <!--InfoActivity-->
   <string name="activity_app_info">Über ICSx⁵</string>
+  <string name="app_info_version">Version %1$s-%2$s</string>
+  <string name="app_info_donate">Spenden</string>
+  <string name="app_info_description">Webcal-Feeds abonnieren</string>
+  <string name="app_info_libraries">Bibliotheken</string>
   <string name="app_info_twitter">Aktuelles</string>
   <string name="app_info_web_site">Homepage</string>
   <string name="donate_title">Open-Source-Information</string>
   <string name="donate_message">Wir freuen uns, dass Sie ICSx⁵ und damit Open-Source-Software (GPLv3) verwenden. Nachdem es viel Arbeit war und noch ist, ICSx⁵ zu entwickeln und zu warten, gibt es die Möglichkeit, uns zu spenden.</string>
   <string name="donate_now">Spendenseite anzeigen</string>
   <string name="donate_later">Vielleicht später</string>
-  <string name="sync_permission_required">Berechtigung benötigt</string>
-  <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
-  <string name="permission_required_external_storage">Datenspeicher-Berechtigung zum Zugriff auf lokale iCalendar-Dateien benötigt</string>
 </resources>
