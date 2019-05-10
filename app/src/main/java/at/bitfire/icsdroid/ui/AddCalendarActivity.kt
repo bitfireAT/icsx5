@@ -11,9 +11,11 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProviders
+import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
 
 class AddCalendarActivity: AppCompatActivity() {
@@ -63,8 +65,10 @@ class AddCalendarActivity: AppCompatActivity() {
             if (grantResults[idx] != PackageManager.PERMISSION_GRANTED)
                 when (perm) {
                     Manifest.permission.READ_CALENDAR,
-                    Manifest.permission.WRITE_CALENDAR ->
+                    Manifest.permission.WRITE_CALENDAR -> {
+                        Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
                         finish()
+                    }
                 }
         }
     }

@@ -46,6 +46,7 @@
         app:layout_anchor="@id/calendar_list"
         app:layout_anchorGravity="bottom|right|end"
         android:onClick="onAddCalendar"
+        android:tooltipText="@string/activity_add_calendar"
         app:elevation="5dp"
         app:borderWidth="0dp"/>
 

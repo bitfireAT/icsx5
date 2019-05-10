@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -100,8 +101,10 @@ class CalendarListActivity:
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
             getModel()
-        else
+        else {
+            Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
             finish()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

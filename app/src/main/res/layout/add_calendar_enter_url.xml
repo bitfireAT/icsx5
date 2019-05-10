@@ -21,14 +21,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/url"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/add_calendar_url"
-                android:inputType="textUri"
-                android:singleLine="true"
-                android:text="@={model.url}"/>
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_calendar_url"
+                    android:inputType="textUri"
+                    android:singleLine="true"
+                    android:text="@={model.url}"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/insecure_authentication_warning"

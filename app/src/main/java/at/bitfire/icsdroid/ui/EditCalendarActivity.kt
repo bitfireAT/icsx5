@@ -84,8 +84,10 @@ class EditCalendarActivity: AppCompatActivity() {
                 // permissions OK, load calendar from provider
                 val uri = intent.data ?: throw IllegalArgumentException("Intent data must be calendar URI")
                 model.loadCalendar(uri)
-            } else
+            } else {
+                Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
                 finish()
+            }
         }
     }
 
