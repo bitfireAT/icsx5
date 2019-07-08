@@ -159,7 +159,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.next) {
-            AddCalendarValidationFragment().show(fragmentManager, "validation")
+            AddCalendarValidationFragment().show(requireFragmentManager(), "validation")
             return true
         }
         return false

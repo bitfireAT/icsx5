@@ -43,7 +43,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
         validationModel = ViewModelProviders.of(this).get(ValidationModel::class.java)
         validationModel.result.observe(this, Observer { info ->
-            dialog.dismiss()
+            requireDialog().dismiss()
 
             val errorMessage = info.exception?.localizedMessage
             if (errorMessage == null) {
