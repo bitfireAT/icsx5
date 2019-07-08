@@ -8,4 +8,4 @@ Ajoutez les jours de fête et les vacances, les événements sportifs de vos éq
 * Intégration transparente avec les autres applications de calendriers
 * Paramétrez un planning de synchro.
 * Vérificateur de mise à jour intelligent pour préserver la bande passante
-* Les authentifications et l'HTTPS sont supportés
+* L'authentification et HTTPS sont supportés

@@ -3,6 +3,7 @@
   <string name="account_name">Kalenderabonnementen</string>
   <!--common strings-->
   <string name="action_next">Volgende</string>
+  <string name="calendar_permissions_required">Kalendertoestemming is vereist</string>
   <string name="notification_channel_sync_problem">Syncproblemen</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mijn abonnementen</string>
@@ -55,9 +56,9 @@
     <item>Eens per dag</item>
     <item>Eens per week</item>
   </string-array>
-  <string name="sync_permission_required">Toestemming nodig</string>
+  <string name="sync_permission_required">Toestemming vereist</string>
   <string name="sync_permission_required_sync_calendar">Toestemming is nodig om je kalender te syncen</string>
-  <string name="permission_required_external_storage">Opslagtoestemming is nodig om toegang te krijgen tot lokale iCalendar-bestanden </string>
+  <string name="permission_required_external_storage">Opslagtoestemming is vereist om toegang te krijgen tot lokale iCalendar-bestanden </string>
   <!--InfoActivity-->
   <string name="activity_app_info">Appinfo</string>
   <string name="app_info_version">Versie %1$s-%2$s</string>
