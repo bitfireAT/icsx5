@@ -13,12 +13,13 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '29.0.1'
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 19
         targetSdkVersion 28
+        multiDexEnabled true    // >64k methods for Android 4.4
 
         versionCode 38
         versionName "1.8.4"
@@ -32,8 +33,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -64,6 +71,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
 
     implementation project(':cert4android')
@@ -71,10 +79,10 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'androidx.work:work-runtime-ktx:2.0.1'
+    implementation 'androidx.work:work-runtime-ktx:2.1.0'
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation 'com.jaredrummler:colorpicker:1.1.0'
