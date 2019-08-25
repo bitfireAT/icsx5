@@ -3,6 +3,7 @@
   <string name="account_name">Abonnements à des calendriers</string>
   <!--common strings-->
   <string name="action_next">Suivant</string>
+  <string name="calendar_permissions_required">Permissions du calendrier requises</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mes abonnements</string>
@@ -60,6 +61,23 @@
   <string name="permission_required_external_storage">Autorisation de Stockage nécessaire pour l\'accès aux fichiers iCalendar locaux</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Infos sur l\'application</string>
+  <string name="app_info_version">Version %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Ce programme est un logiciel gratuit : vous pouvez le redistribuer et/ou le modifier
+Il est sous licence GNU General Public License telle que publiée par
+la Free Software Foundation, soit avec la version 3 de la licence ou
+(selon votre préférence) à toute version ultérieure.
+
+Ce programme est distribué dans l\'espoir qu\'il sera utile,
+mais SANS AUCUNE GARANTIE; ni même celle d\'accomplir un objectif précis..  Voir la
+GNU General Public License pour plus de détails.
+
+Vous devriez avoir reçu une copie de la  GNU General Public License
+avec ce programme.  Si ce n\'est pas le cas, vous pouvez la visualiser en suivant le lien <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    ]]></string>
+  <string name="app_info_donate">Faire une donation</string>
+  <string name="app_info_description">Souscrire au flux Webcal</string>
+  <string name="app_info_libraries">Bibliothèques</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
   <string name="app_info_web_site">Site web</string>
   <string name="donate_title">Information Open Source</string>
