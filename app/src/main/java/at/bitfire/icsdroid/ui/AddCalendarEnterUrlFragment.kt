@@ -25,6 +25,7 @@ import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import kotlinx.android.synthetic.main.add_calendar_enter_url.view.*
 import java.net.URI
 import java.net.URISyntaxException
+import java.util.*
 
 class AddCalendarEnterUrlFragment: Fragment() {
 
@@ -92,65 +93,69 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     private fun validateUrl(): URI? {
         val view = requireNotNull(view)
+        var errorMsg: String? = null
 
         var url: URI
         try {
-            url = URI(titleColorModel.url.value ?: return null)
-        } catch(e: URISyntaxException) {
-            Log.d(Constants.TAG, "Invalid URL", e)
-            view.url.error = e.localizedMessage
-            return null
-        }
-
-        Log.i(Constants.TAG, url.toString())
-
-        if (url.scheme.equals("webcal", true)) {
-            url = URI("http", url.authority, url.path, url.query, null)
-            titleColorModel.url.value = url.toString()
-            return null
-        } else if (url.scheme.equals("webcals", true)) {
-            url = URI("https", url.authority, url.path, url.query, null)
-            titleColorModel.url.value = url.toString()
-            return null
-        }
-
-        when (url.scheme?.toLowerCase()) {
-            "file" -> {
-                if (url.path != null) {
-                    // local file:
-                    // 1. no need for auth
-                    credentialsModel.requiresAuth.value = false
-                    // 2. permission required
-                    if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                        requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
-                }
+            try {
+                url = URI(titleColorModel.url.value ?: return null)
+            } catch (e: URISyntaxException) {
+                Log.d(Constants.TAG, "Invalid URL", e)
+                errorMsg = e.localizedMessage
+                return null
             }
-            "http", "https" -> {
-                // extract user name and password from URL
-                url.userInfo?.let { userInfo ->
-                    val credentials = userInfo.split(':')
-                    credentialsModel.requiresAuth.value = true
-                    credentialsModel.username.value = credentials.elementAtOrNull(0)
-                    credentialsModel.password.value = credentials.elementAtOrNull(1)
 
-                    val urlWithoutPassword = URI(url.scheme, null, url.host, url.port, url.path, url.query, null)
-                    titleColorModel.url.value = urlWithoutPassword.toString()
+            Log.i(Constants.TAG, url.toString())
+
+            if (url.scheme.equals("webcal", true)) {
+                url = URI("http", url.authority, url.path, url.query, null)
+                titleColorModel.url.value = url.toString()
+                return null
+            } else if (url.scheme.equals("webcals", true)) {
+                url = URI("https", url.authority, url.path, url.query, null)
+                titleColorModel.url.value = url.toString()
+                return null
+            }
+
+            when (url.scheme?.toLowerCase(Locale.getDefault())) {
+                "file" -> {
+                    if (url.path != null) {
+                        // local file:
+                        // 1. no need for auth
+                        credentialsModel.requiresAuth.value = false
+                        // 2. permission required
+                        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
+                    }
+                }
+                "http", "https" -> {
+                    // extract user name and password from URL
+                    url.userInfo?.let { userInfo ->
+                        val credentials = userInfo.split(':')
+                        credentialsModel.requiresAuth.value = true
+                        credentialsModel.username.value = credentials.elementAtOrNull(0)
+                        credentialsModel.password.value = credentials.elementAtOrNull(1)
+
+                        val urlWithoutPassword = URI(url.scheme, null, url.host, url.port, url.path, url.query, null)
+                        titleColorModel.url.value = urlWithoutPassword.toString()
+                        return null
+                    }
+                }
+                else -> {
+                    errorMsg = getString(R.string.add_calendar_need_valid_uri)
                     return null
                 }
             }
-            else -> {
-                view.url.error = getString(R.string.add_calendar_need_valid_uri)
-                return null
-            }
+
+            // warn if auth. required and not using HTTPS
+            view.insecure_authentication_warning.visibility =
+                    if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
+                        View.VISIBLE
+                    else
+                        View.GONE
+        } finally {
+            view.url.error = errorMsg
         }
-
-        // warn if auth. required and not using HTTPS
-        view.insecure_authentication_warning.visibility =
-                if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
-                    View.VISIBLE
-                else
-                    View.GONE
-
         return url
     }
 

@@ -89,7 +89,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
     /* activityModel and data source */
 
-    private class ValidationModel(
+    class ValidationModel(
             application: Application
     ): AndroidViewModel(application) {
 
