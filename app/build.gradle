@@ -21,8 +21,8 @@ android {
         targetSdkVersion 28
         multiDexEnabled true    // >64k methods for Android 4.4
 
-        versionCode 38
-        versionName "1.8.4"
+        versionCode 39
+        versionName "1.8.5"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
 
