@@ -125,7 +125,7 @@ class LocalCalendar private constructor(
         try {
             provider.query(syncAdapterURI(Events.CONTENT_URI, account),
                     arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
-                    "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null).use { row ->
+                    "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null)?.use { row ->
                 while (row.moveToNext()) {
                     val eventId = row.getLong(0)
                     val syncId = row.getString(1)

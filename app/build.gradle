@@ -12,13 +12,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion '29.0.1'
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         multiDexEnabled true    // >64k methods for Android 4.4
 
         versionCode 39

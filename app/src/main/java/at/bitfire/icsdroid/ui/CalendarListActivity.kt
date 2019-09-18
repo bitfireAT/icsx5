@@ -252,7 +252,7 @@ class CalendarListActivity:
             context: Context
     ): ArrayAdapter<LocalCalendar>(context, R.layout.calendar_list_item) {
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val v = convertView ?:
             LayoutInflater.from(context).inflate(R.layout.calendar_list_item, parent, false)
 
