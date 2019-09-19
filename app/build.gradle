@@ -54,7 +54,6 @@ android {
         standard {
         }
         gplay {
-            versionNameSuffix "-gplay"
         }
     }
 
