@@ -1,0 +1,11 @@
+O ICSx⁵ permite-lhe adicionar/inscrever-se e gerenciar arquivos iCalendar/.ics externos (Webcal) e locais (p.ex. Dropbox, adb push, etc.) em seu dispositivo Android.
+
+Adicione dias especiais e feriados, eventos de suas equipes esportivas, horários da sua escola/universidade ou qualquer outro arquivo de eventos que seja disponibilizado em formato ics/ical. O aplicativo importará esses eventos para você e os exibirá em seu aplicativo de calendário favorito no seu Android. Ele se integra perfeitamente ao seu dispositivo.
+
+* Inscreva-se em feeds Webcal (sincronize em intervalos regulares), como por exemplo, os calendários compartilhados do icloud.com
+* Inscreva-se em arquivos de calendário .ics locais (iCalendar)
+* Permite abrir URLs webcal:// e webcals://, por exemplo, a partir do seu navegador
+* Integração perfeita com outros aplicativos de calendário
+* Configure um agendamento para sincronização
+* Verificador de atualizações inteligente para economizar tráfego de rede
+* Suporte para autenticação e HTTPS

@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">Inscrições de calendários</string>
+  <!--common strings-->
+  <string name="action_next">Próximo</string>
+  <string name="calendar_permissions_required">É necessário permissões de calendário</string>
+  <string name="notification_channel_sync_problem">Problemas de sincronização</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Minhas assinaturas</string>
+  <string name="calendar_list_empty_info">Para assinar um feed de Webcal, use o botão + ou abra a URL Webcal.</string>
+  <string name="calendar_list_info">Sobre o ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">ainda não sincronizado</string>
+  <string name="calendar_list_set_sync_interval">Definir intervalo de sincronização</string>
+  <string name="calendar_list_sync_disabled">Sincronização desativada</string>
+  <string name="calendar_list_sync_interval_manually">Sincronização automática desativada</string>
+  <string name="calendar_list_master_sync_disabled">A sincronização automática pelo sistema está desativada</string>
+  <string name="calendar_list_master_sync_enable">Ativar</string>
+  <string name="calendar_list_battery_whitelist">Bateria: Sincronizar ICSx⁵ em intervalos curtos</string>
+  <string name="calendar_list_battery_whitelist_settings">Configurações</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Inscrever-se no calendário</string>
+  <string name="add_calendar_need_valid_uri">É necessário uma URI válida</string>
+  <string name="add_calendar_authentication_without_https_warning">Terceiros podem facilmente interceptar suas credenciais. Use HTTPS para autenticação segura.</string>
+  <string name="add_calendar_create">Assinar agora</string>
+  <string name="add_calendar_created">Inscrição realizada com sucesso</string>
+  <string name="add_calendar_password">Senha</string>
+  <string name="add_calendar_requires_authentication">Autenticação necessária</string>
+  <string name="add_calendar_title">Título e cor</string>
+  <string name="add_calendar_title_hint">Nome do calendário</string>
+  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_user_name">Nome de usuário</string>
+  <string name="add_calendar_validating">Validando o recurso de calendário...</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Editar inscrição</string>
+  <string name="edit_calendar_cancel">Cancelar</string>
+  <string name="edit_calendar_delete">Desinscrever</string>
+  <string name="edit_calendar_deleted">Inscrição cancelada com sucesso</string>
+  <string name="edit_calendar_dismiss">Dispensar</string>
+  <string name="edit_calendar_failed">Falha na operação</string>
+  <string name="edit_calendar_really_delete">Deseja realmente cancelar a inscrição neste calendário?</string>
+  <string name="edit_calendar_save">Salvar</string>
+  <string name="edit_calendar_saved">Alterações salvas</string>
+  <string name="edit_calendar_send_url">Enviar URL</string>
+  <string name="edit_calendar_sync_this_calendar">Sincronizar este calendário</string>
+  <string name="edit_calendar_unsaved_changes">Há alterações que não foram salvas.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Erro de sincronização</string>
+  <string name="set_sync_interval_save">Salvar</string>
+  <string name="set_sync_interval_title">Definir intervalo de sincronização:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Apenas manualmente</item>
+    <item>A cada 15 minutos</item>
+    <item>A cada hora</item>
+    <item>A cada 2 horas</item>
+    <item>A cada 4 horas</item>
+    <item>Uma vez por dia</item>
+    <item>Uma vez por semana</item>
+  </string-array>
+  <string name="sync_permission_required">Permissão necessária</string>
+  <string name="sync_permission_required_sync_calendar">Precisando de permissão para sincronizar seu calendário</string>
+  <string name="permission_required_external_storage">Permissão de armazenamento é necessária para acessar arquivos iCalendar locais</string>
+  <!--InfoActivity-->
+  <string name="activity_app_info">Informações do aplicativo</string>
+  <string name="app_info_version">Versão %1$s-%2$s</string>
+  <string name="app_info_gplv3_note">Este programa é software livre: você pode redistribui-lo e/ou modificá-lo
+sob os termos da GNU General Public License como publicada pela
+Free Software Foundation, na versão 3 da licença ou (a sua escolha)
+qualquer versão posterior.
+
+Este programa é distribuído na esperança de que seja útil, mas SEM
+NENHUMA GARANTIA, nem mesmo a garantia implícita da 
+COMERCIALIZAÇÃO ou ADEQUAÇÃO PARA UM DETERMINADO
+PROPÓSITO. Leia a GNU General Public License para mais detalhes.
+
+Você deve ter recebido uma cópia da GNU General Public License junto com
+este programa. Se não recebeu, leia em &lt;a href="https://www.gnu.org/licenses/"&gt;https://www.gnu.org/licenses/&lt;/a&gt;.
+    ]]&gt;</string>
+  <string name="app_info_donate">Doações</string>
+  <string name="app_info_description">Inscrição em feeds Webcal</string>
+  <string name="app_info_libraries">Bibliotecas</string>
+  <string name="app_info_twitter">Novidades e atualizações</string>
+  <string name="app_info_web_site">Página Web</string>
+  <string name="donate_title">Informações de código aberto</string>
+  <string name="donate_message">Estamos felizes que você usa o ICSx⁵, que é um software livre (GPLv3). Como a manutenção e desenvolvimento do ICSx⁵ ainda está em pleno desenvolvimento, considere fazer uma doação.</string>
+  <string name="donate_now">Mostrar a página de doações</string>
+  <string name="donate_later">Talvez mais tarde</string>
+</resources>
