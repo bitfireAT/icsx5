@@ -21,8 +21,8 @@ android {
         targetSdkVersion 29
         multiDexEnabled true    // >64k methods for Android 4.4
 
-        versionCode 41
-        versionName "1.8.6-beta1"
+        versionCode 42
+        versionName "1.8.6"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
 
