@@ -20,6 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
+import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
@@ -110,12 +111,12 @@ class AddCalendarValidationFragment: DialogFragment() {
                 override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
-                        val events = Event.fromReader(reader, properties)
+                        val events = Event.eventsFromReader(reader, properties)
 
                         // URL may have changed because of redirects
                         info.url = url
 
-                        info.calendarName = properties[Event.CALENDAR_NAME]
+                        info.calendarName = properties[ICalendar.CALENDAR_NAME]
                         info.eventsFound = events.size
                     }
 
