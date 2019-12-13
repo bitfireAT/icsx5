@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">日历订阅</string>
+  <!--common strings-->
+  <string name="action_next">继续</string>
+  <string name="calendar_permissions_required">请授予访问日历的权限</string>
+  <string name="notification_channel_sync_problem">同步问题</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">我的订阅</string>
+  <string name="calendar_list_empty_info">如需订阅Webcal源，请点击 + 按钮或打开Webcal的URL地址</string>
+  <string name="calendar_list_info">关于ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">尚未同步</string>
+  <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
+  <string name="calendar_list_sync_disabled">未启用同步</string>
+  <string name="calendar_list_sync_interval_manually">自动同步已关闭</string>
+  <string name="calendar_list_master_sync_disabled">系统层面的自动同步已关闭</string>
+  <string name="calendar_list_master_sync_enable">启用</string>
+  <string name="calendar_list_battery_whitelist">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
+  <string name="calendar_list_battery_whitelist_settings">设置</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">订阅至日历</string>
+  <string name="add_calendar_need_valid_uri">URI无效</string>
+  <string name="add_calendar_authentication_without_https_warning">您的认证信息容易被第三方截取，请使用HTTPS进行安全的身份认证。</string>
+  <string name="add_calendar_create">立即订阅</string>
+  <string name="add_calendar_created">订阅成功</string>
+  <string name="add_calendar_password">密码</string>
+  <string name="add_calendar_requires_authentication">需要进行身份验证</string>
+  <string name="add_calendar_title">标题 &amp; 颜色</string>
+  <string name="add_calendar_title_hint">日历名称</string>
+  <string name="add_calendar_url">URL地址</string>
+  <string name="add_calendar_user_name">用户名</string>
+  <string name="add_calendar_validating">正在验证日历…</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">编辑订阅</string>
+  <string name="edit_calendar_cancel">取消</string>
+  <string name="edit_calendar_delete">取消订阅</string>
+  <string name="edit_calendar_deleted">取消成功</string>
+  <string name="edit_calendar_dismiss">关闭</string>
+  <string name="edit_calendar_failed">操作失败</string>
+  <string name="edit_calendar_really_delete">您确定要取消订阅该日历吗？</string>
+  <string name="edit_calendar_save">保存</string>
+  <string name="edit_calendar_saved">已保存修改</string>
+  <string name="edit_calendar_send_url">发送URL</string>
+  <string name="edit_calendar_sync_this_calendar">同步该日历</string>
+  <string name="edit_calendar_unsaved_changes">有尚未保存的修改</string>
+  <!--synchronization-->
+  <string name="sync_error_title">同步时发生错误</string>
+  <string name="set_sync_interval_save">保存</string>
+  <string name="set_sync_interval_title">设置同步间隔时间</string>
+  <string-array name="set_sync_interval_names">
+    <item>手动同步</item>
+    <item>每15分钟</item>
+    <item>每小时</item>
+    <item>每2小时</item>
+    <item>每4小时</item>
+    <item>每天</item>
+    <item>每周</item>
+  </string-array>
+  <string name="sync_permission_required">请授予权限</string>
+  <string name="sync_permission_required_sync_calendar">请授予权限以同步您的日历</string>
+  <string name="permission_required_external_storage">如需导入本地iCalendar文件，请授予存储权限</string>
+  <!--InfoActivity-->
+  <string name="activity_app_info">应用信息</string>
+  <string name="app_info_version">版本 %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+这是一个免费应用，您可以按照Free Software Foundation的
+GNU General Public License 3
+( 或您偏好的更高版本 )
+进行发行及修改。
+
+此应用的发行旨在提供帮助，
+但并不因此产生任何担保责任，包括
+适销性或任何特殊用途，
+更多信息请参阅GNU General Public License。
+
+您应该在下载应用的同时收到一份
+GNU General Public License，如果没有，请参阅 <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    ]]></string>
+  <string name="app_info_donate">捐赠</string>
+  <string name="app_info_description">订阅Webcal源</string>
+  <string name="app_info_libraries">库文件</string>
+  <string name="app_info_twitter">新闻 &amp; 更新</string>
+  <string name="app_info_web_site">网站</string>
+  <string name="donate_title">开源信息</string>
+  <string name="donate_message">非常高兴您选择使用ICSx⁵，该应用是开源软件（GPLv3）。因为应用开发及维护需要很大的工作量，欢迎您考虑捐赠。</string>
+  <string name="donate_now">前往捐助页面</string>
+  <string name="donate_later">以后再说</string>
+</resources>
