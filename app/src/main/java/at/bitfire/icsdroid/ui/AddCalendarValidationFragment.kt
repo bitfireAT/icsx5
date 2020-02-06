@@ -14,6 +14,7 @@ import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -61,7 +62,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                         .addToBackStack(null)
                         .commitAllowingStateLoss()
             } else
-                Toast.makeText(activity, errorMessage, Toast.LENGTH_SHORT).show()
+                AlertFragment.create(errorMessage).show(requireFragmentManager(), null)
         })
 
         val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
@@ -126,6 +127,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                 }
 
                 override fun onError(error: Exception) {
+                    Log.e(Constants.TAG, "Couldn't validate calendar: $error")
                     info.exception = error
                     result.postValue(info)
                 }

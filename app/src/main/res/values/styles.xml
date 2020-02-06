@@ -9,10 +9,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/lightblue</item>
         <item name="colorPrimaryDark">@color/darkblue</item>
-        <item name="colorAccent">@color/redorange</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/redorange</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="colorSurface">@android:color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
