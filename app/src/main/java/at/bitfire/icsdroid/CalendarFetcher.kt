@@ -45,14 +45,25 @@ open class CalendarFetcher(
     open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
     }
 
+    open fun onNotModified() {
+    }
+
     open fun onRedirect(httpCode: Int, target: URL?) {
         url = target ?: throw IOException("Got redirect without target")
 
         // only network resources can be redirected
-        if (++redirectCount < MAX_REDIRECT_COUNT)
-            fetchNetwork()
-        else
+        if (++redirectCount > MAX_REDIRECT_COUNT)
             onError(IOException("More than $MAX_REDIRECT_COUNT redirect"))
+
+        when (httpCode) {
+            // 301: Moved Permanently, 308: Permanent Redirect
+            301, 308 -> onNewPermanentUrl()
+        }
+
+        fetchNetwork()
+    }
+
+    open fun onNewPermanentUrl(target: URL) {
     }
 
     open fun onError(error: Exception) {
@@ -67,7 +78,7 @@ open class CalendarFetcher(
             File(url.toURI()).let { file ->
                 ifModifiedSince?.let {  timestamp ->
                     if (file.lastModified() <= timestamp) {
-                        onRedirect(304, null)
+                        onNotModified()
                         return
                     }
                 }
@@ -109,10 +120,12 @@ open class CalendarFetcher(
                                 }
                         )
                     }
-                else if (response.isRedirect || response.code() == 304)
+                else if (response.isRedirect)
                     onRedirect(response.code(), response.header("Location")?.let { location ->
                         URL(url, location)
                     })
+                else if (response.code() == 304)
+                    onNotModified()
                 else
                     onError(throw IOException("HTTP ${response.code()} ${response.message()}"))
             }
