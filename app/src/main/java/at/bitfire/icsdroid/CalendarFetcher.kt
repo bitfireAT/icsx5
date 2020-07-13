@@ -25,6 +25,7 @@ open class CalendarFetcher(
     }
 
     private var redirectCount = 0
+    private var hasFollowedTempRedirect = false
 
     var ifModifiedSince: Long? = null
     var ifNoneMatch: String? = null
@@ -55,9 +56,13 @@ open class CalendarFetcher(
         if (++redirectCount > MAX_REDIRECT_COUNT)
             onError(IOException("More than $MAX_REDIRECT_COUNT redirect"))
 
-        when (httpCode) {
-            // 301: Moved Permanently, 308: Permanent Redirect
-            301, 308 -> onNewPermanentUrl()
+        // update URL if this is a permanent redirect and we've never followed a temporary redirect
+        if (!hasFollowedTempRedirect) {
+            when (httpCode) {
+                // 301: Moved Permanently, 308: Permanent Redirect
+                301, 308 -> onNewPermanentUrl()
+                else -> hasFollowedTempRedirect = true
+            }
         }
 
         fetchNetwork()
