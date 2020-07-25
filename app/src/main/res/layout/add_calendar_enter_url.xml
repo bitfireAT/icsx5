@@ -45,7 +45,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone"/>
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/credentials"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

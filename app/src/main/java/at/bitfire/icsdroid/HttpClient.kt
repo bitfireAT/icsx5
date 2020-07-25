@@ -5,6 +5,7 @@ import at.bitfire.cert4android.CustomCertManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
@@ -40,6 +41,7 @@ class HttpClient private constructor(
     }
 
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(BrotliInterceptor)
             .addNetworkInterceptor(UserAgentInterceptor)
             .followRedirects(false)
             .connectTimeout(10, TimeUnit.SECONDS)

@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@id/title_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -34,12 +34,11 @@
                 android:checked="@={model.active}"
                 android:text="@string/edit_calendar_sync_this_calendar" />
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@id/credentials"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
-
 
         </LinearLayout>
 

@@ -15,7 +15,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.BuildConfig
-import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import com.mikepenz.aboutlibraries.LibsBuilder
 

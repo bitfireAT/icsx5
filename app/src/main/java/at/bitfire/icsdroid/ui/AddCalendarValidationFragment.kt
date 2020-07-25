@@ -118,9 +118,9 @@ class AddCalendarValidationFragment: DialogFragment() {
                     result.postValue(info)
                 }
 
-                override fun onNewPermanentUrl(newUrl: URL) {
-                    Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $newUrl")
-                    info.url = newUrl
+                override fun onNewPermanentUrl(target: URL) {
+                    Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
+                    info.url = target
                 }
 
                 override fun onError(error: Exception) {
