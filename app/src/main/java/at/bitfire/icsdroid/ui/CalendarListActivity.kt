@@ -92,7 +92,7 @@ class CalendarListActivity:
         }, false)
 
         // observe whether a sync is running
-        SyncWorker.liveStatus().observe(this, Observer { statuses ->
+        SyncWorker.liveStatus(this).observe(this, Observer { statuses ->
             val running = statuses.any { it.state == WorkInfo.State.RUNNING }
             Log.d(Constants.TAG, "Sync running: $running")
             refresh.isRefreshing = running
@@ -191,7 +191,7 @@ class CalendarListActivity:
     }
 
     override fun onRefresh() {
-        SyncWorker.run()
+        SyncWorker.run(this)
     }
 
     fun onShowInfo(item: MenuItem) {

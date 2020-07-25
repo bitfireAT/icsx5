@@ -37,14 +37,15 @@ class SyncWorker(
         /**
          * Enqueues a sync job for soon execution.
          */
-        fun run() {
+        fun run(context: Context) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>().build()
-            WorkManager.getInstance()
+            WorkManager.getInstance(context)
                     .beginUniqueWork(NAME, ExistingWorkPolicy.KEEP, request)
                     .enqueue()
         }
 
-        fun liveStatus() = WorkManager.getInstance().getWorkInfosForUniqueWorkLiveData(NAME)
+        fun liveStatus(context: Context) =
+                WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(NAME)
 
     }
 

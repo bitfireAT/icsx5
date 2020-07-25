@@ -55,7 +55,8 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/add_calendar_title_hint"
                         android:inputType="text"
-                        android:text="@={model.title}"/>
+                        android:importantForAutofill="no"
+                        android:text="@={model.title}" />
 
                 </LinearLayout>
 

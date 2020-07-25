@@ -21,7 +21,7 @@ class SyncAdapter(
 ): AbstractThreadedSyncAdapter(context, false) {
 
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
-        SyncWorker.run()
+        SyncWorker.run(context)
     }
 
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
