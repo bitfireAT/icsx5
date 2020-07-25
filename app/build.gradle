@@ -17,19 +17,18 @@ android {
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
-        multiDexEnabled true    // >64k methods for Android 4.4
 
         versionCode 43
         versionName "1.8.7"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
-
-        buildConfigField "String", "okhttpVersion", "\"${versions.okhttp}\""
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -70,8 +69,8 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
 
     implementation project(':cert4android')
     implementation project(':ical4android')
@@ -89,5 +88,7 @@ dependencies {
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation 'com.mikepenz:aboutlibraries:6.2.3'
     implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+    implementation "com.squareup.okhttp3:okhttp-brotli:${versions.okhttp}"
     implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-lang3:3.9'
 }

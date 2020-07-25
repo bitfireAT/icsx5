@@ -25,7 +25,7 @@ class DonateDialogFragment: DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?) =
-            AlertDialog.Builder(activity!!)
+            AlertDialog.Builder(requireActivity())
                 .setIcon(R.mipmap.ic_launcher)
                 .setTitle(R.string.donate_title)
                 .setMessage(R.string.donate_message)
@@ -42,7 +42,7 @@ class DonateDialogFragment: DialogFragment() {
                     dismiss()
                 }
                 .setCancelable(false)
-                .create()!!
+                .create()
 
 
     class Factory: StartupFragment {

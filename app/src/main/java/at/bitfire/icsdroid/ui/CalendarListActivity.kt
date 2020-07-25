@@ -26,6 +26,7 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -33,7 +34,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
 import at.bitfire.ical4android.CalendarStorageException
@@ -51,6 +51,7 @@ class CalendarListActivity:
         AdapterView.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
+    private val model by viewModels<CalendarModel>()
     private var listAdapter: CalendarListAdapter? = null
 
     private var snackBar: Snackbar? = null
@@ -161,7 +162,6 @@ class CalendarListActivity:
     }
 
     private fun getModel() {
-        val model = ViewModelProviders.of(this).get(CalendarModel::class.java)
         model.calendars.observe(this, Observer { calendars ->
             listAdapter?.clear()
 

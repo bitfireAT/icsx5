@@ -45,7 +45,7 @@ class HttpClient private constructor(
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .sslSocketFactory(sslContext.socketFactory, certManager)
-            .hostnameVerifier(certManager.hostnameVerifier(OkHostnameVerifier.INSTANCE))
+            .hostnameVerifier(certManager.hostnameVerifier(OkHostnameVerifier))
             .build()
 
 

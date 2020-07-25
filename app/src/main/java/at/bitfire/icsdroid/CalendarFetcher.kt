@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
-import okhttp3.internal.http.HttpDate
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -102,11 +101,13 @@ open class CalendarFetcher(
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
                 .url(url)
 
-        if (username != null && password != null)
-            request.addHeader("Authorization", Credentials.basic(username, password, Charsets.UTF_8))
+        val currentUsername = username
+        val currentPassword = password
+        if (currentUsername != null && currentPassword != null)
+            request.addHeader("Authorization", Credentials.basic(currentUsername, currentPassword, Charsets.UTF_8))
 
         ifModifiedSince?.let {
-            request.addHeader("If-Modified-Since", HttpDate.format(Date(it)))
+            request.addHeader("If-Modified-Since", HttpUtils.formatDate(Date(it)))
         }
         ifNoneMatch?.let {
             request.addHeader("If-None-Match", it)
@@ -115,24 +116,24 @@ open class CalendarFetcher(
         try {
             HttpClient.get(context).okHttpClient.newCall(request.build()).execute().use { response ->
                 if (response.isSuccessful)
-                    response.body()?.let { body ->
+                    response.body?.let { body ->
                         onSuccess(
                                 body.byteStream(),
                                 body.contentType(),
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
-                                    HttpDate.parse(it)?.time
+                                    HttpUtils.parseDate(it)?.time
                                 }
                         )
                     }
                 else if (response.isRedirect)
-                    onRedirect(response.code(), response.header("Location")?.let { location ->
+                    onRedirect(response.code, response.header("Location")?.let { location ->
                         URL(url, location)
                     })
-                else if (response.code() == 304)
+                else if (response.code == 304)
                     onNotModified()
                 else
-                    onError(throw IOException("HTTP ${response.code()} ${response.message()}"))
+                    throw IOException("HTTP ${response.code} ${response.message}")
             }
         } catch (e: Exception) {
             onError(e)

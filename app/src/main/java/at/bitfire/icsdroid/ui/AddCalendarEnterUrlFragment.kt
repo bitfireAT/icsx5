@@ -16,8 +16,8 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
@@ -29,13 +29,10 @@ import java.util.*
 
 class AddCalendarEnterUrlFragment: Fragment() {
 
-    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
-    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
+    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
-        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
-
         val invalidate = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
         }
@@ -45,7 +42,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                 credentialsModel.username,
                 credentialsModel.password
         ).forEach {
-            it.observe(this, invalidate)
+            it.observe(viewLifecycleOwner, invalidate)
         }
 
         val binding = DataBindingUtil.inflate<AddCalendarEnterUrlBinding>(inflater, R.layout.add_calendar_enter_url, container, false)
@@ -65,7 +62,6 @@ class AddCalendarEnterUrlFragment: Fragment() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        val v = requireNotNull(view)
         val itemNext = menu.findItem(R.id.next)
 
         val url = validateUrl()
@@ -164,7 +160,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.next) {
-            AddCalendarValidationFragment().show(requireFragmentManager(), "validation")
+            AddCalendarValidationFragment().show(parentFragmentManager, "validation")
             return true
         }
         return false

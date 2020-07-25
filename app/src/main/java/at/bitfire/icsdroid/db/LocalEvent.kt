@@ -37,8 +37,8 @@ class LocalEvent: AndroidEvent {
         lastModified = event.lastModified?.dateTime?.time ?: 0
     }
 
-    override fun populateEvent(row: ContentValues) {
-        super.populateEvent(row)
+    override fun populateEvent(row: ContentValues, groupScheduled: Boolean) {
+        super.populateEvent(row, groupScheduled)
 
         val event = requireNotNull(event)
         event.uid = row.getAsString(CalendarContract.Events._SYNC_ID)

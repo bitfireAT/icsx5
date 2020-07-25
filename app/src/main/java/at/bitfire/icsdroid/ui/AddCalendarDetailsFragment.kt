@@ -18,8 +18,8 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
@@ -29,19 +29,15 @@ import at.bitfire.icsdroid.db.LocalCalendar
 
 class AddCalendarDetailsFragment: Fragment() {
 
-    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
-    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
+    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
-        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
-
         val invalidateOptionsMenu = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
         }
-        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
         titleColorModel.title.observe(this, invalidateOptionsMenu)
         titleColorModel.color.observe(this, invalidateOptionsMenu)
     }
