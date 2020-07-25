@@ -113,14 +113,16 @@ class AddCalendarValidationFragment: DialogFragment() {
                         val properties = mutableMapOf<String, String>()
                         val events = Event.eventsFromReader(reader, properties)
 
-                        // URL may have changed because of redirects
-                        info.url = url
-
                         info.calendarName = properties[ICalendar.CALENDAR_NAME]
                         info.eventsFound = events.size
                     }
 
                     result.postValue(info)
+                }
+
+                override fun onNewPermanentUrl(newUrl: URL) {
+                    Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $newUrl")
+                    info.url = newUrl
                 }
 
                 override fun onError(error: Exception) {

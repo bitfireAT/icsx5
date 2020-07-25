@@ -72,19 +72,14 @@ class ProcessEventsTask(
                 }
             }
 
-            override fun onRedirect(httpCode: Int, target: URL?) {
-                if (httpCode == 304 /* Not modified */) {
-                    Log.i(Constants.TAG, "Calendar has not been modified since last sync")
-                    calendar.updateStatusNotModified()
-                } else if (target != null) {
-                    if (httpCode == StatusLine.HTTP_PERM_REDIRECT) {
-                        Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
-                        calendar.updateUrl(target.toString())
-                    }
+            override fun onNotModified() {
+                Log.i(Constants.TAG, "Calendar has not been modified since last sync")
+                calendar.updateStatusNotModified()
+            }
 
-                    // follow redirect
-                    super.onRedirect(httpCode, target)
-                }
+            override fun onNewPermanentUrl(newUrl: URL) {
+                Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $newUrl")
+                calendar.updateUrl(newUrl.toString())
             }
 
             override fun onError(error: Exception) {
