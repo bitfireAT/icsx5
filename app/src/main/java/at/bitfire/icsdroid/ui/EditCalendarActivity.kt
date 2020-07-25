@@ -21,6 +21,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -31,7 +32,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BR
@@ -43,9 +43,9 @@ import at.bitfire.icsdroid.db.LocalCalendar
 
 class EditCalendarActivity: AppCompatActivity() {
 
-    private lateinit var model: CalendarModel
-    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
-    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
+    private val model by viewModels<CalendarModel>()
+    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+    private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
 
 
     override fun onCreate(inState: Bundle?) {
@@ -55,8 +55,6 @@ class EditCalendarActivity: AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        model = ViewModelProviders.of(this).get(CalendarModel::class.java)
-
         model.calendar.observe(this, Observer { calendar ->
             if (!model.loaded) {
                 onCalendarLoaded(calendar)
@@ -65,11 +63,9 @@ class EditCalendarActivity: AppCompatActivity() {
         })
         model.active.observe(this, invalidate)
 
-        titleColorModel = ViewModelProviders.of(this).get(TitleColorFragment.TitleColorModel::class.java)
         titleColorModel.title.observe(this, invalidate)
         titleColorModel.color.observe(this, invalidate)
 
-        credentialsModel = ViewModelProviders.of(this).get(CredentialsFragment.CredentialsModel::class.java)
         credentialsModel.requiresAuth.observe(this, invalidate)
         credentialsModel.username.observe(this, invalidate)
         credentialsModel.password.observe(this, invalidate)
@@ -264,7 +260,7 @@ class EditCalendarActivity: AppCompatActivity() {
                             dialog.dismiss()
                             (activity as? EditCalendarActivity)?.onCancel(null)
                         }
-                        .create()!!
+                        .create()
 
     }
 
@@ -283,7 +279,7 @@ class EditCalendarActivity: AppCompatActivity() {
                         .setNegativeButton(R.string.edit_calendar_cancel) { dialog, _ ->
                             dialog.dismiss()
                         }
-                        .create()!!
+                        .create()
 
     }
 

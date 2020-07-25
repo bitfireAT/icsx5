@@ -8,6 +8,11 @@
 
 <resources>
 
+    <color name="lightblue">#039be5</color>
+    <color name="darkblue">#01579b</color>
+
+    <color name="redorange">#ff2200</color>
+    
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/lightblue</item>

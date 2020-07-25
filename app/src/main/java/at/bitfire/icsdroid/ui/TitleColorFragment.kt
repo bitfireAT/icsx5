@@ -15,10 +15,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
@@ -27,10 +26,10 @@ import kotlinx.android.synthetic.main.title_color.view.*
 
 class TitleColorFragment: Fragment() {
 
-    lateinit var model: TitleColorModel
+    private val model by activityViewModels<TitleColorModel>()
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        model = ViewModelProviders.of(requireActivity()).get(TitleColorModel::class.java)
         val binding = DataBindingUtil.inflate<TitleColorBinding>(inflater, R.layout.title_color, container, false)
         binding.lifecycleOwner = this
         binding.setVariable(BR.model, model)

@@ -13,13 +13,12 @@ import android.app.Dialog
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
@@ -33,17 +32,15 @@ import java.net.URL
 
 class AddCalendarValidationFragment: DialogFragment() {
 
-    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
-    private lateinit var credentialsModel: CredentialsFragment.CredentialsModel
-    private lateinit var validationModel: ValidationModel
+    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+
+    private val validationModel by viewModels<ValidationModel>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        titleColorModel = ViewModelProviders.of(requireActivity()).get(TitleColorFragment.TitleColorModel::class.java)
-        credentialsModel = ViewModelProviders.of(requireActivity()).get(CredentialsFragment.CredentialsModel::class.java)
-
-        validationModel = ViewModelProviders.of(this).get(ValidationModel::class.java)
         validationModel.result.observe(this, Observer { info ->
             requireDialog().dismiss()
 
@@ -56,13 +53,13 @@ class AddCalendarValidationFragment: DialogFragment() {
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.url?.file
 
-                requireFragmentManager()
+                parentFragmentManager
                         .beginTransaction()
                         .replace(android.R.id.content, AddCalendarDetailsFragment())
                         .addToBackStack(null)
                         .commitAllowingStateLoss()
             } else
-                AlertFragment.create(errorMessage).show(requireFragmentManager(), null)
+                AlertFragment.create(errorMessage).show(parentFragmentManager, null)
         })
 
         val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))

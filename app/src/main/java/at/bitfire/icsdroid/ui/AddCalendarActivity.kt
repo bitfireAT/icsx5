@@ -12,9 +12,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModelProviders
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
 
@@ -25,12 +25,11 @@ class AddCalendarActivity: AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
-    private lateinit var titleColorModel: TitleColorFragment.TitleColorModel
+    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
-
-        titleColorModel = ViewModelProviders.of(this).get(TitleColorFragment.TitleColorModel::class.java)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
