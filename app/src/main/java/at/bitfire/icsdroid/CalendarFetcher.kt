@@ -10,6 +10,7 @@ import okhttp3.Request
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
@@ -48,19 +49,22 @@ open class CalendarFetcher(
     open fun onNotModified() {
     }
 
-    open fun onRedirect(httpCode: Int, target: URL?) {
-        url = target ?: throw IOException("Got redirect without target")
+    open fun onRedirect(httpCode: Int, target: URL) {
+        url = target
 
         // only network resources can be redirected
         if (++redirectCount > MAX_REDIRECT_COUNT)
-            onError(IOException("More than $MAX_REDIRECT_COUNT redirect"))
+            throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
         // update URL if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
             when (httpCode) {
                 // 301: Moved Permanently, 308: Permanent Redirect
-                301, 308 -> onNewPermanentUrl()
-                else -> hasFollowedTempRedirect = true
+                HttpURLConnection.HTTP_NOT_MODIFIED,
+                HttpUtils.HTTP_PERMANENT_REDIRECT ->
+                    onNewPermanentUrl(target)
+                else ->
+                    hasFollowedTempRedirect = true
             }
         }
 
@@ -80,7 +84,7 @@ open class CalendarFetcher(
 
         try {
             File(url.toURI()).let { file ->
-                ifModifiedSince?.let {  timestamp ->
+                ifModifiedSince?.let { timestamp ->
                     if (file.lastModified() <= timestamp) {
                         onNotModified()
                         return
@@ -115,8 +119,9 @@ open class CalendarFetcher(
 
         try {
             HttpClient.get(context).okHttpClient.newCall(request.build()).execute().use { response ->
-                if (response.isSuccessful)
-                    response.body?.let { body ->
+                when {
+                    // 20x
+                    response.isSuccessful -> response.body?.let { body ->
                         onSuccess(
                                 body.byteStream(),
                                 body.contentType(),
@@ -126,14 +131,20 @@ open class CalendarFetcher(
                                 }
                         )
                     }
-                else if (response.isRedirect)
-                    onRedirect(response.code, response.header("Location")?.let { location ->
-                        URL(url, location)
-                    })
-                else if (response.code == 304)
-                    onNotModified()
-                else
-                    throw IOException("HTTP ${response.code} ${response.message}")
+
+                    // 30x
+                    response.isRedirect -> {
+                        val location = response.header("Location")
+                        if (location != null)
+                            onRedirect(response.code, URL(url, location))
+                        else
+                            throw IOException("Got ${response.code} ${response.message} without Location")
+                    }
+                    response.code == HttpURLConnection.HTTP_NOT_MODIFIED -> onNotModified()
+
+                    // HTTP error
+                    else -> throw IOException("HTTP ${response.code} ${response.message}")
+                }
             }
         } catch (e: Exception) {
             onError(e)

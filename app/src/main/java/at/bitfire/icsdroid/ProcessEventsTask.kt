@@ -13,7 +13,6 @@ import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import okhttp3.MediaType
-import okhttp3.internal.http.StatusLine
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
@@ -35,7 +34,7 @@ class ProcessEventsTask(
             processEvents()
         } catch(e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
-            calendar.updateStatusError(e.localizedMessage)
+            calendar.updateStatusError(e.localizedMessage ?: e.toString())
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
@@ -46,7 +45,7 @@ class ProcessEventsTask(
             url = URL(calendar.url)
         } catch(e: MalformedURLException) {
             Log.e(Constants.TAG, "Invalid calendar URL", e)
-            calendar.updateStatusError(e.localizedMessage)
+            calendar.updateStatusError(e.localizedMessage ?: e.toString())
             return
         }
         Log.i(Constants.TAG, "Synchronizing $url")
@@ -77,9 +76,9 @@ class ProcessEventsTask(
                 calendar.updateStatusNotModified()
             }
 
-            override fun onNewPermanentUrl(newUrl: URL) {
-                Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $newUrl")
-                calendar.updateUrl(newUrl.toString())
+            override fun onNewPermanentUrl(target: URL) {
+                Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
+                calendar.updateUrl(target.toString())
             }
 
             override fun onError(error: Exception) {

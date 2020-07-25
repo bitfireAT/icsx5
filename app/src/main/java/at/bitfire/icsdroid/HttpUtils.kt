@@ -8,6 +8,8 @@ import java.util.*
 
 object HttpUtils {
 
+    const val HTTP_PERMANENT_REDIRECT = 308
+
     private const val httpDateFormatStr = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
     private val httpDateFormat = SimpleDateFormat(httpDateFormatStr, Locale.US)
 
