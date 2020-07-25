@@ -19,7 +19,7 @@
   <string name="add_calendar_title_hint">Naptár neve</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
-  <string name="add_calendar_validating">A naptár ellenőrzése...</string>
+  <string name="add_calendar_validating">A naptár ellenőrzése…</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Az előfizetés módosítása</string>
   <string name="edit_calendar_cancel">Megszakít</string>

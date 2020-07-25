@@ -27,7 +27,7 @@ for lang in ${!android[@]}
 do
 	target=../app/src/main/res/values-${android[$lang]}
 	mkdir -p $target
-	curl -n "https://www.transifex.com/api/2/project/icsx5/resource/icsx5/translation/$lang?file" >$target/strings.xml
+	curl -n "https://www.transifex.com/api/2/project/icsx5/resource/icsx5/translation/$lang?file" |sed 's/\.\.\./…/g' >$target/strings.xml
 
 	fetch_txt "https://www.transifex.com/api/2/project/icsx5/resource/full-description/translation/$lang?file" ${android[$lang]} full_description.txt
 	fetch_txt "https://www.transifex.com/api/2/project/icsx5/resource/short-description/translation/$lang?file" ${android[$lang]} short_description.txt

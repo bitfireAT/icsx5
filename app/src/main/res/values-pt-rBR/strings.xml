@@ -29,7 +29,7 @@
   <string name="add_calendar_title_hint">Nome do calendário</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Nome de usuário</string>
-  <string name="add_calendar_validating">Validando o recurso de calendário...</string>
+  <string name="add_calendar_validating">Validando o recurso de calendário…</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar inscrição</string>
   <string name="edit_calendar_cancel">Cancelar</string>

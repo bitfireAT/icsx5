@@ -3,6 +3,7 @@
   <string name="account_name">Подписки на календари</string>
   <!--common strings-->
   <string name="action_next">Далее</string>
+  <string name="calendar_permissions_required">Разрешить доступ к календарю</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
@@ -28,7 +29,7 @@
   <string name="add_calendar_title_hint">Название календаря</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
-  <string name="add_calendar_validating">Проверка источника календаря...</string>
+  <string name="add_calendar_validating">Проверка источника календаря…</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Изменить подписку</string>
   <string name="edit_calendar_cancel">Отмена</string>
@@ -60,6 +61,24 @@
   <string name="permission_required_external_storage">Необходимо разрешение на доступ к хранилищу для работы с локальными iCalendar файлами</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
+  <string name="app_info_version">Версия %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Эта программа является свободным программным обеспечением: Вы можете распространять ее и (или) изменять,
+соблюдая условия Генеральной публичной лицензии GNU, опубликованной
+Фондом свободного программного обеспечения; либо редакции 3 Лицензии, либо
+(на Ваше усмотрение) любой редакции, выпущенной позже.
+
+Эта программа распространяется в расчете на то, что она окажется полезной,
+но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, включая подразумеваемую гарантию
+КАЧЕСТВА либо ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Ознакомьтесь
+с Генеральной публичной лицензией GNU для получения более подробной информации.
+
+Вы должны были получить копию Генеральной публичной лицензии GNU
+вместе с этой программой. Если Вы ее не получили, то перейдите по адресу: <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+ ]]></string>
+  <string name="app_info_donate">Пожертвовать</string>
+  <string name="app_info_description">Подписаться на Webcal календари</string>
+  <string name="app_info_libraries">Библиотеки</string>
   <string name="app_info_twitter">Новости &amp; обновления</string>
   <string name="app_info_web_site">Веб страница</string>
   <string name="donate_title">Сведения об открытом коде</string>
