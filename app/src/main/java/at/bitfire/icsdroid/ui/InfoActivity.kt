@@ -16,6 +16,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.R
+import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 
 class InfoActivity: AppCompatActivity() {
@@ -37,6 +38,10 @@ class InfoActivity: AppCompatActivity() {
                 aboutDescription = getString(R.string.app_info_description)
                 aboutVersionString = getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR)
                 showLicense = true
+
+                // https://github.com/mikepenz/AboutLibraries/issues/490
+                withLibraryModification("org_brotli__dec", Libs.LibraryFields.LIBRARY_NAME, "Brotli")
+                withLibraryModification("org_brotli__dec", Libs.LibraryFields.AUTHOR_NAME, "Google")
             }
             builder.supportFragment()
 

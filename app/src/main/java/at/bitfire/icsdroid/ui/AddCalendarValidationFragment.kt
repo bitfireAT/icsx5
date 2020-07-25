@@ -48,7 +48,7 @@ class AddCalendarValidationFragment: DialogFragment() {
             if (errorMessage == null) {
                 titleColorModel.url.value = info.url.toString()
                 if (titleColorModel.color.value == null)
-                    titleColorModel.color.value = resources.getColor(R.color.colorPrimary)
+                    titleColorModel.color.value = resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.url?.file
