@@ -56,6 +56,10 @@ open class CalendarFetcher(
         if (++redirectCount > MAX_REDIRECT_COUNT)
             throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
+        // don't allow switching from HTTPS to a potentially insecure protocol (like HTTP)
+        if (url.protocol.equals("https", true) && !target.protocol.equals("https", true))
+            throw IOException("Received redirect from HTTPS to ${target.protocol}")
+
         // update URL if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
             when (httpCode) {
