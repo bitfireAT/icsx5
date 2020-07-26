@@ -77,6 +77,7 @@ class ProcessEventsTask(
             }
 
             override fun onNewPermanentUrl(target: URL) {
+                super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
                 calendar.updateUrl(target.toString())
             }

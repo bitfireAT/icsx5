@@ -104,7 +104,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
             Log.i(Constants.TAG, "Validating Webcal feed $originalUrl (authentication: $username)")
 
-            val info = ResourceInfo()
+            val info = ResourceInfo(originalUrl)
             val downloader = object: CalendarFetcher(getApplication(), originalUrl) {
                 override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->

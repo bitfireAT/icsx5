@@ -10,13 +10,13 @@ package at.bitfire.icsdroid.ui
 
 import java.net.URL
 
-class ResourceInfo {
+data class ResourceInfo(
 
-    var url: URL? = null
+    var url: URL,
 
-    var exception: Exception? = null
+    var exception: Exception? = null,
 
-    var calendarName: String? = null
-    var eventsFound = -1
+    var calendarName: String? = null,
+    var eventsFound: Int = 0
 
-}
+)

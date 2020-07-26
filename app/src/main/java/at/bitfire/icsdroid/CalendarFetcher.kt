@@ -3,6 +3,7 @@ package at.bitfire.icsdroid
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -50,7 +51,7 @@ open class CalendarFetcher(
     }
 
     open fun onRedirect(httpCode: Int, target: URL) {
-        url = target
+        Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
         // only network resources can be redirected
         if (++redirectCount > MAX_REDIRECT_COUNT)
@@ -60,7 +61,10 @@ open class CalendarFetcher(
         if (url.protocol.equals("https", true) && !target.protocol.equals("https", true))
             throw IOException("Received redirect from HTTPS to ${target.protocol}")
 
-        // update URL if this is a permanent redirect and we've never followed a temporary redirect
+        // update URL
+        url = target
+
+        // call onNewPermanentUrl if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
             when (httpCode) {
                 // 301: Moved Permanently, 308: Permanent Redirect
