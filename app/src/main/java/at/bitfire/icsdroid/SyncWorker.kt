@@ -12,11 +12,11 @@ import android.accounts.Account
 import android.annotation.SuppressLint
 import android.content.ContentProviderClient
 import android.content.Context
-import android.os.Build
 import android.provider.CalendarContract
 import android.util.Log
 import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
+import at.bitfire.ical4android.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.db.LocalCalendar
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -70,10 +70,7 @@ class SyncWorker(
                 return performSync(AppAccount.get(context), providerClient)
             } finally {
                 syncRunning.set(false)
-                if (Build.VERSION.SDK_INT >= 24)
-                    providerClient.close()
-                else
-                    providerClient.release()
+                providerClient.closeCompat()
             }
         }
         return Result.failure()
