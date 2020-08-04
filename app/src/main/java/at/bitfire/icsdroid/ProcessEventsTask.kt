@@ -88,7 +88,7 @@ class ProcessEventsTask(
             }
         }
 
-        CalendarCredentials(context).getCredentials(calendar).let { (username, password) ->
+        CalendarCredentials(context).get(calendar).let { (username, password) ->
             downloader.username = username
             downloader.password = password
         }

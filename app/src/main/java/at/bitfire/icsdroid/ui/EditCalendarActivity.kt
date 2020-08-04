@@ -128,7 +128,7 @@ class EditCalendarActivity: AppCompatActivity() {
 
         model.active.value = calendar.isSynced
 
-        val (username, password) = CalendarCredentials(this).getCredentials(calendar)
+        val (username, password) = CalendarCredentials(this).get(calendar)
         val requiresAuth = username != null && password != null
         credentialsModel.originalRequiresAuth = requiresAuth
         credentialsModel.requiresAuth.value = requiresAuth
@@ -164,9 +164,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 credentialsModel.let {
                     val credentials = CalendarCredentials(this)
                     if (it.requiresAuth.value == true)
-                        credentials.putCredentials(calendar, it.username.value, it.password.value)
+                        credentials.put(calendar, it.username.value, it.password.value)
                     else
-                        credentials.putCredentials(calendar, null, null)
+                        credentials.put(calendar, null, null)
                 }
 
                 success = true
@@ -190,7 +190,7 @@ class EditCalendarActivity: AppCompatActivity() {
         model.calendar.value?.let {
             try {
                 it.delete()
-                CalendarCredentials(this).putCredentials(it, null, null)
+                CalendarCredentials(this).put(it, null, null)
                 success = true
             } catch(e: CalendarStorageException) {
                 Log.e(Constants.TAG, "Couldn't delete calendar")
