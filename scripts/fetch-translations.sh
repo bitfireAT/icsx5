@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -A android
-android=([cs]=cs [de]=de [es]=es [fr]=fr [hu]=hu [nl]=nl [pt_BR]=pt-rBR [ru_UA]=ru [uk_UA]=uk [zh]=zh)
+android=([cs]=cs [de]=de [es]=es [fr]=fr [hu]=hu [nl]=nl [pt_BR]=pt-rBR [pt_PT]=pt-rPT [ru_UA]=ru [uk_UA]=uk [zh]=zh)
 
 BASE_DIR=`realpath -L $0 | xargs dirname`/..
 
