@@ -86,7 +86,7 @@ class AddCalendarDetailsFragment: Fragment() {
             client?.let {
                 val uri = AndroidCalendar.create(account, it, calInfo)
                 val calendar = LocalCalendar.findById(account, client, ContentUris.parseId(uri))
-                CalendarCredentials.putCredentials(requireActivity(), calendar, credentialsModel.username.value, credentialsModel.password.value)
+                CalendarCredentials(requireActivity()).putCredentials(calendar, credentialsModel.username.value, credentialsModel.password.value)
             }
             Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
             requireActivity().invalidateOptionsMenu()

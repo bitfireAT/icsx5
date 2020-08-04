@@ -34,26 +34,16 @@ class LocalCalendar private constructor(
         const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
         const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
 
-        @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
-        val COLUMN_USERNAME = Calendars.CAL_SYNC2
-        @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
-        val COLUMN_PASSWORD = Calendars.CAL_SYNC3
-
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
-                AndroidCalendar.findByID(account, provider, Factory, id)
+                findByID(account, provider, Factory, id)
 
         fun findAll(account: Account, provider: ContentProviderClient) =
-                AndroidCalendar.find(account, provider, Factory, null, null)
+                find(account, provider, Factory, null, null)
 
     }
 
     var url: String? = null             // URL of iCalendar file
     var eTag: String? = null            // iCalendar ETag at last successful sync
-
-    @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
-    var legacyUsername: String? = null        // HTTP username (or null if no auth. required)
-    @Deprecated("for compatibility only (read-only); see CalendarCredentials instead")
-    var legacyPassword: String? = null        // HTTP password (or null if no auth. required)
 
     var lastModified = 0L               // iCalendar Last-Modified at last successful sync (or 0 for none)
     var lastSync = 0L                   // time of last sync (0 if none)
@@ -63,9 +53,6 @@ class LocalCalendar private constructor(
     override fun populate(info: ContentValues) {
         super.populate(info)
         url = info.getAsString(Calendars.NAME)
-
-        legacyUsername = info.getAsString(COLUMN_USERNAME)
-        legacyPassword = info.getAsString(COLUMN_PASSWORD)
 
         eTag = info.getAsString(COLUMN_ETAG)
         info.getAsLong(COLUMN_LAST_MODIFIED)?.let { lastModified = it }
