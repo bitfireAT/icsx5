@@ -144,7 +144,7 @@ class ProcessEventsTask(
                         if (exLastModified == null) {
                             lastModified = null
                             break
-                        } else if (lastModified != null && exLastModified.dateTime.after(lastModified.date))
+                        } else if (lastModified != null && exLastModified.dateTime > lastModified.date)
                             lastModified = exLastModified
                     }
                 }

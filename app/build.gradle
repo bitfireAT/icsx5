@@ -71,7 +71,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
 
     implementation project(':cert4android')
     implementation project(':ical4android')
