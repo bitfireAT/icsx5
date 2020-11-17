@@ -8,13 +8,9 @@
 
 package at.bitfire.icsdroid.db
 
-import android.content.ContentProviderOperation.Builder
 import android.content.ContentValues
 import android.provider.CalendarContract
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.AndroidEvent
-import at.bitfire.ical4android.AndroidEventFactory
-import at.bitfire.ical4android.Event
+import at.bitfire.ical4android.*
 import net.fortuna.ical4j.model.DateTime
 import net.fortuna.ical4j.model.property.LastModified
 
@@ -49,7 +45,7 @@ class LocalEvent: AndroidEvent {
         }
     }
 
-    override fun buildEvent(recurrence: Event?, builder: Builder) {
+    override fun buildEvent(recurrence: Event?, builder: BatchOperation.CpoBuilder) {
         super.buildEvent(recurrence, builder)
 
         if (recurrence == null) {
