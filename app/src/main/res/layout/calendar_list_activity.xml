@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+        style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_margin="16dp"
         android:text="@string/calendar_list_empty_info"/>
 
@@ -46,7 +46,7 @@
         app:layout_anchor="@id/calendar_list"
         app:layout_anchorGravity="bottom|right|end"
         android:onClick="onAddCalendar"
-        android:tooltipText="@string/activity_add_calendar"
+        android:contentDescription="@string/activity_add_calendar"
         app:elevation="5dp"
         app:borderWidth="0dp"/>
 

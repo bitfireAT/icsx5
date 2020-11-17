@@ -6,7 +6,8 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="model" type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel"/>
     </data>
@@ -38,11 +39,11 @@
                 android:id="@+id/insecure_authentication_warning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_warning"
+                app:drawableStartCompat="@drawable/ic_warning"
                 android:drawablePadding="8dp"
                 android:padding="16dp"
                 android:text="@string/add_calendar_authentication_without_https_warning"
-                android:textAppearance="?android:attr/textAppearanceMedium"
+                style="@style/TextAppearance.MaterialComponents.Body1"
                 android:visibility="gone"/>
 
             <androidx.fragment.app.FragmentContainerView
