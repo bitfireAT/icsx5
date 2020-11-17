@@ -8,7 +8,7 @@
 
 buildscript {
     ext.versions = [
-        aboutLibs: '8.3.0',
+        aboutLibs: '8.5.0',
         kotlin: '1.4.10',
         okhttp: '4.9.0'
     ]
@@ -16,6 +16,9 @@ buildscript {
     repositories {
         jcenter()
         google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
