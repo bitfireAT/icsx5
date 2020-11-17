@@ -45,6 +45,9 @@
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
 
+    <!-- AlertFragment -->
+    <string name="alert_share_details">Share details</string>
+
     <!-- EditCalendarActivity -->
     <string name="activity_edit_calendar">Edit subscription</string>
     <string name="edit_calendar_cancel">Cancel</string>

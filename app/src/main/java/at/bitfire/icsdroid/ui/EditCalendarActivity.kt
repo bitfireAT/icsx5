@@ -43,6 +43,11 @@ import at.bitfire.icsdroid.db.LocalCalendar
 
 class EditCalendarActivity: AppCompatActivity() {
 
+    companion object {
+        const val ERROR_MESSAGE = "errorMessage"
+        const val THROWABLE = "errorThrowable"
+    }
+
     private val model by viewModels<CalendarModel>()
     private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
@@ -83,6 +88,11 @@ class EditCalendarActivity: AppCompatActivity() {
             } else {
                 Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
                 finish()
+            }
+
+            intent.getStringExtra(ERROR_MESSAGE)?.let { error ->
+                AlertFragment.create(error, intent.getSerializableExtra(THROWABLE) as? Throwable)
+                        .show(supportFragmentManager, null)
             }
         }
     }

@@ -34,9 +34,9 @@ class CredentialsFragment: Fragment() {
         binding.setVariable(BR.model, model)
 
         val v = binding.root
-        model.requiresAuth.observe(viewLifecycleOwner, Observer { requiresAuth ->
+        model.requiresAuth.observe(viewLifecycleOwner) { requiresAuth ->
             v.inputs.visibility = if (requiresAuth) View.VISIBLE else View.GONE
-        })
+        }
 
         return v
     }

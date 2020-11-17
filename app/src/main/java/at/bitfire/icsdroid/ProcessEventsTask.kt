@@ -10,7 +10,7 @@ import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
-import at.bitfire.icsdroid.ui.CalendarListActivity
+import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import okhttp3.MediaType
 import java.io.InputStream
@@ -53,7 +53,7 @@ class ProcessEventsTask(
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(calendar.id.toString(), 0)
-        var errorMessage: String? = null
+        var exception: Throwable? = null
 
         val downloader = object: CalendarFetcher(context, url) {
             override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
@@ -66,7 +66,7 @@ class ProcessEventsTask(
                         calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
-                        errorMessage = e.localizedMessage
+                        exception = e
                     }
                 }
             }
@@ -84,7 +84,7 @@ class ProcessEventsTask(
 
             override fun onError(error: Exception) {
                 Log.w(Constants.TAG, "Sync error", error)
-                errorMessage = error.localizedMessage
+                exception = error
             }
         }
 
@@ -100,22 +100,29 @@ class ProcessEventsTask(
 
         downloader.run()
 
-        errorMessage?.let { msg ->
+        exception?.let { ex ->
+            val message = ex.localizedMessage ?: ex.message ?: ex.toString()
+
+            val errorIntent = Intent(context, EditCalendarActivity::class.java)
+            errorIntent.data = calendar.calendarSyncURI()
+            errorIntent.putExtra(EditCalendarActivity.ERROR_MESSAGE, message)
+            errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
+
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                     .setSmallIcon(R.drawable.ic_sync_problem_white)
                     .setCategory(NotificationCompat.CATEGORY_ERROR)
                     .setGroup(context.getString(R.string.app_name))
                     .setContentTitle(context.getString(R.string.sync_error_title))
-                    .setContentText(msg)
+                    .setContentText(message)
                     .setSubText(calendar.displayName)
-                    .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, CalendarListActivity::class.java), 0))
+                    .setContentIntent(PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .setOnlyAlertOnce(true)
             calendar.color?.let { notification.color = it }
             notificationManager.notify(calendar.id.toString(), 0, notification.build())
 
-            calendar.updateStatusError(msg)
+            calendar.updateStatusError(message)
         }
     }
 

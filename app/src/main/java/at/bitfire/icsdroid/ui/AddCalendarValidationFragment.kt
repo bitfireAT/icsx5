@@ -44,22 +44,24 @@ class AddCalendarValidationFragment: DialogFragment() {
         validationModel.result.observe(this, Observer { info ->
             requireDialog().dismiss()
 
-            val errorMessage = info.exception?.localizedMessage
-            if (errorMessage == null) {
+            val exception = info.exception
+            if (exception == null) {
                 titleColorModel.url.value = info.url.toString()
                 if (titleColorModel.color.value == null)
                     titleColorModel.color.value = resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
-                    titleColorModel.title.value = info.calendarName ?: info.url?.file
+                    titleColorModel.title.value = info.calendarName ?: info.url.file
 
                 parentFragmentManager
                         .beginTransaction()
                         .replace(android.R.id.content, AddCalendarDetailsFragment())
                         .addToBackStack(null)
                         .commitAllowingStateLoss()
-            } else
-                AlertFragment.create(errorMessage).show(parentFragmentManager, null)
+            } else {
+                val errorMessage = exception.localizedMessage ?: exception.message ?: exception.toString()
+                AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
+            }
         })
 
         val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
@@ -124,7 +126,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                 }
 
                 override fun onError(error: Exception) {
-                    Log.e(Constants.TAG, "Couldn't validate calendar: $error")
+                    Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
                     result.postValue(info)
                 }
