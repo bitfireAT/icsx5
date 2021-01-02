@@ -143,6 +143,7 @@ class ProcessEventsTask(
             } else {
                 val localEvent = localEvents.first()
                 var lastModified = event.lastModified
+                Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
                 if (lastModified != null) {
                     // process LAST-MODIFIED of exceptions
@@ -156,10 +157,11 @@ class ProcessEventsTask(
                     }
                 }
 
-                if (lastModified == null || lastModified.dateTime.time > localEvent.lastModified)
+                if (lastModified == null || lastModified.dateTime.time > localEvent.lastModified) {
                     // either there is no LAST-MODIFIED, or LAST-MODIFIED has been increased
+                    Log.d(Constants.TAG, "Updating $uid in local calendar")
                     localEvent.update(event)
-                else
+                } else
                     Log.d(Constants.TAG, "$uid has not been modified since last sync")
             }
         }

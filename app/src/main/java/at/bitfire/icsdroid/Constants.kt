@@ -11,6 +11,7 @@ package at.bitfire.icsdroid
 import android.os.Build
 import at.bitfire.ical4android.Ical4Android
 import okhttp3.OkHttp
+import java.util.logging.Logger
 
 object Constants {
 
