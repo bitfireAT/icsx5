@@ -1,15 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="account_name">Naptár-előfizetések</string>
   <!--common strings-->
   <string name="action_next">Következő</string>
+  <string name="calendar_permissions_required">Naptár-engedélyre van szükség</string>
+  <string name="notification_channel_sync_problem">Szinkronizációs probléma</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Előfizetéseim</string>
+  <string name="calendar_list_empty_info">Egy Webcal folyamra a + gomb használatával vagy a Webcal URL megnyitásával iratkozhat fel.</string>
   <string name="calendar_list_info">Névjegy</string>
   <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>
   <string name="calendar_list_set_sync_interval">Szinkronizáció sűrűségének megadása</string>
   <string name="calendar_list_sync_disabled">Szinkronizáció tiltva</string>
+  <string name="calendar_list_sync_interval_manually">Az automatikus szinkronizáció tiltva</string>
+  <string name="calendar_list_master_sync_disabled">Az automatikus szinkronizálás rendszerszinten tiltva</string>
+  <string name="calendar_list_master_sync_enable">Aktiválás</string>
+  <string name="calendar_list_battery_whitelist">Akkumulátor: a gyakori szinkronizációhoz helyezze az ICSx⁵ alkalmazást engedélylistára</string>
+  <string name="calendar_list_battery_whitelist_settings">Beállítások</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Feliratkozás egy naptárra</string>
+  <string name="add_calendar_need_valid_uri">Érvényes URI-re van szükség</string>
   <string name="add_calendar_authentication_without_https_warning">Harmadik felek hozzáférhetnek a felhasználói azonosítókhoz.  A biztonságos kapcsolathoz használjon HTTPS protokollt.</string>
   <string name="add_calendar_create">Feliratkozás most</string>
   <string name="add_calendar_created">A feliratkozás sikeres</string>
@@ -25,18 +35,51 @@
   <string name="edit_calendar_cancel">Megszakít</string>
   <string name="edit_calendar_delete">Előfizetés törlése</string>
   <string name="edit_calendar_deleted">Az előfizetés törlése sikeres</string>
+  <string name="edit_calendar_dismiss">Mégse</string>
   <string name="edit_calendar_failed">A művelet sikertelen</string>
   <string name="edit_calendar_really_delete">Valóban szeretné az előfizetést törölni?</string>
   <string name="edit_calendar_save">Mentés</string>
   <string name="edit_calendar_saved">Változások mentve</string>
+  <string name="edit_calendar_send_url">URL küldése</string>
   <string name="edit_calendar_sync_this_calendar">A naptár szinkronizálása</string>
   <string name="edit_calendar_unsaved_changes">Vannak el nem mentett változások</string>
   <!--synchronization-->
   <string name="sync_error_title">Szinkronizációs hiba</string>
   <string name="set_sync_interval_save">Mentés</string>
   <string name="set_sync_interval_title">Szinkronizáció sűrűségének megadása:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Manális</item>
+    <item>15 percenként</item>
+    <item>Óránként</item>
+    <item>Kétóránként</item>
+    <item>Négyóránként</item>
+    <item>Naponta</item>
+    <item>Hetente</item>
+  </string-array>
+  <string name="sync_permission_required">Szükséges engedélyek</string>
+  <string name="sync_permission_required_sync_calendar">A naptár szinkronizálásához szükséges engedélyek hiányoznak</string>
+  <string name="permission_required_external_storage">A helyi iCalendar fájlok eléréséhez tárhely-engedélyre van szükség</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Alkalmazásinformáció</string>
+  <string name="app_info_version">Verziószám: %1$s-%2$s </string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Ez a program szabad szoftver; terjeszthető illetve módosítható
+a Free Software Foundation által kiadott GNU General Public License
+dokumentumában leírtak; akár a licenc 3-as, akár (tetszőleges) későbbi
+változata szerint. 
+
+Ez a program abban a reményben kerül közreadásra, hogy hasznos lesz, de 
+MINDEN EGYÉB GARANCIA NÉLKÜL, az eladhatóságra vagy valamely célra 
+való alkalmazhatóságra való származtatott garanciát is beleértve. További
+részleteket a GNU General Public License tartalmaz.
+
+E programmal együtt meg kellett kapnia  GNU General Public License egy példányát.
+Ha nem, megtalálja a <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a> címen.
+    ]]></string>
+  <string name="app_info_donate">Támogatás</string>
+  <string name="app_info_description">Feliratkozás egy Webcal folyamra</string>
+  <string name="app_info_libraries">Könyvtárak</string>
+  <string name="app_info_twitter"> Hírek és frissítések</string>
   <string name="app_info_web_site">Honlap</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>
   <string name="donate_message">Örülünk, hogy használja a ICSx⁵ot. A ICSx⁵ nyílt forráskódú (GPLv3) szoftver, de a fejlesztése kemény munkát jelentett és jelent, ezért kérjük, fontolja meg, hogy támogassa munkánkat.</string>
