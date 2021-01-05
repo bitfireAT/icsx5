@@ -21,8 +21,8 @@ object AppAccount {
     const val DEFAULT_SYNC_INTERVAL = 24*3600L   // 1 day
     const val SYNC_INTERVAL_MANUALLY = -1L
 
-    const val PREF_ACCOUNT = "account"
-    const val KEY_SYNC_INTERVAL = "syncInterval"
+    private const val PREF_ACCOUNT = "account"
+    private const val KEY_SYNC_INTERVAL = "syncInterval"
 
     var account: Account? = null
 

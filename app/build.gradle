@@ -21,8 +21,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
 
-        versionCode 49
-        versionName "1.9.1-beta1"
+        versionCode 50
+        versionName "1.9.1"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
     }
