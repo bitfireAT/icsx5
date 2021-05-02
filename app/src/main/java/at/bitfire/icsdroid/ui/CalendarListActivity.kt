@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -100,6 +101,7 @@ class CalendarListActivity:
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
             getModel()
         else {
@@ -111,6 +113,11 @@ class CalendarListActivity:
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_calendar_list, menu)
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.force_dark_mode).isChecked = Settings(this).forceDarkMode()
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -200,6 +207,18 @@ class CalendarListActivity:
 
     fun onSetSyncInterval(item: MenuItem) {
         SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
+    }
+
+    fun onToggleDarkMode(item: MenuItem) {
+        val settings = Settings(this)
+        val newMode = !settings.forceDarkMode()
+        settings.forceDarkMode(newMode)
+        AppCompatDelegate.setDefaultNightMode(
+                if (newMode)
+                    AppCompatDelegate.MODE_NIGHT_YES
+                else
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
     }
 
 

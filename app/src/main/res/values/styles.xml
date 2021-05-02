@@ -14,13 +14,11 @@
     <color name="redorange">#ff2200</color>
     
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/lightblue</item>
         <item name="colorPrimaryDark">@color/darkblue</item>
-        <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorSecondary">@color/redorange</item>
         <item name="colorOnSecondary">@android:color/white</item>
-        <item name="colorSurface">@android:color/white</item>
     </style>
 
 </resources>
