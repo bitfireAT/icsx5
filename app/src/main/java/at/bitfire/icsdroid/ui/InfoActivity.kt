@@ -39,6 +39,7 @@ class InfoActivity: AppCompatActivity() {
                 aboutVersionString = getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR)
                 showLicense = true
 
+                withFields(R.string::class.java.fields)
                 // https://github.com/mikepenz/AboutLibraries/issues/490
                 withLibraryModification("org_brotli__dec", Libs.LibraryFields.LIBRARY_NAME, "Brotli")
                 withLibraryModification("org_brotli__dec", Libs.LibraryFields.AUTHOR_NAME, "Google")
