@@ -17,6 +17,7 @@
   <string name="calendar_list_master_sync_enable">Actief</string>
   <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSx⁵ voor korte syncintervallen</string>
   <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
+  <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Abonneer op een kalender</string>
   <string name="add_calendar_need_valid_uri">Geldige URL is vereist</string>
@@ -30,6 +31,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
   <string name="add_calendar_validating">Kalenderbron aan het valideren…</string>
+  <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Bewerk abonnement</string>
   <string name="edit_calendar_cancel">Annuleer</string>

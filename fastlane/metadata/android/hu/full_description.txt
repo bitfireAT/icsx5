@@ -1,0 +1,11 @@
+Az ICSx⁵ lehetővé teszi, hogy külső (Webcal) és helyi (például Dropbox, adb push stb.) iCalendar/.ics fájlokat adjon hozzá az androidos eszközéhez.
+
+Adja hozzá a kiemelt napjait és az ünnepnapokat, a sportcsapata eseményeit, az iskolai/egyetemi órarendjét vagy bármely más eseményt, amely ics/ical formátumban van. Az alkalmazás importálja ezeket Önnek, és megjeleníti a kedvenc androidos naptáralkalmazásában – zökkenőmentesen beépül az eszközére.
+
+* Iratkozzon fel Webcal folyamokra (= szinkronizáljon szabályos időközönként), például az icloud.comon megosztott naptáraira.
+* Iratkozzon fel helyi .ics (iCalendar) naptárfájlokra.
+* Lehetővé teszi, hogy webcal:// és webcals:// URL-eket nyisson meg, például a webböngészőjével.
+* Zökkenőmentes integráció más naptáralkalmazásokkal.
+* Állítson be szinkronizálási ütemtervet.
+* Intelligens frissítésellenőrző, hogy spóroljon a sávszélességgel.
+* A hitelesítés és a HTTPS is támogatott.

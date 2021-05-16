@@ -16,6 +16,7 @@
   <string name="calendar_list_master_sync_enable">Активувати</string>
   <string name="calendar_list_battery_whitelist">Батарея: вимкніть обмеження для ICSx⁵ для частішої синхронізації</string>
   <string name="calendar_list_battery_whitelist_settings">Налаштування</string>
+  <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Підписатися на календар</string>
   <string name="add_calendar_need_valid_uri">Потрібен дійсний URI</string>
@@ -29,6 +30,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Ім\'я користувача</string>
   <string name="add_calendar_validating">Перевіряємо джерело календаря…</string>
+  <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Правити підписку</string>
   <string name="edit_calendar_cancel">Відміна</string>

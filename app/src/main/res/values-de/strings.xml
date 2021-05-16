@@ -18,6 +18,8 @@
   <string name="calendar_list_battery_whitelist">Für kurze Intervalle: Akku-Optimierung für
 ICSx⁵ deaktivieren</string>
   <string name="calendar_list_battery_whitelist_settings">Einstellungen</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Dunklen Stil verwenden</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Kalender abonnieren</string>
   <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
@@ -31,6 +33,8 @@ ICSx⁵ deaktivieren</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Details teilen</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Kalender-Abo bearbeiten</string>
   <string name="edit_calendar_cancel">Abbrechen</string>

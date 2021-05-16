@@ -17,6 +17,7 @@
   <string name="calendar_list_master_sync_enable">Activar</string>
   <string name="calendar_list_battery_whitelist">Batería: Meter ICSx⁵ en lista blanca para intervalos de sinc. cortos</string>
   <string name="calendar_list_battery_whitelist_settings">Configuración</string>
+  <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Suscribirse a calendario</string>
   <string name="add_calendar_need_valid_uri">Se requiere una URI válida</string>
@@ -30,6 +31,7 @@
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Nombre de usuario</string>
   <string name="add_calendar_validating">Validando recurso de calendario…</string>
+  <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar suscripción</string>
   <string name="edit_calendar_cancel">Cancelar</string>

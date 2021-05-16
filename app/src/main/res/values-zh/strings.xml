@@ -17,6 +17,7 @@
   <string name="calendar_list_master_sync_enable">启用</string>
   <string name="calendar_list_battery_whitelist">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
   <string name="calendar_list_battery_whitelist_settings">设置</string>
+  <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">订阅至日历</string>
   <string name="add_calendar_need_valid_uri">URI无效</string>
@@ -30,6 +31,7 @@
   <string name="add_calendar_url">URL地址</string>
   <string name="add_calendar_user_name">用户名</string>
   <string name="add_calendar_validating">正在验证日历…</string>
+  <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">编辑订阅</string>
   <string name="edit_calendar_cancel">取消</string>
