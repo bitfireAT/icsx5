@@ -10,7 +10,7 @@ cache:
 
 test:
   script:
-    - ./gradlew app:check app:connectedCheck
+    - ./gradlew app:lint
   artifacts:
     paths:
       - app/build/outputs/lint-results-debug.html
