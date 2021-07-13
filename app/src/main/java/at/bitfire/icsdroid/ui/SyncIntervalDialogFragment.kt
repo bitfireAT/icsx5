@@ -15,7 +15,7 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.R
-import kotlinx.android.synthetic.main.set_sync_interval.view.*
+import at.bitfire.icsdroid.databinding.SetSyncIntervalBinding
 
 class SyncIntervalDialogFragment: DialogFragment() {
 
@@ -27,15 +27,15 @@ class SyncIntervalDialogFragment: DialogFragment() {
         val syncIntervalSeconds = requireActivity().resources.getStringArray(R.array.set_sync_interval_seconds)
                 .map { it.toLong() }
 
-        val v = requireActivity().layoutInflater.inflate(R.layout.set_sync_interval, null)
+        val binding = SetSyncIntervalBinding.inflate(requireActivity().layoutInflater)
 
         val currentSyncInterval = AppAccount.syncInterval(requireActivity())
         if (syncIntervalSeconds.contains(currentSyncInterval))
-            v.sync_interval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
+            binding.syncInterval.setSelection(syncIntervalSeconds.indexOf(currentSyncInterval))
 
-        builder .setView(v)
+        builder .setView(binding.root)
                 .setPositiveButton(R.string.set_sync_interval_save) { _, _ ->
-                    AppAccount.syncInterval(requireActivity(), syncIntervalSeconds[v.sync_interval.selectedItemPosition])
+                    AppAccount.syncInterval(requireActivity(), syncIntervalSeconds[binding.syncInterval.selectedItemPosition])
                 }
 
         return builder.create()

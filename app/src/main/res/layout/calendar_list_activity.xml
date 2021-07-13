@@ -5,49 +5,60 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
+    <data>
+        <variable name="model" type="at.bitfire.icsdroid.ui.CalendarListActivity.CalendarModel" />
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ListView
-            android:id="@+id/calendar_list"
-            android:scrollbars="vertical"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent">
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/calendar_list"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:adapter="@{model.calendarAdapter}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:visibility="@{model.calendars.empty ? View.GONE : View.VISIBLE }" />
 
-    <TextView
-        android:id="@+id/emptyInfo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        style="@style/TextAppearance.MaterialComponents.Body1"
-        android:layout_margin="16dp"
-        android:text="@string/calendar_list_empty_info"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_add"
-        app:layout_anchor="@id/calendar_list"
-        app:layout_anchorGravity="bottom|right|end"
-        android:onClick="onAddCalendar"
-        android:contentDescription="@string/activity_add_calendar"
-        app:elevation="5dp"
-        app:borderWidth="0dp"/>
+        <TextView
+            android:id="@+id/emptyInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_margin="16dp"
+            android:text="@string/calendar_list_empty_info"
+            android:visibility="@{model.calendars.empty ? View.VISIBLE : View.GONE }" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_add"
+            app:layout_anchor="@id/calendar_list"
+            app:layout_anchorGravity="bottom|right|end"
+            android:onClick="onAddCalendar"
+            android:contentDescription="@string/activity_add_calendar"
+            app:elevation="5dp"
+            app:borderWidth="0dp"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

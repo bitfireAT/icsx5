@@ -14,15 +14,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.core.app.ActivityCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
-import kotlinx.android.synthetic.main.add_calendar_enter_url.view.*
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.*
@@ -31,6 +28,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+    private lateinit var binding: AddCalendarEnterUrlBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val invalidate = Observer<Any> {
@@ -45,9 +43,9 @@ class AddCalendarEnterUrlFragment: Fragment() {
             it.observe(viewLifecycleOwner, invalidate)
         }
 
-        val binding = DataBindingUtil.inflate<AddCalendarEnterUrlBinding>(inflater, R.layout.add_calendar_enter_url, container, false)
+        binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.setVariable(BR.model, titleColorModel)
+        binding.model = titleColorModel
 
         setHasOptionsMenu(true)
         return binding.root
@@ -144,13 +142,13 @@ class AddCalendarEnterUrlFragment: Fragment() {
             }
 
             // warn if auth. required and not using HTTPS
-            view.insecure_authentication_warning.visibility =
+            binding.insecureAuthenticationWarning.visibility =
                     if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
                         View.VISIBLE
                     else
                         View.GONE
         } finally {
-            view.url.error = errorMsg
+            binding.url.error = errorMsg
         }
         return url
     }

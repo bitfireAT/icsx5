@@ -13,16 +13,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import at.bitfire.icsdroid.BR
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
 import at.bitfire.icsdroid.db.LocalCalendar
-import kotlinx.android.synthetic.main.title_color.view.*
 
 class TitleColorFragment: Fragment() {
 
@@ -30,19 +26,18 @@ class TitleColorFragment: Fragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val binding = DataBindingUtil.inflate<TitleColorBinding>(inflater, R.layout.title_color, container, false)
+        val binding = TitleColorBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.setVariable(BR.model, model)
+        binding.model = model
 
-        val v = binding.root
-        v.color.setOnClickListener {
+        binding.color.setOnClickListener {
             val intent = Intent(requireActivity(), ColorPickerActivity::class.java)
             model.color.value?.let {
                 intent.putExtra(ColorPickerActivity.EXTRA_COLOR, it)
             }
             startActivityForResult(intent, 0)
         }
-        return v
+        return binding.root
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {

@@ -12,15 +12,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import at.bitfire.icsdroid.BR
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.CredentialsBinding
-import kotlinx.android.synthetic.main.credentials.view.*
 
 class CredentialsFragment: Fragment() {
 
@@ -28,16 +24,15 @@ class CredentialsFragment: Fragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val binding = DataBindingUtil.inflate<CredentialsBinding>(inflater, R.layout.credentials, container, false)
+        val binding = CredentialsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.setVariable(BR.model, model)
+        binding.model = model
 
-        val v = binding.root
         model.requiresAuth.observe(viewLifecycleOwner) { requiresAuth ->
-            v.inputs.visibility = if (requiresAuth) View.VISIBLE else View.GONE
+            binding.inputs.visibility = if (requiresAuth) View.VISIBLE else View.GONE
         }
 
-        return v
+        return binding.root
     }
 
     class CredentialsModel : ViewModel() {

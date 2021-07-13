@@ -34,7 +34,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.BR
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
@@ -77,7 +76,7 @@ class EditCalendarActivity: AppCompatActivity() {
 
         val binding = DataBindingUtil.setContentView<EditCalendarBinding>(this, R.layout.edit_calendar)
         binding.lifecycleOwner = this
-        binding.setVariable(BR.model, model)
+        binding.model = model
 
         if (inState == null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&

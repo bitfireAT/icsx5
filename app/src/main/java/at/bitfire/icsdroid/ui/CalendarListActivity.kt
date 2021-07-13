@@ -23,37 +23,35 @@ import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.*
+import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
+import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.LocalCalendar
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.calendar_list_activity.*
-import kotlinx.android.synthetic.main.calendar_list_item.view.*
 import java.text.DateFormat
 import java.util.*
-import kotlin.concurrent.thread
 
-class CalendarListActivity:
-        AppCompatActivity(),
-        AdapterView.OnItemClickListener,
-        SwipeRefreshLayout.OnRefreshListener {
+class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private val model by viewModels<CalendarModel>()
-    private var listAdapter: CalendarListAdapter? = null
+    private lateinit var binding: CalendarListActivityBinding
 
     private var snackBar: Snackbar? = null
 
@@ -61,28 +59,45 @@ class CalendarListActivity:
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.title_activity_calendar_list)
-        setContentView(R.layout.calendar_list_activity)
 
-        refresh.setColorSchemeColors(resources.getColor(R.color.lightblue))
-        refresh.setOnRefreshListener(this)
-        refresh.setSize(SwipeRefreshLayout.LARGE)
+        binding = DataBindingUtil.setContentView(this, R.layout.calendar_list_activity)
+        binding.lifecycleOwner = this
+        binding.model = model
 
-        listAdapter = CalendarListAdapter(this)
-        calendar_list.adapter = listAdapter
-        calendar_list.onItemClickListener = this
-        calendar_list.emptyView = emptyInfo
+        val defaultRefreshColor = resources.getColor(R.color.lightblue)
+        binding.refresh.setColorSchemeColors(defaultRefreshColor)
+        binding.refresh.setOnRefreshListener(this)
+        binding.refresh.setSize(SwipeRefreshLayout.LARGE)
+
+        model.askForPermissions.observe(this) { ask ->
+            if (ask)
+                ActivityCompat.requestPermissions(this, CalendarModel.PERMISSIONS, 0)
+        }
+
+        model.isRefreshing.observe(this) { isRefreshing ->
+            binding.refresh.isRefreshing = isRefreshing
+        }
+
+        model.calendars.observe(this) { calendars ->
+            model.calendarAdapter.submitList(calendars)
+
+            val colors = mutableSetOf<Int>()
+            colors += defaultRefreshColor
+            colors.addAll(calendars.mapNotNull { it.color })
+            binding.refresh.setColorSchemeColors(*colors.toIntArray())
+        }
+        model.calendarAdapter.clickListener = { calendar ->
+            val intent = Intent(this, EditCalendarActivity::class.java)
+            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            startActivity(intent)
+        }
+        model.reinit()
 
         // startup fragments
         if (savedInstanceState == null)
             ServiceLoader
-                    .load(StartupFragment::class.java)
-                    .forEach { it.initialize(this) }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED)
-            getModel()
-        else
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
+                .load(StartupFragment::class.java)
+                .forEach { it.initialize(this) }
 
         // check sync settings when sync interval has been edited
         supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
@@ -91,19 +106,12 @@ class CalendarListActivity:
                     checkSyncSettings()
             }
         }, false)
-
-        // observe whether a sync is running
-        SyncWorker.liveStatus(this).observe(this, Observer { statuses ->
-            val running = statuses.any { it.state == WorkInfo.State.RUNNING }
-            Log.d(Constants.TAG, "Sync running: $running")
-            refresh.isRefreshing = running
-        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            getModel()
+            model.reinit()
         else {
             Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
             finish()
@@ -120,14 +128,6 @@ class CalendarListActivity:
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-        val calendar = parent.getItemAtPosition(position) as LocalCalendar
-
-        val i = Intent(this, EditCalendarActivity::class.java)
-        i.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
-        startActivity(i)
-    }
-
     override fun onResume() {
         super.onResume()
         checkSyncSettings()
@@ -141,53 +141,34 @@ class CalendarListActivity:
         when {
             // periodic sync not enabled
             AppAccount.syncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
-                snackBar = Snackbar.make(coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE)
-                snackBar?.show()
+                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE).also {
+                    it.show()
+                }
             }
 
             // automatic sync not enabled
             !ContentResolver.getMasterSyncAutomatically() -> {
-                snackBar = Snackbar.make(coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
+                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.calendar_list_master_sync_enable) {
                             ContentResolver.setMasterSyncAutomatically(true)
+                        }.also {
+                            it.show()
                         }
-                snackBar?.show()
             }
 
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
             Build.VERSION.SDK_INT >= 23 &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
                     AppAccount.syncInterval(this) < 86400 -> {
-                snackBar = Snackbar.make(coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
+                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.calendar_list_battery_whitelist_settings) {
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             startActivity(intent)
+                        }.also {
+                            it.show()
                         }
-                snackBar?.show()
             }
         }
-    }
-
-    private fun getModel() {
-        model.calendars.observe(this, Observer { calendars ->
-            listAdapter?.clear()
-
-            if (calendars.isNotEmpty()) {
-                listAdapter?.addAll(calendars)
-
-                val requiresStoragePermission =
-                        calendars.any {
-                            it.url?.startsWith("file:", true) ?: false
-                        }
-                if (requiresStoragePermission && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
-
-                // funny: use the calendar colors for the sync status indicator
-                val colors = calendars.mapNotNull { it.color }.map { it or 0xff000000.toInt() }
-                if (colors.isNotEmpty())
-                    refresh?.setColorSchemeColors(*colors.toIntArray())
-            }
-        })
     }
 
 
@@ -222,85 +203,147 @@ class CalendarListActivity:
     }
 
 
-    /**
-     * Data model for this view. Must only be created when the app has calendar permissions!
-     */
-    class CalendarModel(
-            application: Application
-    ): AndroidViewModel(application) {
-        val calendars = CalendarLiveData(application)
-    }
-
-    class CalendarLiveData(
+    class CalendarListAdapter(
             val context: Context
-    ): LiveData<List<LocalCalendar>>() {
-        private val resolver = context.contentResolver
+    ): ListAdapter<LocalCalendar, CalendarListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<LocalCalendar>() {
 
-        private val observer = object: ContentObserver(null) {
-            override fun onChange(selfChange: Boolean) {
-                loadData()
+        override fun areItemsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
+                oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
+                // compare all displayed fields
+                oldItem.url == newItem.url &&
+                oldItem.displayName == newItem.displayName &&
+                oldItem.isSynced == newItem.isSynced &&
+                oldItem.lastSync == newItem.lastSync &&
+                oldItem.color == newItem.color &&
+                oldItem.errorMessage == newItem.errorMessage
+
+    }) {
+
+        class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
+
+
+        var clickListener: ((LocalCalendar) -> Unit)? = null
+
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            Log.i(Constants.TAG, "Creating view holder")
+            val binding = CalendarListItemBinding.inflate(LayoutInflater.from(context), parent, false)
+            return ViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val calendar = currentList[position]
+
+            holder.binding.root.setOnClickListener {
+                clickListener?.let { listener ->
+                    listener(calendar)
+                }
             }
-        }
 
-        override fun onActive() {
-            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, observer)
-            loadData()
-        }
+            holder.binding.apply {
+                url.text = calendar.url
+                title.text = calendar.displayName
 
-        override fun onInactive() {
-            resolver.unregisterContentObserver(observer)
-        }
-
-        fun loadData() {
-            thread {
-                val provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-                if (provider != null)
-                    try {
-                        postValue(LocalCalendar.findAll(AppAccount.get(context), provider))
-                    } catch(e: CalendarStorageException) {
-                        Log.e(Constants.TAG, "Couldn't load calendar list", e)
-                    } finally {
-                        provider.release()
-                    }
-            }
-        }
-    }
-
-
-    private class CalendarListAdapter(
-            context: Context
-    ): ArrayAdapter<LocalCalendar>(context, R.layout.calendar_list_item) {
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val v = convertView ?:
-            LayoutInflater.from(context).inflate(R.layout.calendar_list_item, parent, false)
-
-            val calendar = getItem(position)!!
-            v.url.text = calendar.url
-            v.title.text = calendar.displayName
-
-            v.sync_status.text =
+                syncStatus.text =
                     if (!calendar.isSynced)
                         context.getString(R.string.calendar_list_sync_disabled)
                     else {
                         if (calendar.lastSync == 0L)
                             context.getString(R.string.calendar_list_not_synced_yet)
                         else
-                            DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT).format(Date(calendar.lastSync))
+                            DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
+                                .format(Date(calendar.lastSync))
                     }
 
-            calendar.color?.let { v.color.setColor(it) }
+                calendar.color?.let {
+                    color.setColor(it)
+                }
+            }
 
             val errorMessage = calendar.errorMessage
             if (errorMessage == null)
-                v.error_message.visibility = View.GONE
+                holder.binding.errorMessage.visibility = View.GONE
             else {
-                v.error_message.text = errorMessage
-                v.error_message.visibility = View.VISIBLE
+                holder.binding.errorMessage.text = errorMessage
+                holder.binding.errorMessage.visibility = View.VISIBLE
             }
-
-            return v
         }
+
+    }
+
+
+    /**
+     * Data model for this view. Must only be created when the app has calendar permissions!
+     */
+    class CalendarModel(
+        application: Application
+    ): AndroidViewModel(application) {
+
+        companion object {
+            val PERMISSIONS = arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR)
+        }
+
+        private val resolver = application.contentResolver
+
+        val askForPermissions = MutableLiveData(false)
+
+        /** whether there are running sync workers */
+        val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
+            workInfos.any { it.state == WorkInfo.State.RUNNING }
+        }
+
+        val calendars = MutableLiveData<List<LocalCalendar>>()
+        val calendarAdapter = CalendarListAdapter(application)
+        private var observer: ContentObserver? = null
+
+
+        fun reinit() {
+            val havePermissions = PERMISSIONS.all { ActivityCompat.checkSelfPermission(getApplication(), it) == PackageManager.PERMISSION_GRANTED }
+            askForPermissions.value = !havePermissions
+
+            if (havePermissions && observer == null)
+                startWatchingCalendars()
+        }
+
+        override fun onCleared() {
+            stopWatchingCalendars()
+        }
+
+
+        private fun startWatchingCalendars() {
+            val newObserver = object: ContentObserver(null) {
+                override fun onChange(selfChange: Boolean) {
+                    loadCalendars()
+                }
+            }
+            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, newObserver)
+            observer = newObserver
+
+            loadCalendars()
+        }
+
+        private fun stopWatchingCalendars() {
+            observer?.let {
+                resolver.unregisterContentObserver(it)
+                observer = null
+            }
+        }
+
+        private fun loadCalendars() {
+            val provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+            if (provider != null)
+                try {
+                    val result = LocalCalendar.findAll(AppAccount.get(getApplication()), provider)
+                    calendars.postValue(result)
+                } catch(e: CalendarStorageException) {
+                    Log.e(Constants.TAG, "Couldn't load calendar list", e)
+                } finally {
+                    provider.release()
+                }
+        }
+
     }
 
 }
