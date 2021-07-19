@@ -1,0 +1,14 @@
+[main]
+host = https://www.transifex.com
+
+[icsx5.icsx5]
+file_filter = app/src/main/res/values-<lang>/strings.xml
+minimum_perc = 0
+source_file = app/src/main/res/values/strings.xml
+source_lang = en
+trans.pt_PT = app/src/main/res/values-pt/strings.xml
+trans.pt_BR = app/src/main/res/values-pt-rBR/strings.xml
+trans.ru_UA = app/src/main/res/values-ru/strings.xml
+trans.uk_UA = app/src/main/res/values-uk/strings.xml
+type = ANDROID
+

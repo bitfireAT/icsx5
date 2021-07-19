@@ -30,7 +30,7 @@
   <string name="add_calendar_title_hint">Nome de calendário</string>
   <string name="add_calendar_url">Endereço/URL</string>
   <string name="add_calendar_user_name">Nome de utilizador</string>
-  <string name="add_calendar_validating">A validar calendário…</string>
+  <string name="add_calendar_validating">A validar calendário...</string>
   <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar subscrição</string>

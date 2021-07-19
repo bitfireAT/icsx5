@@ -30,7 +30,7 @@
   <string name="add_calendar_title_hint">Kalendernaam</string>
   <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
-  <string name="add_calendar_validating">Kalenderbron aan het valideren…</string>
+  <string name="add_calendar_validating">Kalenderbron aan het valideren...</string>
   <!--AlertFragment-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Bewerk abonnement</string>
