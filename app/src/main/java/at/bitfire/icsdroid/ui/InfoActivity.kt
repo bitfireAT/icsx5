@@ -8,13 +8,16 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
@@ -56,11 +59,20 @@ class InfoActivity: AppCompatActivity() {
     }
 
     fun showWebSite(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity")))
+        launchUri(Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity"))
     }
 
     fun showTwitter(item: MenuItem) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsx5app")))
+        launchUri(Uri.parse("https://twitter.com/icsx5app"))
+    }
+
+    private fun launchUri(uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsx5app"))
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w(Constants.TAG, "No browser installed")
+        }
     }
 
 }
