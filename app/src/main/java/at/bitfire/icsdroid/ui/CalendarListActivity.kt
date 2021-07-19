@@ -45,7 +45,6 @@ import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
 import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.LocalCalendar
 import com.google.android.material.snackbar.Snackbar
-import com.mikepenz.aboutlibraries.LibsBuilder
 import java.text.DateFormat
 import java.util.*
 
@@ -79,7 +78,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
             binding.refresh.isRefreshing = isRefreshing
         }
 
-        val calendarAdapter = CalendarListAdapter(application)
+        val calendarAdapter = CalendarListAdapter(this)
         calendarAdapter.clickListener = { calendar ->
             val intent = Intent(this, EditCalendarActivity::class.java)
             intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
