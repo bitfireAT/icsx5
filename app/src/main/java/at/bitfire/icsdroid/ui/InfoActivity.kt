@@ -23,32 +23,30 @@ class InfoActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         if (savedInstanceState == null) {
-            val builder = LibsBuilder().apply {
-                aboutShowIcon = true
-                aboutAppName = getString(R.string.app_name)
-                aboutAppSpecial1 = getString(R.string.app_info_gplv3)
-                aboutAppSpecial1Description = getString(R.string.app_info_gplv3_note)
-                if (BuildConfig.FLAVOR != "gplay") {
-                    aboutAppSpecial2 = getString(R.string.app_info_donate)
-                    aboutAppSpecial2Description = getString(R.string.donate_message)
-                }
-                aboutDescription = getString(R.string.app_info_description)
-                aboutVersionString = getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR)
-                showLicense = true
+            val builder = LibsBuilder()
+                .withAboutIconShown(true)
+                .withAboutAppName(getString(R.string.app_name))
+                .withAboutVersionShownName(true)
+                .withAboutVersionString(getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR))
+                .withAboutSpecial1(getString(R.string.app_info_gplv3))
+                .withAboutSpecial1Description(getString(R.string.app_info_gplv3_note))
+                .withLicenseShown(true)
 
-                withFields(R.string::class.java.fields)
-                // https://github.com/mikepenz/AboutLibraries/issues/490
-                withLibraryModification("org_brotli__dec", Libs.LibraryFields.LIBRARY_NAME, "Brotli")
-                withLibraryModification("org_brotli__dec", Libs.LibraryFields.AUTHOR_NAME, "Google")
+                .withFields(R.string::class.java.fields)
+                .withLibraryModification("org_brotli__dec", Libs.LibraryFields.LIBRARY_NAME, "Brotli")
+                .withLibraryModification("org_brotli__dec", Libs.LibraryFields.AUTHOR_NAME, "Google")
+
+            if (BuildConfig.FLAVOR != "gplay") {
+                builder
+                    .withAboutSpecial2(getString(R.string.app_info_donate))
+                    .withAboutSpecial2Description(getString(R.string.donate_message))
             }
-            builder.supportFragment()
 
             supportFragmentManager.beginTransaction()
-                    .replace(android.R.id.content, builder.supportFragment())
-                    .commit()
+                .replace(android.R.id.content, builder.supportFragment())
+                .commit()
         }
     }
 

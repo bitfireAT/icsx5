@@ -45,6 +45,7 @@ import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
 import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.LocalCalendar
 import com.google.android.material.snackbar.Snackbar
+import com.mikepenz.aboutlibraries.LibsBuilder
 import java.text.DateFormat
 import java.util.*
 

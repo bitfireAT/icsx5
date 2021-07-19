@@ -8,7 +8,7 @@
 
 buildscript {
     ext.versions = [
-        aboutLibs: '8.9.0',
+        aboutLibs: '8.9.1',
         kotlin: '1.5.21',
         okhttp: '4.9.1'
     ]
