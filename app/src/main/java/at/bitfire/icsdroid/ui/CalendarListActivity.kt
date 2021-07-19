@@ -78,18 +78,21 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
             binding.refresh.isRefreshing = isRefreshing
         }
 
+        val calendarAdapter = CalendarListAdapter(application)
+        calendarAdapter.clickListener = { calendar ->
+            val intent = Intent(this, EditCalendarActivity::class.java)
+            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            startActivity(intent)
+        }
+        binding.calendarList.adapter = calendarAdapter
+
         model.calendars.observe(this) { calendars ->
-            model.calendarAdapter.submitList(calendars)
+            calendarAdapter.submitList(calendars)
 
             val colors = mutableSetOf<Int>()
             colors += defaultRefreshColor
             colors.addAll(calendars.mapNotNull { it.color })
             binding.refresh.setColorSchemeColors(*colors.toIntArray())
-        }
-        model.calendarAdapter.clickListener = { calendar ->
-            val intent = Intent(this, EditCalendarActivity::class.java)
-            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
-            startActivity(intent)
         }
         model.reinit()
 
@@ -295,7 +298,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
 
         val calendars = MutableLiveData<List<LocalCalendar>>()
-        val calendarAdapter = CalendarListAdapter(application)
         private var observer: ContentObserver? = null
 
 

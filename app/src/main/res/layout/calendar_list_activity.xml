@@ -29,7 +29,6 @@
                 android:scrollbars="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:adapter="@{model.calendarAdapter}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:visibility="@{model.calendars.empty ? View.GONE : View.VISIBLE }" />
 
