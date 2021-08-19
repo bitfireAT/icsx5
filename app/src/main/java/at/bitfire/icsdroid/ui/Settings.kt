@@ -1,15 +1,16 @@
 package at.bitfire.icsdroid.ui
 
 import android.content.Context
+import android.content.SharedPreferences
 
 class Settings(context: Context) {
 
     companion object {
-        val FORCE_DARK_MODE = "forceDarkMode"
+        const val FORCE_DARK_MODE = "forceDarkMode"
     }
 
 
-    val prefs = context.getSharedPreferences("icsx5", 0)
+    private val prefs: SharedPreferences = context.getSharedPreferences("icsx5", 0)
 
     fun forceDarkMode(): Boolean =
             prefs.getBoolean(FORCE_DARK_MODE, false)

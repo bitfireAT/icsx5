@@ -9,6 +9,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentResolver
 import android.content.ContentUris
@@ -86,6 +87,10 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
         binding.calendarList.adapter = calendarAdapter
 
+        binding.fab.setOnClickListener {
+            onAddCalendar()
+        }
+
         model.calendars.observe(this) { calendars ->
             calendarAdapter.submitList(calendars)
 
@@ -137,6 +142,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
 
+    @SuppressLint("ShowToast")
     private fun checkSyncSettings() {
         snackBar?.dismiss()
         snackBar = null
@@ -177,7 +183,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     /* actions */
 
-    fun onAddCalendar(v: View) {
+    fun onAddCalendar() {
         startActivity(Intent(this, AddCalendarActivity::class.java))
     }
 

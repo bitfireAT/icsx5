@@ -111,7 +111,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                 return null
             }
 
-            when (url.scheme?.toLowerCase(Locale.getDefault())) {
+            when (url.scheme?.lowercase()) {
                 "file" -> {
                     if (url.path != null) {
                         // local file:

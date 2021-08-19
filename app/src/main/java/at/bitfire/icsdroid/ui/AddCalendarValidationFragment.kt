@@ -41,7 +41,7 @@ class AddCalendarValidationFragment: DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        validationModel.result.observe(this, Observer { info ->
+        validationModel.result.observe(this, { info ->
             requireDialog().dismiss()
 
             val exception = info.exception

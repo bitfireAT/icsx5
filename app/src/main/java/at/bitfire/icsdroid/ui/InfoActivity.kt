@@ -31,6 +31,7 @@ class InfoActivity: AppCompatActivity() {
             val builder = LibsBuilder()
                 .withAboutIconShown(true)
                 .withAboutAppName(getString(R.string.app_name))
+                .withAboutDescription(getString(R.string.app_info_description))
                 .withAboutVersionShownName(true)
                 .withAboutVersionString(getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR))
                 .withAboutSpecial1(getString(R.string.app_info_gplv3))

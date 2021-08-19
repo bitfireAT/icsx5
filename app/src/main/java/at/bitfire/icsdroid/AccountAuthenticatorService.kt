@@ -24,7 +24,7 @@ class AccountAuthenticatorService: Service() {
     private val accountAuthenticator: AccountAuthenticator by lazy { AccountAuthenticator(this) }
 
 	override fun onBind(intent: Intent): IBinder? {
-		if (intent.action == android.accounts.AccountManager.ACTION_AUTHENTICATOR_INTENT)
+		if (intent.action == AccountManager.ACTION_AUTHENTICATOR_INTENT)
 			return accountAuthenticator.iBinder
 		return null
 	}

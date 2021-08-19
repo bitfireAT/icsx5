@@ -59,7 +59,7 @@ class EditCalendarActivity: AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        model.calendar.observe(this, Observer { calendar ->
+        model.calendar.observe(this, { calendar ->
             if (!model.loaded) {
                 onCalendarLoaded(calendar)
                 model.loaded = true
