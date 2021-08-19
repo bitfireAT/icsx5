@@ -61,9 +61,7 @@ android {
     }
 
     packagingOptions {
-        exclude 'LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/*.md'
     }
     lintOptions {
         disable 'ExtraTranslation', 'MissingTranslation'
