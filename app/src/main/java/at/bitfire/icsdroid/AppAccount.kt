@@ -18,7 +18,7 @@ import android.util.Log
 
 object AppAccount {
 
-    const val DEFAULT_SYNC_INTERVAL = 24*3600L   // 1 day
+    private const val DEFAULT_SYNC_INTERVAL = 24*3600L   // 1 day
     const val SYNC_INTERVAL_MANUALLY = -1L
 
     private const val PREF_ACCOUNT = "account"

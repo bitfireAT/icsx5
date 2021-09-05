@@ -115,7 +115,7 @@ class ProcessEventsTask(
                     .setContentTitle(context.getString(R.string.sync_error_title))
                     .setContentText(message)
                     .setSubText(calendar.displayName)
-                    .setContentIntent(PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                    .setContentIntent(PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .setOnlyAlertOnce(true)

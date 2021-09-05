@@ -22,7 +22,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import java.net.URI
 import java.net.URISyntaxException
-import java.util.*
 
 class AddCalendarEnterUrlFragment: Fragment() {
 

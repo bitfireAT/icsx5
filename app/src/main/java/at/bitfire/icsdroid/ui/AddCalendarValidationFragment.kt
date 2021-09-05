@@ -18,7 +18,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher

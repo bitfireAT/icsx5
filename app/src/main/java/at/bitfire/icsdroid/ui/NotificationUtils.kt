@@ -10,6 +10,7 @@ package at.bitfire.icsdroid.ui
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import at.bitfire.icsdroid.R
@@ -17,6 +18,12 @@ import at.bitfire.icsdroid.R
 object NotificationUtils {
 
     const val CHANNEL_SYNC = "sync"
+
+    val flagImmutableCompat: Int =
+        if (Build.VERSION.SDK_INT >= 23)
+            PendingIntent.FLAG_IMMUTABLE
+        else
+            0
 
 
     fun createChannels(context: Context): NotificationManager {
