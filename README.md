@@ -1,34 +1,34 @@
 
+
+[![Tests](https://github.com/bitfireAT/icsx5/actions/workflows/lint.yml/badge.svg)](https://github.com/bitfireAT/icsx5/actions/workflows/test.yml)
+[![License](https://img.shields.io/github/license/bitfireAT/icsx5)](https://github.com/bitfireAT/icsx5/blob/main/LICENSE)
+[![F-Droid](https://img.shields.io/f-droid/v/at.bitfire.icsdroid)](https://f-droid.org/packages/at.bitfire.icsdroid/)
+
+
 ICSx⁵
 ========
 
-Please see the [ICSx⁵ Web site](https://icsx5.bitfire.at) for comprehensive information about ICSx⁵.
+ICSx⁵ is an Android app to subscribe to remote Webcal feeds / iCalendar files (like
+time tables of your school/university or event files of your sports team).
 
-ICSx⁵ is licensed under the [GPLv3 License](LICENSE).
+Please see the [ICSx⁵ Web site](https://icsx5.bitfire.at) for comprehensive information about ICSx⁵.
 
 News and updates: [@icsx5app](https://twitter.com/icsx5app)
 
-Help and discussion: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
+Help, discussion, ideas, bug reports: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
 
-ICSx⁵ is a Android 4.0+ app to subscribe to remote or local iCalendar files (like
-time tables of your school/university or event files of your sports team).
+We're happy about contributions! Just send a pull request for small changes or in case
+of bigger changes, please let us know in the forum before.
+
 
 
 License 
 =======
 
-Copyright (C) [bitfire web engineering](https://www.bitfire.at) (Stockmann, Hirner GesnbR).
+ICSx⁵ is licensed under the [GPLv3 License](LICENSE).
+
+Copyright © Ricki Hirner ([bitfire web engineering GmbH](https://www.bitfire.at)) and [contributors](https://github.com/bitfireAT/icsx5/graphs/contributors).
 
 This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome
 to redistribute it under the conditions of the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
 
-ICSx⁵ uses these libraries (more information available in the app):
-
-* [Ambilwarna Color Picker](https://github.com/yukuku/ambilwarna) (Apache License 2.0)
-* [Android Support Library](https://developer.android.com/tools/support-library/) (Apache License 2.0)
-* [Apache Commons](https://commons.apache.org) (Apache License 2.0)
-* [ical4android](https://gitlab.com/bitfireAT/ical4android) (GPLv3)
-  * [bnd, OSGI Core](http://bnd.bndtools.org) (Apache License 2.0)
-  * [ical4j](https://github.com/ical4j/ical4j) (BSD 3-Clause License)
-  * [slf4j](http://www.slf4j.org) (MIT License)
-* [MemorizingTrustManager](https://github.com/ge0rg/MemorizingTrustManager) (MIT License)

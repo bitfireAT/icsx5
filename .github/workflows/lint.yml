@@ -1,0 +1,25 @@
+name: Lint tests
+on: push
+jobs:
+  test:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 11
+          cache: 'gradle'
+      - uses: gradle/wrapper-validation-action@v1.0.4
+
+      - name: Run lint
+        run: ./gradlew app:lint
+      - name: Archive results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: app/build/reports
+
