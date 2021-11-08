@@ -15,8 +15,8 @@ jobs:
           cache: 'gradle'
       - uses: gradle/wrapper-validation-action@v1.0.4
 
-      - name: Run lint
-        run: ./gradlew app:lint
+      - name: Check
+        run: ./gradlew app:check
       - name: Archive results
         uses: actions/upload-artifact@v2
         with:
