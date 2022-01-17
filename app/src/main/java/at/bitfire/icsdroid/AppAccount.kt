@@ -8,9 +8,10 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.ContentResolver
 import android.content.Context
-import android.os.Bundle
 import android.provider.CalendarContract
 import android.util.Log
+import androidx.work.*
+import java.time.Duration
 
 object AppAccount {
 
@@ -19,8 +20,9 @@ object AppAccount {
 
     private const val PREF_ACCOUNT = "account"
     private const val KEY_SYNC_INTERVAL = "syncInterval"
+    private const val KEY_USES_WORKMANAGER = "usesWorkManager"
 
-    var account: Account? = null
+    private var account: Account? = null
 
 
     @Synchronized
@@ -58,27 +60,35 @@ object AppAccount {
     }
 
 
-    fun syncInterval(context: Context): Long {
-        var syncInterval = SYNC_INTERVAL_MANUALLY
-        if (ContentResolver.getSyncAutomatically(get(context), CalendarContract.AUTHORITY))
-            for (sync in ContentResolver.getPeriodicSyncs(get(context), CalendarContract.AUTHORITY))
-                syncInterval = sync.period
-        return syncInterval
-    }
+    fun syncInterval(context: Context) =
+        preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY)
 
     fun syncInterval(context: Context, syncInterval: Long) {
+        // (legacy) don't use the sync framework anymore
+        ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, false)
+
+        val workManager = WorkManager.getInstance(context)
         if (syncInterval == SYNC_INTERVAL_MANUALLY) {
             Log.i(Constants.TAG, "Disabling automatic synchronization")
-            ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, false)
+            workManager.cancelUniqueWork(SyncWorker.NAME)
+
         } else {
             Log.i(Constants.TAG, "Setting automatic synchronization with interval of $syncInterval seconds")
-            ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, true)
-            ContentResolver.addPeriodicSync(get(context), CalendarContract.AUTHORITY, Bundle(), syncInterval)
+            workManager.enqueueUniquePeriodicWork(SyncWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
+                PeriodicWorkRequestBuilder<SyncWorker>(Duration.ofSeconds(syncInterval))
+                    .setConstraints(Constraints.Builder()
+                        /* Require network connection. This is not required for synchronization with local files;
+                        but for now we want to be as close as possible at the normal sync framework behavior (which
+                        requires a network connection, too). However we don't require "not low storage". */
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build())
+                    .build())
         }
 
         // remember sync interval so that it can be checked/restored later
         preferences(context).edit()
                 .putLong(KEY_SYNC_INTERVAL, syncInterval)
+                .putBoolean(KEY_USES_WORKMANAGER, true)
                 .apply()
     }
 
@@ -89,14 +99,11 @@ object AppAccount {
      */
     fun checkSyncInterval(context: Context) {
         val prefs = preferences(context)
-        if (prefs.contains(KEY_SYNC_INTERVAL)) {
-            // there's a remembered sync interval
+        if (!prefs.contains(KEY_USES_WORKMANAGER) && prefs.contains(KEY_SYNC_INTERVAL)) {
+            // migrate from sync framework to WorkManager
             val rememberedSyncInterval = preferences(context).getLong(KEY_SYNC_INTERVAL, DEFAULT_SYNC_INTERVAL)
-            val currentSyncInterval = syncInterval(context)
-            if (currentSyncInterval != rememberedSyncInterval) {
-                Log.i(Constants.TAG, "Repairing sync interval from $currentSyncInterval -> $rememberedSyncInterval")
-                syncInterval(context, rememberedSyncInterval)
-            }
+            Log.i(Constants.TAG, "Migrating from sync framework to WorkManager: periodic sync interval = $rememberedSyncInterval")
+            syncInterval(context, rememberedSyncInterval)
         }
     }
 

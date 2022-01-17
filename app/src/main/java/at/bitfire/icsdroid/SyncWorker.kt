@@ -17,7 +17,6 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
 class SyncWorker(
         val context: Context,
@@ -26,9 +25,7 @@ class SyncWorker(
 
     companion object {
 
-        private const val NAME = "SyncWorker"
-
-        val syncRunning = AtomicBoolean()
+        const val NAME = "SyncWorker"
 
         /**
          * Enqueues a sync job for soon execution. If the sync is forced,
@@ -67,17 +64,10 @@ class SyncWorker(
 
     @SuppressLint("Recycle")
     override fun doWork(): Result {
-        if (syncRunning.get()) {
-            Log.w(Constants.TAG, "There's already another sync running, aborting")
-            return Result.success()
-        }
-
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
-                syncRunning.set(true)
                 return performSync(AppAccount.get(context), providerClient)
             } finally {
-                syncRunning.set(false)
                 providerClient.closeCompat()
             }
         }

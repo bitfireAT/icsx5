@@ -9,6 +9,9 @@ import android.app.PendingIntent
 import android.content.*
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 
@@ -19,6 +22,8 @@ class SyncAdapter(
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
         val manual = extras.containsKey(ContentResolver.SYNC_EXTRAS_MANUAL)
         SyncWorker.run(context, manual)
+
+        // TODO syncResult
     }
 
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
