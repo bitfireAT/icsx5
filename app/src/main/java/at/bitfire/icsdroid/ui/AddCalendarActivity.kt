@@ -12,6 +12,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -33,10 +34,19 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            if (permissions.get(Manifest.permission.READ_CALENDAR) == false ||
+                permissions.get(Manifest.permission.WRITE_CALENDAR) == false) {
+                Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+        
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR), 0)
+            requestPermissionLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
 
         if (inState == null) {
             supportFragmentManager
@@ -54,21 +64,6 @@ class AddCalendarActivity: AppCompatActivity() {
                 if (hasExtra(EXTRA_COLOR))
                     titleColorModel.color.value = getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
             }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        permissions.forEachIndexed { idx, perm ->
-            if (grantResults[idx] != PackageManager.PERMISSION_GRANTED)
-                when (perm) {
-                    Manifest.permission.READ_CALENDAR,
-                    Manifest.permission.WRITE_CALENDAR -> {
-                        Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
-                        finish()
-                    }
-                }
         }
     }
 

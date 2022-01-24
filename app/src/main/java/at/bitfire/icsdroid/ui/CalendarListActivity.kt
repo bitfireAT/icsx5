@@ -25,6 +25,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -70,9 +71,19 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            if (permissions.get(Manifest.permission.READ_CALENDAR) == false ||
+                permissions.get(Manifest.permission.WRITE_CALENDAR) == false) {
+                Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+
         model.askForPermissions.observe(this) { ask ->
             if (ask)
-                ActivityCompat.requestPermissions(this, CalendarModel.PERMISSIONS, 0)
+                requestPermissionLauncher.launch(CalendarModel.PERMISSIONS)
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->
@@ -114,16 +125,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                     checkSyncSettings()
             }
         }, false)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            model.reinit()
-        else {
-            Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
-            finish()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
