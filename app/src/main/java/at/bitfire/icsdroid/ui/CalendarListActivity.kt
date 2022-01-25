@@ -24,7 +24,6 @@ import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -72,7 +71,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         model.askForPermissions.observe(this) { ask ->
             if (ask)
-                ActivityCompat.requestPermissions(this, CalendarModel.PERMISSIONS, 0)
+                PermissionUtils(this).getCalendarPermissionRequestLauncher().launch(CalendarModel.PERMISSIONS)
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->
@@ -114,16 +113,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                     checkSyncSettings()
             }
         }, false)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-            model.reinit()
-        else {
-            Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
-            finish()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
