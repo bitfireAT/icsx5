@@ -11,15 +11,11 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import at.bitfire.icsdroid.PermissionUtils
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
-import java.security.AccessController.getContext
 
 class AddCalendarActivity: AppCompatActivity() {
 

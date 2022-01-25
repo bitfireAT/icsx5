@@ -24,8 +24,6 @@ import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
