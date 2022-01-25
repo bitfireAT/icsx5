@@ -71,19 +71,9 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            if (permissions.get(Manifest.permission.READ_CALENDAR) == false ||
-                permissions.get(Manifest.permission.WRITE_CALENDAR) == false) {
-                Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
-                finish()
-            }
-        }
-
         model.askForPermissions.observe(this) { ask ->
             if (ask)
-                requestPermissionLauncher.launch(CalendarModel.PERMISSIONS)
+                PermissionUtils(this).getCalendarPermissionRequestLauncher().launch(CalendarModel.PERMISSIONS)
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->

@@ -16,8 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.LocalCalendar
+import java.security.AccessController.getContext
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -34,19 +36,11 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            if (permissions.get(Manifest.permission.READ_CALENDAR) == false ||
-                permissions.get(Manifest.permission.WRITE_CALENDAR) == false) {
-                Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
-                finish()
-            }
-        }
-        
+        val calendarPermissionRequestLauncher = PermissionUtils(this).getCalendarPermissionRequestLauncher()
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
-            requestPermissionLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
+            calendarPermissionRequestLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
 
         if (inState == null) {
             supportFragmentManager
