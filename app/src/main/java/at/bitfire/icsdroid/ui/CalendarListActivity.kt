@@ -65,9 +65,10 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
+        val calendarPermissionsRequestLauncher = PermissionUtils(this).registerCalendarPermissionRequestLauncher()
         model.askForPermissions.observe(this) { ask ->
             if (ask)
-                PermissionUtils(this).getCalendarPermissionRequestLauncher().launch(CalendarModel.PERMISSIONS)
+                calendarPermissionsRequestLauncher.launch(CalendarModel.PERMISSIONS)
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->

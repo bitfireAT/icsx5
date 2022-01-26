@@ -6,14 +6,13 @@ package at.bitfire.icsdroid
 
 import android.Manifest
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
 class PermissionUtils(val activity: AppCompatActivity) {
 
-    fun getCalendarPermissionRequestLauncher(): ActivityResultLauncher<Array<String>> {
-        return activity.registerForActivityResult(
+    fun registerCalendarPermissionRequestLauncher() =
+        activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
             if (permissions.get(Manifest.permission.READ_CALENDAR) == false ||
@@ -22,5 +21,5 @@ class PermissionUtils(val activity: AppCompatActivity) {
                 activity.finish()
             }
         }
-    }
+
 }
