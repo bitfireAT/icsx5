@@ -14,6 +14,7 @@ import android.provider.CalendarContract.Events
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
+import at.bitfire.ical4android.MiscUtils.UriHelper.asSyncAdapter
 
 class LocalCalendar private constructor(
         account: Account,
@@ -106,14 +107,14 @@ class LocalCalendar private constructor(
     fun retainByUID(uids: MutableSet<String>): Int {
         var deleted = 0
         try {
-            provider.query(syncAdapterURI(Events.CONTENT_URI, account),
+            provider.query(Events.CONTENT_URI.asSyncAdapter(account),
                     arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
                     "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null)?.use { row ->
                 while (row.moveToNext()) {
                     val eventId = row.getLong(0)
                     val syncId = row.getString(1)
                     if (!uids.contains(syncId)) {
-                        provider.delete(syncAdapterURI(ContentUris.withAppendedId(Events.CONTENT_URI, eventId), account), null, null)
+                        provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
                         deleted++
                         
                         uids -= syncId

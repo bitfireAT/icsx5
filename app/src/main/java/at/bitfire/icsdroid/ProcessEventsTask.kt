@@ -5,8 +5,10 @@
 package at.bitfire.icsdroid
 
 import android.app.PendingIntent
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.AndroidCalendar
@@ -21,7 +23,6 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.*
 
 class ProcessEventsTask(
         val context: Context,
@@ -108,7 +109,7 @@ class ProcessEventsTask(
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()
 
             val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.data = calendar.calendarSyncURI()
+            errorIntent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
             errorIntent.putExtra(EditCalendarActivity.ERROR_MESSAGE, message)
             errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
 
