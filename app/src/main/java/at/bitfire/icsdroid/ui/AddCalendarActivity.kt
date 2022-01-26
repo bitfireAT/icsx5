@@ -28,8 +28,7 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val calendarPermissionRequestLauncher = PermissionUtils(this).getCalendarPermissionRequestLauncher()
-
+        val calendarPermissionRequestLauncher = PermissionUtils(this).registerCalendarPermissionRequestLauncher()
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
             calendarPermissionRequestLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
