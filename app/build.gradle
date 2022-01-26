@@ -59,15 +59,15 @@ android {
         gplay {
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/*.md'
+        resources {
+            excludes += ['META-INF/*.md']
+        }
     }
-    lintOptions {
-        disable 'ExtraTranslation', 'MissingTranslation'
-        disable 'InvalidPackage'
-        disable 'OnClick'
+    lint {
+        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'OnClick'
     }
+
 }
 
 dependencies {
