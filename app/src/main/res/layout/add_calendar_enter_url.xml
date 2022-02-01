@@ -44,7 +44,15 @@
                 android:layout_height="wrap_content"
                 android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
 
+            <Button
+                android:id="@+id/pick_local_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use local ics file" />
+
+
         </LinearLayout>
 
     </ScrollView>
+
 </layout>

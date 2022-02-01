@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui
 import android.app.Application
 import android.app.Dialog
 import android.app.ProgressDialog
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.DialogFragment
@@ -36,32 +37,33 @@ class AddCalendarValidationFragment: DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        validationModel.result.observe(this, { info ->
+        validationModel.result.observe(this) { info ->
             requireDialog().dismiss()
 
             val exception = info.exception
             if (exception == null) {
-                titleColorModel.url.value = info.url.toString()
+                titleColorModel.url.value = info.uri.toString()
                 if (titleColorModel.color.value == null)
                     titleColorModel.color.value = resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
-                    titleColorModel.title.value = info.calendarName ?: info.url.file
+                    titleColorModel.title.value = info.calendarName ?: info.uri.file
 
                 parentFragmentManager
-                        .beginTransaction()
-                        .replace(android.R.id.content, AddCalendarDetailsFragment())
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
+                    .beginTransaction()
+                    .replace(android.R.id.content, AddCalendarDetailsFragment())
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss()
             } else {
-                val errorMessage = exception.localizedMessage ?: exception.message ?: exception.toString()
+                val errorMessage =
+                    exception.localizedMessage ?: exception.message ?: exception.toString()
                 AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
             }
-        })
-
-        val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
+        }
+        // TODO: branch here based on url scheme "content" vs others
+        val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
         val authenticate = credentialsModel.requiresAuth.value ?: false
-        validationModel.initialize(url,
+        validationModel.initialize(uri,
                 if (authenticate) credentialsModel.username.value else null,
                 if (authenticate) credentialsModel.password.value else null)
     }
@@ -92,7 +94,7 @@ class AddCalendarValidationFragment: DialogFragment() {
         val result = MutableLiveData<ResourceInfo>()
         private var initialized = false
 
-        fun initialize(originalUrl: URL, username: String?, password: String?) {
+        fun initialize(originalUrl: Uri, username: String?, password: String?) {
             synchronized(initialized) {
                 if (initialized)
                     return
@@ -117,7 +119,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
                 override fun onNewPermanentUrl(target: URL) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
-                    info.url = target
+                    info.uri = target
                 }
 
                 override fun onError(error: Exception) {

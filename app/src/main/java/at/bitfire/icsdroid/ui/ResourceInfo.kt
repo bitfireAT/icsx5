@@ -4,11 +4,11 @@
 
 package at.bitfire.icsdroid.ui
 
-import java.net.URL
+import android.net.Uri
 
 data class ResourceInfo(
 
-    var url: URL,
+    var uri: Uri,
 
     var exception: Exception? = null,
 

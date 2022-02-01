@@ -6,9 +6,12 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -16,6 +19,7 @@ import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
+import com.google.android.material.textfield.TextInputLayout
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -24,6 +28,12 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
+
+    val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        // 'ActivityResultCallback': Handle the returned Uri
+        val url:TextInputLayout = binding.root.findViewById(R.id.url)
+        url.editText?.setText(uri.toString())
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val invalidate = Observer<Any> {
@@ -47,6 +57,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val button:Button = view.findViewById(R.id.pick_local_file)
+        button.setOnClickListener {
+            pickFile.launch(arrayOf("text/calendar"))
+        }
+
         validateUrl()
     }
 
@@ -107,14 +122,10 @@ class AddCalendarEnterUrlFragment: Fragment() {
             }
 
             when (url.scheme?.lowercase()) {
-                "file" -> {
+                "content" -> {
                     if (url.path != null) {
-                        // local file:
-                        // 1. no need for auth
+                        // local file, no need for auth
                         credentialsModel.requiresAuth.value = false
-                        // 2. permission required
-                        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
                     }
                 }
                 "http", "https" -> {
