@@ -16,14 +16,17 @@ import android.provider.CalendarContract
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -106,6 +109,14 @@ class EditCalendarActivity: AppCompatActivity() {
         menu.findItem(R.id.cancel)
                 .setEnabled(dirty)
                 .setVisible(dirty)
+
+        val uri = Uri.parse(model.calendar.value?.url)
+        if (uri.scheme.equals("content")) {
+            // local file, disable auth
+            credentialsModel.requiresAuth.value = false
+            // and don't show credentials fragment
+            findViewById<FragmentContainerView>(R.id.credentials).visibility = View.INVISIBLE
+        }
 
         val titleOK = !titleColorModel.title.value.isNullOrBlank()
         val authOK = credentialsModel.run {
