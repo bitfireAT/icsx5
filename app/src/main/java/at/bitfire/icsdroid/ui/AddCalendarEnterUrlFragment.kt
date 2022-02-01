@@ -30,9 +30,10 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private lateinit var binding: AddCalendarEnterUrlBinding
 
     val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        Log.d("taggg", uri.toString())
-        val url:TextInputLayout = binding.root.findViewById(R.id.url)
-        url.editText?.setText(uri.toString())
+        if (uri != null) {
+            val url:TextInputLayout = binding.root.findViewById(R.id.url)
+            url.editText?.setText(uri.toString())
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
