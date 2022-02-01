@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
@@ -22,7 +23,7 @@ import java.util.*
 
 open class CalendarFetcher(
         val context: Context,
-        var uri: Uri // TODO: use android.net.Uri
+        var uri: Uri
 ): Runnable {
 
     companion object {
@@ -63,11 +64,11 @@ open class CalendarFetcher(
             throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
         // don't allow switching from HTTPS to a potentially insecure protocol (like HTTP)
-        if (uri.protocol.equals("https", true) && !target.protocol.equals("https", true))
+        if (URL(uri.toString()).protocol.equals("https", true) && !target.protocol.equals("https", true))
             throw IOException("Received redirect from HTTPS to ${target.protocol}")
 
         // update URL
-        uri = target
+        uri = Uri.parse(target.toString())
 
         // call onNewPermanentUrl if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
@@ -94,23 +95,30 @@ open class CalendarFetcher(
      * Fetch the file with android SAF
      */
     private fun fetchContentUri() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            throw IOException(context.getString(R.string.permission_required_external_storage))
-
         try {
-            File(uri.toURI()).let { file ->
-                ifModifiedSince?.let { timestamp ->
-                    if (file.lastModified() <= timestamp) {
-                        onNotModified()
-                        return
-                    }
-                }
 
-                file.inputStream().use { content ->
-                    // https://developer.android.com/training/data-storage/shared/documents-files#examine-metadata
-                    onSuccess(content, null, null, file.lastModified())
-                }
+            val contentResolver = context.contentResolver
+            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            contentResolver.takePersistableUriPermission(uri, takeFlags)
+
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+//                onSuccess(inputStream, null, null, file.lastModified()) //TODO: check last modified
+//                https://developer.android.com/training/data-storage/shared/documents-files#examine-metadata
+                onSuccess(inputStream, null, null, null)
             }
+
+//            File(uri.toString()).let { file ->
+//                ifModifiedSince?.let { timestamp ->
+//                    if (file.lastModified() <= timestamp) {
+//                        onNotModified()
+//                        return
+//                    }
+//                }
+//
+//                file.inputStream().use { content ->
+//                    onSuccess(content, null, null, file.lastModified())
+//                }
+//            }
         } catch (e: Exception) {
             onError(e)
         }
@@ -119,7 +127,7 @@ open class CalendarFetcher(
     private fun fetchNetwork() {
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
-                .url(uri)
+                .url(URL(uri.toString()))
 
         val currentUsername = username
         val currentPassword = password
@@ -152,7 +160,7 @@ open class CalendarFetcher(
                     response.isRedirect -> {
                         val location = response.header("Location")
                         if (location != null)
-                            onRedirect(response.code, URL(uri, location))
+                            onRedirect(response.code, URL(URL(uri.toString()), location))
                         else
                             throw IOException("Got ${response.code} ${response.message} without Location")
                     }

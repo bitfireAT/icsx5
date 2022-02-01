@@ -47,7 +47,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                     titleColorModel.color.value = resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
-                    titleColorModel.title.value = info.calendarName ?: info.uri.file
+                    titleColorModel.title.value = info.calendarName ?: info.uri.toString()
 
                 parentFragmentManager
                     .beginTransaction()
@@ -60,7 +60,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                 AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
             }
         }
-        // TODO: branch here based on url scheme "content" vs others
+
         val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
         val authenticate = credentialsModel.requiresAuth.value ?: false
         validationModel.initialize(uri,
@@ -94,17 +94,17 @@ class AddCalendarValidationFragment: DialogFragment() {
         val result = MutableLiveData<ResourceInfo>()
         private var initialized = false
 
-        fun initialize(originalUrl: Uri, username: String?, password: String?) {
+        fun initialize(originalUri: Uri, username: String?, password: String?) {
             synchronized(initialized) {
                 if (initialized)
                     return
                 initialized = true
             }
 
-            Log.i(Constants.TAG, "Validating Webcal feed $originalUrl (authentication: $username)")
+            Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            val info = ResourceInfo(originalUrl)
-            val downloader = object: CalendarFetcher(getApplication(), originalUrl) {
+            val info = ResourceInfo(originalUri)
+            val downloader = object: CalendarFetcher(getApplication(), originalUri) {
                 override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
@@ -119,7 +119,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
                 override fun onNewPermanentUrl(target: URL) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
-                    info.uri = target
+                    info.uri = Uri.parse(target.toString())
                 }
 
                 override fun onError(error: Exception) {

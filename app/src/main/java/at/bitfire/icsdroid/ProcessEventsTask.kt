@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -45,22 +46,22 @@ class ProcessEventsTask(
     }
 
     private fun processEvents() {
-        val url: URL
+        val uri: Uri
         try {
-            url = URL(calendar.url)
+            uri = Uri.parse(calendar.url)
         } catch(e: MalformedURLException) {
             Log.e(Constants.TAG, "Invalid calendar URL", e)
             calendar.updateStatusError(e.localizedMessage ?: e.toString())
             return
         }
-        Log.i(Constants.TAG, "Synchronizing $url")
+        Log.i(Constants.TAG, "Synchronizing $uri")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(calendar.id.toString(), 0)
         var exception: Throwable? = null
 
-        val downloader = object: CalendarFetcher(context, url) {
+        val downloader = object: CalendarFetcher(context, uri) {
             override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {

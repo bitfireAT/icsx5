@@ -30,7 +30,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private lateinit var binding: AddCalendarEnterUrlBinding
 
     val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        // 'ActivityResultCallback': Handle the returned Uri
+        Log.d("taggg", uri.toString())
         val url:TextInputLayout = binding.root.findViewById(R.id.url)
         url.editText?.setText(uri.toString())
     }
@@ -62,7 +62,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
             pickFile.launch(arrayOf("text/calendar"))
         }
 
-        validateUrl()
+        validateUri()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -72,71 +72,62 @@ class AddCalendarEnterUrlFragment: Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         val itemNext = menu.findItem(R.id.next)
 
-        val url = validateUrl()
+        val uri = validateUri()
 
         val authOK = if (credentialsModel.requiresAuth.value == true)
                 !credentialsModel.username.value.isNullOrEmpty() && !credentialsModel.password.value.isNullOrEmpty()
         else
             true
 
-        val permOK = if (url?.scheme.equals("file", true))
-            ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        else
-            true
-
-        itemNext.isEnabled = url != null && authOK && permOK
+        itemNext.isEnabled = uri != null && authOK
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        Log.i(Constants.TAG, "Received request permissions! $requestCode")
-        if (grantResults.contains(PackageManager.PERMISSION_GRANTED))
-            requireActivity().invalidateOptionsMenu()
-    }
 
     /* dynamic changes */
 
-    private fun validateUrl(): URI? {
+    private fun validateUri(): URI? {
         val view = requireNotNull(view)
         var errorMsg: String? = null
 
-        var url: URI
+        var uri: URI
         try {
             try {
-                url = URI(titleColorModel.url.value ?: return null)
+                uri = URI(titleColorModel.url.value ?: return null)
+
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
                 return null
             }
 
-            Log.i(Constants.TAG, url.toString())
+            Log.i(Constants.TAG, uri.toString())
 
-            if (url.scheme.equals("webcal", true)) {
-                url = URI("http", url.authority, url.path, url.query, null)
-                titleColorModel.url.value = url.toString()
+            if (uri.scheme.equals("webcal", true)) {
+                uri = URI("http", uri.authority, uri.path, uri.query, null)
+                titleColorModel.url.value = uri.toString()
                 return null
-            } else if (url.scheme.equals("webcals", true)) {
-                url = URI("https", url.authority, url.path, url.query, null)
-                titleColorModel.url.value = url.toString()
+            } else if (uri.scheme.equals("webcals", true)) {
+                uri = URI("https", uri.authority, uri.path, uri.query, null)
+                titleColorModel.url.value = uri.toString()
                 return null
             }
 
-            when (url.scheme?.lowercase()) {
+            when (uri.scheme?.lowercase()) {
                 "content" -> {
-                    if (url.path != null) {
+                    if (uri.path != null) {
                         // local file, no need for auth
                         credentialsModel.requiresAuth.value = false
                     }
                 }
                 "http", "https" -> {
                     // extract user name and password from URL
-                    url.userInfo?.let { userInfo ->
+                    uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
                         credentialsModel.requiresAuth.value = true
                         credentialsModel.username.value = credentials.elementAtOrNull(0)
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
-                        val urlWithoutPassword = URI(url.scheme, null, url.host, url.port, url.path, url.query, null)
+                        val urlWithoutPassword = URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null)
                         titleColorModel.url.value = urlWithoutPassword.toString()
                         return null
                     }
@@ -149,14 +140,14 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
             // warn if auth. required and not using HTTPS
             binding.insecureAuthenticationWarning.visibility =
-                    if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
+                    if (credentialsModel.requiresAuth.value == true && !uri.scheme.equals("https", true))
                         View.VISIBLE
                     else
                         View.GONE
         } finally {
             binding.url.error = errorMsg
         }
-        return url
+        return uri
     }
 
 
