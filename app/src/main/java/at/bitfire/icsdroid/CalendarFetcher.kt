@@ -9,12 +9,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.util.Log
 import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -101,24 +101,20 @@ open class CalendarFetcher(
             val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
             contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-//                onSuccess(inputStream, null, null, file.lastModified()) //TODO: check last modified
-//                https://developer.android.com/training/data-storage/shared/documents-files#examine-metadata
-                onSuccess(inputStream, null, null, null)
+            val lastModified: Long? = null
+            contentResolver.query(
+                uri, null, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val columnIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                    val displayName = cursor.getString(columnIndex)
+                    Log.i("TUG", "Display Name: $displayName")
+                }
             }
 
-//            File(uri.toString()).let { file ->
-//                ifModifiedSince?.let { timestamp ->
-//                    if (file.lastModified() <= timestamp) {
-//                        onNotModified()
-//                        return
-//                    }
-//                }
-//
-//                file.inputStream().use { content ->
-//                    onSuccess(content, null, null, file.lastModified())
-//                }
-//            }
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                onSuccess(inputStream, null, null, lastModified)
+            }
+
         } catch (e: Exception) {
             onError(e)
         }
