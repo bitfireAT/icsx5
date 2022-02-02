@@ -14,18 +14,36 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/url"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/url"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/add_calendar_url"
-                    android:inputType="textUri"
-                    android:singleLine="true"
-                    android:text="@={model.url}"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_alignParentStart="true"
+                    android:paddingRight="16dp"
+                    android:layout_toLeftOf="@+id/pick_local_file">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/add_calendar_url"
+                        android:inputType="textUri"
+                        android:singleLine="true"
+                        android:text="@={model.url}"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/pick_local_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="@string/pick_file"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/insecure_authentication_warning"
@@ -43,14 +61,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
-
-            <Button
-                android:id="@+id/pick_local_file"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Use local ics file" />
-
-
         </LinearLayout>
 
     </ScrollView>

@@ -36,6 +36,7 @@
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
     <string name="add_calendar_url">URL</string>
+    <string name="pick_file">File</string>
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
 
