@@ -9,6 +9,8 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
+import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
@@ -41,19 +43,19 @@ open class CalendarFetcher(
 
 
     override fun run() {
-        if (uri.scheme.toString().equals("content", true))
+        if (uri.scheme.equals("content", true))
             fetchContentUri()
         else
             fetchNetwork()
     }
 
-    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
     open fun onNotModified() {
     }
 
-    open fun onRedirect(httpCode: Int, target: URL) {
+    open fun onRedirect(httpCode: Int, target: Uri) {
         Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
         // only network resources can be redirected
@@ -61,7 +63,7 @@ open class CalendarFetcher(
             throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
         // don't allow switching from HTTPS to a potentially insecure protocol (like HTTP)
-        if (URL(uri.toString()).protocol.equals("https", true) && !target.protocol.equals("https", true))
+        if (uri.scheme.equals("https", true) && !target.protocol.equals("https", true))
             throw IOException("Received redirect from HTTPS to ${target.protocol}")
 
         // update URL
@@ -98,18 +100,19 @@ open class CalendarFetcher(
             val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
             contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-            val lastModified: Long? = null
+            var displayName: String? = null
             contentResolver.query(
-                uri, null, null, null, null, null)?.use { cursor ->
+                uri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_LAST_MODIFIED),
+                null, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
-                    val columnIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-                    val displayName = cursor.getString(columnIndex)
-                    Log.i("TUG", "Display Name: $displayName")
+                    displayName = cursor.getString(0)
+                    //lastModified = cursor.getLong(1)
+                    Log.i(Constants.TAG, "displayName = $displayName")
                 }
             }
-
+            
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                onSuccess(inputStream, null, null, lastModified)
+                onSuccess(inputStream, null, null, null, displayName)
             }
 
         } catch (e: Exception) {
@@ -152,8 +155,10 @@ open class CalendarFetcher(
                     // 30x 11:30 pas 144
                     response.isRedirect -> {
                         val location = response.header("Location")
-                        if (location != null)
-                            onRedirect(response.code, URL(URL(uri.toString()), location))
+                        if (location != null) {
+                            val newUri = uri.toURI().resolve(location)
+                            onRedirect(response.code, newUri.toUri())
+                        }
                         else
                             throw IOException("Got ${response.code} ${response.message} without Location")
                     }

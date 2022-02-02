@@ -105,12 +105,12 @@ class AddCalendarValidationFragment: DialogFragment() {
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(getApplication(), originalUri) {
-                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
                         val events = Event.eventsFromReader(reader, properties)
 
-                        info.calendarName = properties[ICalendar.CALENDAR_NAME]
+                        info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
                         info.eventsFound = events.size
                     }
 

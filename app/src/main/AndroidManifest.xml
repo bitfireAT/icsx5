@@ -22,8 +22,6 @@
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
     <!-- check/repair sync interval after boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- access local .ics files -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- remove task permissions from ical4android -->
     <uses-permission
         android:name="org.dmfs.permission.READ_TASKS"
