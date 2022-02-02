@@ -4,14 +4,11 @@
 
 package at.bitfire.icsdroid
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
-import androidx.core.content.ContextCompat
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
@@ -152,7 +149,7 @@ open class CalendarFetcher(
                         )
                     }
 
-                    // 30x
+                    // 30x 11:30 pas 144
                     response.isRedirect -> {
                         val location = response.header("Location")
                         if (location != null)

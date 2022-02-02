@@ -4,15 +4,12 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -118,12 +115,12 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     if (uri.path != null) {
                         // local file, no need for auth, disable and hide the credentials fragment
                         credentialsModel.requiresAuth.value = false
-                        binding.root.findViewById<View>(R.id.credentials).visibility = View.INVISIBLE
+                        view.findViewById<View>(R.id.credentials).visibility = View.INVISIBLE
                     }
                 }
                 "http", "https" -> {
                     // might need auth, show the credentials fragment
-                    binding.root.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
+                    view.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
 
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
@@ -139,7 +136,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                 }
                 else -> {
                     // might need auth, show credentials fragment
-                    binding.root.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
+                    view.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
 
                     errorMsg = getString(R.string.add_calendar_need_valid_uri)
                     return null
