@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toURL
 import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -17,7 +18,6 @@ import okhttp3.Request
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 open class CalendarFetcher(
@@ -63,8 +63,8 @@ open class CalendarFetcher(
             throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
         // don't allow switching from HTTPS to a potentially insecure protocol (like HTTP)
-        if (uri.scheme.equals("https", true) && !target.protocol.equals("https", true))
-            throw IOException("Received redirect from HTTPS to ${target.protocol}")
+        if (uri.scheme.equals("https", true) && !target.scheme.equals("https", true))
+            throw IOException("Received redirect from HTTPS to ${target.scheme}")
 
         // update URL
         uri = Uri.parse(target.toString())
@@ -84,7 +84,7 @@ open class CalendarFetcher(
         fetchNetwork()
     }
 
-    open fun onNewPermanentUrl(target: URL) {
+    open fun onNewPermanentUrl(target: Uri) {
     }
 
     open fun onError(error: Exception) {
@@ -123,7 +123,7 @@ open class CalendarFetcher(
     private fun fetchNetwork() {
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
-                .url(URL(uri.toString()))
+                .url(uri.toURL())
 
         val currentUsername = username
         val currentPassword = password
@@ -148,7 +148,8 @@ open class CalendarFetcher(
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
                                     HttpUtils.parseDate(it)?.time
-                                }
+                                },
+                            null
                         )
                     }
 

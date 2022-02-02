@@ -24,7 +24,6 @@ import at.bitfire.icsdroid.R
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.URL
 
 class AddCalendarValidationFragment: DialogFragment() {
 
@@ -117,7 +116,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                     result.postValue(info)
                 }
 
-                override fun onNewPermanentUrl(target: URL) {
+                override fun onNewPermanentUrl(target: Uri) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
                     info.uri = Uri.parse(target.toString())
                 }

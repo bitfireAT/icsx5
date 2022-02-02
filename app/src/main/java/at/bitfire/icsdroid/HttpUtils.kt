@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Log
 import org.apache.commons.lang3.time.DateUtils
 import java.net.URI
+import java.net.URL
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -66,6 +67,7 @@ object HttpUtils {
 
     fun Uri.toURI(): URI = URI(toString())
     fun URI.toUri(): Uri = Uri.parse(toString())
+    fun Uri.toURL(): URL = URL(toString())
 
 
 }
