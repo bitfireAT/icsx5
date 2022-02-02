@@ -116,11 +116,15 @@ class AddCalendarEnterUrlFragment: Fragment() {
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     if (uri.path != null) {
-                        // local file, no need for auth
+                        // local file, no need for auth, disable and hide the credentials fragment
                         credentialsModel.requiresAuth.value = false
+                        binding.root.findViewById<View>(R.id.credentials).visibility = View.INVISIBLE
                     }
                 }
                 "http", "https" -> {
+                    // might need auth, show the credentials fragment
+                    binding.root.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
+
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
@@ -134,6 +138,9 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     }
                 }
                 else -> {
+                    // might need auth, show credentials fragment
+                    binding.root.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
+
                     errorMsg = getString(R.string.add_calendar_need_valid_uri)
                     return null
                 }

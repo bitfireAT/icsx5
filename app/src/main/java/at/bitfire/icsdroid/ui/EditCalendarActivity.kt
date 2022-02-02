@@ -23,7 +23,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
@@ -110,11 +109,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 .setEnabled(dirty)
                 .setVisible(dirty)
 
+        // if local file, hide authentication fragment
         val uri = Uri.parse(model.calendar.value?.url)
-        if (uri.scheme.equals("content")) {
-            // local file, disable auth
-            credentialsModel.requiresAuth.value = false
-            // and don't show credentials fragment
+        if (!CredentialsFragment.shouldShow(uri)) {
             findViewById<FragmentContainerView>(R.id.credentials).visibility = View.INVISIBLE
         }
 
