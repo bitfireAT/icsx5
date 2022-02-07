@@ -4,16 +4,17 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.core.app.ActivityCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import java.net.URI
@@ -24,6 +25,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
+
+    val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        if (uri != null)
+            binding.url.editText?.setText(uri.toString())
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val invalidate = Observer<Any> {
@@ -47,7 +53,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        validateUrl()
+        binding.pickStorageFile.setOnClickListener {
+            pickFile.launch(arrayOf("text/calendar"))
+        }
+
+        validateUri()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -57,75 +67,60 @@ class AddCalendarEnterUrlFragment: Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         val itemNext = menu.findItem(R.id.next)
 
-        val url = validateUrl()
+        val uri = validateUri()
 
-        val authOK = if (credentialsModel.requiresAuth.value == true)
+        val authOK =
+            if (credentialsModel.requiresAuth.value == true)
                 !credentialsModel.username.value.isNullOrEmpty() && !credentialsModel.password.value.isNullOrEmpty()
-        else
-            true
-
-        val permOK = if (url?.scheme.equals("file", true))
-            ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        else
-            true
-
-        itemNext.isEnabled = url != null && authOK && permOK
+            else
+                true
+        itemNext.isEnabled = uri != null && authOK
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        Log.i(Constants.TAG, "Received request permissions! $requestCode")
-        if (grantResults.contains(PackageManager.PERMISSION_GRANTED))
-            requireActivity().invalidateOptionsMenu()
-    }
 
     /* dynamic changes */
 
-    private fun validateUrl(): URI? {
-        val view = requireNotNull(view)
+    private fun validateUri(): URI? {
         var errorMsg: String? = null
 
-        var url: URI
+        var uri: URI
         try {
             try {
-                url = URI(titleColorModel.url.value ?: return null)
+                uri = URI(titleColorModel.url.value ?: return null)
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
                 return null
             }
 
-            Log.i(Constants.TAG, url.toString())
+            Log.i(Constants.TAG, uri.toString())
 
-            if (url.scheme.equals("webcal", true)) {
-                url = URI("http", url.authority, url.path, url.query, null)
-                titleColorModel.url.value = url.toString()
+            if (uri.scheme.equals("webcal", true)) {
+                uri = URI("http", uri.authority, uri.path, uri.query, null)
+                titleColorModel.url.value = uri.toString()
                 return null
-            } else if (url.scheme.equals("webcals", true)) {
-                url = URI("https", url.authority, url.path, url.query, null)
-                titleColorModel.url.value = url.toString()
+            } else if (uri.scheme.equals("webcals", true)) {
+                uri = URI("https", uri.authority, uri.path, uri.query, null)
+                titleColorModel.url.value = uri.toString()
                 return null
             }
 
-            when (url.scheme?.lowercase()) {
-                "file" -> {
-                    if (url.path != null) {
-                        // local file:
-                        // 1. no need for auth
-                        credentialsModel.requiresAuth.value = false
-                        // 2. permission required
-                        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
-                    }
+            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri.toUri())
+            binding.credentials.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
+            credentialsModel.requiresAuth.value = false
+            when (uri.scheme?.lowercase()) {
+                "content" -> {
+                    // SAF file, no need for auth
                 }
                 "http", "https" -> {
                     // extract user name and password from URL
-                    url.userInfo?.let { userInfo ->
+                    uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
                         credentialsModel.requiresAuth.value = true
                         credentialsModel.username.value = credentials.elementAtOrNull(0)
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
-                        val urlWithoutPassword = URI(url.scheme, null, url.host, url.port, url.path, url.query, null)
+                        val urlWithoutPassword = URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null)
                         titleColorModel.url.value = urlWithoutPassword.toString()
                         return null
                     }
@@ -138,14 +133,14 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
             // warn if auth. required and not using HTTPS
             binding.insecureAuthenticationWarning.visibility =
-                    if (credentialsModel.requiresAuth.value == true && !url.scheme.equals("https", true))
+                    if (credentialsModel.requiresAuth.value == true && !uri.scheme.equals("https", true))
                         View.VISIBLE
                     else
                         View.GONE
         } finally {
             binding.url.error = errorMsg
         }
-        return url
+        return uri
     }
 
 

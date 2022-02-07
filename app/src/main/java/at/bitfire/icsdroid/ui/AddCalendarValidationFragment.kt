@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui
 import android.app.Application
 import android.app.Dialog
 import android.app.ProgressDialog
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.DialogFragment
@@ -19,11 +20,12 @@ import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
+import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.URL
 
 class AddCalendarValidationFragment: DialogFragment() {
 
@@ -36,32 +38,33 @@ class AddCalendarValidationFragment: DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        validationModel.result.observe(this, { info ->
+        validationModel.result.observe(this) { info ->
             requireDialog().dismiss()
 
             val exception = info.exception
             if (exception == null) {
-                titleColorModel.url.value = info.url.toString()
+                titleColorModel.url.value = info.uri.toString()
                 if (titleColorModel.color.value == null)
                     titleColorModel.color.value = resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
-                    titleColorModel.title.value = info.calendarName ?: info.url.file
+                    titleColorModel.title.value = info.calendarName ?: info.uri.toString()
 
                 parentFragmentManager
-                        .beginTransaction()
-                        .replace(android.R.id.content, AddCalendarDetailsFragment())
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
+                    .beginTransaction()
+                    .replace(android.R.id.content, AddCalendarDetailsFragment())
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss()
             } else {
-                val errorMessage = exception.localizedMessage ?: exception.message ?: exception.toString()
+                val errorMessage =
+                    exception.localizedMessage ?: exception.message ?: exception.toString()
                 AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
             }
-        })
+        }
 
-        val url = URL(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))
+        val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
         val authenticate = credentialsModel.requiresAuth.value ?: false
-        validationModel.initialize(url,
+        validationModel.initialize(uri,
                 if (authenticate) credentialsModel.username.value else null,
                 if (authenticate) credentialsModel.password.value else null)
     }
@@ -92,32 +95,33 @@ class AddCalendarValidationFragment: DialogFragment() {
         val result = MutableLiveData<ResourceInfo>()
         private var initialized = false
 
-        fun initialize(originalUrl: URL, username: String?, password: String?) {
+        fun initialize(originalUri: Uri, username: String?, password: String?) {
             synchronized(initialized) {
                 if (initialized)
                     return
                 initialized = true
             }
 
-            Log.i(Constants.TAG, "Validating Webcal feed $originalUrl (authentication: $username)")
+            Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            val info = ResourceInfo(originalUrl)
-            val downloader = object: CalendarFetcher(getApplication(), originalUrl) {
-                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+            val info = ResourceInfo(originalUri)
+            val downloader = object: CalendarFetcher(getApplication(), originalUri) {
+                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
                         val events = Event.eventsFromReader(reader, properties)
 
-                        info.calendarName = properties[ICalendar.CALENDAR_NAME]
+                        info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
                         info.eventsFound = events.size
                     }
 
                     result.postValue(info)
                 }
 
-                override fun onNewPermanentUrl(target: URL) {
+                override fun onNewPermanentUrl(target: Uri) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
-                    info.url = target
+                    val location = uri.toURI().resolve(target.toURI())
+                    info.uri = location.toUri()
                 }
 
                 override fun onError(error: Exception) {

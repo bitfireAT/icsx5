@@ -4,8 +4,10 @@
 
 package at.bitfire.icsdroid
 
+import android.net.Uri
 import android.util.Log
 import org.apache.commons.lang3.time.DateUtils
+import java.net.URI
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -60,5 +62,22 @@ object HttpUtils {
         Log.w(Constants.TAG, "Couldn't parse date: $dateStr, ignoring")
         null
     }
+
+    /**
+     * Whether an URI scheme supports authentication.
+     *
+     * Currently only HTTP and HTTPS URIs are considered to support authentication.
+     *
+     * @return true if URI supports authentication; false if it does not
+     */
+    fun supportsAuthentication(uri: Uri) =
+        when (uri.scheme?.lowercase()) {
+            "http", "https" -> true
+            else -> false
+        }
+
+
+    fun Uri.toURI(): URI = URI(toString())
+    fun URI.toUri(): Uri = Uri.parse(toString())
 
 }

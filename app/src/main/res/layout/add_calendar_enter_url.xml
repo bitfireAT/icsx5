@@ -14,18 +14,43 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:text="@string/add_calendar_url_text" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="0dp"
+                android:paddingEnd="16dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/add_calendar_url"
+                    android:hint="@string/add_calendar_url_sample"
                     android:inputType="textUri"
                     android:singleLine="true"
                     android:text="@={model.url}"/>
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:text="@string/add_calendar_pick_file_text" />
+
+            <Button
+                android:id="@+id/pick_storage_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:text="@string/add_calendar_pick_file" />
 
             <TextView
                 android:id="@+id/insecure_authentication_warning"
@@ -42,9 +67,11 @@
                 android:id="@+id/credentials"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
 
         </LinearLayout>
 
     </ScrollView>
+
 </layout>

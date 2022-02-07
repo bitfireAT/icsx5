@@ -18,7 +18,6 @@ class CredentialsFragment: Fragment() {
 
     val model by activityViewModels<CredentialsModel>()
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val binding = CredentialsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this

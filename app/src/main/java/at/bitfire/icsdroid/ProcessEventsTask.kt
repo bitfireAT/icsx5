@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -22,7 +23,6 @@ import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
-import java.net.URL
 
 class ProcessEventsTask(
         val context: Context,
@@ -45,23 +45,23 @@ class ProcessEventsTask(
     }
 
     private fun processEvents() {
-        val url: URL
-        try {
-            url = URL(calendar.url)
-        } catch(e: MalformedURLException) {
-            Log.e(Constants.TAG, "Invalid calendar URL", e)
-            calendar.updateStatusError(e.localizedMessage ?: e.toString())
-            return
-        }
-        Log.i(Constants.TAG, "Synchronizing $url")
+        val uri =
+            try {
+                Uri.parse(calendar.url)
+            } catch(e: MalformedURLException) {
+                Log.e(Constants.TAG, "Invalid calendar URL", e)
+                calendar.updateStatusError(e.localizedMessage ?: e.toString())
+                return
+            }
+        Log.i(Constants.TAG, "Synchronizing $uri")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(calendar.id.toString(), 0)
         var exception: Throwable? = null
 
-        val downloader = object: CalendarFetcher(context, url) {
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+        val downloader = object: CalendarFetcher(context, uri) {
+            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
@@ -81,7 +81,7 @@ class ProcessEventsTask(
                 calendar.updateStatusNotModified()
             }
 
-            override fun onNewPermanentUrl(target: URL) {
+            override fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
                 calendar.updateUrl(target.toString())

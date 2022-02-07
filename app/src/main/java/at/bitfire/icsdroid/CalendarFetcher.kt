@@ -4,24 +4,24 @@
 
 package at.bitfire.icsdroid
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
+import android.provider.DocumentsContract
 import android.util.Log
-import androidx.core.content.ContextCompat
+import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 open class CalendarFetcher(
         val context: Context,
-        var url: URL
+        var uri: Uri
 ): Runnable {
 
     companion object {
@@ -42,19 +42,19 @@ open class CalendarFetcher(
 
 
     override fun run() {
-        if (url.protocol.equals("file", true))
-            fetchFile()
+        if (uri.scheme.equals("content", true))
+            fetchContentUri()
         else
             fetchNetwork()
     }
 
-    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?) {
+    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
     open fun onNotModified() {
     }
 
-    open fun onRedirect(httpCode: Int, target: URL) {
+    open fun onRedirect(httpCode: Int, target: Uri) {
         Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
         // only network resources can be redirected
@@ -62,11 +62,11 @@ open class CalendarFetcher(
             throw IOException("More than $MAX_REDIRECT_COUNT redirect")
 
         // don't allow switching from HTTPS to a potentially insecure protocol (like HTTP)
-        if (url.protocol.equals("https", true) && !target.protocol.equals("https", true))
-            throw IOException("Received redirect from HTTPS to ${target.protocol}")
+        if (uri.scheme.equals("https", true) && !target.scheme.equals("https", true))
+            throw IOException("Received redirect from HTTPS to ${target.scheme}")
 
         // update URL
-        url = target
+        uri = target
 
         // call onNewPermanentUrl if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
@@ -83,39 +83,48 @@ open class CalendarFetcher(
         fetchNetwork()
     }
 
-    open fun onNewPermanentUrl(target: URL) {
+    open fun onNewPermanentUrl(target: Uri) {
     }
 
     open fun onError(error: Exception) {
     }
 
 
-    private fun fetchFile() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            throw IOException(context.getString(R.string.permission_required_external_storage))
-
+    /**
+     * Fetch the file with Android SAF
+     */
+    private fun fetchContentUri() {
         try {
-            File(url.toURI()).let { file ->
-                ifModifiedSince?.let { timestamp ->
-                    if (file.lastModified() <= timestamp) {
-                        onNotModified()
-                        return
-                    }
-                }
+            val contentResolver = context.contentResolver
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-                file.inputStream().use { content ->
-                    onSuccess(content, null, null, file.lastModified())
+            // We could check LAST_MODIFIED from the DocumentProvider here, but it's not clear whether it's reliable enough
+            var displayName: String? = null
+            contentResolver.query(
+                uri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_LAST_MODIFIED),
+                null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    displayName = cursor.getString(0)
+                    //lastModified = cursor.getLong(1)
+                    Log.i(Constants.TAG, "Get metadata from SAF: displayName = $displayName")
                 }
+            }
+            
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                onSuccess(inputStream, null, null, null, displayName)
             }
         } catch (e: Exception) {
             onError(e)
         }
     }
 
+    /**
+     * Fetch the file over network
+     */
     private fun fetchNetwork() {
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
-                .url(url)
+                .url(uri.toString())
 
         val currentUsername = username
         val currentPassword = password
@@ -140,15 +149,18 @@ open class CalendarFetcher(
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
                                     HttpUtils.parseDate(it)?.time
-                                }
+                                },
+                            null
                         )
                     }
 
                     // 30x
                     response.isRedirect -> {
                         val location = response.header("Location")
-                        if (location != null)
-                            onRedirect(response.code, URL(url, location))
+                        if (location != null) {
+                            val newUri = uri.toURI().resolve(location)
+                            onRedirect(response.code, newUri.toUri())
+                        }
                         else
                             throw IOException("Got ${response.code} ${response.message} without Location")
                     }
