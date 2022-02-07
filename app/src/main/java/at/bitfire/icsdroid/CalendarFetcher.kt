@@ -93,7 +93,7 @@ open class CalendarFetcher(
     /**
      * Fetch the file with Android SAF
      */
-    private fun fetchContentUri() {
+    internal fun fetchContentUri() {
         try {
             val contentResolver = context.contentResolver
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -121,7 +121,7 @@ open class CalendarFetcher(
     /**
      * Fetch the file over network
      */
-    private fun fetchNetwork() {
+    internal fun fetchNetwork() {
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
                 .url(uri.toString())
