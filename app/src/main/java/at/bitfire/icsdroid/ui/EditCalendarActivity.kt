@@ -25,7 +25,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -33,6 +32,7 @@ import androidx.lifecycle.Observer
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -49,6 +49,8 @@ class EditCalendarActivity: AppCompatActivity() {
     private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
 
+    lateinit var binding: EditCalendarBinding
+
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
@@ -57,12 +59,12 @@ class EditCalendarActivity: AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        model.calendar.observe(this, { calendar ->
+        model.calendar.observe(this) { calendar ->
             if (!model.loaded) {
                 onCalendarLoaded(calendar)
                 model.loaded = true
             }
-        })
+        }
         model.active.observe(this, invalidate)
 
         titleColorModel.title.observe(this, invalidate)
@@ -72,7 +74,7 @@ class EditCalendarActivity: AppCompatActivity() {
         credentialsModel.username.observe(this, invalidate)
         credentialsModel.password.observe(this, invalidate)
 
-        val binding = DataBindingUtil.setContentView<EditCalendarBinding>(this, R.layout.edit_calendar)
+        binding = DataBindingUtil.setContentView<EditCalendarBinding>(this, R.layout.edit_calendar)
         binding.lifecycleOwner = this
         binding.model = model
 
@@ -111,9 +113,11 @@ class EditCalendarActivity: AppCompatActivity() {
 
         // if local file, hide authentication fragment
         val uri = Uri.parse(model.calendar.value?.url)
-        if (!CredentialsFragment.shouldShow(uri)) {
-            findViewById<FragmentContainerView>(R.id.credentials).visibility = View.INVISIBLE
-        }
+        binding.credentials.visibility =
+            if (HttpUtils.supportsAuthentication(uri))
+                View.VISIBLE
+            else
+                View.GONE
 
         val titleOK = !titleColorModel.title.value.isNullOrBlank()
         val authOK = credentialsModel.run {

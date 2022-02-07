@@ -45,14 +45,14 @@ class ProcessEventsTask(
     }
 
     private fun processEvents() {
-        val uri: Uri
-        try {
-            uri = Uri.parse(calendar.url)
-        } catch(e: MalformedURLException) {
-            Log.e(Constants.TAG, "Invalid calendar URL", e)
-            calendar.updateStatusError(e.localizedMessage ?: e.toString())
-            return
-        }
+        val uri =
+            try {
+                Uri.parse(calendar.url)
+            } catch(e: MalformedURLException) {
+                Log.e(Constants.TAG, "Invalid calendar URL", e)
+                calendar.updateStatusError(e.localizedMessage ?: e.toString())
+                return
+            }
         Log.i(Constants.TAG, "Synchronizing $uri")
 
         // dismiss old notifications

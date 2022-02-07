@@ -20,6 +20,8 @@ import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
+import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import okhttp3.MediaType
 import java.io.InputStream
@@ -118,7 +120,8 @@ class AddCalendarValidationFragment: DialogFragment() {
 
                 override fun onNewPermanentUrl(target: Uri) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
-                    info.uri = Uri.parse(target.toString())
+                    val location = uri.toURI().resolve(target.toURI())
+                    info.uri = location.toUri()
                 }
 
                 override fun onError(error: Exception) {

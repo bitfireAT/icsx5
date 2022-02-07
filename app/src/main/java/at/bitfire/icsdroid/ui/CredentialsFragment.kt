@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,16 +17,6 @@ import at.bitfire.icsdroid.databinding.CredentialsBinding
 class CredentialsFragment: Fragment() {
 
     val model by activityViewModels<CredentialsModel>()
-
-    companion object {
-        fun shouldShow(uri: Uri): Boolean {
-            return when (uri.scheme?.lowercase()) {
-                "content" -> false
-                "http", "https" -> true
-                else -> true
-            }
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val binding = CredentialsBinding.inflate(inflater, container, false)

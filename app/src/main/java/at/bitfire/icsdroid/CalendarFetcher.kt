@@ -10,7 +10,6 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
-import at.bitfire.icsdroid.HttpUtils.toURL
 import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -67,7 +66,7 @@ open class CalendarFetcher(
             throw IOException("Received redirect from HTTPS to ${target.scheme}")
 
         // update URL
-        uri = Uri.parse(target.toString())
+        uri = target
 
         // call onNewPermanentUrl if this is a permanent redirect and we've never followed a temporary redirect
         if (!hasFollowedTempRedirect) {
@@ -90,16 +89,16 @@ open class CalendarFetcher(
     open fun onError(error: Exception) {
     }
 
+
     /**
-     * Fetch the file with android SAF
+     * Fetch the file with Android SAF
      */
     private fun fetchContentUri() {
         try {
-
             val contentResolver = context.contentResolver
-            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            contentResolver.takePersistableUriPermission(uri, takeFlags)
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
+            // We could check LAST_MODIFIED from the DocumentProvider here, but it's not clear whether it's reliable enough
             var displayName: String? = null
             contentResolver.query(
                 uri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_LAST_MODIFIED),
@@ -107,23 +106,25 @@ open class CalendarFetcher(
                 if (cursor.moveToFirst()) {
                     displayName = cursor.getString(0)
                     //lastModified = cursor.getLong(1)
-                    Log.i(Constants.TAG, "displayName = $displayName")
+                    Log.i(Constants.TAG, "Get metadata from SAF: displayName = $displayName")
                 }
             }
             
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 onSuccess(inputStream, null, null, null, displayName)
             }
-
         } catch (e: Exception) {
             onError(e)
         }
     }
 
+    /**
+     * Fetch the file over network
+     */
     private fun fetchNetwork() {
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
-                .url(uri.toURL())
+                .url(uri.toString())
 
         val currentUsername = username
         val currentPassword = password
@@ -153,7 +154,7 @@ open class CalendarFetcher(
                         )
                     }
 
-                    // 30x 11:30 pas 144
+                    // 30x
                     response.isRedirect -> {
                         val location = response.header("Location")
                         if (location != null) {

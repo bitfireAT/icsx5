@@ -8,15 +8,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
-import com.google.android.material.textfield.TextInputLayout
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -27,10 +27,8 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private lateinit var binding: AddCalendarEnterUrlBinding
 
     val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        if (uri != null) {
-            val url:TextInputLayout = binding.root.findViewById(R.id.url)
-            url.editText?.setText(uri.toString())
-        }
+        if (uri != null)
+            binding.url.editText?.setText(uri.toString())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -55,8 +53,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val button:Button = view.findViewById(R.id.pick_local_file)
-        button.setOnClickListener {
+        binding.pickStorageFile.setOnClickListener {
             pickFile.launch(arrayOf("text/calendar"))
         }
 
@@ -72,11 +69,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
         val uri = validateUri()
 
-        val authOK = if (credentialsModel.requiresAuth.value == true)
+        val authOK =
+            if (credentialsModel.requiresAuth.value == true)
                 !credentialsModel.username.value.isNullOrEmpty() && !credentialsModel.password.value.isNullOrEmpty()
-        else
-            true
-
+            else
+                true
         itemNext.isEnabled = uri != null && authOK
     }
 
@@ -84,14 +81,12 @@ class AddCalendarEnterUrlFragment: Fragment() {
     /* dynamic changes */
 
     private fun validateUri(): URI? {
-        val view = requireNotNull(view)
         var errorMsg: String? = null
 
         var uri: URI
         try {
             try {
                 uri = URI(titleColorModel.url.value ?: return null)
-
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
@@ -110,18 +105,14 @@ class AddCalendarEnterUrlFragment: Fragment() {
                 return null
             }
 
+            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri.toUri())
+            binding.credentials.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
+            credentialsModel.requiresAuth.value = false
             when (uri.scheme?.lowercase()) {
                 "content" -> {
-                    if (uri.path != null) {
-                        // local file, no need for auth, disable and hide the credentials fragment
-                        credentialsModel.requiresAuth.value = false
-                        view.findViewById<View>(R.id.credentials).visibility = View.INVISIBLE
-                    }
+                    // SAF file, no need for auth
                 }
                 "http", "https" -> {
-                    // might need auth, show the credentials fragment
-                    view.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
-
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
@@ -135,9 +126,6 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     }
                 }
                 else -> {
-                    // might need auth, show credentials fragment
-                    view.findViewById<View>(R.id.credentials).visibility = View.VISIBLE
-
                     errorMsg = getString(R.string.add_calendar_need_valid_uri)
                     return null
                 }
