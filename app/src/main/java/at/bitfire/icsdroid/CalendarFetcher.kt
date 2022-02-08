@@ -43,7 +43,7 @@ open class CalendarFetcher(
 
     override fun run() {
         if (uri.scheme.equals("content", true))
-            fetchContentUri()
+            fetchLocal()
         else
             fetchNetwork()
     }
@@ -93,7 +93,7 @@ open class CalendarFetcher(
     /**
      * Fetch the file with Android SAF
      */
-    internal fun fetchContentUri() {
+    internal fun fetchLocal() {
         try {
             val contentResolver = context.contentResolver
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
