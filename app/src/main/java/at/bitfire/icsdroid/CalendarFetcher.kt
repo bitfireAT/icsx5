@@ -42,10 +42,10 @@ open class CalendarFetcher(
 
 
     override fun run() {
-        if (uri.scheme.equals("content", true))
-            fetchLocal()
-        else
+        if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
             fetchNetwork()
+        else
+            fetchLocal()
     }
 
     open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
@@ -94,9 +94,12 @@ open class CalendarFetcher(
      * Fetch the file with Android SAF
      */
     internal fun fetchLocal() {
+        Log.w(Constants.TAG, "Fetching local file $uri")
         try {
             val contentResolver = context.contentResolver
-            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            // TODO: Berechtigung holen, wenn benötigt → onActivityResult
+            //contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             // We could check LAST_MODIFIED from the DocumentProvider here, but it's not clear whether it's reliable enough
             var displayName: String? = null
@@ -114,6 +117,7 @@ open class CalendarFetcher(
                 onSuccess(inputStream, null, null, null, displayName)
             }
         } catch (e: Exception) {
+            Log.e(Constants.TAG, "Couldn't fetch local resource", e)
             onError(e)
         }
     }

@@ -4,16 +4,20 @@
 
 package at.bitfire.icsdroid
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.core.content.FileProvider.getUriForFile
 import androidx.test.platform.app.InstrumentationRegistry
-import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.test.BuildConfig
+import at.bitfire.icsdroid.test.R
 import okhttp3.MediaType
-import org.junit.*
-import java.io.*
-
+import org.apache.commons.io.IOUtils
+import org.junit.Assert.assertEquals
+import org.junit.BeforeClass
+import org.junit.Test
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class CalendarFetcherTest {
 
@@ -31,25 +35,26 @@ class CalendarFetcherTest {
 
     }
 
-//    @Test
-//    fun testFetchLocal_readsCorrectly() {
-//        val uri = Uri.fromFile(File("sampledata/vienna-evolution.ics"))
-//        Log.w(TAG, uri.toString())
-//
-//        val fetcher = object: CalendarFetcher(appContext, uri) {
-//            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-//
-//                // check first few lines of stream equal actual file contents
-//
-//            }
-//        }
-//
-//        fetcher.fetchLocal()
-//    }
-
     @Test
-    fun testFetchLocal_correctDisplayName() {
+    fun testFetchLocal_readsCorrectly() {
+        val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.vienna_evolution}")
 
+        var ical: String? = null
+        val fetcher = object: CalendarFetcher(appContext, uri) {
+            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+                // check first few lines of stream equal actual file contents
+                ical = IOUtils.toString(data, Charsets.UTF_8)
+                data.close()
+            }
+        }
+        fetcher.run()
+        assertEquals("mäh", ical)
+
+        fetcher.fetchLocal()
+    }
+
+    /*@Test
+    fun testFetchLocal_correctDisplayName() {
         val inputStream = testContext.assets.open("vienna-evolution.ics")
 
         val file = File(appContext.filesDir, "vienna-evolution.ics")
@@ -67,7 +72,7 @@ class CalendarFetcherTest {
 //                assertEquals("vienna-evolution.ics", displayName)
 //            }
 //        }.run()
-    }
+    }*/
 
     private fun InputStream.getFilePath(dir: File, name: String, extension: String): String {
         val file = File(dir, "$name.$extension")

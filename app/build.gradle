@@ -104,5 +104,6 @@ dependencies {
     // for tests
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation "androidx.test:rules:1.4.0"
+    androidTestImplementation 'junit:junit:4.13.2'
     testImplementation 'junit:junit:4.13.2'
 }
