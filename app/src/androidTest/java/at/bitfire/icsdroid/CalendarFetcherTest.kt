@@ -48,31 +48,12 @@ class CalendarFetcherTest {
             }
         }
         fetcher.run()
-        assertEquals("mäh", ical)
 
-        fetcher.fetchLocal()
+        testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
+            val referenceData = IOUtils.toString(streamCorrect, Charsets.UTF_8)
+            assertEquals(referenceData, ical)
+        }
     }
-
-    /*@Test
-    fun testFetchLocal_correctDisplayName() {
-        val inputStream = testContext.assets.open("vienna-evolution.ics")
-
-        val file = File(appContext.filesDir, "vienna-evolution.ics")
-        val outputStream = FileOutputStream(file)
-        val uri: Uri = getUriForFile(appContext, BuildConfig.APPLICATION_ID + ".test.provider", file);
-        inputStream.copyTo(outputStream, 4096)
-
-        Log.v(TAG, file.absolutePath)
-        Log.w(TAG, uri.toString())
-
-//        // assert display name matches
-//        object: CalendarFetcher(context, uri) {
-//            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-//                Log.d(TAG, displayName.toString())
-//                assertEquals("vienna-evolution.ics", displayName)
-//            }
-//        }.run()
-    }*/
 
     private fun InputStream.getFilePath(dir: File, name: String, extension: String): String {
         val file = File(dir, "$name.$extension")

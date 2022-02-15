@@ -13,6 +13,7 @@ import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import java.io.IOException
 import java.io.InputStream
@@ -112,7 +113,7 @@ open class CalendarFetcher(
                     Log.i(Constants.TAG, "Get metadata from SAF: displayName = $displayName")
                 }
             }
-            
+
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 onSuccess(inputStream, null, null, null, displayName)
             }
