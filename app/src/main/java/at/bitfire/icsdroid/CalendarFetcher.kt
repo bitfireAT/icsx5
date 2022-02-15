@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
@@ -13,7 +12,6 @@ import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import java.io.IOException
 import java.io.InputStream
@@ -98,9 +96,6 @@ open class CalendarFetcher(
         Log.w(Constants.TAG, "Fetching local file $uri")
         try {
             val contentResolver = context.contentResolver
-
-            // TODO: Berechtigung holen, wenn benötigt → onActivityResult
-            //contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             // We could check LAST_MODIFIED from the DocumentProvider here, but it's not clear whether it's reliable enough
             var displayName: String? = null

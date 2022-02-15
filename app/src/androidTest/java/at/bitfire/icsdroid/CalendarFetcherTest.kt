@@ -15,8 +15,6 @@ import org.apache.commons.io.IOUtils
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
-import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
 
 class CalendarFetcherTest {
@@ -54,12 +52,4 @@ class CalendarFetcherTest {
             assertEquals(referenceData, ical)
         }
     }
-
-    private fun InputStream.getFilePath(dir: File, name: String, extension: String): String {
-        val file = File(dir, "$name.$extension")
-        val outputStream = FileOutputStream(file)
-        this.copyTo(outputStream, 4096)
-        return file.absolutePath
-    }
-
 }
