@@ -122,6 +122,7 @@ open class CalendarFetcher(
      * Fetch the file over network
      */
     internal fun fetchNetwork() {
+        Log.w(Constants.TAG, "Fetching remote file $uri")
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
                 .url(uri.toString())
