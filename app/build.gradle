@@ -24,6 +24,8 @@ android {
         versionName "1.9.4"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -98,4 +100,12 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
     //noinspection GradleDependency
     implementation 'org.apache.commons:commons-lang3:3.8.1'
+
+    // for tests
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation "androidx.test:rules:1.4.0"
+    androidTestImplementation 'junit:junit:4.13.2'
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+
+    testImplementation 'junit:junit:4.13.2'
 }

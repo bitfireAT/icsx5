@@ -4,6 +4,7 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -27,8 +28,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private lateinit var binding: AddCalendarEnterUrlBinding
 
     val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        if (uri != null)
+        if (uri != null) {
             binding.url.editText?.setText(uri.toString())
+            // keep the picked file accessible after the first sync and reboots
+            context?.contentResolver?.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {

@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
@@ -42,10 +41,10 @@ open class CalendarFetcher(
 
 
     override fun run() {
-        if (uri.scheme.equals("content", true))
-            fetchContentUri()
-        else
+        if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
             fetchNetwork()
+        else
+            fetchLocal()
     }
 
     open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
@@ -93,10 +92,10 @@ open class CalendarFetcher(
     /**
      * Fetch the file with Android SAF
      */
-    private fun fetchContentUri() {
+    internal fun fetchLocal() {
+        Log.i(Constants.TAG, "Fetching local file $uri")
         try {
             val contentResolver = context.contentResolver
-            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             // We could check LAST_MODIFIED from the DocumentProvider here, but it's not clear whether it's reliable enough
             var displayName: String? = null
@@ -109,11 +108,12 @@ open class CalendarFetcher(
                     Log.i(Constants.TAG, "Get metadata from SAF: displayName = $displayName")
                 }
             }
-            
+
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 onSuccess(inputStream, null, null, null, displayName)
             }
         } catch (e: Exception) {
+            Log.e(Constants.TAG, "Couldn't fetch local resource", e)
             onError(e)
         }
     }
@@ -121,7 +121,8 @@ open class CalendarFetcher(
     /**
      * Fetch the file over network
      */
-    private fun fetchNetwork() {
+    internal fun fetchNetwork() {
+        Log.i(Constants.TAG, "Fetching remote file $uri")
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
                 .url(uri.toString())
