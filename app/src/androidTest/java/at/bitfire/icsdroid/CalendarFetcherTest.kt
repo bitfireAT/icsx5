@@ -8,6 +8,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
+import at.bitfire.icsdroid.HttpUtils.toAndroidUri
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import okhttp3.MediaType
@@ -15,13 +16,14 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.apache.commons.io.IOUtils
 import org.junit.After
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import java.io.IOException
 import java.io.InputStream
-import kotlin.Exception
-
+import java.net.HttpURLConnection
+import java.util.*
 
 class CalendarFetcherTest {
 
@@ -69,28 +71,24 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_success() {
-
         val etagCorrect = "33a64df551425fcc55e4d42a148795d9f25f89d4"
-        val lastModifiedCorrect = "Wed, 21 Oct 2015 07:28:00 GMT"
+        val lastModifiedCorrect = "Wed, 21 Oct 2015 07:28:00 GMT"       // UNIX timestamp 1445405280
         val icalCorrect = testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
             IOUtils.toString(streamCorrect, Charsets.UTF_8)
         }
 
         // create mock response
         server.enqueue(MockResponse()
-            .setResponseCode(200)
+            .setResponseCode(HttpURLConnection.HTTP_OK)
             .addHeader("ETag", etagCorrect)
             .addHeader("Last-Modified", lastModifiedCorrect)
             .setBody(icalCorrect))
 
-
         // make request to local mock server
-        val baseUrl = server.url("/")
-        val uri = Uri.parse(baseUrl.toString() + "vienna-evolution.ics")
         var ical: String? = null
         var etag: String? = null
         var lastmod: Long? = null
-        val fetcher = object: CalendarFetcher(appContext, uri) {
+        val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = IOUtils.toString(data, Charsets.UTF_8)
                 etag = eTag
@@ -102,32 +100,33 @@ class CalendarFetcherTest {
 
         // assert content, ETag and Last-Modified are correct
         assertEquals(etagCorrect, etag)
-        assertEquals(HttpUtils.parseDate(lastModifiedCorrect)?.time, lastmod)
+        assertEquals(1445412480000L, lastmod)
         assertEquals(icalCorrect, ical)
     }
 
     @Test
     fun testFetchNetwork_onRedirectWithLocation() {
-
-        // create mock responses
+        // create mock responses:
+        // 1. redirect with absolute target URL
         server.enqueue(MockResponse()
-            .setResponseCode(300)
+            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
             .addHeader("Location", server.url("new-location/vienna-evolution.ics")))
+        // 2. redirect with relative target URL
         server.enqueue(MockResponse()
-            .setResponseCode(300)
-            .addHeader("Location", server.url("the-file-is-here")))
+            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+            .addHeader("Location", "the-file-is-here"))
+        // 3. finally the real resource
         server.enqueue(MockResponse()
-            .setResponseCode(200)
+            .setResponseCode(HttpURLConnection.HTTP_OK)
             .setBody("icalCorrect"))
 
         // make initial request to local mock server
-        val baseUrl = server.url("/")
-        val uri = Uri.parse(baseUrl.toString() + "vienna-evolution.ics")
+        val baseUrl = server.url("/").toAndroidUri()
         var ical: String? = null
-        val redirects = arrayListOf<Uri>()
-        val fetcher = object: CalendarFetcher(appContext, uri) {
+        val redirects = LinkedList<Uri>()
+        val fetcher = object: CalendarFetcher(appContext, baseUrl) {
             override fun onRedirect(httpCode: Int, target: Uri) {
-                redirects.add(target)
+                redirects += target
                 super.onRedirect(httpCode, target)
             }
             override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
@@ -138,10 +137,16 @@ class CalendarFetcherTest {
         fetcher.run()
 
         // assert redirects are made correctly
-        assertEquals(arrayListOf(
-            Uri.parse(baseUrl.toString() + "new-location/vienna-evolution.ics"),
-            Uri.parse(baseUrl.toString() + "the-file-is-here")
-        ), redirects)
+        assertArrayEquals(arrayOf(
+            baseUrl.buildUpon()
+                .appendPath("new-location")
+                .appendPath("vienna-evolution.ics")
+                .build(),
+            baseUrl.buildUpon()
+                .appendPath("new-location")
+                .appendPath("the-file-is-here")
+                .build()
+        ), redirects.toTypedArray())
 
         // assert onSuccess is called
         assertEquals("icalCorrect", ical)
@@ -149,34 +154,26 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onRedirectWithoutLocation() {
-
         server.enqueue(MockResponse()
-            .setResponseCode(300))
+            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
 
-        val baseUrl = server.url("/")
-        val uri = Uri.parse(baseUrl.toString() + "vienna-evolution.ics")
-
-        var e:Exception = IOException()
-        object: CalendarFetcher(appContext, uri){
+        var e: Exception? = null
+        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override fun onError(error: Exception) {
                 e = error
             }
         }.run()
 
-        assertEquals(IOException::class.java, e::class.java)
+        assertEquals(IOException::class.java, e?.javaClass)
     }
 
     @Test
     fun testFetchNetwork_onNotModified() {
-
         server.enqueue(MockResponse()
-            .setResponseCode(304))
-
-        val baseUrl = server.url("/")
-        val uri = Uri.parse(baseUrl.toString() + "vienna-evolution.ics")
+            .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED))
 
         var notModified = false
-        object: CalendarFetcher(appContext, uri){
+        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override fun onNotModified() {
                 notModified = true
             }
@@ -187,20 +184,16 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onError() {
-
         server.enqueue(MockResponse()
-            .setResponseCode(404))
+            .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
 
-        val baseUrl = server.url("/")
-        val uri = Uri.parse(baseUrl.toString() + "vienna-evolution.ics")
-
-        var e:Exception = IOException()
-        object: CalendarFetcher(appContext, uri){
+        var e: Exception? = null
+        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override fun onError(error: Exception) {
                 e = error
             }
         }.run()
 
-        assertEquals(IOException::class.java, e::class.java)
+        assertEquals(IOException::class.java, e?.javaClass)
     }
 }
