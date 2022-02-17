@@ -113,9 +113,9 @@ open class CalendarFetcher(
                 onSuccess(inputStream, null, null, null, displayName)
             }
         } catch (e: SecurityException) {
-            onError(IOException("Could not open local file"))
+            onError(IOException(context.getString(R.string.could_not_open_local_file)))
         } catch (e: Exception) {
-            Log.e(Constants.TAG, "Couldn't fetch local resource", e)
+            Log.e(Constants.TAG, context.getString(R.string.could_not_fetch_local_resource), e)
             onError(e)
         }
     }
