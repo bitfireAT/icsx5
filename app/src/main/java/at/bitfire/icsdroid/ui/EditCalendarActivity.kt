@@ -37,6 +37,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
+import java.io.FileNotFoundException
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -83,7 +84,12 @@ class EditCalendarActivity: AppCompatActivity() {
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
                 // permissions OK, load calendar from provider
                 val uri = intent.data ?: throw IllegalArgumentException("Intent data must be calendar URI")
-                model.loadCalendar(uri)
+                try {
+                    model.loadCalendar(uri)
+                } catch (e: FileNotFoundException) {
+                    Toast.makeText(this, R.string.could_not_load_calendar, Toast.LENGTH_LONG).show()
+                    finish()
+                }
             } else {
                 Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
                 finish()
