@@ -112,6 +112,8 @@ open class CalendarFetcher(
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 onSuccess(inputStream, null, null, null, displayName)
             }
+        } catch (e: SecurityException) {
+            onError(IOException("Could not open local file"))
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't fetch local resource", e)
             onError(e)
