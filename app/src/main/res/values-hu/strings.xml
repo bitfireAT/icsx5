@@ -28,7 +28,6 @@
   <string name="add_calendar_requires_authentication">Hitelesítés szükséges</string>
   <string name="add_calendar_title">Cím és szín</string>
   <string name="add_calendar_title_hint">Naptár neve</string>
-  <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
   <string name="add_calendar_validating">A naptár ellenőrzése…</string>
   <!--AlertFragment-->
@@ -60,7 +59,6 @@
   </string-array>
   <string name="sync_permission_required">Engedély szükséges</string>
   <string name="sync_permission_required_sync_calendar">A naptár szinkronizálásához szükséges engedélyek hiányoznak</string>
-  <string name="permission_required_external_storage">A helyi iCalendar fájlok eléréséhez Tárhely engedélyre van szükség</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Alkalmazásinformáció</string>
   <string name="app_info_version">Verziószám: %1$s-%2$s </string>
@@ -80,7 +78,6 @@ Ha nem, megtalálja a <a href="https://www.gnu.org/licenses/">https://www.gnu.or
     ]]></string>
   <string name="app_info_donate">Támogatás</string>
   <string name="app_info_description">Feliratkozás egy Webcal folyamra</string>
-  <string name="app_info_libraries">Könyvtárak</string>
   <string name="app_info_twitter">Hírek és frissítések</string>
   <string name="app_info_web_site">Honlap</string>
   <string name="donate_title">A forrás nyíltságával kapcsolatos információk</string>

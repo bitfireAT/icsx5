@@ -27,7 +27,6 @@
   <string name="add_calendar_requires_authentication">Вимагається аутентифікація</string>
   <string name="add_calendar_title">Заголовок &amp; Колір</string>
   <string name="add_calendar_title_hint">Назва Календаря</string>
-  <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Ім\'я користувача</string>
   <string name="add_calendar_validating">Перевіряємо джерело календаря...</string>
   <!--AlertFragment-->
@@ -59,7 +58,6 @@
   </string-array>
   <string name="sync_permission_required">Потрібен дозвіл</string>
   <string name="sync_permission_required_sync_calendar">Потрібен дозвіл для синхронізації вашого календаря</string>
-  <string name="permission_required_external_storage">Дозвіл до сховища потрібен для доступу до локальних файлів iCalendar</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Інформація про додаток</string>
   <string name="app_info_twitter">Новини &amp; оновлення</string>

@@ -28,7 +28,6 @@
   <string name="add_calendar_requires_authentication">Requer autenticação</string>
   <string name="add_calendar_title">Título e cor</string>
   <string name="add_calendar_title_hint">Nome de calendário</string>
-  <string name="add_calendar_url">Endereço/URL</string>
   <string name="add_calendar_user_name">Nome de utilizador</string>
   <string name="add_calendar_validating">A validar calendário...</string>
   <!--AlertFragment-->
@@ -60,7 +59,6 @@
   </string-array>
   <string name="sync_permission_required">Permissão necessária</string>
   <string name="sync_permission_required_sync_calendar">Necessária permissão para sincronizar o calendário </string>
-  <string name="permission_required_external_storage">Permissão de armazenamento necessária para aceder a ficheiros iCalendar locais</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Informação da aplicação</string>
   <string name="app_info_version">Versão %1$s-%2$s</string>
@@ -80,7 +78,6 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     ]]></string>
   <string name="app_info_donate">Doar</string>
   <string name="app_info_description">Subscrever feed Webcal</string>
-  <string name="app_info_libraries">Bibliotecas</string>
   <string name="app_info_twitter">Notícias e updates</string>
   <string name="app_info_web_site">Sítio web</string>
   <string name="donate_title">Informação Open-Source</string>

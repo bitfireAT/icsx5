@@ -28,7 +28,6 @@
   <string name="add_calendar_requires_authentication">Requiere autenticación</string>
   <string name="add_calendar_title">Título y color</string>
   <string name="add_calendar_title_hint">Nombre del calendario</string>
-  <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Nombre de usuario</string>
   <string name="add_calendar_validating">Validando recurso de calendario…</string>
   <!--AlertFragment-->
@@ -60,7 +59,6 @@
   </string-array>
   <string name="sync_permission_required">Permiso requerido</string>
   <string name="sync_permission_required_sync_calendar">Se necesita permiso para sincronizar tu calendario</string>
-  <string name="permission_required_external_storage">El permiso de almacenamiento se necesita para acceder a los archivos iCalendar locales</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Info de la app</string>
   <string name="app_info_version">%2$sVersión %1$s-</string>
@@ -72,7 +70,6 @@ Est programa se distribuye con la esperanza de que sea útil, pero SIN GARANTÍA
 eberías haber recibido una copia de la Licencia Pública General de GNU junto con este programa. Si no es así, ver &lt;a href="https://www.gnu.org/licenses/"&gt;https://www.gnu.org/licenses/&lt;/a&gt;.</string>
   <string name="app_info_donate">Donar</string>
   <string name="app_info_description">Suscribirse a fuentes Webcal</string>
-  <string name="app_info_libraries">Librerías</string>
   <string name="app_info_twitter">Noticias y actualizaciones</string>
   <string name="app_info_web_site">Sitio web</string>
   <string name="donate_title">Información de código abierto</string>

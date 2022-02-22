@@ -1,90 +1,93 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="account_name">Kalenderabonnementen</string>
+  <string name="account_name">Kalender-abonnementen</string>
   <!--common strings-->
   <string name="action_next">Volgende</string>
-  <string name="calendar_permissions_required">Kalendertoestemming is vereist</string>
-  <string name="notification_channel_sync_problem">Syncproblemen</string>
+  <string name="calendar_permissions_required">Kalenderrechten nodig</string>
+  <string name="notification_channel_sync_problem">Sync-problemen</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mijn abonnementen</string>
-  <string name="calendar_list_empty_info">Om te abonneren op een Webcal-feed, gebruikt de +-knop of open een Webcal-URL.</string>
+  <string name="calendar_list_empty_info">De + knop gebruiken of een Webcal-URL openen om te abonneren op een Webcal-feed.</string>
   <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
-  <string name="calendar_list_set_sync_interval">Zet sync.interval</string>
-  <string name="calendar_list_sync_disabled">Sync. uitgeschakeld</string>
-  <string name="calendar_list_sync_interval_manually">Automatische sync is uitgeschakeld</string>
-  <string name="calendar_list_master_sync_disabled">Systeembreed automatisch syncen is uitgeschakeld</string>
-  <string name="calendar_list_master_sync_enable">Actief</string>
-  <string name="calendar_list_battery_whitelist">Batterij: Whitelist ICSx⁵ voor korte syncintervallen</string>
+  <string name="calendar_list_set_sync_interval">Sync-interval instellen</string>
+  <string name="calendar_list_sync_disabled">Sync uitgeschakeld</string>
+  <string name="calendar_list_sync_interval_manually">Automatische sync uitgeschakeld</string>
+  <string name="calendar_list_master_sync_disabled">Systeem-brede automatische sync is uitgezet</string>
+  <string name="calendar_list_master_sync_enable">Activeren</string>
+  <string name="calendar_list_battery_whitelist">Onbeperkt batterijgebruik voor korte sync-intervallen</string>
   <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
   <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Donker thema forceren</string>
   <!--AddCalendarActivity-->
-  <string name="activity_add_calendar">Abonneer op een kalender</string>
+  <string name="activity_add_calendar">Op een kalender abonneren</string>
   <string name="add_calendar_need_valid_uri">Geldige URL is vereist</string>
-  <string name="add_calendar_authentication_without_https_warning">Derden kunnen eenvoudig je credentials onderscheppen. Gebruik HTTPS voor veilige authenticatie.</string>
-  <string name="add_calendar_create">Abonneer nu</string>
-  <string name="add_calendar_created">Succesvol geabonneerd</string>
+  <string name="add_calendar_authentication_without_https_warning">HTTPS voor veilige verificatie gebruiken. Derden kunnen eenvoudig je gegevens achterhalen.</string>
+  <string name="add_calendar_create">Nu abonneren</string>
+  <string name="add_calendar_created">Abonneren geslaagd</string>
   <string name="add_calendar_password">Wachtwoord</string>
-  <string name="add_calendar_requires_authentication">Vereist authenticatie</string>
+  <string name="add_calendar_requires_authentication">Verificatie vereist</string>
   <string name="add_calendar_title">Titel &amp; Kleur</string>
   <string name="add_calendar_title_hint">Kalendernaam</string>
-  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_url_text">Webcal-adres invoeren:</string>
+  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
+  <string name="add_calendar_pick_file_text">Of een bestand uit de lokale opslag kiezen.</string>
+  <string name="add_calendar_pick_file">Bestand kiezen</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
-  <string name="add_calendar_validating">Kalenderbron aan het valideren...</string>
+  <string name="add_calendar_validating">Kalenderbron valideren...</string>
   <!--AlertFragment-->
+  <string name="alert_share_details">Details delen</string>
   <!--EditCalendarActivity-->
-  <string name="activity_edit_calendar">Bewerk abonnement</string>
-  <string name="edit_calendar_cancel">Annuleer</string>
+  <string name="activity_edit_calendar">Abonnement bewerken</string>
+  <string name="edit_calendar_cancel">Annuleren</string>
   <string name="edit_calendar_delete">Afmelden</string>
   <string name="edit_calendar_deleted">Succesvol afgemeld</string>
-  <string name="edit_calendar_dismiss">Negeer</string>
-  <string name="edit_calendar_failed">Operatie gefaald</string>
-  <string name="edit_calendar_really_delete">Wilt u echt abonneren op deze kalender?</string>
-  <string name="edit_calendar_save">Bewaar</string>
+  <string name="edit_calendar_dismiss">Negeren</string>
+  <string name="edit_calendar_failed">Handeling mislukt</string>
+  <string name="edit_calendar_really_delete">Inderdaad afmelden voor deze kalender?</string>
+  <string name="edit_calendar_save">Bewaren</string>
   <string name="edit_calendar_saved">Wijzigingen bewaard</string>
-  <string name="edit_calendar_send_url">Verzend URL</string>
-  <string name="edit_calendar_sync_this_calendar">Synchroniseer deze kalender</string>
-  <string name="edit_calendar_unsaved_changes">Er zijn wijzigingen die niet zijn bewaard.</string>
+  <string name="edit_calendar_send_url">URL verzenden</string>
+  <string name="edit_calendar_sync_this_calendar">Deze kalender synchroniseren</string>
+  <string name="edit_calendar_unsaved_changes">Er zijn niet bewaarde wijzigingen.</string>
   <!--synchronization-->
   <string name="sync_error_title">Synchronisatiefout</string>
-  <string name="set_sync_interval_save">Bewaar</string>
-  <string name="set_sync_interval_title">Zet sync.interval</string>
+  <string name="set_sync_interval_save">Opslaan</string>
+  <string name="set_sync_interval_title">Stel sync-interval in:</string>
   <string-array name="set_sync_interval_names">
     <item>Alleen handmatig</item>
-    <item>Elke 15 minuten</item>
-    <item>Elk uur</item>
+    <item>Om de 15 minuten</item>
+    <item>Om het uur</item>
     <item>Elke 2 uur</item>
     <item>Elke 4 uur</item>
     <item>Eens per dag</item>
     <item>Eens per week</item>
   </string-array>
-  <string name="sync_permission_required">Toestemming vereist</string>
-  <string name="sync_permission_required_sync_calendar">Toestemming is nodig om je kalender te syncen</string>
-  <string name="permission_required_external_storage">Opslagtoestemming is vereist om toegang te krijgen tot lokale iCalendar-bestanden </string>
+  <string name="sync_permission_required">Toegangsrecht vereist</string>
+  <string name="sync_permission_required_sync_calendar">Toegangsrecht vereist om kalender te syncen</string>
   <!--InfoActivity-->
-  <string name="activity_app_info">Appinfo</string>
+  <string name="activity_app_info">App-info</string>
   <string name="app_info_version">Versie %1$s-%2$s</string>
   <string name="app_info_gplv3_note"><![CDATA[
-Dit programma is vrije software: je mag deze herdistribueren en/of het aanpassen
-onder dezelfde voorwaarden van de GNU General Public License zoals is gepubliceert door
-de Free Software Foundation, ofwel versie 3 van de License, of
-(naar eigen keuze) elke latere versie.
+Dit programma is vrije software: u kunt het opnieuw distribueren en/of 
+wijzigen conform de voorwaarden van de GNU General Public License 
+zoals gepubliceerd door de Free Software Foundation, ofwel versie 3 
+van de licentie, of (naar keuze) een latere versie
 
-Dit programma is gedistribueerd in de hoop dat het nuttig zal zijn,
-maar ZONDER ENIGE GARANTIE; zelf zonder geïmpliceerde garantie van
-VERHANDELBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL.  Zie de
-GNU General Public License voor meer details.
+Dit programma wordt verspreid in de hoop dat het nuttig is, maar
+ZONDER ENIGE GARANTIE; zelfs zonder de impliciete garanties van
+VERKOOPBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL.
+Zie de GNU General Public License voor meer details.
 
-Met dit programma zou je een kopie van de GNU General Public License
-ontvangen moeten hebben.  Als dat niet het geval is, zie <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+U moet een kopie hebben gekregen van de GNU General Public License
+bij dit programma. Zo niet, zie <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
     ]]></string>
-  <string name="app_info_donate">Doneer</string>
-  <string name="app_info_description">Aboneer op Webcal-feeds</string>
-  <string name="app_info_libraries">Bibliotheken</string>
+  <string name="app_info_donate">Doneren</string>
+  <string name="app_info_description">Op Webcal feeds abonneren</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>
   <string name="app_info_web_site">Website</string>
-  <string name="donate_title">Opensourceinformatie</string>
-  <string name="donate_message">We vinden het leuk dat u ICSx⁵ gebruikt, dat opensourcesoftware is (GPLv3). Omdat het veel werk was en is om ICSx⁵ te ontwikkelen en onderhouden, overweeg a.u.b. een donatie.</string>
-  <string name="donate_now">Toon donatiepagina</string>
+  <string name="donate_title">Opensource informatie</string>
+  <string name="donate_message">Fijn dat je ICSx⁵ gebruikt, het is opensource-software (GPLv3). Omdat het veel werk was en nog steeds is om ICSx⁵ te ontwikkelen en te onderhouden, vragen wij een donatie te overwegen.</string>
+  <string name="donate_now">Donatiepagina weergeven</string>
   <string name="donate_later">Misschien later</string>
 </resources>

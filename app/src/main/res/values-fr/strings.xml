@@ -18,20 +18,24 @@
   <string name="calendar_list_battery_whitelist">Batterie : Ajoutez ICSx⁵ aux exceptions pour des intervalles de synchronisation courts</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Forcer le thème sombre</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">S\'abonner à un calendrier</string>
   <string name="add_calendar_need_valid_uri">URL valide requise</string>
-  <string name="add_calendar_authentication_without_https_warning">Des intervenants extérieurs peuvent facilement intercepter vos identifiants. Utilisez le protocole HTTPS pour sécuriser votre authentification.</string>
+  <string name="add_calendar_authentication_without_https_warning">Des tiers peuvent facilement intercepter vos identifiants. Utilisez le protocole HTTPS pour sécuriser votre authentification.</string>
   <string name="add_calendar_create">S\'abonner maintenant</string>
   <string name="add_calendar_created">Abonnement réussi</string>
   <string name="add_calendar_password">Mot de passe</string>
   <string name="add_calendar_requires_authentication">Authentification nécessaire</string>
   <string name="add_calendar_title">Intitulé &amp; couleur</string>
   <string name="add_calendar_title_hint">Nom du calendrier</string>
-  <string name="add_calendar_url">URL</string>
+  <string name="add_calendar_url_text">Entrez une adresse Webcal : </string>
+  <string name="add_calendar_pick_file_text">Ou sinon, sélectionnez un fichier du stockage local. </string>
+  <string name="add_calendar_pick_file">Choisir un fichier</string>
   <string name="add_calendar_user_name">Nom d\'utilisateur</string>
   <string name="add_calendar_validating">Validation du calendrier…</string>
   <!--AlertFragment-->
+  <string name="alert_share_details">Partager les détails</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Modifier l\'abonnement</string>
   <string name="edit_calendar_cancel">Annuler</string>
@@ -48,7 +52,7 @@
   <!--synchronization-->
   <string name="sync_error_title">Erreur de synchronisation</string>
   <string name="set_sync_interval_save">Enregistrer</string>
-  <string name="set_sync_interval_title">Intervalle de synchro.</string>
+  <string name="set_sync_interval_title">Intervalle de synchro. : </string>
   <string-array name="set_sync_interval_names">
     <item>Uniquement manuelle</item>
     <item>Toutes les 15 minutes</item>
@@ -60,26 +64,11 @@
   </string-array>
   <string name="sync_permission_required">Autorisation requise</string>
   <string name="sync_permission_required_sync_calendar">Autorisation nécessaire pour la synchro. de votre calendrier</string>
-  <string name="permission_required_external_storage">Autorisation de Stockage nécessaire pour l\'accès aux fichiers iCalendar locaux</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_version">Version %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-Ce programme est un logiciel gratuit : vous pouvez le redistribuer et/ou le modifier
-Il est sous licence GNU General Public License telle que publiée par
-la Free Software Foundation, soit avec la version 3 de la licence ou
-(selon votre préférence) à toute version ultérieure.
-
-Ce programme est distribué dans l\'espoir qu\'il sera utile,
-mais SANS AUCUNE GARANTIE; ni même celle d\'accomplir un objectif précis..  Voir la
-GNU General Public License pour plus de détails.
-
-Vous devriez avoir reçu une copie de la  GNU General Public License
-avec ce programme.  Si ce n\'est pas le cas, vous pouvez la visualiser en suivant le lien <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
-    ]]></string>
   <string name="app_info_donate">Faire une donation</string>
   <string name="app_info_description">Souscrire au flux Webcal</string>
-  <string name="app_info_libraries">Bibliothèques</string>
   <string name="app_info_twitter">Nouvelles &amp; mises à jour</string>
   <string name="app_info_web_site">Site web</string>
   <string name="donate_title">Information Open Source</string>

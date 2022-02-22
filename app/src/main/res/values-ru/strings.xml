@@ -28,7 +28,6 @@
   <string name="add_calendar_requires_authentication">Требуется аутентификация</string>
   <string name="add_calendar_title">Заглавие &amp; Цвет</string>
   <string name="add_calendar_title_hint">Название календаря</string>
-  <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
   <string name="add_calendar_validating">Проверка источника календаря...</string>
   <!--AlertFragment-->
@@ -60,7 +59,6 @@
   </string-array>
   <string name="sync_permission_required">Необходим доступ</string>
   <string name="sync_permission_required_sync_calendar">Необходимо разрешение для синхронизации вашего календаря</string>
-  <string name="permission_required_external_storage">Необходимо разрешение на доступ к хранилищу для работы с локальными iCalendar файлами</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_version">Версия %1$s-%2$s</string>
@@ -80,7 +78,6 @@
  ]]></string>
   <string name="app_info_donate">Пожертвовать</string>
   <string name="app_info_description">Подписаться на Webcal календари</string>
-  <string name="app_info_libraries">Библиотеки</string>
   <string name="app_info_twitter">Новости &amp; обновления</string>
   <string name="app_info_web_site">Веб страница</string>
   <string name="donate_title">Сведения об открытом коде</string>

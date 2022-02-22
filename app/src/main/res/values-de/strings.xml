@@ -30,7 +30,6 @@ ICSx⁵ deaktivieren</string>
   <string name="add_calendar_requires_authentication">Zugangsdaten benötigt</string>
   <string name="add_calendar_title">Name &amp; Farbe</string>
   <string name="add_calendar_title_hint">Kalendername</string>
-  <string name="add_calendar_url">URL</string>
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
   <!--AlertFragment-->
@@ -63,7 +62,6 @@ ICSx⁵ deaktivieren</string>
   </string-array>
   <string name="sync_permission_required">Berechtigung benötigt</string>
   <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
-  <string name="permission_required_external_storage">Datenspeicher-Berechtigung zum Zugriff auf lokale iCalendar-Dateien benötigt</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Über ICSx⁵</string>
   <string name="app_info_version">Version %1$s-%2$s</string>
@@ -76,7 +74,6 @@ Sie sollten eine Kopie der \"GNU Public License\" zusammen mit diesem Programm e
 ]]></string>
   <string name="app_info_donate">Spenden</string>
   <string name="app_info_description">Webcal-Feeds abonnieren</string>
-  <string name="app_info_libraries">Bibliotheken</string>
   <string name="app_info_twitter">Aktuelles</string>
   <string name="app_info_web_site">Homepage</string>
   <string name="donate_title">Open-Source-Information</string>
