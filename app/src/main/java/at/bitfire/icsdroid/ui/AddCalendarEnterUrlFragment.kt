@@ -29,9 +29,10 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri != null) {
-            binding.url.editText?.setText(uri.toString())
             // keep the picked file accessible after the first sync and reboots
-            context?.contentResolver?.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            requireActivity().contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            binding.url.editText?.setText(uri.toString())
         }
     }
 
