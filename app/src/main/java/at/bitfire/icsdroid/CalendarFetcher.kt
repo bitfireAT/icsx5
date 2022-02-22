@@ -13,6 +13,7 @@ import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -112,10 +113,15 @@ open class CalendarFetcher(
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 onSuccess(inputStream, null, null, null, displayName)
             }
+        } catch (e: FileNotFoundException) {
+            // file not there (anymore)
+            onError(IOException(context.getString(R.string.could_not_open_storage_file)))
         } catch (e: SecurityException) {
-            onError(IOException(context.getString(R.string.could_not_open_local_file)))
+            // no access to file (anymore)
+            onError(IOException(context.getString(R.string.could_not_open_storage_file)))
         } catch (e: Exception) {
-            Log.e(Constants.TAG, context.getString(R.string.could_not_fetch_local_resource), e)
+            // other error
+            Log.e(Constants.TAG, "Couldn't open SAF document", e)
             onError(e)
         }
     }

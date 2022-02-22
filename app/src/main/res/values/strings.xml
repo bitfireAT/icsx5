@@ -84,8 +84,7 @@
     <string name="sync_permission_required">Permission required</string>
     <string name="sync_permission_required_sync_calendar">Needing permission to sync your calendar</string>
     <string name="permission_required_external_storage">Storage permission is required to access local iCalendar files</string>
-    <string name="could_not_open_local_file">Could not open local file</string>
-    <string name="could_not_fetch_local_resource">Couldn\'t fetch local resource</string>
+    <string name="could_not_open_storage_file">Couldn\'t open file from storage</string>
 
     <!-- InfoActivity -->
     <string name="activity_app_info">App info</string>
