@@ -37,6 +37,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
+import java.io.FileNotFoundException
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -74,7 +75,7 @@ class EditCalendarActivity: AppCompatActivity() {
         credentialsModel.username.observe(this, invalidate)
         credentialsModel.password.observe(this, invalidate)
 
-        binding = DataBindingUtil.setContentView<EditCalendarBinding>(this, R.layout.edit_calendar)
+        binding = DataBindingUtil.setContentView(this, R.layout.edit_calendar)
         binding.lifecycleOwner = this
         binding.model = model
 
@@ -82,8 +83,14 @@ class EditCalendarActivity: AppCompatActivity() {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
                 // permissions OK, load calendar from provider
-                val uri = intent.data ?: throw IllegalArgumentException("Intent data must be calendar URI")
-                model.loadCalendar(uri)
+                val uri = intent.data ?: throw IllegalArgumentException("Intent data empty (must be calendar URI)")
+                val calendarId = ContentUris.parseId(uri)
+                try {
+                    model.loadCalendar(calendarId)
+                } catch (e: FileNotFoundException) {
+                    Toast.makeText(this, R.string.could_not_load_calendar, Toast.LENGTH_LONG).show()
+                    finish()
+                }
             } else {
                 Toast.makeText(this, R.string.calendar_permissions_required, Toast.LENGTH_LONG).show()
                 finish()
@@ -251,15 +258,23 @@ class EditCalendarActivity: AppCompatActivity() {
         var calendar = MutableLiveData<LocalCalendar>()
         val active = MutableLiveData<Boolean>()
 
-        fun loadCalendar(uri: Uri) {
+        /**
+         * Loads the requested calendar from the Calendar Provider.
+         *
+         * @param id    calendar ID
+         *
+         * @throws FileNotFoundException when the calendar doesn't exist (anymore)
+         */
+        fun loadCalendar(id: Long) {
             @SuppressLint("Recycle")
             val provider = getApplication<Application>().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY) ?: return
             try {
-                calendar.value = LocalCalendar.findById(AppAccount.get(getApplication()), provider, ContentUris.parseId(uri))
+                calendar.value = LocalCalendar.findById(AppAccount.get(getApplication()), provider, id)
             } finally {
                 provider.release()
             }
         }
+
     }
 
 
