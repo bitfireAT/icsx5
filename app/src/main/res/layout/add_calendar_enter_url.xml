@@ -18,6 +18,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:labelFor="@id/url_edit"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:text="@string/add_calendar_url_text" />
 
@@ -28,6 +29,7 @@
                 android:paddingStart="0dp"
                 android:paddingEnd="16dp">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/url_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/add_calendar_url_sample"
