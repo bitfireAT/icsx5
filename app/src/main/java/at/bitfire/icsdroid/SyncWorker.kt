@@ -31,12 +31,24 @@ class SyncWorker(
         val syncRunning = AtomicBoolean()
 
         /**
-         * Enqueues a sync job for soon execution.
+         * Enqueues a sync job for soon execution. If the sync is forced,
+         * the "requires network connection" constraint won't be set.
+         *
+         * @param context     required for managing work
+         * @param forceSync   *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          */
-        fun run(context: Context) {
-            val request = OneTimeWorkRequestBuilder<SyncWorker>().build()
+        fun run(context: Context, forceSync: Boolean) {
+            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+
+            if (forceSync)
+                Log.i(Constants.TAG, "Manual sync, ignoring network condition")
+            else
+                request.setConstraints(Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build())
+
             WorkManager.getInstance(context)
-                    .beginUniqueWork(NAME, ExistingWorkPolicy.KEEP, request)
+                    .beginUniqueWork(NAME, ExistingWorkPolicy.REPLACE, request.build())
                     .enqueue()
         }
 

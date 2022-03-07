@@ -174,7 +174,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
     override fun onRefresh() {
-        SyncWorker.run(this)
+        SyncWorker.run(this, false)
     }
 
     fun onShowInfo(item: MenuItem) {

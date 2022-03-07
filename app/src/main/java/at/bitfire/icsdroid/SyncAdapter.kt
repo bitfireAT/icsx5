@@ -17,7 +17,8 @@ class SyncAdapter(
 ): AbstractThreadedSyncAdapter(context, false) {
 
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
-        SyncWorker.run(context)
+        val manual = extras.containsKey(ContentResolver.SYNC_EXTRAS_MANUAL)
+        SyncWorker.run(context, manual)
     }
 
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
