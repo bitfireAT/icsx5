@@ -1,6 +1,6 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: ICSx⁵ Community Forum
-    url: https://icsx5.bitfire.at/forums/
-    about: Please use our forum for questions, support, suggestions, bug reports etc.
+  - name: ICSx⁵ Discussions
+    url: https://github.com/bitfireAT/icsx5/discussions
+    about: Please use the discussions for questions, bug reports etc.
 
