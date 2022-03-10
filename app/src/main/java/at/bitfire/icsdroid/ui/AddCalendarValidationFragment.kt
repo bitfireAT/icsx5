@@ -10,6 +10,7 @@ import android.app.ProgressDialog
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -45,7 +46,7 @@ class AddCalendarValidationFragment: DialogFragment() {
             if (exception == null) {
                 titleColorModel.url.value = info.uri.toString()
                 if (titleColorModel.color.value == null)
-                    titleColorModel.color.value = resources.getColor(R.color.lightblue)
+                    titleColorModel.color.value = info.calendarColor ?: resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.uri.toString()
@@ -112,6 +113,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                         val events = Event.eventsFromReader(reader, properties)
 
                         info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
+                        info.calendarColor = properties[ICalendar.CALENDAR_COLOR]?.toColorInt()?: R.color.lightblue
                         info.eventsFound = events.size
                     }
 
