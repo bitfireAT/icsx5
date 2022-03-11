@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid
 
 import android.content.ContentResolver
-import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
@@ -15,7 +14,7 @@ import okhttp3.MediaType
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.apache.commons.io.IOUtils
-import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
@@ -29,21 +28,19 @@ class CalendarFetcherTest {
 
     companion object {
 
-        private lateinit var appContext: Context
-        private lateinit var testContext: Context
-        lateinit var server: MockWebServer
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext!!
+        val testContext = InstrumentationRegistry.getInstrumentation().context!!
+
+        val server = MockWebServer()
 
         @BeforeClass
         @JvmStatic
         fun setUp() {
-            appContext = InstrumentationRegistry.getInstrumentation().targetContext
-            testContext = InstrumentationRegistry.getInstrumentation().context
-
-            server = MockWebServer()
-            server.start(3000)
+            server.start()
         }
 
-        @After
+        @AfterClass
+        @JvmStatic
         fun tearDown() {
             server.shutdown()
         }

@@ -13,6 +13,7 @@ data class ResourceInfo(
     var exception: Exception? = null,
 
     var calendarName: String? = null,
+    var calendarColor: Int? = null,
     var eventsFound: Int = 0
 
 )

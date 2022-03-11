@@ -10,11 +10,13 @@ import android.app.ProgressDialog
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
@@ -23,9 +25,13 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
+import okhttp3.internal.wait
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.concurrent.Future
+import java.util.concurrent.RunnableFuture
 
 class AddCalendarValidationFragment: DialogFragment() {
 
@@ -44,8 +50,9 @@ class AddCalendarValidationFragment: DialogFragment() {
             val exception = info.exception
             if (exception == null) {
                 titleColorModel.url.value = info.uri.toString()
+
                 if (titleColorModel.color.value == null)
-                    titleColorModel.color.value = resources.getColor(R.color.lightblue)
+                    titleColorModel.color.value = info.calendarColor ?: resources.getColor(R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.uri.toString()
@@ -112,6 +119,18 @@ class AddCalendarValidationFragment: DialogFragment() {
                         val events = Event.eventsFromReader(reader, properties)
 
                         info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
+                        info.calendarColor =
+                            // try COLOR first
+                            properties[Color.PROPERTY_NAME]?.let { colorName ->
+                                Css3Color.fromString(colorName)?.argb
+                            } ?:
+                            // try X-APPLE-CALENDAR-COLOR second
+                            try {
+                                properties[ICalendar.CALENDAR_COLOR]?.toColorInt()
+                            } catch (e: IllegalArgumentException) {
+                                Log.w(Constants.TAG, "Couldn't parse calendar COLOR", e)
+                                null
+                            }
                         info.eventsFound = events.size
                     }
 
