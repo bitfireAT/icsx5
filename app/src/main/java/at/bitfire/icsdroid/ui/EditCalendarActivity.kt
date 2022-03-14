@@ -153,7 +153,7 @@ class EditCalendarActivity: AppCompatActivity() {
         model.active.value = calendar.isSynced
 
         val (username, password) = CalendarCredentials(this).get(calendar)
-        val requiresAuth = username != null && password != null
+        val requiresAuth = username != null && password != null && credentialsModel.requiresAuth.value == true
         credentialsModel.originalRequiresAuth = requiresAuth
         credentialsModel.requiresAuth.value = requiresAuth
         credentialsModel.originalUsername = username
