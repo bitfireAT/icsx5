@@ -112,7 +112,6 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
             val supportsAuthenticate = HttpUtils.supportsAuthentication(uri.toUri())
             binding.credentials.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
-            credentialsModel.requiresAuth.value = false
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     // SAF file, no need for auth
@@ -121,7 +120,6 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
-                        credentialsModel.requiresAuth.value = true
                         credentialsModel.username.value = credentials.elementAtOrNull(0)
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
