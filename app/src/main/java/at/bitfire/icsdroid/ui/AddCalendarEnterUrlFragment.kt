@@ -151,6 +151,13 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.next) {
+
+            // flush the credentials if auth toggle is disabled
+            if (credentialsModel.requiresAuth.value != true) {
+                credentialsModel.username.value = null
+                credentialsModel.password.value = null
+            }
+
             AddCalendarValidationFragment().show(parentFragmentManager, "validation")
             return true
         }
