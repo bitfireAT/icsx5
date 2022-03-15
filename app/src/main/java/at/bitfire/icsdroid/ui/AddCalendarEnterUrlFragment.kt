@@ -120,6 +120,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
+                        credentialsModel.requiresAuth.value = true
                         credentialsModel.username.value = credentials.elementAtOrNull(0)
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
