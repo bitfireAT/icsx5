@@ -18,6 +18,7 @@ import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -117,6 +118,15 @@ class AddCalendarEnterUrlFragment: Fragment() {
                     // SAF file, no need for auth
                 }
                 "http", "https" -> {
+                    // check whether the URL is valid
+                    try {
+                        uri.toString().toHttpUrl()
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(Constants.TAG, "Invalid URI", e)
+                        errorMsg = e.localizedMessage
+                        return null
+                    }
+
                     // extract user name and password from URL
                     uri.userInfo?.let { userInfo ->
                         val credentials = userInfo.split(':')
