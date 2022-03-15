@@ -129,7 +129,7 @@ class EditCalendarActivity: AppCompatActivity() {
         val titleOK = !titleColorModel.title.value.isNullOrBlank()
         val authOK = credentialsModel.run {
             if (requiresAuth.value == true)
-                !username.value.isNullOrEmpty() && !password.value.isNullOrEmpty()
+                username.value != null && password.value != null
             else
                 true
         }
@@ -185,14 +185,13 @@ class EditCalendarActivity: AppCompatActivity() {
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
                 calendar.update(values)
 
-                credentialsModel.let {
+                credentialsModel.let { model ->
                     val credentials = CalendarCredentials(this)
-                    if (it.requiresAuth.value == true)
-                        credentials.put(calendar, it.username.value, it.password.value)
+                    if (model.requiresAuth.value == true)
+                        credentials.put(calendar, model.username.value, model.password.value)
                     else
                         credentials.put(calendar, null, null)
                 }
-
                 success = true
             } catch(e: CalendarStorageException) {
                 Log.e(Constants.TAG, "Couldn't update calendar", e)

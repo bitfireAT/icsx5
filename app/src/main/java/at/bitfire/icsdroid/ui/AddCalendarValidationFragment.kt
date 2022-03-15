@@ -27,11 +27,8 @@ import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
-import okhttp3.internal.wait
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.util.concurrent.Future
-import java.util.concurrent.RunnableFuture
 
 class AddCalendarValidationFragment: DialogFragment() {
 
