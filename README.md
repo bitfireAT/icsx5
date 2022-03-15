@@ -1,6 +1,6 @@
 
 
-[![Tests](https://github.com/bitfireAT/icsx5/actions/workflows/lint.yml/badge.svg)](https://github.com/bitfireAT/icsx5/actions/workflows/test.yml)
+[![Tests](https://github.com/bitfireAT/icsx5/actions/workflows/test-dev.yml/badge.svg)](https://github.com/bitfireAT/icsx5/actions/workflows/test-dev.yml)
 [![License](https://img.shields.io/github/license/bitfireAT/icsx5)](https://github.com/bitfireAT/icsx5/blob/main/LICENSE)
 [![F-Droid](https://img.shields.io/f-droid/v/at.bitfire.icsdroid)](https://f-droid.org/packages/at.bitfire.icsdroid/)
 
