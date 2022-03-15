@@ -37,7 +37,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
-import org.apache.commons.lang3.StringUtils
 import java.io.FileNotFoundException
 
 class EditCalendarActivity: AppCompatActivity() {
@@ -154,7 +153,7 @@ class EditCalendarActivity: AppCompatActivity() {
         model.active.value = calendar.isSynced
 
         val (username, password) = CalendarCredentials(this).get(calendar)
-        val requiresAuth = !username.isNullOrEmpty() && !password.isNullOrEmpty()
+        val requiresAuth = username != null && password != null
         credentialsModel.originalRequiresAuth = requiresAuth
         credentialsModel.requiresAuth.value = requiresAuth
         credentialsModel.originalUsername = username
@@ -189,7 +188,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 credentialsModel.let { model ->
                     val credentials = CalendarCredentials(this)
                     if (model.requiresAuth.value == true)
-                        credentials.put(calendar, StringUtils.trimToNull(model.username.value), StringUtils.trimToNull(model.password.value))
+                        credentials.put(calendar, model.username.value, model.password.value)
                     else
                         credentials.put(calendar, null, null)
                 }
