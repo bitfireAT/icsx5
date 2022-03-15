@@ -32,7 +32,7 @@ class SyncAdapter(
                 .setAutoCancel(true)
                 .setLocalOnly(true)
                 .build()
-        nm.notify(0, notification)
+        nm.notify(NotificationUtils.NOTIFY_PERMISSION, notification)
     }
 
 }

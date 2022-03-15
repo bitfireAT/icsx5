@@ -15,6 +15,9 @@ object NotificationUtils {
 
     const val CHANNEL_SYNC = "sync"
 
+    const val NOTIFY_PERMISSION = 0
+
+
     val flagImmutableCompat: Int =
         if (Build.VERSION.SDK_INT >= 23)
             PendingIntent.FLAG_IMMUTABLE
