@@ -28,6 +28,7 @@ import at.bitfire.icsdroid.R
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
 import okhttp3.internal.wait
+import org.apache.commons.lang3.StringUtils
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.concurrent.Future
@@ -72,8 +73,8 @@ class AddCalendarValidationFragment: DialogFragment() {
         val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
         val authenticate = credentialsModel.requiresAuth.value ?: false
         validationModel.initialize(uri,
-                if (authenticate) credentialsModel.username.value else null,
-                if (authenticate) credentialsModel.password.value else null)
+                if (authenticate) StringUtils.trimToNull(credentialsModel.username.value) else null,
+                if (authenticate) StringUtils.trimToNull(credentialsModel.password.value) else null)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
