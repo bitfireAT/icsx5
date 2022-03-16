@@ -10,7 +10,6 @@ import android.app.ProgressDialog
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.core.graphics.toColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -118,12 +117,14 @@ class AddCalendarValidationFragment: DialogFragment() {
                         info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
                         info.calendarColor =
                             // try COLOR first
-                            properties[Color.PROPERTY_NAME]?.let { colorName ->
-                                Css3Color.fromString(colorName)?.argb
+                            properties[Color.PROPERTY_NAME]?.let { colorValue ->
+                                Css3Color.colorFromString(colorValue)
                             } ?:
                             // try X-APPLE-CALENDAR-COLOR second
                             try {
-                                properties[ICalendar.CALENDAR_COLOR]?.toColorInt()
+                                properties[ICalendar.CALENDAR_COLOR]?.let { colorValue ->
+                                    Css3Color.colorFromString(colorValue)
+                                }
                             } catch (e: IllegalArgumentException) {
                                 Log.w(Constants.TAG, "Couldn't parse calendar COLOR", e)
                                 null
