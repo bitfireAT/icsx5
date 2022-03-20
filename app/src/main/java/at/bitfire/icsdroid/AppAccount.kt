@@ -10,8 +10,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.provider.CalendarContract
 import android.util.Log
-import androidx.work.*
-import java.time.Duration
 
 object AppAccount {
 
@@ -64,32 +62,17 @@ object AppAccount {
         preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY)
 
     fun syncInterval(context: Context, syncInterval: Long) {
-        // (legacy) don't use the sync framework anymore
+        // don't use the sync framework anymore (legacy)
         ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, false)
-
-        val workManager = WorkManager.getInstance(context)
-        if (syncInterval == SYNC_INTERVAL_MANUALLY) {
-            Log.i(Constants.TAG, "Disabling automatic synchronization")
-            workManager.cancelUniqueWork(SyncWorker.NAME)
-
-        } else {
-            Log.i(Constants.TAG, "Setting automatic synchronization with interval of $syncInterval seconds")
-            workManager.enqueueUniquePeriodicWork(SyncWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
-                PeriodicWorkRequestBuilder<SyncWorker>(Duration.ofSeconds(syncInterval))
-                    .setConstraints(Constraints.Builder()
-                        /* Require network connection. This is not required for synchronization with local files;
-                        but for now we want to be as close as possible at the normal sync framework behavior (which
-                        requires a network connection, too). However we don't require "not low storage". */
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                    .build())
-        }
 
         // remember sync interval so that it can be checked/restored later
         preferences(context).edit()
                 .putLong(KEY_SYNC_INTERVAL, syncInterval)
                 .putBoolean(KEY_USES_WORKMANAGER, true)
                 .apply()
+
+        // set up periodic worker
+        PeriodicSyncWorker.setInterval(context, if (syncInterval == SYNC_INTERVAL_MANUALLY) null else syncInterval)
     }
 
 
