@@ -5,6 +5,7 @@
   <string name="action_next">Weiter</string>
   <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
   <string name="notification_channel_sync_problem">Sync-Probleme</string>
+  <string name="could_not_load_calendar">Kalender konnte nicht geladen werden</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
@@ -30,6 +31,9 @@ ICSx⁵ deaktivieren</string>
   <string name="add_calendar_requires_authentication">Zugangsdaten benötigt</string>
   <string name="add_calendar_title">Name &amp; Farbe</string>
   <string name="add_calendar_title_hint">Kalendername</string>
+  <string name="add_calendar_url_text">Webcal Adresse eingeben</string>
+  <string name="add_calendar_pick_file_text">Alternativ eine Datei aus dem lokalen Dateisystem auswählen</string>
+  <string name="add_calendar_pick_file">Datei auswählen</string>
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
   <!--AlertFragment-->
@@ -62,6 +66,7 @@ ICSx⁵ deaktivieren</string>
   </string-array>
   <string name="sync_permission_required">Berechtigung benötigt</string>
   <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
+  <string name="could_not_open_storage_file">Datei konnte nicht geöffnet werden</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Über ICSx⁵</string>
   <string name="app_info_version">Version %1$s-%2$s</string>

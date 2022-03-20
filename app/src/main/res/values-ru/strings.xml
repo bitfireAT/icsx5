@@ -3,53 +3,60 @@
   <string name="account_name">Подписки на календари</string>
   <!--common strings-->
   <string name="action_next">Далее</string>
-  <string name="calendar_permissions_required">Разрешить доступ к календарю</string>
+  <string name="calendar_permissions_required">Необходимы разрешения для работы с календарем</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
+  <string name="could_not_load_calendar">Не удалось загрузить календарь</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
-  <string name="calendar_list_empty_info">Для подписки на Webcal ленту, используйте кнопку + или откройте Webcal URL-ссылку.</string>
-  <string name="calendar_list_info">Об ICSx⁵</string>
-  <string name="calendar_list_not_synced_yet">ещё не синхронизировано</string>
+  <string name="calendar_list_empty_info">Для подписки на ленту Webcal используйте кнопку + или откройте веб-адрес Webcal.</string>
+  <string name="calendar_list_info">О ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">еще не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
   <string name="calendar_list_sync_disabled">Синхронизация отключена</string>
   <string name="calendar_list_sync_interval_manually">Автоматическая синхронизация отключена</string>
-  <string name="calendar_list_master_sync_disabled">На устройстве отключена автоматическая синхронизация</string>
+  <string name="calendar_list_master_sync_disabled">Автоматическая синхронизация отключена на уровне системы</string>
   <string name="calendar_list_master_sync_enable">Активировать</string>
-  <string name="calendar_list_battery_whitelist">Батарея: добавьте ICSx⁵ в исключения для частой синхронизации</string>
+  <string name="calendar_list_battery_whitelist">Батарея: внесите ICSx⁵ в белый список для использования небольших интервалов синхронизации</string>
   <string name="calendar_list_battery_whitelist_settings">Настройки</string>
   <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Темная тема</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Подписаться на календарь</string>
-  <string name="add_calendar_need_valid_uri">Требуется действительный URI</string>
-  <string name="add_calendar_authentication_without_https_warning">Ваши данные легко могут быть перехвачены третьими лицами. Используйте HTTPS  для безопасной аутентификации.</string>
+  <string name="add_calendar_need_valid_uri">Требуется корректный URI</string>
+  <string name="add_calendar_authentication_without_https_warning">Третьи лица могут легко перехватить ваши учетные данные. Используйте HTTPS для безопасной аутентификации.</string>
   <string name="add_calendar_create">Подписаться сейчас</string>
   <string name="add_calendar_created">Подписка выполнена успешно</string>
   <string name="add_calendar_password">Пароль</string>
   <string name="add_calendar_requires_authentication">Требуется аутентификация</string>
-  <string name="add_calendar_title">Заглавие &amp; Цвет</string>
+  <string name="add_calendar_title">Название и цвет</string>
   <string name="add_calendar_title_hint">Название календаря</string>
+  <string name="add_calendar_url_text">Введите адрес Webcal:</string>
+  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
+  <string name="add_calendar_pick_file_text">Или выберите файл из локального хранилища.</string>
+  <string name="add_calendar_pick_file">Выбрать файл</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
-  <string name="add_calendar_validating">Проверка источника календаря...</string>
+  <string name="add_calendar_validating">Проверка доступности календаря...</string>
   <!--AlertFragment-->
+  <string name="alert_share_details">Поделиться информацией</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Изменить подписку</string>
   <string name="edit_calendar_cancel">Отмена</string>
   <string name="edit_calendar_delete">Отписаться</string>
   <string name="edit_calendar_deleted">Подписка отменена</string>
-  <string name="edit_calendar_dismiss">Убрать</string>
+  <string name="edit_calendar_dismiss">Отклонить</string>
   <string name="edit_calendar_failed">Не удалось выполнить</string>
-  <string name="edit_calendar_really_delete">Уверены, что хотите отменить подписку на этот календарь?</string>
+  <string name="edit_calendar_really_delete">Вы действительно хотите отписаться от этого календаря?</string>
   <string name="edit_calendar_save">Сохранить</string>
   <string name="edit_calendar_saved">Изменения сохранены</string>
-  <string name="edit_calendar_send_url">Отправить URL-ссылку</string>
+  <string name="edit_calendar_send_url">Отправить URL</string>
   <string name="edit_calendar_sync_this_calendar">Синхронизировать этот календарь</string>
-  <string name="edit_calendar_unsaved_changes">Имеются несохранённые изменения.</string>
+  <string name="edit_calendar_unsaved_changes">Имеются несохраненные изменения.</string>
   <!--synchronization-->
   <string name="sync_error_title">Ошибка синхронизации</string>
   <string name="set_sync_interval_save">Сохранить</string>
-  <string name="set_sync_interval_title">Задать интервал синхронизации:</string>
+  <string name="set_sync_interval_title">Задание интервала синхронизации:</string>
   <string-array name="set_sync_interval_names">
-    <item>Только вручную</item>
+    <item>Вручную</item>
     <item>Каждые 15 минут</item>
     <item>Каждый час</item>
     <item>Каждые 2 часа</item>
@@ -57,31 +64,29 @@
     <item>Раз в день</item>
     <item>Раз в неделю</item>
   </string-array>
-  <string name="sync_permission_required">Необходим доступ</string>
-  <string name="sync_permission_required_sync_calendar">Необходимо разрешение для синхронизации вашего календаря</string>
+  <string name="sync_permission_required">Требуется разрешение</string>
+  <string name="sync_permission_required_sync_calendar">Требуется разрешение на синхронизацию календаря</string>
+  <string name="could_not_open_storage_file">Не удалось открыть файл из хранилища</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_version">Версия %1$s-%2$s</string>
   <string name="app_info_gplv3_note"><![CDATA[
-Эта программа является свободным программным обеспечением: Вы можете распространять ее и (или) изменять,
-соблюдая условия Генеральной публичной лицензии GNU, опубликованной
-Фондом свободного программного обеспечения; либо редакции 3 Лицензии, либо
-(на Ваше усмотрение) любой редакции, выпущенной позже.
-
-Эта программа распространяется в расчете на то, что она окажется полезной,
-но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, включая подразумеваемую гарантию
-КАЧЕСТВА либо ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Ознакомьтесь
-с Генеральной публичной лицензией GNU для получения более подробной информации.
-
-Вы должны были получить копию Генеральной публичной лицензии GNU
-вместе с этой программой. Если Вы ее не получили, то перейдите по адресу: <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
- ]]></string>
+Эта программа является свободным программным обеспечением:
+вы можете распространять ее и/или изменять в соответствии с условиями лицензии GNU General Public License, опубликованной Фондом свободного программного обеспечения,
+либо версии 3 Лицензии, либо (по вашему выбору) любой более поздней версии.
+Эта программа распространяется в надежде, что она окажется полезной,
+но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии товарного качества 
+или пригодности для конкретной цели.
+См. GNU General Public License для более подробной информации.
+Вы должны были получить копию Стандартной общественной лицензии GNU вместе с этой программой.
+along with this program.  Если нет, см. <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    ]]></string>
   <string name="app_info_donate">Пожертвовать</string>
-  <string name="app_info_description">Подписаться на Webcal календари</string>
-  <string name="app_info_twitter">Новости &amp; обновления</string>
-  <string name="app_info_web_site">Веб страница</string>
-  <string name="donate_title">Сведения об открытом коде</string>
-  <string name="donate_message">Мы рады тому, что вы используете приложение ICSx⁵, которое представляет собой программное обеспечение с открытым кодом (GPLv3). По причине того, что было потрачено, и ещё необходимо, много усилий для разработки и обслуживания ICSx⁵, пожалуйста, рассмотрите возможность пожертвования.</string>
+  <string name="app_info_description">Подписаться на календари Webcal</string>
+  <string name="app_info_twitter">Новости и обновления</string>
+  <string name="app_info_web_site">Веб-сайт</string>
+  <string name="donate_title">Информация об открытом исходном коде</string>
+  <string name="donate_message">Мы рады, что вы используете ICSx⁵, программное обеспечение с открытым исходным кодом (GPLv3). Разработка, сопровождение и поддержка ICSx⁵ - это тяжелая работа. Пожалуйста, подумайте о том, чтобы сделать пожертвование.</string>
   <string name="donate_now">Показать страницу для пожертвования</string>
   <string name="donate_later">Возможно, позже</string>
 </resources>
