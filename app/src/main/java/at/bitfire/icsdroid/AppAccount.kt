@@ -18,7 +18,6 @@ object AppAccount {
 
     private const val PREF_ACCOUNT = "account"
     private const val KEY_SYNC_INTERVAL = "syncInterval"
-    private const val KEY_USES_WORKMANAGER = "usesWorkManager"
 
     private var account: Account? = null
 
@@ -36,12 +35,7 @@ object AppAccount {
         val am = AccountManager.get(context)
         val existingAccount = am.getAccountsByType(accountType).firstOrNull()
         if (existingAccount != null) {
-            // cache account so that checkSyncInterval etc. can use it
             account = existingAccount
-
-            // check/repair sync interval
-            checkSyncInterval(context)
-
             return existingAccount
         }
 
@@ -68,26 +62,16 @@ object AppAccount {
         // remember sync interval so that it can be checked/restored later
         preferences(context).edit()
                 .putLong(KEY_SYNC_INTERVAL, syncInterval)
-                .putBoolean(KEY_USES_WORKMANAGER, true)
                 .apply()
 
         // set up periodic worker
-        PeriodicSyncWorker.setInterval(context, if (syncInterval == SYNC_INTERVAL_MANUALLY) null else syncInterval)
-    }
-
-
-    /**
-     * Checks whether the account sync interval is set as it should be.
-     * If it is not, repair it (= set it to the remembered value).
-     */
-    fun checkSyncInterval(context: Context) {
-        val prefs = preferences(context)
-        if (!prefs.contains(KEY_USES_WORKMANAGER) && prefs.contains(KEY_SYNC_INTERVAL)) {
-            // migrate from sync framework to WorkManager
-            val rememberedSyncInterval = preferences(context).getLong(KEY_SYNC_INTERVAL, DEFAULT_SYNC_INTERVAL)
-            Log.i(Constants.TAG, "Migrating from sync framework to WorkManager: periodic sync interval = $rememberedSyncInterval")
-            syncInterval(context, rememberedSyncInterval)
-        }
+        PeriodicSyncWorker.setInterval(
+            context,
+            if (syncInterval == SYNC_INTERVAL_MANUALLY)
+                null
+            else
+                syncInterval
+        )
     }
 
 
