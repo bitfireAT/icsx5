@@ -62,14 +62,6 @@
                 android:resource="@xml/sync_calendars" />
         </service>
 
-        <receiver
-            android:name=".BootCompleteReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".ui.CalendarListActivity"
             android:exported="true">

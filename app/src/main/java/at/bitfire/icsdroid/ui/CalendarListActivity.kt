@@ -7,7 +7,6 @@ package at.bitfire.icsdroid.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -141,16 +140,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                 }
             }
 
-            // automatic sync not enabled
-            !ContentResolver.getMasterSyncAutomatically() -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_master_sync_disabled, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_master_sync_enable) {
-                            ContentResolver.setMasterSyncAutomatically(true)
-                        }.also {
-                            it.show()
-                        }
-            }
-
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
             Build.VERSION.SDK_INT >= 23 &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
@@ -174,7 +163,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
     override fun onRefresh() {
-        SyncWorker.run(this, false)
+        SyncWorker.run(this, true)
     }
 
     fun onShowInfo(item: MenuItem) {

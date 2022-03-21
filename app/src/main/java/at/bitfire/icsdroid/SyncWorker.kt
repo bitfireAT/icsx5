@@ -17,38 +17,49 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.min
 
 class SyncWorker(
-        val context: Context,
+        context: Context,
         workerParams: WorkerParameters
 ): Worker(context, workerParams) {
 
     companion object {
 
-        private const val NAME = "SyncWorker"
+        const val NAME = "SyncWorker"
 
-        val syncRunning = AtomicBoolean()
+        private val nrSyncThreads = min(Runtime.getRuntime().availableProcessors(), 4)
+
 
         /**
-         * Enqueues a sync job for soon execution. If the sync is forced,
+         * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
          * @param context     required for managing work
-         * @param forceSync   *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param force       *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          */
-        fun run(context: Context, forceSync: Boolean) {
+        fun run(context: Context, force: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
 
-            if (forceSync)
+            val policy: ExistingWorkPolicy
+            if (force) {
                 Log.i(Constants.TAG, "Manual sync, ignoring network condition")
-            else
+
+                // overwrite existing syncs (which may have unwanted constraints)
+                policy = ExistingWorkPolicy.REPLACE
+
+            } else {
+                // regular sync, requires network
                 request.setConstraints(Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build())
 
+                // don't overwrite previous syncs (whether regular or manual)
+                policy = ExistingWorkPolicy.KEEP
+            }
+
             WorkManager.getInstance(context)
-                    .beginUniqueWork(NAME, ExistingWorkPolicy.REPLACE, request.build())
+                    .beginUniqueWork(NAME, policy, request.build())
                     .enqueue()
         }
 
@@ -57,27 +68,16 @@ class SyncWorker(
 
     }
 
+
     private val syncQueue = LinkedBlockingQueue<Runnable>()
-    private val syncExecutor = ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors(),
-            Runtime.getRuntime().availableProcessors(),
-            5, TimeUnit.SECONDS,
-            syncQueue
-    )
+    private val syncExecutor = ThreadPoolExecutor(nrSyncThreads, nrSyncThreads, 5, TimeUnit.SECONDS, syncQueue)
 
     @SuppressLint("Recycle")
     override fun doWork(): Result {
-        if (syncRunning.get()) {
-            Log.w(Constants.TAG, "There's already another sync running, aborting")
-            return Result.success()
-        }
-
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
-                syncRunning.set(true)
-                return performSync(AppAccount.get(context), providerClient)
+                return performSync(AppAccount.get(applicationContext), providerClient)
             } finally {
-                syncRunning.set(false)
                 providerClient.closeCompat()
             }
         }
@@ -102,6 +102,11 @@ class SyncWorker(
         }
 
         return Result.success()
+    }
+
+
+    override fun onStopped() {
+        syncExecutor.shutdownNow()
     }
 
 }
