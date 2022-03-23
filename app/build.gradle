@@ -4,13 +4,13 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     buildToolsVersion '32.0.0'
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 32
 
         versionCode 60
         versionName "2.1-alpha.1"
@@ -65,7 +65,7 @@ android {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     implementation project(':cert4android')
