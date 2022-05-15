@@ -14,21 +14,17 @@ import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.db.LocalCalendar
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
-import kotlin.math.min
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SyncWorker(
         context: Context,
         workerParams: WorkerParameters
-): Worker(context, workerParams) {
+): CoroutineWorker(context, workerParams) {
 
     companion object {
 
         const val NAME = "SyncWorker"
-
-        private val nrSyncThreads = min(Runtime.getRuntime().availableProcessors(), 4)
 
 
         /**
@@ -69,14 +65,13 @@ class SyncWorker(
     }
 
 
-    private val syncQueue = LinkedBlockingQueue<Runnable>()
-    private val syncExecutor = ThreadPoolExecutor(nrSyncThreads, nrSyncThreads, 5, TimeUnit.SECONDS, syncQueue)
-
     @SuppressLint("Recycle")
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
-                return performSync(AppAccount.get(applicationContext), providerClient)
+                return withContext(Dispatchers.Default) {
+                    performSync(AppAccount.get(applicationContext), providerClient)
+                }
             } finally {
                 providerClient.closeCompat()
             }
@@ -84,16 +79,12 @@ class SyncWorker(
         return Result.failure()
     }
 
-    private fun performSync(account: Account, provider: ContentProviderClient): Result {
+    private suspend fun performSync(account: Account, provider: ContentProviderClient): Result {
         Log.i(Constants.TAG, "Synchronizing ${account.name}")
         try {
             LocalCalendar.findAll(account, provider)
                     .filter { it.isSynced }
-                    .forEach { syncExecutor.execute(ProcessEventsTask(applicationContext, it)) }
-
-            syncExecutor.shutdown()
-            while (!syncExecutor.awaitTermination(1, TimeUnit.MINUTES))
-                Log.i(Constants.TAG, "Sync still running for another minute")
+                    .forEach { ProcessEventsTask(applicationContext, it).sync() }
 
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)
@@ -102,11 +93,6 @@ class SyncWorker(
         }
 
         return Result.success()
-    }
-
-
-    override fun onStopped() {
-        syncExecutor.shutdownNow()
     }
 
 }

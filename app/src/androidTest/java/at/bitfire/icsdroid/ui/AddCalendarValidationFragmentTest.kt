@@ -6,14 +6,14 @@ package at.bitfire.icsdroid.ui
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.AfterClass
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
@@ -94,31 +94,17 @@ class AddCalendarValidationFragmentTest {
     }
 
     private fun validate(iCal: String): ResourceInfo {
-        val model = AddCalendarValidationFragment.ValidationModel(app)
-
         server.enqueue(MockResponse().setBody(iCal))
 
-        val lock = Object()
-        val observer = Observer<ResourceInfo> {
-            synchronized(lock) {
-                lock.notify()
-            }
-        }
-        model.result.observeForever(observer)
-        try {
-            model.initialize(server.url("/").toAndroidUri(), null, null)
-
-            // wait for result
-            synchronized(lock) {
-                lock.wait(5000)
-            }
-        } finally {
-            model.result.removeObserver(observer)
+        val model = AddCalendarValidationFragment.ValidationModel(app, server.url("/").toAndroidUri(), null, null)
+        // wait for result
+        var result: ResourceInfo? = null
+        while (result == null) {
+            result = model.result.value
+            Thread.sleep(50)
         }
 
-        val result = model.result.value
-        assertNotNull(result)
-        return result!!
+        return result
     }
 
 }

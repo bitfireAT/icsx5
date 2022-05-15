@@ -27,9 +27,9 @@ import java.net.MalformedURLException
 class ProcessEventsTask(
         val context: Context,
         val calendar: LocalCalendar
-): Runnable {
+) {
 
-    override fun run() {
+    suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
@@ -44,7 +44,7 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
 
-    private fun processEvents() {
+    private suspend fun processEvents() {
         val uri =
             try {
                 Uri.parse(calendar.url)
@@ -103,7 +103,7 @@ class ProcessEventsTask(
         if (calendar.lastModified != 0L)
             downloader.ifModifiedSince = calendar.lastModified
 
-        downloader.run()
+        downloader.fetch()
 
         exception?.let { ex ->
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()

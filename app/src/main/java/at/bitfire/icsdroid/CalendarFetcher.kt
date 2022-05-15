@@ -13,6 +13,7 @@ import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
+import okhttp3.executeAsync
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -22,7 +23,7 @@ import java.util.*
 open class CalendarFetcher(
         val context: Context,
         var uri: Uri
-): Runnable {
+) {
 
     companion object {
         const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
@@ -41,7 +42,7 @@ open class CalendarFetcher(
     var inForeground = false
 
 
-    override fun run() {
+    suspend fun fetch() {
         if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
             fetchNetwork()
         else
@@ -54,7 +55,7 @@ open class CalendarFetcher(
     open fun onNotModified() {
     }
 
-    open fun onRedirect(httpCode: Int, target: Uri) {
+    open suspend fun onRedirect(httpCode: Int, target: Uri) {
         Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
         // only network resources can be redirected
@@ -129,7 +130,7 @@ open class CalendarFetcher(
     /**
      * Fetch the file over network
      */
-    internal fun fetchNetwork() {
+    internal suspend fun fetchNetwork() {
         Log.i(Constants.TAG, "Fetching remote file $uri")
         val request = Request.Builder()
                 .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
@@ -148,20 +149,20 @@ open class CalendarFetcher(
         }
 
         try {
-            HttpClient.get(context).okHttpClient.newCall(request.build()).execute().use { response ->
+            val call = HttpClient.get(context).okHttpClient.newCall(request.build())
+            call.executeAsync().use { response ->
                 when {
                     // 20x
-                    response.isSuccessful -> response.body?.let { body ->
+                    response.isSuccessful ->
                         onSuccess(
-                                body.byteStream(),
-                                body.contentType(),
+                                response.body.byteStream(),
+                                response.body.contentType(),
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
                                     HttpUtils.parseDate(it)?.time
                                 },
                             null
                         )
-                    }
 
                     // 30x
                     response.isRedirect -> {

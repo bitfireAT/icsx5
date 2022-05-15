@@ -5,11 +5,13 @@
 package at.bitfire.icsdroid
 
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
+import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -28,8 +30,8 @@ class CalendarFetcherTest {
 
     companion object {
 
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext!!
-        val testContext = InstrumentationRegistry.getInstrumentation().context!!
+        val appContext: Context by lazy { InstrumentationRegistry.getInstrumentation().targetContext }
+        val testContext: Context by lazy { InstrumentationRegistry.getInstrumentation().context }
 
         val server = MockWebServer()
 
@@ -58,7 +60,9 @@ class CalendarFetcherTest {
                 data.close()
             }
         }
-        fetcher.run()
+        runBlocking {
+            fetcher.fetch()
+        }
 
         testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
             val referenceData = IOUtils.toString(streamCorrect, Charsets.UTF_8)
@@ -93,7 +97,9 @@ class CalendarFetcherTest {
                 data.close()
             }
         }
-        fetcher.run()
+        runBlocking {
+            fetcher.fetch()
+        }
 
         // assert content, ETag and Last-Modified are correct
         assertEquals(etagCorrect, etag)
@@ -122,7 +128,7 @@ class CalendarFetcherTest {
         var ical: String? = null
         val redirects = LinkedList<Uri>()
         val fetcher = object: CalendarFetcher(appContext, baseUrl) {
-            override fun onRedirect(httpCode: Int, target: Uri) {
+            override suspend fun onRedirect(httpCode: Int, target: Uri) {
                 redirects += target
                 super.onRedirect(httpCode, target)
             }
@@ -131,7 +137,9 @@ class CalendarFetcherTest {
                 data.close()
             }
         }
-        fetcher.run()
+        runBlocking {
+            fetcher.fetch()
+        }
 
         // assert redirects are made correctly
         assertArrayEquals(arrayOf(
@@ -155,11 +163,13 @@ class CalendarFetcherTest {
             .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
 
         var e: Exception? = null
-        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-            override fun onError(error: Exception) {
-                e = error
-            }
-        }.run()
+        runBlocking {
+            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+                override fun onError(error: Exception) {
+                    e = error
+                }
+            }.fetch()
+        }
 
         assertEquals(IOException::class.java, e?.javaClass)
     }
@@ -170,11 +180,13 @@ class CalendarFetcherTest {
             .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED))
 
         var notModified = false
-        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-            override fun onNotModified() {
-                notModified = true
-            }
-        }.run()
+        runBlocking {
+            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+                override fun onNotModified() {
+                    notModified = true
+                }
+            }.fetch()
+        }
 
         assert(notModified)
     }
@@ -185,11 +197,13 @@ class CalendarFetcherTest {
             .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
 
         var e: Exception? = null
-        object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-            override fun onError(error: Exception) {
-                e = error
-            }
-        }.run()
+        runBlocking {
+            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+                override fun onError(error: Exception) {
+                    e = error
+                }
+            }.fetch()
+        }
 
         assertEquals(IOException::class.java, e?.javaClass)
     }

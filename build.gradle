@@ -2,7 +2,7 @@ buildscript {
     ext.versions = [
         aboutLibs: '8.9.4',
         kotlin: '1.6.21',
-        okhttp: '4.9.3'
+        okhttp: '5.0.0-alpha.7'
     ]
 
     repositories {

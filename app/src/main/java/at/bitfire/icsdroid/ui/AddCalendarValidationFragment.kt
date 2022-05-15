@@ -13,8 +13,7 @@ import android.util.Log
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
@@ -24,6 +23,8 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
 import java.io.InputStream
@@ -34,13 +35,27 @@ class AddCalendarValidationFragment: DialogFragment() {
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
 
-    private val validationModel by viewModels<ValidationModel>()
+    private val validationModel by viewModels<ValidationModel> {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
+                val authenticate = credentialsModel.requiresAuth.value ?: false
+                return ValidationModel(
+                    requireActivity().application,
+                    uri,
+                    if (authenticate) credentialsModel.username.value else null,
+                    if (authenticate) credentialsModel.password.value else null
+                ) as T
+            }
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        validationModel.result.observe(this) { info ->
+        validationModel.result.observe(this, Observer { info ->
             requireDialog().dismiss()
 
             val exception = info.exception
@@ -63,13 +78,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                     exception.localizedMessage ?: exception.message ?: exception.toString()
                 AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
             }
-        }
-
-        val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
-        val authenticate = credentialsModel.requiresAuth.value ?: false
-        validationModel.initialize(uri,
-                if (authenticate) credentialsModel.username.value else null,
-                if (authenticate) credentialsModel.password.value else null)
+        })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -92,23 +101,25 @@ class AddCalendarValidationFragment: DialogFragment() {
     /* activityModel and data source */
 
     class ValidationModel(
-            application: Application
-    ): AndroidViewModel(application) {
+            val context: Application,
+            val originalUri: Uri,
+            val username: String?,
+            val password: String?
+    ): ViewModel() {
 
         val result = MutableLiveData<ResourceInfo>()
-        private var initialized = false
 
-        fun initialize(originalUri: Uri, username: String?, password: String?) {
-            synchronized(initialized) {
-                if (initialized)
-                    return
-                initialized = true
+        init {
+            viewModelScope.launch(Dispatchers.Default) {
+                validate()
             }
+        }
 
+        private suspend fun validate() {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
             val info = ResourceInfo(originalUri)
-            val downloader = object: CalendarFetcher(getApplication(), originalUri) {
+            val downloader = object: CalendarFetcher(context, originalUri) {
                 override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
@@ -154,7 +165,7 @@ class AddCalendarValidationFragment: DialogFragment() {
             // directly ask for confirmation of custom certificates
             downloader.inForeground = true
 
-            Thread(downloader).start()
+            downloader.fetch()
         }
 
     }
