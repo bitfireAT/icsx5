@@ -14,7 +14,7 @@ import android.provider.CalendarContract.Events
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.ical4android.MiscUtils.UriHelper.asSyncAdapter
+import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 
 class LocalCalendar private constructor(
         account: Account,

@@ -12,7 +12,7 @@ import android.provider.CalendarContract
 import android.util.Log
 import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.ical4android.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
