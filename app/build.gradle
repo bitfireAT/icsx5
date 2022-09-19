@@ -30,16 +30,6 @@ android {
         jvmTarget = "1.8"
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled false
-        }
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
     buildFeatures {
         viewBinding = true
         dataBinding = true
@@ -50,15 +40,36 @@ android {
         standard
         gplay
     }
+
+    signingConfigs {
+        bitfire {
+            storeFile file(System.getenv("ANDROID_KEYSTORE") ?: "/dev/null")
+            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.bitfire
+        }
+    }
+
+    lint {
+        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'OnClick'
+    }
+
     packagingOptions {
         resources {
             excludes += ['META-INF/*.md']
         }
     }
-    lint {
-        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'OnClick'
-    }
-
 }
 
 dependencies {
