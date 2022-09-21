@@ -5,6 +5,7 @@
   <string name="action_next">Volgende</string>
   <string name="calendar_permissions_required">Kalenderrechten nodig</string>
   <string name="notification_channel_sync_problem">Sync-problemen</string>
+  <string name="could_not_load_calendar">Kan kalender niet laden</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mijn abonnementen</string>
   <string name="calendar_list_empty_info">De + knop gebruiken of een Webcal-URL openen om te abonneren op een Webcal-feed.</string>
@@ -65,6 +66,7 @@
   </string-array>
   <string name="sync_permission_required">Toegangsrecht vereist</string>
   <string name="sync_permission_required_sync_calendar">Toegangsrecht vereist om kalender te syncen</string>
+  <string name="could_not_open_storage_file">Kan het bestand niet openen uit de opslag</string>
   <!--InfoActivity-->
   <string name="activity_app_info">App-info</string>
   <string name="app_info_version">Versie %1$s-%2$s</string>

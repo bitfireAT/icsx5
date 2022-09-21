@@ -32,6 +32,7 @@ ICSx⁵ deaktivieren</string>
   <string name="add_calendar_title">Name &amp; Farbe</string>
   <string name="add_calendar_title_hint">Kalendername</string>
   <string name="add_calendar_url_text">Webcal Adresse eingeben</string>
+  <string name="add_calendar_url_sample">https://beispieldomain.de/webcal.ics</string>
   <string name="add_calendar_pick_file_text">Alternativ eine Datei aus dem lokalen Dateisystem auswählen</string>
   <string name="add_calendar_pick_file">Datei auswählen</string>
   <string name="add_calendar_user_name">Benutzername</string>

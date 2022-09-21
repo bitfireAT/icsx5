@@ -5,6 +5,7 @@
   <string name="action_next">Következő</string>
   <string name="calendar_permissions_required">Naptár engedélyre van szükség</string>
   <string name="notification_channel_sync_problem">Szinkronizációs problémák</string>
+  <string name="could_not_load_calendar">A naptár betöltése nem sikerült</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Feliratkozások</string>
   <string name="calendar_list_empty_info">Webcal folyamra a + gomb használatával vagy a Webcal URL megnyitásával iratkozhat fel.</string>
@@ -18,6 +19,7 @@
   <string name="calendar_list_battery_whitelist">Akkumulátor: a gyakori szinkronizációhoz helyezze az ICSx⁵ alkalmazást engedélylistára</string>
   <string name="calendar_list_battery_whitelist_settings">Beállítások</string>
   <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Sötét téma kényszerítése</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Feliratkozás egy naptárra</string>
   <string name="add_calendar_need_valid_uri">Érvényes URI-ra van szükség</string>
@@ -28,9 +30,14 @@
   <string name="add_calendar_requires_authentication">Hitelesítés szükséges</string>
   <string name="add_calendar_title">Cím és szín</string>
   <string name="add_calendar_title_hint">Naptár neve</string>
+  <string name="add_calendar_url_text">Addja meg a Webcal címet:</string>
+  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
+  <string name="add_calendar_pick_file_text">Alternatívaként adjon meg egy az eszközön tárolt fájlt.</string>
+  <string name="add_calendar_pick_file">Fájl kiválasztása</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
   <string name="add_calendar_validating">A naptár ellenőrzése…</string>
   <!--AlertFragment-->
+  <string name="alert_share_details">Részletek megosztása</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">A feliratkozás módosítása</string>
   <string name="edit_calendar_cancel">Mégse</string>
@@ -59,6 +66,7 @@
   </string-array>
   <string name="sync_permission_required">Engedély szükséges</string>
   <string name="sync_permission_required_sync_calendar">A naptár szinkronizálásához szükséges engedélyek hiányoznak</string>
+  <string name="could_not_open_storage_file">Az eszközön tárolt fájl megnyitása sikertelen</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Alkalmazásinformáció</string>
   <string name="app_info_version">Verziószám: %1$s-%2$s </string>
