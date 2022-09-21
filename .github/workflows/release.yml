@@ -37,3 +37,14 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
           files: app/build/outputs/apk/standard/release/*.apk
           fail_on_unmatched_files: true
+
+      - name: Upload Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.google_play_service_account_json }}
+          packageName: at.bitfire.icsdroid
+          releaseFiles: app/build/outputs/apk/standard/release/*.apk
+          mappingFile: app/build/outputs/mapping/standardRelease/mapping.txt
+          track: internal
+          status: draft
+
