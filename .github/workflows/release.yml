@@ -23,28 +23,28 @@ jobs:
       - name: Prepare keystore
         run: echo ${{ secrets.android_keystore_base64 }} | base64 -d >$GITHUB_WORKSPACE/keystore.jks
 
-      - name: Build signed package
-        run: ./gradlew app:assembleStandardRelease
+      - name: Build signed packages
+        run: ./gradlew app:assembleRelease
         env:
           ANDROID_KEYSTORE: ${{ github.workspace }}/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
           ANDROID_KEY_ALIAS: ${{ secrets.android_key_alias }}
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
 
-      - name: Create Github release
+      - name: Create Github release (from standard flavor)
         uses: softprops/action-gh-release@v0.1.14
         with:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
           files: app/build/outputs/apk/standard/release/*.apk
           fail_on_unmatched_files: true
 
-      - name: Upload Google Play
+      - name: Upload to Google Play (gplay flavor)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.google_play_service_account_json }}
           packageName: at.bitfire.icsdroid
-          releaseFiles: app/build/outputs/apk/standard/release/*.apk
-          mappingFile: app/build/outputs/mapping/standardRelease/mapping.txt
+          releaseFiles: app/build/outputs/apk/gplay/release/*.apk
+          mappingFile: app/build/outputs/mapping/gplayRelease/mapping.txt
           track: internal
           status: draft
 
