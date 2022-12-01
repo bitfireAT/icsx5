@@ -124,6 +124,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     override fun onResume() {
         super.onResume()
         checkSyncSettings()
+        model.reinit()
     }
 
 
