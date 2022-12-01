@@ -4,12 +4,9 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.db.LocalCalendar
 
@@ -28,10 +25,11 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val calendarPermissionRequestLauncher = PermissionUtils(this).registerCalendarPermissionRequestLauncher()
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
-            calendarPermissionRequestLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
+        if (!PermissionUtils.haveCalendarPermissions(this)) {
+            PermissionUtils
+                .registerCalendarPermissionRequest(this)
+                .launch(PermissionUtils.CALENDAR_PERMISSIONS)
+        }
 
         if (inState == null) {
             supportFragmentManager
