@@ -4,13 +4,11 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +20,6 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -64,10 +61,13 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val calendarPermissionsRequestLauncher = PermissionUtils(this).registerCalendarPermissionRequestLauncher()
+        val calendarPermissionsRequestLauncher = PermissionUtils.registerCalendarPermissionRequest(this) {
+            // re-initialize model if calendar permissions are granted
+            model.reinit()
+        }
         model.askForPermissions.observe(this) { ask ->
             if (ask)
-                calendarPermissionsRequestLauncher.launch(CalendarModel.PERMISSIONS)
+                calendarPermissionsRequestLauncher.launch(PermissionUtils.CALENDAR_PERMISSIONS)
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->
@@ -259,15 +259,16 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
 
     /**
-     * Data model for this view. Must only be created when the app has calendar permissions!
+     * Data model for this view. Updates calendar subscriptions in real-time.
+     *
+     * Must be initialized with [reinit] after it's created.
+     *
+     * Requires calendar permissions. If it doesn't have calendar permissions, it does nothing.
+     * As soon as calendar permissions are granted, you have to call [reinit] again.
      */
     class CalendarModel(
         application: Application
     ): AndroidViewModel(application) {
-
-        companion object {
-            val PERMISSIONS = arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR)
-        }
 
         private val resolver = application.contentResolver
 
@@ -283,11 +284,17 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
 
         fun reinit() {
-            val havePermissions = PERMISSIONS.all { ActivityCompat.checkSelfPermission(getApplication(), it) == PackageManager.PERMISSION_GRANTED }
+            val havePermissions = PermissionUtils.haveCalendarPermissions(getApplication())
             askForPermissions.value = !havePermissions
 
-            if (havePermissions && observer == null)
-                startWatchingCalendars()
+            if (observer == null) {
+                // we're not watching the calendars yet
+                if (havePermissions) {
+                    Log.d(Constants.TAG, "Watching calendars")
+                    startWatchingCalendars()
+                } else
+                    Log.w(Constants.TAG,"Can't watch calendars (permission denied)")
+            }
         }
 
         override fun onCleared() {
