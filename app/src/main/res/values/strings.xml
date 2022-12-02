@@ -42,6 +42,31 @@
     <string name="add_calendar_pick_file">Pick file</string>
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
+    <string name="add_calendar_alerts_title">Alerts</string>
+    <string name="add_calendar_alerts_ignore">Ignore alerts embed in the calendar</string>
+    <string name="add_calendar_alerts_list_title">Custom Alerts</string>
+    <string name="add_calendar_alerts_list_description">Add custom alerts that will be applied to every event in the calendar.</string>
+    <string-array name="add_calendar_alerts_item_units">
+        <item>minutes</item>
+        <item>hours</item>
+        <item>days</item>
+    </string-array>
+    <string name="add_calendar_alerts_item_using">before, by</string>
+    <string-array name="add_calendar_alerts_item_methods">
+        <!--
+        Do not switch order. Matches values from each method:
+        https://developer.android.com/reference/android/provider/CalendarContract.RemindersColumns#METHOD
+        -->
+        <item>(default)</item>
+        <item>an alert</item>
+        <item>an email</item>
+        <item>SMS</item>
+        <item>an alarm</item>
+    </string-array>
+    <string name="add_calendar_alerts_item_delete">Deletes the reminder</string>
+    <string name="add_calendar_alerts_item_new">Adds a new alert</string>
+    <string name="add_calendar_alerts_error_number">Must be a number</string>
+    <string name="add_calendar_alerts_error_min">Select a greater value</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>
