@@ -65,6 +65,13 @@ class ProcessEventsTask(
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
+                            .map {
+                                if (calendar.ignoreEmbedAlerts == true) {
+                                    Log.d(Constants.TAG, "Removing all alarms from ${it.uid}")
+                                    it.alarms.clear()
+                                }
+                                it
+                            }
                         processEvents(events)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
