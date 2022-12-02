@@ -11,10 +11,12 @@ import android.content.ContentValues
 import android.os.RemoteException
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
+import android.util.Log
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
+import at.bitfire.icsdroid.Constants
 
 class LocalCalendar private constructor(
         account: Account,
@@ -30,6 +32,7 @@ class LocalCalendar private constructor(
         const val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
         const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
         const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
+        const val COLUMN_ALLOWED_REMINDERS = Calendars.ALLOWED_REMINDERS
 
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
                 findByID(account, provider, Factory, id)
@@ -46,6 +49,8 @@ class LocalCalendar private constructor(
     var lastSync = 0L                   // time of last sync (0 if none)
     var errorMessage: String? = null    // error message (HTTP status or exception name) of last sync (or null)
 
+    var allowedReminders: List<Int> = listOf()
+
 
     override fun populate(info: ContentValues) {
         super.populate(info)
@@ -56,6 +61,12 @@ class LocalCalendar private constructor(
 
         info.getAsLong(COLUMN_LAST_SYNC)?.let { lastSync = it }
         errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE)
+
+        info.getAsString(COLUMN_ALLOWED_REMINDERS)
+            ?.split(',')
+            ?.mapNotNull { it.toIntOrNull() }
+            ?.let { allowedReminders = it }
+        Log.i(Constants.TAG, "Allowed reminders: $allowedReminders")
     }
 
     fun updateStatusSuccess(eTag: String?, lastModified: Long) {
@@ -63,11 +74,12 @@ class LocalCalendar private constructor(
         this.lastModified = lastModified
         lastSync = System.currentTimeMillis()
 
-        val values = ContentValues(4)
+        val values = ContentValues(5)
         values.put(COLUMN_ETAG, eTag)
         values.put(COLUMN_LAST_MODIFIED, lastModified)
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.putNull(COLUMN_ERROR_MESSAGE)
+        values.put(COLUMN_ALLOWED_REMINDERS, allowedReminders.joinToString(","))
         update(values)
     }
 
@@ -85,11 +97,12 @@ class LocalCalendar private constructor(
         lastSync = System.currentTimeMillis()
         errorMessage = message
 
-        val values = ContentValues(4)
+        val values = ContentValues(5)
         values.putNull(COLUMN_ETAG)
         values.putNull(COLUMN_LAST_MODIFIED)
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.put(COLUMN_ERROR_MESSAGE, message)
+        values.put(COLUMN_ALLOWED_REMINDERS, allowedReminders.joinToString(","))
         update(values)
     }
 
