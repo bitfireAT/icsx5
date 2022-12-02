@@ -149,6 +149,9 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalColor = it
             titleColorModel.color.value = it
         }
+        calendar.allowedReminders.let {
+            titleColorModel.allowedReminders.postValue(it)
+        }
 
         model.active.value = calendar.isSynced
 
