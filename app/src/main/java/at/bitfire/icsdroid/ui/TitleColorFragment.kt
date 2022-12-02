@@ -26,6 +26,7 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AlertRowBinding
 import at.bitfire.icsdroid.databinding.TitleColorBinding
+import at.bitfire.icsdroid.db.CalendarReminder
 
 class TitleColorFragment : Fragment() {
 
@@ -80,57 +81,6 @@ class TitleColorFragment : Fragment() {
 
         fun dirty() =
             originalTitle != title.value || originalColor != color.value || originalIgnoreAlerts != ignoreAlerts.value || originalReminders != reminders.value
-    }
-
-    /**
-     * Stores all the reminders registered for a given calendar.
-     * @since 20221201
-     */
-    data class CalendarReminder(
-        /**
-         * How much time to notify before the event. The unit of this value is determined by [method].
-         * @since 20221201
-         */
-        val time: Long,
-        /**
-         * The unit to be used with [time]. The possible values are:
-         * - `0`: minutes (x1)
-         * - `1`: hours (x60)
-         * - `2`: days (x1440)
-         *
-         * This is an index, that also match the value at [R.array.add_calendar_alerts_item_units], this way the selection in the spinner is easier.
-         * @since 20221201
-         * @see minutes
-         */
-        @androidx.annotation.IntRange(from = 0, to = 2)
-        val units: Int,
-        @Method
-        val method: Int,
-    ) {
-        companion object {
-            val DEFAULT: CalendarReminder
-                get() = CalendarReminder(15, 0, CalendarContract.Reminders.METHOD_DEFAULT)
-        }
-
-        @IntDef(
-            CalendarContract.Reminders.METHOD_DEFAULT,
-            CalendarContract.Reminders.METHOD_ALERT,
-            CalendarContract.Reminders.METHOD_EMAIL,
-            CalendarContract.Reminders.METHOD_SMS,
-            CalendarContract.Reminders.METHOD_ALARM,
-        )
-        annotation class Method
-
-        /**
-         * Provides the [time] specified, adjusted to match the amount of minutes.
-         * @since 20221202
-         */
-        val minutes: Long
-            get() = when (units) {
-                0 -> time * 1
-                1 -> time * 60
-                else -> time * 1440
-            }
     }
 
     class RemindersListAdapter(private val context: Context, private val model: TitleColorModel) :
