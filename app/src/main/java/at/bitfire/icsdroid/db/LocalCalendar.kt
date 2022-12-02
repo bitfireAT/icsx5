@@ -82,6 +82,7 @@ class LocalCalendar private constructor(
             ?.let { allowedReminders = it }
 
         info.getAsString(COLUMN_REMINDERS)
+            ?.takeIf { it.isNotBlank() }
             ?.split(';')
             ?.map { CalendarReminder.parse(it) }
             ?.let { reminders = it }
