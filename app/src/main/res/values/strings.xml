@@ -44,29 +44,27 @@
     <string name="add_calendar_validating">Validating calendar resource…</string>
     <string name="add_calendar_alerts_title">Alerts</string>
     <string name="add_calendar_alerts_ignore">Ignore alerts embed in the calendar</string>
-    <string name="add_calendar_alerts_list_title">Custom Alerts</string>
-    <string name="add_calendar_alerts_list_description">Add custom alerts that will be applied to every event in the calendar.</string>
-    <string-array name="add_calendar_alerts_item_units">
-        <item>minutes</item>
-        <item>hours</item>
-        <item>days</item>
-    </string-array>
-    <string name="add_calendar_alerts_item_using">before, by</string>
-    <string-array name="add_calendar_alerts_item_methods">
+    <string name="add_calendar_alerts_custom_title">Custom Alert</string>
+    <string name="add_calendar_alerts_custom_description">Set a custom alert for all the events of the calendar.</string>¡
+    <string name="add_calendar_alerts_custom_label">minutes before, by</string>
+    <string name="alert_method_default">(default)</string>
+    <string name="alert_method_alert">an alert</string>
+    <string name="alert_method_email">an email</string>
+    <string name="alert_method_sms">SMS</string>
+    <string name="alert_method_alarm">an alarm</string>
+    <string-array name="add_calendar_alerts_custom_methods" translatable="false">
         <!--
         Do not switch order. Matches values from each method:
         https://developer.android.com/reference/android/provider/CalendarContract.RemindersColumns#METHOD
+        Using individual strings for securing this.
         -->
-        <item>(default)</item>
-        <item>an alert</item>
-        <item>an email</item>
-        <item>SMS</item>
-        <item>an alarm</item>
+        <item>@string/alert_method_default</item>
+        <item>@string/alert_method_alert</item>
+        <item>@string/alert_method_email</item>
+        <item>@string/alert_method_sms</item>
+        <item>@string/alert_method_alarm</item>
     </string-array>
-    <string name="add_calendar_alerts_item_delete">Deletes the reminder</string>
-    <string name="add_calendar_alerts_item_new">Adds a new alert</string>
     <string name="add_calendar_alerts_error_number">Must be a number</string>
-    <string name="add_calendar_alerts_error_min">Select a greater value</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>
