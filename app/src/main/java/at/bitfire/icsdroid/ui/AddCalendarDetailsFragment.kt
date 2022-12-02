@@ -23,7 +23,6 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
-import at.bitfire.icsdroid.db.serialize
 
 class AddCalendarDetailsFragment: Fragment() {
 
@@ -79,7 +78,7 @@ class AddCalendarDetailsFragment: Fragment() {
         calInfo.put(Calendars.VISIBLE, 1)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
         calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
-        calInfo.put(LocalCalendar.COLUMN_REMINDERS, titleColorModel.reminders.value?.serialize())
+        calInfo.put(LocalCalendar.COLUMN_REMINDER, titleColorModel.reminder.value?.serialize())
 
         val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
         return try {

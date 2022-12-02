@@ -39,11 +39,10 @@ class LocalCalendar private constructor(
         const val COLUMN_IGNORE_EMBED = Calendars.CAL_SYNC8
 
         /**
-         * Stores all the reminders added for all the events in the calendar. It's a list of elements separated by ;, and parsed into [CalendarReminder] with
-         * [CalendarReminder.parse] (Uses "," as divider).
+         * Stores the reminder set for all the events of the calendar.
          * @since 20221202
          */
-        const val COLUMN_REMINDERS = Calendars.CAL_SYNC7
+        const val COLUMN_REMINDER = Calendars.CAL_SYNC7
 
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
                 findByID(account, provider, Factory, id)
@@ -63,7 +62,7 @@ class LocalCalendar private constructor(
     var ignoreEmbedAlerts: Boolean? = null
 
     var allowedReminders: List<Int> = emptyList()
-    var reminders: List<CalendarReminder> = emptyList()
+    var reminder: CalendarReminder? = null
 
 
     override fun populate(info: ContentValues) {
@@ -81,11 +80,10 @@ class LocalCalendar private constructor(
             ?.mapNotNull { it.toIntOrNull() }
             ?.let { allowedReminders = it }
 
-        info.getAsString(COLUMN_REMINDERS)
+        info.getAsString(COLUMN_REMINDER)
             ?.takeIf { it.isNotBlank() }
-            ?.split(';')
-            ?.map { CalendarReminder.parse(it) }
-            ?.let { reminders = it }
+            ?.let { CalendarReminder.parse(it) }
+            ?.let { reminder = it }
 
         info.getAsBoolean(COLUMN_IGNORE_EMBED)
             ?.let { ignoreEmbedAlerts = it }
@@ -102,7 +100,7 @@ class LocalCalendar private constructor(
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.putNull(COLUMN_ERROR_MESSAGE)
         values.put(COLUMN_ALLOWED_REMINDERS, allowedReminders.joinToString(","))
-        values.put(COLUMN_REMINDERS, reminders.serialize())
+        values.put(COLUMN_REMINDER, reminder?.serialize())
         values.put(COLUMN_IGNORE_EMBED, ignoreEmbedAlerts)
         update(values)
     }
@@ -127,7 +125,7 @@ class LocalCalendar private constructor(
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.put(COLUMN_ERROR_MESSAGE, message)
         values.put(COLUMN_ALLOWED_REMINDERS, allowedReminders.joinToString(","))
-        values.put(COLUMN_REMINDERS, reminders.serialize())
+        values.put(COLUMN_REMINDER, reminder?.serialize())
         values.put(COLUMN_IGNORE_EMBED, ignoreEmbedAlerts)
         update(values)
     }

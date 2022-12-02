@@ -37,7 +37,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
-import at.bitfire.icsdroid.db.serialize
 import java.io.FileNotFoundException
 
 class EditCalendarActivity: AppCompatActivity() {
@@ -72,7 +71,7 @@ class EditCalendarActivity: AppCompatActivity() {
         titleColorModel.title.observe(this, invalidate)
         titleColorModel.color.observe(this, invalidate)
         titleColorModel.ignoreAlerts.observe(this, invalidate)
-        titleColorModel.reminders.observe(this, invalidate)
+        titleColorModel.reminder.observe(this, invalidate)
 
         credentialsModel.requiresAuth.observe(this, invalidate)
         credentialsModel.username.observe(this, invalidate)
@@ -156,9 +155,9 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalIgnoreAlerts = it
             titleColorModel.ignoreAlerts.postValue(it)
         }
-        calendar.reminders.let {
-            titleColorModel.originalReminders = it
-            titleColorModel.reminders.postValue(it)
+        calendar.reminder.let {
+            titleColorModel.originalReminder = it
+            titleColorModel.reminder.postValue(it)
         }
         calendar.allowedReminders.let {
             titleColorModel.allowedReminders.postValue(it)
@@ -197,7 +196,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
-                values.put(LocalCalendar.COLUMN_REMINDERS, titleColorModel.reminders.value?.serialize())
+                values.put(LocalCalendar.COLUMN_REMINDER, titleColorModel.reminder.value?.serialize())
                 values.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
                 calendar.update(values)
 
