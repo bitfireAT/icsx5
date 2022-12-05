@@ -21,10 +21,8 @@ import net.fortuna.ical4j.model.*
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Description
-import net.fortuna.ical4j.model.property.Duration
-import net.fortuna.ical4j.model.property.Repeat
 import net.fortuna.ical4j.model.property.Trigger
-import java.time.temporal.TemporalAmount
+import java.time.Duration
 
 class LocalCalendar private constructor(
     account: Account,
@@ -101,14 +99,13 @@ class LocalCalendar private constructor(
                     // Remove all alerts
                     Log.d(Constants.TAG, "Removing all alarms from ${event.uid}: $event")
                     event.alarms.clear()
-                    ev.update(event)
-                } else {
-                    // Add all the alarms back again
-                    Log.d(Constants.TAG, "Adding all disabled alarms")
-                    // TODO: Fetch all alarms again from server
                 }
-                if (defaultAlarmMinutes != null) {
-                    // Add the default alarm to the even
+                defaultAlarmMinutes?.let { minutes ->
+                    // Check if already added alarm
+                    val alarm = event.alarms.find { it.description.value.contains("*added by ICSx5") }
+                    if (alarm != null) return@let
+                    // Add the default alarm to the event
+                    Log.d(Constants.TAG, "Adding the default alarm to ${event.uid}.")
                     event.alarms.add(
                         // Create the new VAlarm
                         VAlarm.Factory().createComponent(
@@ -117,13 +114,15 @@ class LocalCalendar private constructor(
                                 // Set action to DISPLAY
                                 add(Action.DISPLAY)
                                 // Add the trigger x minutes before
-                                add(Trigger(TemporalAmountAdapter.parse("-P${defaultAlarmMinutes}M").duration))
-                                // Set an empty description (maybe set something default?)
-                                add(Description(""))
+                                val duration = Duration.ofMinutes(minutes * -1)
+                                add(Trigger(duration))
+                                // Set a default description for checking if added
+                                add(Description("*added by ICSx5"))
                             }
                         )
                     )
                 }
+                ev.update(event)
             }
     }
 
