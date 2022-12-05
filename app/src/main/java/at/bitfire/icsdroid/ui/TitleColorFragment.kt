@@ -4,18 +4,11 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.LinearLayout
-import androidx.core.view.marginStart
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -23,7 +16,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
-import at.bitfire.icsdroid.db.CalendarReminder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlin.math.roundToInt
 
