@@ -26,7 +26,8 @@ import java.net.MalformedURLException
 
 class ProcessEventsTask(
         val context: Context,
-        val calendar: LocalCalendar
+        val calendar: LocalCalendar,
+        val ignoreCache: Boolean,
 ) {
 
     suspend fun sync() {
@@ -65,7 +66,7 @@ class ProcessEventsTask(
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
-                        processEvents(events)
+                        processEvents(events.map { if (ignoreCache) it.lastModified = null; it })
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
                         calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
