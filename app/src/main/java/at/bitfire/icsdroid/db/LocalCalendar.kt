@@ -100,49 +100,13 @@ class LocalCalendar private constructor(
                 val event = ev.event!!
                 if (ignoreEmbedAlerts == true) {
                     // Remove all alerts
-                    event.unknownProperties.add(
-                        PropertyBuilder()
-                            .name("--ALARMS-BAK")
-                            .value(
-                                event.alarms.joinToString(";;") { it.toString() }
-                            )
-                            .build()
-                    )
                     Log.d(Constants.TAG, "Removing all alarms from ${event.uid}: $event")
                     event.alarms.clear()
                     ev.update(event)
                 } else {
                     // Add all the alarms back again
                     Log.d(Constants.TAG, "Adding all disabled alarms")
-                    val props = event.unknownProperties
-                        .find { it.name == "--ALARMS-BAK" }
-                        ?.value
-                        ?.split(Regex(";{2}"))
-                        ?.map { alarmString ->
-                            val properties = PropertyList<Property>()
-                            properties.addAll(
-                                alarmString.split('\n')
-                                    .map { it.split(':') }
-                                    .mapNotNull {
-                                        val value = it.subList(1, it.size).joinToString(":")
-                                        when (it[0]) {
-                                            // TODO: Fix trigger parsing
-                                            /*Property.TRIGGER -> {
-                                                Log.d(Constants.TAG, "Trigger: \"$value\"")
-                                                val adapter = TemporalAmountAdapter.parse(value)
-                                                Trigger(adapter.duration)
-                                            }*/
-                                            Property.ACTION -> Action(value)
-                                            Property.DESCRIPTION -> Description(value)
-                                            Property.REPEAT -> Repeat(value.toInt())
-                                            Property.DURATION -> Duration(TemporalAmountAdapter.parse(value).duration)
-                                            else -> null
-                                        }
-                                    }
-                            )
-                            VAlarm.Factory().createComponent(properties)
-                        }
-                    Log.d(Constants.TAG, "Props: $props")
+                    // TODO: Fetch all alarms again from server
                 }
             }
     }
