@@ -20,6 +20,7 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -56,7 +57,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.lifecycleOwner = this
         binding.model = model
 
-        val defaultRefreshColor = resources.getColor(R.color.lightblue)
+        val defaultRefreshColor = ContextCompat.getColor(this, R.color.lightblue)
         binding.refresh.setColorSchemeColors(defaultRefreshColor)
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
