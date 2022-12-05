@@ -71,7 +71,7 @@ class EditCalendarActivity: AppCompatActivity() {
         titleColorModel.title.observe(this, invalidate)
         titleColorModel.color.observe(this, invalidate)
         titleColorModel.ignoreAlerts.observe(this, invalidate)
-        titleColorModel.reminder.observe(this, invalidate)
+        titleColorModel.defaultAlarmMinutes.observe(this, invalidate)
 
         credentialsModel.requiresAuth.observe(this, invalidate)
         credentialsModel.username.observe(this, invalidate)
@@ -155,12 +155,9 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalIgnoreAlerts = it
             titleColorModel.ignoreAlerts.postValue(it)
         }
-        calendar.reminder.let {
-            titleColorModel.originalReminder = it
-            titleColorModel.reminder.postValue(it)
-        }
-        calendar.allowedReminders.let {
-            titleColorModel.allowedReminders.postValue(it)
+        calendar.defaultAlarmMinutes.let {
+            titleColorModel.originalDefaultAlarmMinutes = it
+            titleColorModel.defaultAlarmMinutes.postValue(it)
         }
 
         model.active.value = calendar.isSynced
@@ -196,7 +193,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
-                values.put(LocalCalendar.COLUMN_REMINDER, titleColorModel.reminder.value?.serialize())
+                values.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
                 values.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
                 calendar.update(values)
 

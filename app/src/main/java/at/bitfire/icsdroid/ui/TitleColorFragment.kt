@@ -4,13 +4,18 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.LinearLayout
+import androidx.core.view.marginStart
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,6 +24,13 @@ import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
 import at.bitfire.icsdroid.db.CalendarReminder
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlin.math.roundToInt
+
+const val MINUTES_IN_AN_HOUR = 60f
+const val MINUTES_IN_A_DAY = 24*60f
+const val MINUTES_IN_AN_WEEK = 7*24*60f
+const val MINUTES_IN_A_MONTH = 30*7*24*60f
 
 class TitleColorFragment : Fragment() {
 
@@ -33,61 +45,75 @@ class TitleColorFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.model = model
 
+        var firstCheck = true
+
+        model.defaultAlarmMinutes.observe(viewLifecycleOwner) { min: Long? ->
+            binding.defaultAlarmSwitch.isChecked = min != null
+            firstCheck = false
+            if (min == null) {
+                binding.defaultAlarmText.visibility = View.GONE
+                return@observe
+            }
+            // TODO: Build string to have exactly the duration specified. e.g.: 1 hour and 37 minutes
+            val minutes = min.toInt()
+            val text = if (minutes < MINUTES_IN_AN_HOUR)
+                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_minutes, minutes, minutes)
+            else if (minutes < MINUTES_IN_A_DAY) (minutes / MINUTES_IN_AN_HOUR).roundToInt().let {
+                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_hours, it, it)
+            }
+            else if (minutes < MINUTES_IN_AN_WEEK) (minutes / MINUTES_IN_A_DAY).roundToInt().let {
+                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_days, it, it)
+            }
+            else if (minutes < MINUTES_IN_A_MONTH) (minutes / MINUTES_IN_AN_WEEK).roundToInt().let {
+                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_weeks, it, it)
+            }
+            else (minutes / MINUTES_IN_A_MONTH).roundToInt().let {
+                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_months, it, it)
+            }
+            binding.defaultAlarmText.text = getString(R.string.add_calendar_alarms_default_description, text)
+            binding.defaultAlarmText.visibility = View.VISIBLE
+        }
+
         // Listener for launching the color picker
         binding.color.setOnClickListener { colorPickerContract.launch(model.color.value) }
 
-        binding.customAlertEnable.setOnCheckedChangeListener { _, checked ->
-            if (!checked)
-                model.reminder.postValue(null)
-            else
-                model.reminder.postValue(model.originalReminder ?: CalendarReminder.DEFAULT)
-        }
-        binding.customAlertTime.addTextChangedListener { text ->
-            // Make sure the value entered is an int
-            val number = text?.toString()?.toLongOrNull()
-            binding.customAlertTime.error = when (number) {
-                null -> getString(R.string.add_calendar_alerts_error_number)
-                else -> null
+        binding.defaultAlarmSwitch.setOnCheckedChangeListener { _, checked ->
+            if (firstCheck) return@setOnCheckedChangeListener
+
+            if (!checked) {
+                model.defaultAlarmMinutes.postValue(null)
+                return@setOnCheckedChangeListener
             }
-            number?.let {
-                val reminder = model.reminder.value ?: CalendarReminder.DEFAULT
-                val newReminder = reminder.copy(minutes = it)
-                // Only update model if the reminder has been changed
-                if (reminder != newReminder)
-                    model.reminder.postValue(newReminder)
-            }
-        }
-        binding.customAlertMethod.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(adapter: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val reminder = model.reminder.value ?: CalendarReminder.DEFAULT
-                model.allowedReminders.value?.let {
-                    model.reminder.postValue(reminder.copy(method = it[position]))
+
+            val editText = EditText(requireContext()).apply {
+                setHint(R.string.default_alarm_dialog_hint)
+
+                addTextChangedListener { txt ->
+                    val text = txt?.toString()
+                    val num = text?.toLongOrNull()
+                    error = if (text == null || text.isBlank() || num == null)
+                        getString(R.string.default_alarm_dialog_error)
+                    else
+                        null
                 }
             }
-
-            override fun onNothingSelected(adapter: AdapterView<*>?) {}
-        }
-
-        model.allowedReminders.observe(viewLifecycleOwner) { allowedReminders ->
-            val methods = resources.getStringArray(R.array.add_calendar_alerts_custom_methods)
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, allowedReminders.map { methods[it] })
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.customAlertMethod.adapter = adapter
-        }
-
-        model.reminder.observe(viewLifecycleOwner) { reminder ->
-            if (reminder == null) {
-                binding.customAlertCard.visibility = View.GONE
-                binding.customAlertEnable.isChecked = false
-            } else {
-                val minutes = reminder.minutes
-                binding.customAlertCard.visibility = View.VISIBLE
-                binding.customAlertEnable.isChecked = true
-                binding.customAlertTime
-                    .takeIf { it.text.toString() != minutes.toString() }
-                    ?.setText(minutes.toString())
-                binding.customAlertMethod.setSelection(reminder.method)
-            }
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.default_alarm_dialog_title)
+                .setMessage(R.string.default_alarm_dialog_message)
+                .setView(editText)
+                .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
+                    if (editText.error != null) {
+                        // TODO: Value introduced is not valid
+                    } else {
+                        model.defaultAlarmMinutes.postValue(editText.text?.toString()?.toLongOrNull())
+                        dialog.dismiss()
+                    }
+                }
+                .setOnCancelListener {
+                    binding.defaultAlarmSwitch.isChecked = false
+                }
+                .create()
+                .show()
         }
 
         return binding.root
@@ -105,16 +131,14 @@ class TitleColorFragment : Fragment() {
         var originalIgnoreAlerts: Boolean? = null
         val ignoreAlerts = MutableLiveData<Boolean>()
 
-        var originalReminder: CalendarReminder? = null
-        val reminder = MutableLiveData<CalendarReminder>()
-
-        var allowedReminders = MutableLiveData<List<Int>>()
+        var originalDefaultAlarmMinutes: Long? = null
+        val defaultAlarmMinutes = MutableLiveData<Long>()
 
         fun dirty() = arrayOf(
             originalTitle to title,
             originalColor to color,
             originalIgnoreAlerts to ignoreAlerts,
-            originalReminder to reminder,
+            originalDefaultAlarmMinutes to defaultAlarmMinutes,
         ).any { (original, state) -> original != state.value }
     }
 
