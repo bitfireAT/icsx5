@@ -30,10 +30,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.HttpUtils
-import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
@@ -196,6 +193,8 @@ class EditCalendarActivity: AppCompatActivity() {
                 values.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
                 values.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
                 calendar.update(values)
+
+                SyncWorker.run(this, ignoreCache = true)
 
                 credentialsModel.let { model ->
                     val credentials = CalendarCredentials(this)
