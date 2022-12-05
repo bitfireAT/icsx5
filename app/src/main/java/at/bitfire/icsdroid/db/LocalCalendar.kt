@@ -49,8 +49,7 @@ class LocalCalendar private constructor(
         const val COLUMN_IGNORE_EMBED = Calendars.CAL_SYNC8
 
         /**
-         * TODO: Change javadoc
-         * Stores the reminder set for all the events of the calendar.
+         * Stores the default alarm to set to all events in the given calendar.
          * @since 20221202
          */
         const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
@@ -107,6 +106,23 @@ class LocalCalendar private constructor(
                     // Add all the alarms back again
                     Log.d(Constants.TAG, "Adding all disabled alarms")
                     // TODO: Fetch all alarms again from server
+                }
+                if (defaultAlarmMinutes != null) {
+                    // Add the default alarm to the even
+                    event.alarms.add(
+                        // Create the new VAlarm
+                        VAlarm.Factory().createComponent(
+                            // Set all the properties for the alarm
+                            PropertyList<Property>().apply {
+                                // Set action to DISPLAY
+                                add(Action.DISPLAY)
+                                // Add the trigger x minutes before
+                                add(Trigger(TemporalAmountAdapter.parse("-P${defaultAlarmMinutes}M").duration))
+                                // Set an empty description (maybe set something default?)
+                                add(Description(""))
+                            }
+                        )
+                    )
                 }
             }
     }
