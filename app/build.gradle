@@ -7,6 +7,8 @@ android {
     compileSdkVersion 33
     buildToolsVersion '33.0.0'
 
+    namespace 'at.bitfire.icsdroid'
+
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 21
