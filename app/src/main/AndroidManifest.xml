@@ -40,6 +40,7 @@
         android:networkSecurityConfig="@xml/network_security"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
+        android:enableOnBackInvokedCallback="true"
         tools:ignore="UnusedAttribute">
 
         <service
