@@ -41,6 +41,7 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
         android:enableOnBackInvokedCallback="true"
+        android:localeConfig="@xml/locales_config"
         tools:ignore="UnusedAttribute">
 
         <service
