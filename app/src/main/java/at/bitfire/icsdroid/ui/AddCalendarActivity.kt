@@ -27,8 +27,7 @@ class AddCalendarActivity: AppCompatActivity() {
 
         if (!PermissionUtils.haveCalendarPermissions(this)) {
             PermissionUtils
-                .registerCalendarPermissionRequest(this)
-                .launch(PermissionUtils.CALENDAR_PERMISSIONS)
+                .registerCalendarPermissionRequest(this)()
         }
 
         if (inState == null) {
