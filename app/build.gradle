@@ -20,6 +20,10 @@ android {
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def locales = getLocales()
+        buildConfigField "String[]", "TRANSLATION_ARRAY", "new String[]{\""+locales.join("\",\"")+"\"}"
+        resConfigs locales
     }
 
     compileOptions {
