@@ -24,10 +24,24 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
 
+/**
+ * Fetches the .ics for a given Webcal subscription and stores the events
+ * in the local calendar provider.
+ *
+ * By default, caches will be used:
+ *
+ * - for fetching a calendar by HTTP (ETag/Last-Modified),
+ * - for updating the local events (will only be updated when LAST-MODIFIED is newer).
+ *
+ * @param context      context to work in
+ * @param calendar     represents the subscription to be checked
+ * @param forceResync  enforces that the calendar is fetched and all events are fully processed
+ *                     (useful when subscription settings have been changed)
+ */
 class ProcessEventsTask(
-        val context: Context,
-        val calendar: LocalCalendar,
-        val ignoreCache: Boolean,
+    val context: Context,
+    val calendar: LocalCalendar,
+    val forceResync: Boolean
 ) {
 
     suspend fun sync() {
@@ -54,7 +68,7 @@ class ProcessEventsTask(
                 calendar.updateStatusError(e.localizedMessage ?: e.toString())
                 return
             }
-        Log.i(Constants.TAG, "Synchronizing $uri")
+        Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
@@ -66,7 +80,7 @@ class ProcessEventsTask(
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
-                        processEvents(events.map { if (ignoreCache) it.lastModified = null; it })
+                        processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
                         calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
@@ -99,9 +113,9 @@ class ProcessEventsTask(
             downloader.password = password
         }
 
-        if (calendar.eTag != null)
+        if (calendar.eTag != null && !forceResync)
             downloader.ifNoneMatch = calendar.eTag
-        if (calendar.lastModified != 0L)
+        if (calendar.lastModified != 0L && !forceResync)
             downloader.ifModifiedSince = calendar.lastModified
 
         downloader.fetch()
@@ -132,8 +146,8 @@ class ProcessEventsTask(
         }
     }
 
-    private fun processEvents(events: List<Event>) {
-        Log.i(Constants.TAG, "Processing ${events.size} events")
+    private fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
+        Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
 
         for (event in events) {
@@ -148,7 +162,7 @@ class ProcessEventsTask(
 
             } else {
                 val localEvent = localEvents.first()
-                var lastModified = event.lastModified
+                var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
                 if (lastModified != null) {
