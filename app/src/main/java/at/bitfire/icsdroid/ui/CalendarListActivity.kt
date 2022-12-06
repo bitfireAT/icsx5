@@ -65,9 +65,14 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
             // re-initialize model if calendar permissions are granted
             model.reinit()
         }
-        model.askForPermissions.observe(this) { ask ->
-            if (ask)
-                calendarPermissionsRequestLauncher.launch(PermissionUtils.CALENDAR_PERMISSIONS)
+        val notificationPermissionsRequestLauncher = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            PermissionUtils.registerNotificationsPermissionRequest(this) { }
+        else null
+        model.askForCalendarPermissions.observe(this) { ask ->
+            if (ask) calendarPermissionsRequestLauncher()
+        }
+        model.askForNotificationPermissions.observe(this) { ask ->
+            if (ask) notificationPermissionsRequestLauncher?.invoke()
         }
 
         model.isRefreshing.observe(this) { isRefreshing ->
@@ -272,7 +277,8 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         private val resolver = application.contentResolver
 
-        val askForPermissions = MutableLiveData(false)
+        val askForCalendarPermissions = MutableLiveData(false)
+        val askForNotificationPermissions = MutableLiveData(false)
 
         /** whether there are running sync workers */
         val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
@@ -284,12 +290,18 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
 
         fun reinit() {
-            val havePermissions = PermissionUtils.haveCalendarPermissions(getApplication())
-            askForPermissions.value = !havePermissions
+            val haveCalendarPermissions = PermissionUtils.haveCalendarPermissions(getApplication())
+            askForCalendarPermissions.value = !haveCalendarPermissions
+
+            val haveNotificationPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                PermissionUtils.haveNotificationPermissions(getApplication())
+            else
+                true
+            askForNotificationPermissions.value = !haveNotificationPermissions
 
             if (observer == null) {
                 // we're not watching the calendars yet
-                if (havePermissions) {
+                if (haveCalendarPermissions) {
                     Log.d(Constants.TAG, "Watching calendars")
                     startWatchingCalendars()
                 } else
