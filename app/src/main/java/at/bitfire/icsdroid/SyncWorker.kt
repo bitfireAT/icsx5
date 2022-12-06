@@ -33,13 +33,13 @@ class SyncWorker(
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
-         * @param context     required for managing work
-         * @param force       *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
-         * @param ignoreCache *true* ignores all locally stored data and fetched everything from the server again
+         * @param context      required for managing work
+         * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
          */
-        fun run(context: Context, force: Boolean = false, ignoreCache: Boolean = false) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(workDataOf(FORCE_RESYNC to ignoreCache))
+                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy
             if (force) {
