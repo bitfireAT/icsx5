@@ -148,7 +148,7 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalColor = it
             titleColorModel.color.value = it
         }
-        calendar.ignoreEmbedAlerts.let {
+        calendar.ignoreEmbeddedAlerts.let {
             titleColorModel.originalIgnoreAlerts = it
             titleColorModel.ignoreAlerts.postValue(it)
         }
@@ -191,10 +191,10 @@ class EditCalendarActivity: AppCompatActivity() {
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
                 values.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
-                values.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
+                values.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
                 calendar.update(values)
 
-                SyncWorker.run(this, ignoreCache = true)
+                SyncWorker.run(this, forceResync = true)
 
                 credentialsModel.let { model ->
                     val credentials = CalendarCredentials(this)

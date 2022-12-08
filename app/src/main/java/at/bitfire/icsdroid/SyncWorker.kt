@@ -26,20 +26,20 @@ class SyncWorker(
 
         const val NAME = "SyncWorker"
 
-        const val IGNORE_CACHE = "IgnoreCache"
+        const val FORCE_RESYNC = "forceResync"
 
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
-         * @param context     required for managing work
-         * @param force       *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
-         * @param ignoreCache *true* ignores all locally stored data and fetched everything from the server again
+         * @param context      required for managing work
+         * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
          */
-        fun run(context: Context, force: Boolean = false, ignoreCache: Boolean = false) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(workDataOf(IGNORE_CACHE to ignoreCache))
+                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy
             if (force) {
@@ -71,11 +71,11 @@ class SyncWorker(
 
     @SuppressLint("Recycle")
     override suspend fun doWork(): Result {
-        val ignoreCache = inputData.getBoolean(IGNORE_CACHE, false)
+        val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
                 return withContext(Dispatchers.Default) {
-                    performSync(AppAccount.get(applicationContext), providerClient, ignoreCache)
+                    performSync(AppAccount.get(applicationContext), providerClient, forceResync)
                 }
             } finally {
                 providerClient.closeCompat()
@@ -84,19 +84,12 @@ class SyncWorker(
         return Result.failure()
     }
 
-    private suspend fun performSync(account: Account, provider: ContentProviderClient, ignoreCache: Boolean): Result {
-        Log.i(Constants.TAG, "Synchronizing ${account.name}. Ignore cache: $ignoreCache")
+    private suspend fun performSync(account: Account, provider: ContentProviderClient, forceResync: Boolean): Result {
+        Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             LocalCalendar.findAll(account, provider)
-                .map {
-                    if (ignoreCache) {
-                        it.lastModified = 0
-                        it.eTag = null
-                    }
-                    it
-                }
                 .filter { it.isSynced }
-                .forEach { ProcessEventsTask(applicationContext, it, ignoreCache).sync() }
+                .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)

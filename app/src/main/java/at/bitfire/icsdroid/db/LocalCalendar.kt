@@ -17,7 +17,8 @@ import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants
-import net.fortuna.ical4j.model.*
+import net.fortuna.ical4j.model.Property
+import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Description
@@ -38,13 +39,12 @@ class LocalCalendar private constructor(
         const val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
         const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
         const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
-        const val COLUMN_ALLOWED_REMINDERS = Calendars.ALLOWED_REMINDERS
 
         /**
-         * Stores if the calendar's embed alerts should be ignored.
+         * Stores if the calendar's embedded alerts should be ignored.
          * @since 20221202
          */
-        const val COLUMN_IGNORE_EMBED = Calendars.CAL_SYNC8
+        const val COLUMN_IGNORE_EMBEDDED = Calendars.CAL_SYNC8
 
         /**
          * Stores the default alarm to set to all events in the given calendar.
@@ -60,15 +60,22 @@ class LocalCalendar private constructor(
 
     }
 
-    var url: String? = null             // URL of iCalendar file
-    var eTag: String? = null            // iCalendar ETag at last successful sync
+    /** URL of iCalendar file */
+    var url: String? = null
+    /** iCalendar ETag at last successful sync */
+    var eTag: String? = null
 
-    var lastModified = 0L               // iCalendar Last-Modified at last successful sync (or 0 for none)
-    var lastSync = 0L                   // time of last sync (0 if none)
-    var errorMessage: String? = null    // error message (HTTP status or exception name) of last sync (or null)
+    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
+    var lastModified = 0L
+    /** time of last sync (0 if none) */
+    var lastSync = 0L
+    /** error message (HTTP status or exception name) of last sync (or null) */
+    var errorMessage: String? = null
 
-    var ignoreEmbedAlerts: Boolean? = null
-
+    /** Setting: whether to ignore alarms embedded in the Webcal */
+    var ignoreEmbeddedAlerts: Boolean? = null
+    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
+     *  field contains the minutes before the event. If no, it is *null*. */
     var defaultAlarmMinutes: Long? = null
 
 
@@ -82,24 +89,24 @@ class LocalCalendar private constructor(
         info.getAsLong(COLUMN_LAST_SYNC)?.let { lastSync = it }
         errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE)
 
-        info.getAsLong(COLUMN_DEFAULT_ALARM)
-            ?.let { defaultAlarmMinutes = it }
-
-        info.getAsBoolean(COLUMN_IGNORE_EMBED)
-            ?.let { ignoreEmbedAlerts = it }
+        info.getAsBoolean(COLUMN_IGNORE_EMBEDDED)?.let { ignoreEmbeddedAlerts = it }
+        info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
     }
 
     private fun updateAlarms() {
         queryEvents(null, null)
-            .also { if (ignoreEmbedAlerts == true) Log.d(Constants.TAG, "Removing all alarms for ${it.size} events.") }
+            .also { if (ignoreEmbeddedAlerts == true) Log.d(Constants.TAG, "Removing all alarms for ${it.size} events.") }
             .filter { it.event != null }
             .forEach { ev ->
                 val event = ev.event!!
-                if (ignoreEmbedAlerts == true) {
-                    // Remove all alerts
+
+                // according to setting: remove all alerts for every event
+                if (ignoreEmbeddedAlerts == true) {
                     Log.d(Constants.TAG, "Removing all alarms from ${event.uid}: $event")
                     event.alarms.clear()
                 }
+
+                // according to setting: add default alarm for every event
                 defaultAlarmMinutes?.let { minutes ->
                     // Check if already added alarm
                     val alarm = event.alarms.find { it.description.value.contains("*added by ICSx5") }
@@ -137,7 +144,7 @@ class LocalCalendar private constructor(
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.putNull(COLUMN_ERROR_MESSAGE)
         values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
-        values.put(COLUMN_IGNORE_EMBED, ignoreEmbedAlerts)
+        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
         update(values)
 
         updateAlarms()
@@ -165,7 +172,7 @@ class LocalCalendar private constructor(
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.put(COLUMN_ERROR_MESSAGE, message)
         values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
-        values.put(COLUMN_IGNORE_EMBED, ignoreEmbedAlerts)
+        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
         update(values)
     }
 

@@ -82,7 +82,7 @@ class AddCalendarDetailsFragment: Fragment() {
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
-        calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBED, titleColorModel.ignoreAlerts.value)
+        calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
         calInfo.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
 
         val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
