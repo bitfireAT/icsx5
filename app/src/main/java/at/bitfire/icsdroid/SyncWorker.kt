@@ -41,13 +41,11 @@ class SyncWorker(
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
-            val policy: ExistingWorkPolicy
-            if (force) {
+            val policy: ExistingWorkPolicy = if (force) {
                 Log.i(Constants.TAG, "Manual sync, ignoring network condition")
 
                 // overwrite existing syncs (which may have unwanted constraints)
-                policy = ExistingWorkPolicy.REPLACE
-
+                ExistingWorkPolicy.REPLACE
             } else {
                 // regular sync, requires network
                 request.setConstraints(Constraints.Builder()
@@ -55,7 +53,7 @@ class SyncWorker(
                     .build())
 
                 // don't overwrite previous syncs (whether regular or manual)
-                policy = ExistingWorkPolicy.KEEP
+                ExistingWorkPolicy.KEEP
             }
 
             WorkManager.getInstance(context)
