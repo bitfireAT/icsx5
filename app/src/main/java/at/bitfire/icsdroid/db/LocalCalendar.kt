@@ -93,46 +93,6 @@ class LocalCalendar private constructor(
         info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
     }
 
-    private fun updateAlarms() {
-        queryEvents(null, null)
-            .also { if (ignoreEmbeddedAlerts == true) Log.d(Constants.TAG, "Removing all alarms for ${it.size} events.") }
-            .filter { it.event != null }
-            .forEach { ev ->
-                val event = ev.event!!
-
-                // according to setting: remove all alerts for every event
-                if (ignoreEmbeddedAlerts == true) {
-                    Log.d(Constants.TAG, "Removing all alarms from ${event.uid}: $event")
-                    event.alarms.clear()
-                }
-
-                // according to setting: add default alarm for every event
-                defaultAlarmMinutes?.let { minutes ->
-                    // Check if already added alarm
-                    val alarm = event.alarms.find { it.description.value.contains("*added by ICSx5") }
-                    if (alarm != null) return@let
-                    // Add the default alarm to the event
-                    Log.d(Constants.TAG, "Adding the default alarm to ${event.uid}.")
-                    event.alarms.add(
-                        // Create the new VAlarm
-                        VAlarm.Factory().createComponent(
-                            // Set all the properties for the alarm
-                            PropertyList<Property>().apply {
-                                // Set action to DISPLAY
-                                add(Action.DISPLAY)
-                                // Add the trigger x minutes before
-                                val duration = Duration.ofMinutes(minutes * -1)
-                                add(Trigger(duration))
-                                // Set a default description for checking if added
-                                add(Description("*added by ICSx5"))
-                            }
-                        )
-                    )
-                }
-                ev.update(event)
-            }
-    }
-
     fun updateStatusSuccess(eTag: String?, lastModified: Long) {
         this.eTag = eTag
         this.lastModified = lastModified
@@ -146,8 +106,6 @@ class LocalCalendar private constructor(
         values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
         values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
         update(values)
-
-        updateAlarms()
     }
 
     fun updateStatusNotModified() {
@@ -156,8 +114,6 @@ class LocalCalendar private constructor(
         val values = ContentValues(1)
         values.put(COLUMN_LAST_SYNC, lastSync)
         update(values)
-
-        updateAlarms()
     }
 
     fun updateStatusError(message: String) {

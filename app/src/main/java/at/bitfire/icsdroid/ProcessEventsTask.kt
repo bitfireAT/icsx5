@@ -19,10 +19,17 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
+import net.fortuna.ical4j.model.Property
+import net.fortuna.ical4j.model.PropertyList
+import net.fortuna.ical4j.model.component.VAlarm
+import net.fortuna.ical4j.model.property.Action
+import net.fortuna.ical4j.model.property.Description
+import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
+import java.time.Duration
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
@@ -57,6 +64,43 @@ class ProcessEventsTask(
             calendar.updateStatusError(e.localizedMessage ?: e.toString())
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
+    }
+
+    /**
+     * Updates the alarms of the given event according to the [calendar]'s [LocalCalendar.defaultAlarmMinutes] and [LocalCalendar.ignoreEmbeddedAlerts]
+     * parameters.
+     * @since 20221208
+     * @param event The event to update.
+     * @return The given [event], with the alarms updated.
+     */
+    private fun updateAlarms(event: Event): Event = event.apply {
+        if (calendar.ignoreEmbeddedAlerts == true) {
+            // Remove all alerts
+            Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
+            alarms.clear()
+        }
+        calendar.defaultAlarmMinutes?.let { minutes ->
+            // Check if already added alarm
+            val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
+            if (alarm != null) return@let
+            // Add the default alarm to the event
+            Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
+            alarms.add(
+                // Create the new VAlarm
+                VAlarm.Factory().createComponent(
+                    // Set all the properties for the alarm
+                    PropertyList<Property>().apply {
+                        // Set action to DISPLAY
+                        add(Action.DISPLAY)
+                        // Add the trigger x minutes before
+                        val duration = Duration.ofMinutes(minutes * -1)
+                        add(Trigger(duration))
+                        // Set a default description for checking if added
+                        add(Description("*added by ICSx5"))
+                    }
+                )
+            )
+        }
     }
 
     private suspend fun processEvents() {
@@ -150,7 +194,8 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
 
-        for (event in events) {
+        for (ev in events) {
+            val event = updateAlarms(ev)
             val uid = event.uid!!
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
