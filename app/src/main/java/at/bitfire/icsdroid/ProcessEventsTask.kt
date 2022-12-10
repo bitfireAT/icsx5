@@ -93,10 +93,8 @@ class ProcessEventsTask(
                         // Set action to DISPLAY
                         add(Action.DISPLAY)
                         // Add the trigger x minutes before
-                        val duration = Duration.ofMinutes(minutes * -1)
+                        val duration = Duration.ofMinutes(-minutes)
                         add(Trigger(duration))
-                        // Set a default description for checking if added
-                        add(Description("*added by ICSx5"))
                     }
                 )
             )

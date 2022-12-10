@@ -186,7 +186,7 @@ class EditCalendarActivity: AppCompatActivity() {
         var success = false
         model.calendar.value?.let { calendar ->
             try {
-                val values = ContentValues(4)
+                val values = ContentValues(5)
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)

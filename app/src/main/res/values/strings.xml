@@ -47,26 +47,6 @@
     <string name="add_calendar_alarms_ignore_description">If enabled, all the incoming alarms from the server will be dismissed.</string>
     <string name="add_calendar_alarms_default_title">Add a default alarm for all events</string>
     <string name="add_calendar_alarms_default_description" formatted="true">Alarms set to <b>%s</b> before</string>
-    <plurals name="add_calendar_alarms_custom_minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
-    </plurals>
-    <plurals name="add_calendar_alarms_custom_hours">
-        <item quantity="one">%d hour</item>
-        <item quantity="other">%d hours</item>
-    </plurals>
-    <plurals name="add_calendar_alarms_custom_days">
-        <item quantity="one">%d day</item>
-        <item quantity="other">%d days</item>
-    </plurals>
-    <plurals name="add_calendar_alarms_custom_weeks">
-        <item quantity="one">%d week</item>
-        <item quantity="other">%d days</item>
-    </plurals>
-    <plurals name="add_calendar_alarms_custom_months">
-        <item quantity="one">%d month</item>
-        <item quantity="other">%d months</item>
-    </plurals>
     <string name="default_alarm_dialog_title">Add default alarm</string>
     <string name="default_alarm_dialog_message">This will add an alarm for all events</string>
     <string name="default_alarm_dialog_hint">Minutes before event</string>

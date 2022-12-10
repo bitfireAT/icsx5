@@ -17,20 +17,12 @@ import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.TitleColorBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlin.math.roundToInt
-
-const val MINUTES_IN_AN_HOUR = 60f
-const val MINUTES_IN_A_DAY = 24*60f
-const val MINUTES_IN_AN_WEEK = 7*24*60f
-const val MINUTES_IN_A_MONTH = 30*7*24*60f
+import org.joda.time.Minutes
+import org.joda.time.format.PeriodFormat
 
 class TitleColorFragment : Fragment() {
 
     private val model by activityViewModels<TitleColorModel>()
-
-    private val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
-        model.color.postValue(color)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         val binding = TitleColorBinding.inflate(inflater, container, false)
@@ -44,30 +36,19 @@ class TitleColorFragment : Fragment() {
             firstCheck = false
             if (min == null) {
                 binding.defaultAlarmText.visibility = View.GONE
-                return@observe
+            } else {
+                val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(min.toInt()))
+                binding.defaultAlarmText.text = getString(R.string.add_calendar_alarms_default_description, alarmPeriodText)
+                binding.defaultAlarmText.visibility = View.VISIBLE
             }
-            // TODO: Build string to have exactly the duration specified. e.g.: 1 hour and 37 minutes
-            val minutes = min.toInt()
-            val text = if (minutes < MINUTES_IN_AN_HOUR)
-                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_minutes, minutes, minutes)
-            else if (minutes < MINUTES_IN_A_DAY) (minutes / MINUTES_IN_AN_HOUR).roundToInt().let {
-                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_hours, it, it)
-            }
-            else if (minutes < MINUTES_IN_AN_WEEK) (minutes / MINUTES_IN_A_DAY).roundToInt().let {
-                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_days, it, it)
-            }
-            else if (minutes < MINUTES_IN_A_MONTH) (minutes / MINUTES_IN_AN_WEEK).roundToInt().let {
-                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_weeks, it, it)
-            }
-            else (minutes / MINUTES_IN_A_MONTH).roundToInt().let {
-                resources.getQuantityString(R.plurals.add_calendar_alarms_custom_months, it, it)
-            }
-            binding.defaultAlarmText.text = getString(R.string.add_calendar_alarms_default_description, text)
-            binding.defaultAlarmText.visibility = View.VISIBLE
         }
 
-        // Listener for launching the color picker
-        binding.color.setOnClickListener { colorPickerContract.launch(model.color.value) }
+        val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
+            model.color.postValue(color)
+        }
+        binding.color.setOnClickListener {
+            colorPickerContract.launch(model.color.value)
+        }
 
         binding.defaultAlarmSwitch.setOnCheckedChangeListener { _, checked ->
             if (firstCheck) return@setOnCheckedChangeListener
@@ -94,9 +75,7 @@ class TitleColorFragment : Fragment() {
                 .setMessage(R.string.default_alarm_dialog_message)
                 .setView(editText)
                 .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
-                    if (editText.error != null) {
-                        // TODO: Value introduced is not valid
-                    } else {
+                    if (editText.error == null) {
                         model.defaultAlarmMinutes.postValue(editText.text?.toString()?.toLongOrNull())
                         dialog.dismiss()
                     }
