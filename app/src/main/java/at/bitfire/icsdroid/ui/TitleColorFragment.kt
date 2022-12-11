@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
+import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -24,16 +26,53 @@ class TitleColorFragment : Fragment() {
 
     private val model by activityViewModels<TitleColorModel>()
 
+    private lateinit var binding: TitleColorBinding
+
+    private val checkboxCheckedChanged: OnCheckedChangeListener = OnCheckedChangeListener { _, checked ->
+        if (!checked) {
+            model.defaultAlarmMinutes.postValue(null)
+            return@OnCheckedChangeListener
+        }
+
+        val editText = EditText(requireContext()).apply {
+            setHint(R.string.default_alarm_dialog_hint)
+
+            addTextChangedListener { txt ->
+                val text = txt?.toString()
+                val num = text?.toLongOrNull()
+                error = if (text == null || text.isBlank() || num == null)
+                    getString(R.string.default_alarm_dialog_error)
+                else
+                    null
+            }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.default_alarm_dialog_title)
+            .setMessage(R.string.default_alarm_dialog_message)
+            .setView(editText)
+            .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
+                if (editText.error == null) {
+                    model.defaultAlarmMinutes.postValue(editText.text?.toString()?.toLongOrNull())
+                    dialog.dismiss()
+                }
+            }
+            .setOnCancelListener {
+                binding.defaultAlarmSwitch.isChecked = false
+            }
+            .create()
+            .show()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val binding = TitleColorBinding.inflate(inflater, container, false)
+        binding = TitleColorBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.model = model
 
-        var firstCheck = true
-
         model.defaultAlarmMinutes.observe(viewLifecycleOwner) { min: Long? ->
             binding.defaultAlarmSwitch.isChecked = min != null
-            firstCheck = false
+            // We add the listener once the switch has an initial value
+            binding.defaultAlarmSwitch.setOnCheckedChangeListener(checkboxCheckedChanged)
+
             if (min == null) {
                 binding.defaultAlarmText.visibility = View.GONE
             } else {
@@ -48,43 +87,6 @@ class TitleColorFragment : Fragment() {
         }
         binding.color.setOnClickListener {
             colorPickerContract.launch(model.color.value)
-        }
-
-        binding.defaultAlarmSwitch.setOnCheckedChangeListener { _, checked ->
-            if (firstCheck) return@setOnCheckedChangeListener
-
-            if (!checked) {
-                model.defaultAlarmMinutes.postValue(null)
-                return@setOnCheckedChangeListener
-            }
-
-            val editText = EditText(requireContext()).apply {
-                setHint(R.string.default_alarm_dialog_hint)
-
-                addTextChangedListener { txt ->
-                    val text = txt?.toString()
-                    val num = text?.toLongOrNull()
-                    error = if (text == null || text.isBlank() || num == null)
-                        getString(R.string.default_alarm_dialog_error)
-                    else
-                        null
-                }
-            }
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.default_alarm_dialog_title)
-                .setMessage(R.string.default_alarm_dialog_message)
-                .setView(editText)
-                .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
-                    if (editText.error == null) {
-                        model.defaultAlarmMinutes.postValue(editText.text?.toString()?.toLongOrNull())
-                        dialog.dismiss()
-                    }
-                }
-                .setOnCancelListener {
-                    binding.defaultAlarmSwitch.isChecked = false
-                }
-                .create()
-                .show()
         }
 
         return binding.root
