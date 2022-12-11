@@ -4,13 +4,15 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 android {
-    compileSdkVersion 32
-    buildToolsVersion '32.0.0'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.0'
+
+    namespace 'at.bitfire.icsdroid'
 
     defaultConfig {
         applicationId "at.bitfire.icsdroid"
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
 
         versionCode 66
         versionName "2.0.3"
@@ -18,6 +20,10 @@ android {
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def locales = getLocales()
+        buildConfigField "String[]", "TRANSLATION_ARRAY", "new String[]{\""+locales.join("\",\"")+"\"}"
+        resConfigs locales
     }
 
     compileOptions {
@@ -60,6 +66,11 @@ android {
             signingConfig signingConfigs.bitfire
         }
     }
+    sourceSets {
+        main {
+            res.srcDirs += ['build/generated/res/locale']
+        }
+    }
 
     lint {
         disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'OnClick'
@@ -72,22 +83,88 @@ android {
     }
 }
 
+import groovy.xml.MarkupBuilder
+
+import static groovy.io.FileType.DIRECTORIES
+
+/**
+ * Obtains a list of all the available locales
+ * @since 20220928
+ * @return A list with the language codes of the locales available.
+ */
+def getLocales() {
+    // Initialize the list English, since it's available by default
+    def list = ["en"]
+    // Get all directories inside resources
+    def dir = new File(projectDir, "src/main/res")
+    dir.traverse(type: DIRECTORIES, maxDepth: 0) { file ->
+        // Get only values directories
+        def fileName = file.name
+        if (!fileName.startsWith("values-")) return
+
+        // Take only the values directories that contain strings
+        def stringsFile = new File(file, "strings.xml")
+        if (!stringsFile.exists()) return
+
+        // Add to the list the locale of the strings file
+        list.add(fileName.substring(fileName.indexOf('-') + 1))
+    }
+    // Log the available locales
+    println "Supported locales: " + list.join(", ")
+    // Return the built list
+    return list
+}
+
+/**
+ * Writes the available locales obtained from getLocales() in locale-config.xml
+ * @since 20221016
+ * @return A list with the language codes of the locales available.
+ */
+task updateLocalesConfig() {
+    println 'Building locale config...'
+    ext.outputDir = new File(projectDir, 'build/generated/res/locale/xml')
+
+    doFirst {
+        mkdir outputDir
+
+        new File(outputDir, "locales_config.xml").withWriter { writer ->
+            def destXml = new MarkupBuilder(new IndentPrinter(writer, "    ", true, true))
+            destXml.setDoubleQuotes(true)
+            def destXmlMkp = destXml.getMkp()
+            destXmlMkp.xmlDeclaration(version: "1.0", encoding: "utf-8")
+            destXmlMkp.comment("Generated at ${new Date()}")
+            destXmlMkp.yield "\r\n"
+
+            def locales = getLocales()
+            destXml."locale-config"(['xmlns:android':"http://schemas.android.com/apk/res/android"]) {
+                locales.forEach { locale ->
+                    destXml."locale"("android:name": locale)
+                }
+            }
+        }
+    }
+}
+
+gradle.projectsEvaluated {
+    preBuild.dependsOn('updateLocalesConfig')
+}
+
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
 
     implementation project(':cert4android')
     implementation project(':ical4android')
 
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.0-rc01'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.2'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.android.material:material:1.7.0'
 
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation "com.mikepenz:aboutlibraries:${versions.aboutLibs}"
@@ -103,8 +180,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
     // for tests
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation "androidx.test:rules:1.4.0"
+    androidTestImplementation 'androidx.test:runner:1.5.0'
+    androidTestImplementation "androidx.test:rules:1.5.0"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"

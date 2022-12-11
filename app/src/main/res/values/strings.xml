@@ -8,8 +8,9 @@
     <!-- common strings -->
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
-    <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
+    <string name="notification_channel_sync_problem">Sync problems</string>
+    <string name="permissions_required">Permissions required</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
