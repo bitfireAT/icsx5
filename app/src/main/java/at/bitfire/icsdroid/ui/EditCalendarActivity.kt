@@ -11,6 +11,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.util.Log
@@ -18,6 +19,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -101,6 +104,13 @@ class EditCalendarActivity: AppCompatActivity() {
                         .show(supportFragmentManager, null)
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+            ) { handleOnBackPressed() }
+        else
+            onBackPressedDispatcher.addCallback { handleOnBackPressed() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -165,14 +175,12 @@ class EditCalendarActivity: AppCompatActivity() {
 
     /* user actions */
 
-    override fun onBackPressed() {
+    private fun handleOnBackPressed() {
         if (dirty())
             supportFragmentManager.beginTransaction()
                     .add(SaveDismissDialogFragment(), null)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit()
-        else
-            super.onBackPressed()
     }
 
     fun onSave(item: MenuItem?) {
