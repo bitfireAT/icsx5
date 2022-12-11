@@ -107,12 +107,8 @@ class TitleColorFragment : Fragment() {
         var originalDefaultAlarmMinutes: Long? = null
         val defaultAlarmMinutes = MutableLiveData<Long>()
 
-        fun dirty() = arrayOf(
-            originalTitle to title,
-            originalColor to color,
-            originalIgnoreAlerts to ignoreAlerts,
-            originalDefaultAlarmMinutes to defaultAlarmMinutes,
-        ).any { (original, state) -> original != state.value }
+        fun dirty(): Boolean = originalTitle != title.value || originalColor != color.value || originalIgnoreAlerts != ignoreAlerts.value ||
+                originalDefaultAlarmMinutes != defaultAlarmMinutes.value
     }
 
 }
