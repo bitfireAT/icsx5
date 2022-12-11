@@ -20,7 +20,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -110,9 +110,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 OnBackInvokedDispatcher.PRIORITY_DEFAULT,
             ) { handleOnBackPressed() }
         else
-            onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() { handleOnBackPressed() }
-            })
+            onBackPressedDispatcher.addCallback { handleOnBackPressed() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -176,6 +174,7 @@ class EditCalendarActivity: AppCompatActivity() {
 
 
     /* user actions */
+
     private fun handleOnBackPressed() {
         if (dirty())
             supportFragmentManager.beginTransaction()
