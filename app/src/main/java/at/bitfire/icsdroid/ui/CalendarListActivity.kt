@@ -4,11 +4,13 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +22,8 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -61,24 +65,26 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val calendarPermissionsRequestLauncher = PermissionUtils.registerCalendarPermissionRequest(this) {
-            // re-initialize model if calendar permissions are granted
-            model.reinit()
-        }
-        val notificationPermissionsRequestLauncher = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            PermissionUtils.registerNotificationsPermissionRequest(this) { }
-        else null
-        model.askForCalendarPermissions.observe(this) { ask ->
-            if (ask) calendarPermissionsRequestLauncher()
-        }
-        model.askForNotificationPermissions.observe(this) { ask ->
-            if (ask) notificationPermissionsRequestLauncher?.invoke()
+        val permissionsRequestLauncher =
+            PermissionUtils.registerPermissionRequest(this, CalendarModel.REQUIRED_PERMISSIONS, R.string.permissions_required) {
+                // re-initialize model if calendar permissions are granted
+                model.reinit()
+
+                // we have calendar permissions, cancel possible sync notification (see SyncAdapter.onSecurityException askPermissionsIntent)
+                val nm = NotificationManagerCompat.from(this)
+                nm.cancel(NotificationUtils.NOTIFY_PERMISSION)
+            }
+        model.askForPermissions.observe(this) { ask ->
+            if (ask)
+                permissionsRequestLauncher()
         }
 
+        // show whether sync is running
         model.isRefreshing.observe(this) { isRefreshing ->
             binding.refresh.isRefreshing = isRefreshing
         }
 
+        // calendars
         val calendarAdapter = CalendarListAdapter(this)
         calendarAdapter.clickListener = { calendar ->
             val intent = Intent(this, EditCalendarActivity::class.java)
@@ -275,10 +281,17 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         application: Application
     ): AndroidViewModel(application) {
 
+        companion object {
+            val REQUIRED_PERMISSIONS =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    PermissionUtils.CALENDAR_PERMISSIONS + Manifest.permission.POST_NOTIFICATIONS
+                else
+                    PermissionUtils.CALENDAR_PERMISSIONS
+        }
+
         private val resolver = application.contentResolver
 
-        val askForCalendarPermissions = MutableLiveData(false)
-        val askForNotificationPermissions = MutableLiveData(false)
+        val askForPermissions = MutableLiveData(false)
 
         /** whether there are running sync workers */
         val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
@@ -291,13 +304,12 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         fun reinit() {
             val haveCalendarPermissions = PermissionUtils.haveCalendarPermissions(getApplication())
-            askForCalendarPermissions.value = !haveCalendarPermissions
-
-            val haveNotificationPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                PermissionUtils.haveNotificationPermissions(getApplication())
-            else
-                true
-            askForNotificationPermissions.value = !haveNotificationPermissions
+            val haveNotificationPermissions =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                else
+                    true
+            askForPermissions.value = !haveCalendarPermissions || !haveNotificationPermissions
 
             if (observer == null) {
                 // we're not watching the calendars yet
