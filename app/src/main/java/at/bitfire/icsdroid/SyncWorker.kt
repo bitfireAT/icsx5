@@ -26,6 +26,12 @@ class SyncWorker(
 
         const val NAME = "SyncWorker"
 
+        /**
+         * The maximum number of attempts to make until considering the server as "unreachable".
+         * @since 20221212
+         */
+        const val MAX_ATTEMPTS = 5
+
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -76,7 +82,10 @@ class SyncWorker(
                 providerClient.closeCompat()
             }
         }
-        return Result.failure()
+        return if (runAttemptCount >= MAX_ATTEMPTS)
+            Result.failure()
+        else
+            Result.retry()
     }
 
     private suspend fun performSync(account: Account, provider: ContentProviderClient): Result {
