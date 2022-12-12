@@ -16,6 +16,7 @@ import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeC
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class SyncWorker(
         context: Context,
@@ -42,6 +43,8 @@ class SyncWorker(
          */
         fun run(context: Context, force: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
+                // Add an initial delay of 20 seconds to allow the network connection to boot up
+                .setInitialDelay(20, TimeUnit.SECONDS)
 
             val policy: ExistingWorkPolicy
             if (force) {
