@@ -33,7 +33,13 @@ class SyncWorker(
          * The maximum number of attempts to make until considering the server as "unreachable".
          * @since 20221212
          */
-        const val MAX_ATTEMPTS = 5
+        private const val MAX_ATTEMPTS = 5
+
+        /**
+         * The amount of time (in seconds) to wait once the conditions are met, before launching the work.
+         * @since 20221214
+         */
+        private const val INITIAL_DELAY = 10L
 
 
         /**
@@ -47,7 +53,7 @@ class SyncWorker(
         fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 // Add an initial delay of 20 seconds to allow the network connection to boot up
-                .setInitialDelay(20, TimeUnit.SECONDS)
+                .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
                 .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
