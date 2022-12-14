@@ -26,24 +26,26 @@ class SyncWorker(
 
         const val NAME = "SyncWorker"
 
+        const val FORCE_RESYNC = "forceResync"
+
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
-         * @param context     required for managing work
-         * @param force       *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param context      required for managing work
+         * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
          */
-        fun run(context: Context, force: Boolean = false) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
-            val policy: ExistingWorkPolicy
-            if (force) {
+            val policy: ExistingWorkPolicy = if (force) {
                 Log.i(Constants.TAG, "Manual sync, ignoring network condition")
 
                 // overwrite existing syncs (which may have unwanted constraints)
-                policy = ExistingWorkPolicy.REPLACE
-
+                ExistingWorkPolicy.REPLACE
             } else {
                 // regular sync, requires network
                 request.setConstraints(Constraints.Builder()
@@ -51,7 +53,7 @@ class SyncWorker(
                     .build())
 
                 // don't overwrite previous syncs (whether regular or manual)
-                policy = ExistingWorkPolicy.KEEP
+                ExistingWorkPolicy.KEEP
             }
 
             WorkManager.getInstance(context)
@@ -67,10 +69,11 @@ class SyncWorker(
 
     @SuppressLint("Recycle")
     override suspend fun doWork(): Result {
+        val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
                 return withContext(Dispatchers.Default) {
-                    performSync(AppAccount.get(applicationContext), providerClient)
+                    performSync(AppAccount.get(applicationContext), providerClient, forceResync)
                 }
             } finally {
                 providerClient.closeCompat()
@@ -79,12 +82,12 @@ class SyncWorker(
         return Result.failure()
     }
 
-    private suspend fun performSync(account: Account, provider: ContentProviderClient): Result {
-        Log.i(Constants.TAG, "Synchronizing ${account.name}")
+    private suspend fun performSync(account: Account, provider: ContentProviderClient, forceResync: Boolean): Result {
+        Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             LocalCalendar.findAll(account, provider)
-                    .filter { it.isSynced }
-                    .forEach { ProcessEventsTask(applicationContext, it).sync() }
+                .filter { it.isSynced }
+                .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)

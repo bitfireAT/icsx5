@@ -2,20 +2,24 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
-        <variable name="model" type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel"/>
+
+        <variable
+            name="model"
+            type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel" />
     </data>
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_calendar_title"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"/>
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -40,15 +44,15 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textIsSelectable="true"
-                        android:text="@{model.url}"/>
+                        android:text="@{model.url}"
+                        android:textIsSelectable="true" />
 
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/add_calendar_title_hint"
-                        android:inputType="text"
                         android:importantForAutofill="no"
+                        android:inputType="text"
                         android:text="@={model.title}" />
 
                 </LinearLayout>
@@ -60,11 +64,45 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="16dp"
                     app:color="@{model.color}"
-                    tools:ignore="RtlHardcoded"/>
+                    tools:ignore="RtlHardcoded" />
 
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/add_calendar_alarms_title"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/ignore_alarms_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="@={model.ignoreAlerts}"
+            android:text="@string/add_calendar_alarms_ignore_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:text="@string/add_calendar_alarms_ignore_description" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/default_alarm_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_calendar_alarms_default_title" />
+
+        <TextView
+            android:id="@+id/default_alarm_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:text="@string/add_calendar_alarms_default_description" />
 
     </LinearLayout>
 </layout>

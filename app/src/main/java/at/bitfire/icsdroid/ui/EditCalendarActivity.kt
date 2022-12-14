@@ -33,10 +33,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.HttpUtils
-import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
@@ -73,6 +70,8 @@ class EditCalendarActivity: AppCompatActivity() {
 
         titleColorModel.title.observe(this, invalidate)
         titleColorModel.color.observe(this, invalidate)
+        titleColorModel.ignoreAlerts.observe(this, invalidate)
+        titleColorModel.defaultAlarmMinutes.observe(this, invalidate)
 
         credentialsModel.requiresAuth.observe(this, invalidate)
         credentialsModel.username.observe(this, invalidate)
@@ -159,6 +158,14 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalColor = it
             titleColorModel.color.value = it
         }
+        calendar.ignoreEmbeddedAlerts.let {
+            titleColorModel.originalIgnoreAlerts = it
+            titleColorModel.ignoreAlerts.postValue(it)
+        }
+        calendar.defaultAlarmMinutes.let {
+            titleColorModel.originalDefaultAlarmMinutes = it
+            titleColorModel.defaultAlarmMinutes.postValue(it)
+        }
 
         model.active.value = calendar.isSynced
 
@@ -187,11 +194,15 @@ class EditCalendarActivity: AppCompatActivity() {
         var success = false
         model.calendar.value?.let { calendar ->
             try {
-                val values = ContentValues(3)
+                val values = ContentValues(5)
                 values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
                 values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
                 values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
+                values.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
+                values.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
                 calendar.update(values)
+
+                SyncWorker.run(this, forceResync = true)
 
                 credentialsModel.let { model ->
                     val credentials = CalendarCredentials(this)
