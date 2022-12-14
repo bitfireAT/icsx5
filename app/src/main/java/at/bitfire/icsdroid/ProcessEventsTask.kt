@@ -19,14 +19,36 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
+import net.fortuna.ical4j.model.Property
+import net.fortuna.ical4j.model.PropertyList
+import net.fortuna.ical4j.model.component.VAlarm
+import net.fortuna.ical4j.model.property.Action
+import net.fortuna.ical4j.model.property.Description
+import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.MalformedURLException
+import java.time.Duration
 
+/**
+ * Fetches the .ics for a given Webcal subscription and stores the events
+ * in the local calendar provider.
+ *
+ * By default, caches will be used:
+ *
+ * - for fetching a calendar by HTTP (ETag/Last-Modified),
+ * - for updating the local events (will only be updated when LAST-MODIFIED is newer).
+ *
+ * @param context      context to work in
+ * @param calendar     represents the subscription to be checked
+ * @param forceResync  enforces that the calendar is fetched and all events are fully processed
+ *                     (useful when subscription settings have been changed)
+ */
 class ProcessEventsTask(
-        val context: Context,
-        val calendar: LocalCalendar
+    val context: Context,
+    val calendar: LocalCalendar,
+    val forceResync: Boolean
 ) {
 
     suspend fun sync() {
@@ -44,6 +66,41 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
 
+    /**
+     * Updates the alarms of the given event according to the [calendar]'s [LocalCalendar.defaultAlarmMinutes] and [LocalCalendar.ignoreEmbeddedAlerts]
+     * parameters.
+     * @since 20221208
+     * @param event The event to update.
+     * @return The given [event], with the alarms updated.
+     */
+    private fun updateAlarms(event: Event): Event = event.apply {
+        if (calendar.ignoreEmbeddedAlerts == true) {
+            // Remove all alerts
+            Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
+            alarms.clear()
+        }
+        calendar.defaultAlarmMinutes?.let { minutes ->
+            // Check if already added alarm
+            val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
+            if (alarm != null) return@let
+            // Add the default alarm to the event
+            Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
+            alarms.add(
+                // Create the new VAlarm
+                VAlarm.Factory().createComponent(
+                    // Set all the properties for the alarm
+                    PropertyList<Property>().apply {
+                        // Set action to DISPLAY
+                        add(Action.DISPLAY)
+                        // Add the trigger x minutes before
+                        val duration = Duration.ofMinutes(-minutes)
+                        add(Trigger(duration))
+                    }
+                )
+            )
+        }
+    }
+
     private suspend fun processEvents() {
         val uri =
             try {
@@ -53,7 +110,7 @@ class ProcessEventsTask(
                 calendar.updateStatusError(e.localizedMessage ?: e.toString())
                 return
             }
-        Log.i(Constants.TAG, "Synchronizing $uri")
+        Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
@@ -65,7 +122,7 @@ class ProcessEventsTask(
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
-                        processEvents(events)
+                        processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
                         calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
@@ -98,9 +155,9 @@ class ProcessEventsTask(
             downloader.password = password
         }
 
-        if (calendar.eTag != null)
+        if (calendar.eTag != null && !forceResync)
             downloader.ifNoneMatch = calendar.eTag
-        if (calendar.lastModified != 0L)
+        if (calendar.lastModified != 0L && !forceResync)
             downloader.ifModifiedSince = calendar.lastModified
 
         downloader.fetch()
@@ -131,11 +188,12 @@ class ProcessEventsTask(
         }
     }
 
-    private fun processEvents(events: List<Event>) {
-        Log.i(Constants.TAG, "Processing ${events.size} events")
+    private fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
+        Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
 
-        for (event in events) {
+        for (ev in events) {
+            val event = updateAlarms(ev)
             val uid = event.uid!!
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
@@ -147,7 +205,7 @@ class ProcessEventsTask(
 
             } else {
                 val localEvent = localEvents.first()
-                var lastModified = event.lastModified
+                var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
                 if (lastModified != null) {

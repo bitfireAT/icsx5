@@ -60,7 +60,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.lifecycleOwner = this
         binding.model = model
 
-        val defaultRefreshColor = resources.getColor(R.color.lightblue)
+        val defaultRefreshColor = ContextCompat.getColor(this, R.color.lightblue)
         binding.refresh.setColorSchemeColors(defaultRefreshColor)
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)

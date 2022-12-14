@@ -11,16 +11,25 @@ import android.content.ContentValues
 import android.os.RemoteException
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
+import android.util.Log
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
+import at.bitfire.icsdroid.Constants
+import net.fortuna.ical4j.model.Property
+import net.fortuna.ical4j.model.PropertyList
+import net.fortuna.ical4j.model.component.VAlarm
+import net.fortuna.ical4j.model.property.Action
+import net.fortuna.ical4j.model.property.Description
+import net.fortuna.ical4j.model.property.Trigger
+import java.time.Duration
 
 class LocalCalendar private constructor(
-        account: Account,
-        provider: ContentProviderClient,
-        id: Long
-): AndroidCalendar<LocalEvent>(account, provider, LocalEvent.Factory, id) {
+    account: Account,
+    provider: ContentProviderClient,
+    id: Long
+) : AndroidCalendar<LocalEvent>(account, provider, LocalEvent.Factory, id) {
 
     companion object {
 
@@ -31,20 +40,43 @@ class LocalCalendar private constructor(
         const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
         const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
 
+        /**
+         * Stores if the calendar's embedded alerts should be ignored.
+         * @since 20221202
+         */
+        const val COLUMN_IGNORE_EMBEDDED = Calendars.CAL_SYNC8
+
+        /**
+         * Stores the default alarm to set to all events in the given calendar.
+         * @since 20221202
+         */
+        const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
+
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
-                findByID(account, provider, Factory, id)
+            findByID(account, provider, Factory, id)
 
         fun findAll(account: Account, provider: ContentProviderClient) =
-                find(account, provider, Factory, null, null)
+            find(account, provider, Factory, null, null)
 
     }
 
-    var url: String? = null             // URL of iCalendar file
-    var eTag: String? = null            // iCalendar ETag at last successful sync
+    /** URL of iCalendar file */
+    var url: String? = null
+    /** iCalendar ETag at last successful sync */
+    var eTag: String? = null
 
-    var lastModified = 0L               // iCalendar Last-Modified at last successful sync (or 0 for none)
-    var lastSync = 0L                   // time of last sync (0 if none)
-    var errorMessage: String? = null    // error message (HTTP status or exception name) of last sync (or null)
+    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
+    var lastModified = 0L
+    /** time of last sync (0 if none) */
+    var lastSync = 0L
+    /** error message (HTTP status or exception name) of last sync (or null) */
+    var errorMessage: String? = null
+
+    /** Setting: whether to ignore alarms embedded in the Webcal */
+    var ignoreEmbeddedAlerts: Boolean? = null
+    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
+     *  field contains the minutes before the event. If no, it is *null*. */
+    var defaultAlarmMinutes: Long? = null
 
 
     override fun populate(info: ContentValues) {
@@ -56,6 +88,9 @@ class LocalCalendar private constructor(
 
         info.getAsLong(COLUMN_LAST_SYNC)?.let { lastSync = it }
         errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE)
+
+        info.getAsBoolean(COLUMN_IGNORE_EMBEDDED)?.let { ignoreEmbeddedAlerts = it }
+        info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
     }
 
     fun updateStatusSuccess(eTag: String?, lastModified: Long) {
@@ -63,11 +98,13 @@ class LocalCalendar private constructor(
         this.lastModified = lastModified
         lastSync = System.currentTimeMillis()
 
-        val values = ContentValues(4)
+        val values = ContentValues(7)
         values.put(COLUMN_ETAG, eTag)
         values.put(COLUMN_LAST_MODIFIED, lastModified)
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.putNull(COLUMN_ERROR_MESSAGE)
+        values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
+        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
         update(values)
     }
 
@@ -85,11 +122,13 @@ class LocalCalendar private constructor(
         lastSync = System.currentTimeMillis()
         errorMessage = message
 
-        val values = ContentValues(4)
+        val values = ContentValues(7)
         values.putNull(COLUMN_ETAG)
         values.putNull(COLUMN_LAST_MODIFIED)
         values.put(COLUMN_LAST_SYNC, lastSync)
         values.put(COLUMN_ERROR_MESSAGE, message)
+        values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
+        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
         update(values)
     }
 
@@ -102,36 +141,38 @@ class LocalCalendar private constructor(
     }
 
     fun queryByUID(uid: String) =
-            queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+        queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
     fun retainByUID(uids: MutableSet<String>): Int {
         var deleted = 0
         try {
-            provider.query(Events.CONTENT_URI.asSyncAdapter(account),
-                    arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
-                    "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null)?.use { row ->
+            provider.query(
+                Events.CONTENT_URI.asSyncAdapter(account),
+                arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
+                "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null
+            )?.use { row ->
                 while (row.moveToNext()) {
                     val eventId = row.getLong(0)
                     val syncId = row.getString(1)
                     if (!uids.contains(syncId)) {
                         provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
                         deleted++
-                        
+
                         uids -= syncId
                     }
                 }
             }
             return deleted
-        } catch(e: RemoteException) {
+        } catch (e: RemoteException) {
             throw CalendarStorageException("Couldn't delete local events")
         }
     }
 
 
-    object Factory: AndroidCalendarFactory<LocalCalendar> {
+    object Factory : AndroidCalendarFactory<LocalCalendar> {
 
         override fun newInstance(account: Account, provider: ContentProviderClient, id: Long) =
-                LocalCalendar(account, provider, id)
+            LocalCalendar(account, provider, id)
 
     }
 

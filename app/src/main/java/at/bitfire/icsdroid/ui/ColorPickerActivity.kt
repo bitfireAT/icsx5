@@ -4,8 +4,10 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.db.LocalCalendar
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -15,6 +17,14 @@ class ColorPickerActivity: AppCompatActivity(), ColorPickerDialogListener {
 
     companion object {
         const val EXTRA_COLOR = "color"
+    }
+
+    class Contract: ActivityResultContract<Int?, Int>() {
+        override fun createIntent(context: Context, input: Int?): Intent = Intent(context, ColorPickerActivity::class.java).apply {
+            putExtra(EXTRA_COLOR, input)
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Int = intent?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR) ?: LocalCalendar.DEFAULT_COLOR
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

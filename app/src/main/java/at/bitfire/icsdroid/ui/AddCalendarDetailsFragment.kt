@@ -37,6 +37,11 @@ class AddCalendarDetailsFragment: Fragment() {
         }
         titleColorModel.title.observe(this, invalidateOptionsMenu)
         titleColorModel.color.observe(this, invalidateOptionsMenu)
+        titleColorModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
+        titleColorModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
+
+        // Set the default value to null so that the visibility of the summary is updated
+        titleColorModel.defaultAlarmMinutes.postValue(null)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -77,6 +82,8 @@ class AddCalendarDetailsFragment: Fragment() {
         calInfo.put(Calendars.SYNC_EVENTS, 1)
         calInfo.put(Calendars.VISIBLE, 1)
         calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
+        calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
+        calInfo.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
 
         val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
         return try {
