@@ -54,6 +54,11 @@ class SyncWorker(
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 // Add an initial delay of 20 seconds to allow the network connection to boot up
                 .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
