@@ -15,7 +15,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
-import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -86,13 +85,13 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
     /* dynamic changes */
 
-    private fun validateUri(): URI? {
+    private fun validateUri(): Uri? {
         var errorMsg: String? = null
 
-        var uri: URI
+        var uri: Uri
         try {
             try {
-                uri = URI(titleColorModel.url.value ?: return null)
+                uri = Uri.parse(titleColorModel.url.value ?: return null)
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
@@ -102,16 +101,16 @@ class AddCalendarEnterUrlFragment: Fragment() {
             Log.i(Constants.TAG, uri.toString())
 
             if (uri.scheme.equals("webcal", true)) {
-                uri = URI("http", uri.authority, uri.path, uri.query, null)
+                uri = uri.buildUpon().scheme("http").build()
                 titleColorModel.url.value = uri.toString()
                 return null
             } else if (uri.scheme.equals("webcals", true)) {
-                uri = URI("https", uri.authority, uri.path, uri.query, null)
+                uri = uri.buildUpon().scheme("https").build()
                 titleColorModel.url.value = uri.toString()
                 return null
             }
 
-            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri.toUri())
+            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
             binding.credentials.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
             when (uri.scheme?.lowercase()) {
                 "content" -> {
