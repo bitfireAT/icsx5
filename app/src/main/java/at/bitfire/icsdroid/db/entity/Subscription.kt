@@ -2,6 +2,7 @@ package at.bitfire.icsdroid.db.entity
 
 import android.content.Context
 import android.database.SQLException
+import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Entity
@@ -13,23 +14,45 @@ import at.bitfire.icsdroid.db.AppDatabase
 data class Subscription(
     @PrimaryKey val id: Long,
     /** URL of iCalendar file */
-    var url: String? = null,
+    private var _url: String? = null,
     /** iCalendar ETag at last successful sync */
-    var eTag: String? = null,
+    private var _eTag: String? = null,
 
     /** iCalendar Last-Modified at last successful sync (or 0 for none) */
-    var lastModified: Long = 0L,
+    private var _lastModified: Long = 0L,
     /** time of last sync (0 if none) */
-    var lastSync: Long = 0L,
+    private var _lastSync: Long = 0L,
     /** error message (HTTP status or exception name) of last sync (or null) */
-    var errorMessage: String? = null,
+    private var _errorMessage: String? = null,
 
     /** Setting: whether to ignore alarms embedded in the Webcal */
-    var ignoreEmbeddedAlerts: Boolean? = null,
+    private var _ignoreEmbeddedAlerts: Boolean? = null,
     /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
      *  field contains the minutes before the event. If no, it is *null*. */
-    var defaultAlarmMinutes: Long? = null,
+    private var _defaultAlarmMinutes: Long? = null,
+
+    private var _color: Int? = null
 ) {
+    /** URL of iCalendar file */
+    val url: String? get() = _url
+    /** iCalendar ETag at last successful sync */
+    val eTag: String? get() = _eTag
+
+    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
+    val lastModified: Long get() = _lastModified
+    /** time of last sync (0 if none) */
+    val lastSync: Long get() = _lastSync
+    /** error message (HTTP status or exception name) of last sync (or null) */
+    val errorMessage: String? get() = _errorMessage
+
+    /** Setting: whether to ignore alarms embedded in the Webcal */
+    val ignoreEmbeddedAlerts: Boolean? get() = _ignoreEmbeddedAlerts
+    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
+     *  field contains the minutes before the event. If no, it is *null*. */
+    val defaultAlarmMinutes: Long? get() = _defaultAlarmMinutes
+
+    val color: Int? @ColorInt get() = _color
+
     /**
      * Gets a [LiveData] that gets updated with the error message of the given subscription.
      * @author Arnau Mora
@@ -94,4 +117,38 @@ data class Subscription(
         AppDatabase.getInstance(context)
             .subscriptionsDao()
             .updateStatusError(id, message)
+
+    /**
+     * Updates the [Subscription.url] field to the given one.
+     * @author Arnau Mora
+     * @since 20221224
+     * @param context The context that is making the request.
+     * @param url The new url to set.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun updateUrl(context: Context, url: String) {
+        this._url = url
+
+        AppDatabase.getInstance(context)
+            .subscriptionsDao()
+            .update(this)
+    }
+
+    /**
+     * Queries a [SubscriptionEvent] from its [SubscriptionEvent.uid].
+     * @author Arnau Mora
+     * @since 20221224
+     * @param context The context that is making the request.
+     * @param uid The uid of the event.
+     * @return `null` if the event was not found, otherwise, the event requested is returned.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun queryEventByUid(context: Context, uid: String) =
+        AppDatabase.getInstance(context)
+            .eventsDao()
+            .getEventByUid(id, uid)
 }
