@@ -49,10 +49,10 @@ open class CalendarFetcher(
             fetchLocal()
     }
 
-    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+    open suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
-    open fun onNotModified() {
+    open suspend fun onNotModified() {
     }
 
     open suspend fun onRedirect(httpCode: Int, target: Uri) {
@@ -84,10 +84,10 @@ open class CalendarFetcher(
         fetchNetwork()
     }
 
-    open fun onNewPermanentUrl(target: Uri) {
+    open suspend fun onNewPermanentUrl(target: Uri) {
     }
 
-    open fun onError(error: Exception) {
+    open suspend fun onError(error: Exception) {
     }
 
 
@@ -95,7 +95,7 @@ open class CalendarFetcher(
      * Fetch the file with Android SAF
      */
     @Deprecated("This method uses the content resolver. Use Room instead.")
-    internal fun fetchLocal() {
+    internal suspend fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
         try {
             val contentResolver = context.contentResolver
