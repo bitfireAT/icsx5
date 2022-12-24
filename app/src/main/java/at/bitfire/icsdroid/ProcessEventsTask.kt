@@ -17,6 +17,7 @@ import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
@@ -42,13 +43,15 @@ import java.time.Duration
  *
  * @param context      context to work in
  * @param calendar     represents the subscription to be checked
+ * @param subscription represents the subscription to be checked
  * @param forceResync  enforces that the calendar is fetched and all events are fully processed
  *                     (useful when subscription settings have been changed)
  */
 class ProcessEventsTask(
     val context: Context,
-    @Deprecated("LocalCalendar is deprecated. Use Room")
+    @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
     val calendar: LocalCalendar,
+    val subscription: Subscription,
     val forceResync: Boolean
 ) {
 
@@ -105,28 +108,28 @@ class ProcessEventsTask(
     private suspend fun processEvents() {
         val uri =
             try {
-                Uri.parse(calendar.url)
+                Uri.parse(subscription.url)
             } catch(e: MalformedURLException) {
                 Log.e(Constants.TAG, "Invalid calendar URL", e)
-                calendar.updateStatusError(e.localizedMessage ?: e.toString())
+                subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
                 return
             }
         Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
-        notificationManager.cancel(calendar.id.toString(), 0)
+        notificationManager.cancel(subscription.id.toString(), 0)
         var exception: Throwable? = null
 
         val downloader = object: CalendarFetcher(context, uri) {
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                        calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
+                        subscription.updateStatusSuccess(context, eTag, lastModified ?: 0L)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
                         exception = e
@@ -134,32 +137,32 @@ class ProcessEventsTask(
                 }
             }
 
-            override fun onNotModified() {
+            override suspend fun onNotModified() {
                 Log.i(Constants.TAG, "Calendar has not been modified since last sync")
-                calendar.updateStatusNotModified()
+                subscription.updateStatusNotModified(context)
             }
 
-            override fun onNewPermanentUrl(target: Uri) {
+            override suspend fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
-                calendar.updateUrl(target.toString())
+                subscription.updateUrl(context, target.toString())
             }
 
-            override fun onError(error: Exception) {
+            override suspend fun onError(error: Exception) {
                 Log.w(Constants.TAG, "Sync error", error)
                 exception = error
             }
         }
 
-        CalendarCredentials(context).get(calendar).let { (username, password) ->
+        CalendarCredentials(context).get(subscription).let { (username, password) ->
             downloader.username = username
             downloader.password = password
         }
 
-        if (calendar.eTag != null && !forceResync)
-            downloader.ifNoneMatch = calendar.eTag
-        if (calendar.lastModified != 0L && !forceResync)
-            downloader.ifModifiedSince = calendar.lastModified
+        if (subscription.eTag != null && !forceResync)
+            downloader.ifNoneMatch = subscription.eTag
+        if (subscription.lastModified != 0L && !forceResync)
+            downloader.ifModifiedSince = subscription.lastModified
 
         downloader.fetch()
 
@@ -182,10 +185,10 @@ class ProcessEventsTask(
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .setOnlyAlertOnce(true)
-            calendar.color?.let { notification.color = it }
+            subscription.color?.let { notification.color = it }
             notificationManager.notify(calendar.id.toString(), 0, notification.build())
 
-            calendar.updateStatusError(message)
+            subscription.updateStatusError(context, message)
         }
     }
 
