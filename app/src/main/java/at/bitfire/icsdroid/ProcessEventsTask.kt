@@ -47,6 +47,7 @@ import java.time.Duration
  */
 class ProcessEventsTask(
     val context: Context,
+    @Deprecated("LocalCalendar is deprecated. Use Room")
     val calendar: LocalCalendar,
     val forceResync: Boolean
 ) {

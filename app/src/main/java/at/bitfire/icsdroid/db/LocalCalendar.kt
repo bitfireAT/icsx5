@@ -25,6 +25,13 @@ import net.fortuna.ical4j.model.property.Description
 import net.fortuna.ical4j.model.property.Trigger
 import java.time.Duration
 
+@Deprecated(
+    "Use Room database.",
+    replaceWith = ReplaceWith(
+        "Subscription",
+        "at.bitfire.icsdroid.db.entity",
+    )
+)
 class LocalCalendar private constructor(
     account: Account,
     provider: ContentProviderClient,
@@ -52,9 +59,25 @@ class LocalCalendar private constructor(
          */
         const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
 
+        @Deprecated(
+            "Use Room database",
+            replaceWith = ReplaceWith(
+                "AppDatabase.getInstance(context).subscriptionsDao().getById(id)",
+                "at.bitfire.icsdroid.db",
+                "at.bitfire.icsdroid.db.dao",
+            ),
+        )
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
             findByID(account, provider, Factory, id)
 
+        @Deprecated(
+            "Use Room database",
+            replaceWith = ReplaceWith(
+                "AppDatabase.getInstance(context).subscriptionsDao().getAll()",
+                "at.bitfire.icsdroid.db",
+                "at.bitfire.icsdroid.db.dao",
+            ),
+        )
         fun findAll(account: Account, provider: ContentProviderClient) =
             find(account, provider, Factory, null, null)
 

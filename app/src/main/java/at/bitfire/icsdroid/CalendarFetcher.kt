@@ -94,6 +94,7 @@ open class CalendarFetcher(
     /**
      * Fetch the file with Android SAF
      */
+    @Deprecated("This method uses the content resolver. Use Room instead.")
     internal fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
         try {
