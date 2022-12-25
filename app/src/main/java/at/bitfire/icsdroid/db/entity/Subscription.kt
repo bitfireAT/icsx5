@@ -8,50 +8,45 @@ import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import at.bitfire.ical4android.AndroidCalendar
+import at.bitfire.ical4android.AndroidEvent
 import at.bitfire.icsdroid.db.AppDatabase
 
+/**
+ * Represents the storage of a subscription the user has made.
+ * @since 20221225
+ * @param id The id of the subscription in the database.
+ * @param url URL of iCalendar file
+ * @param eTag iCalendar ETag at last successful sync
+ * @param displayName Display name of the subscription
+ * @param lastModified iCalendar Last-Modified at last successful sync (or 0 for none)
+ * @param lastSync time of last sync (0 if none)
+ * @param errorMessage error message (HTTP status or exception name) of last sync (or null)
+ * @param ignoreEmbeddedAlerts Setting: whether to ignore alarms embedded in the Webcal
+ * @param defaultAlarmMinutes Setting: Shall a default alarm be added to every event in the calendar? If yes, this field contains the minutes before the event.
+ * If no, it is `null`.
+ * @param color The color that represents the subscription.
+ */
 @Entity(tableName = "subscriptions")
 data class Subscription(
     @PrimaryKey val id: Long,
-    /** URL of iCalendar file */
-    private var _url: String? = null,
-    /** iCalendar ETag at last successful sync */
-    private var _eTag: String? = null,
+    val url: String? = null,
+    val eTag: String? = null,
 
-    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
-    private var _lastModified: Long = 0L,
-    /** time of last sync (0 if none) */
-    private var _lastSync: Long = 0L,
-    /** error message (HTTP status or exception name) of last sync (or null) */
-    private var _errorMessage: String? = null,
+    val displayName: String? = null,
 
-    /** Setting: whether to ignore alarms embedded in the Webcal */
-    private var _ignoreEmbeddedAlerts: Boolean? = null,
-    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
-     *  field contains the minutes before the event. If no, it is *null*. */
-    private var _defaultAlarmMinutes: Long? = null,
+    val lastModified: Long = 0L,
+    val lastSync: Long = 0L,
+    val errorMessage: String? = null,
 
-    private var _color: Int? = null
+    val ignoreEmbeddedAlerts: Boolean? = null,
+    val defaultAlarmMinutes: Long? = null,
+
+    val color: Int? = null
 ) {
-    /** URL of iCalendar file */
-    val url: String? get() = _url
-    /** iCalendar ETag at last successful sync */
-    val eTag: String? get() = _eTag
-
-    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
-    val lastModified: Long get() = _lastModified
-    /** time of last sync (0 if none) */
-    val lastSync: Long get() = _lastSync
-    /** error message (HTTP status or exception name) of last sync (or null) */
-    val errorMessage: String? get() = _errorMessage
-
-    /** Setting: whether to ignore alarms embedded in the Webcal */
-    val ignoreEmbeddedAlerts: Boolean? get() = _ignoreEmbeddedAlerts
-    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
-     *  field contains the minutes before the event. If no, it is *null*. */
-    val defaultAlarmMinutes: Long? get() = _defaultAlarmMinutes
-
-    val color: Int? @ColorInt get() = _color
+    // TODO: Update accordingly
+    var isSynced = true
+    var isVisible = true
 
     /**
      * Gets a [LiveData] that gets updated with the error message of the given subscription.
@@ -128,13 +123,12 @@ data class Subscription(
      */
     @WorkerThread
     @Throws(SQLException::class)
-    suspend fun updateUrl(context: Context, url: String) {
-        this._url = url
-
+    suspend fun updateUrl(context: Context, url: String) =
         AppDatabase.getInstance(context)
             .subscriptionsDao()
-            .update(this)
-    }
+            .update(
+                copy(url = url)
+            )
 
     /**
      * Queries a [SubscriptionEvent] from its [SubscriptionEvent.uid].
@@ -151,4 +145,38 @@ data class Subscription(
         AppDatabase.getInstance(context)
             .eventsDao()
             .getEventByUid(id, uid)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Subscription
+
+        if (id != other.id) return false
+        if (displayName != other.displayName) return false
+        if (url != other.url) return false
+        if (eTag != other.eTag) return false
+        if (lastModified != other.lastModified) return false
+        if (lastSync != other.lastSync) return false
+        if (errorMessage != other.errorMessage) return false
+        if (ignoreEmbeddedAlerts != other.ignoreEmbeddedAlerts) return false
+        if (defaultAlarmMinutes != other.defaultAlarmMinutes) return false
+        if (color != other.color) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (url?.hashCode() ?: 0)
+        result = 31 * result + (displayName?.hashCode() ?: 0)
+        result = 31 * result + (eTag?.hashCode() ?: 0)
+        result = 31 * result + lastModified.hashCode()
+        result = 31 * result + lastSync.hashCode()
+        result = 31 * result + (errorMessage?.hashCode() ?: 0)
+        result = 31 * result + (ignoreEmbeddedAlerts?.hashCode() ?: 0)
+        result = 31 * result + (defaultAlarmMinutes?.hashCode() ?: 0)
+        result = 31 * result + (color ?: 0)
+        return result
+    }
 }
