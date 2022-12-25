@@ -154,7 +154,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
             }
 
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
-            Build.VERSION.SDK_INT >= 23 &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
                     AppAccount.syncInterval(this) < 86400 -> {
                 snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
@@ -329,18 +329,14 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     /**
      * Data model for this view. Updates calendar subscriptions in real-time.
-     *
-     * Must be initialized with [reinit] after it's created.
-     *
-     * Requires calendar permissions. If it doesn't have calendar permissions, it does nothing.
-     * As soon as calendar permissions are granted, you have to call [reinit] again.
+     * @since 20221225
      */
     class CalendarModel(
         application: Application
     ): AndroidViewModel(application) {
 
         companion object {
-            // TODO: Remove calendar permissions since no longer necessary
+            @Deprecated("Use the contents of requiredPermissions")
             val REQUIRED_PERMISSIONS =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     PermissionUtils.CALENDAR_PERMISSIONS + Manifest.permission.POST_NOTIFICATIONS
@@ -353,6 +349,15 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         private val database = AppDatabase.getInstance(application)
 
+        /**
+         * Gets updated with the results of the permissions check. If the array is empty, it means that no permissions shall be asked for. Otherwise, the user
+         * must be requested all the permissions given.
+         * @since 20221225
+         * @see checkPermissions
+         */
+        val requiredPermissions: MutableLiveData<Array<String>> = MutableLiveData(emptyArray())
+
+        @Deprecated("Replace with proper permissions list.", replaceWith = ReplaceWith("this.requiredPermissions"))
         val askForPermissions = MutableLiveData(false)
 
         /** whether there are running sync workers */
@@ -372,8 +377,8 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         val subscriptions = database.subscriptionsDao().getAllLive()
 
 
+        @Deprecated("No initializations are required, just permissions check.", replaceWith = ReplaceWith("this.checkPermissions"))
         fun reinit() {
-            // TODO: Calendar permissions no longer required for watching
             val haveCalendarPermissions = PermissionUtils.haveCalendarPermissions(getApplication())
             val haveNotificationPermissions =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -391,6 +396,22 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                 } else
                     Log.w(Constants.TAG,"Can't watch calendars (permission denied)")
             }
+        }
+
+        /**
+         * Checks if all the required permissions are granted. This includes:
+         * - Notification permission (API 33+)
+         * Updates [askForPermissions] with the result of the check.
+         * @since 20221225
+         * @see askForPermissions
+         */
+        fun checkPermissions() {
+            val permissions = arrayListOf<String>()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                if(ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                    permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+
+            requiredPermissions.postValue(permissions.toTypedArray())
         }
 
         override fun onCleared() {
