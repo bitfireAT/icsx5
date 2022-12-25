@@ -20,6 +20,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.*
 import androidx.activity.viewModels
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
@@ -42,6 +43,7 @@ import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.ui.EditCalendarActivity.Companion.EXTRA_SUBSCRIPTION_ID
 import com.google.android.material.snackbar.Snackbar
 import java.text.DateFormat
 import java.util.*
@@ -67,18 +69,15 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val permissionsRequestLauncher =
-            PermissionUtils.registerPermissionRequest(this, CalendarModel.REQUIRED_PERMISSIONS, R.string.permissions_required) {
-                // re-initialize model if calendar permissions are granted
-                model.reinit()
+        model.requiredPermissions.observe(this) { permissions ->
+            if (permissions.isEmpty()) return@observe
 
+            val request = PermissionUtils.registerPermissionRequest(this, permissions, R.string.permissions_required) {
                 // we have calendar permissions, cancel possible sync notification (see SyncAdapter.onSecurityException askPermissionsIntent)
                 val nm = NotificationManagerCompat.from(this)
                 nm.cancel(NotificationUtils.NOTIFY_PERMISSION)
             }
-        model.askForPermissions.observe(this) { ask ->
-            if (ask)
-                permissionsRequestLauncher()
+            request()
         }
 
         // show whether sync is running
@@ -87,27 +86,26 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
 
         // calendars
-        val calendarAdapter = CalendarListAdapter(this)
-        calendarAdapter.clickListener = { calendar ->
-            val intent = Intent(this, EditCalendarActivity::class.java)
-            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+        val subscriptionsAdapter = SubscriptionListAdapter()
+        subscriptionsAdapter.clickListener = { subscription ->
+            val intent = Intent(this, EditCalendarActivity::class.java).apply {
+                putExtra(EXTRA_SUBSCRIPTION_ID, subscription.id)
+            }
             startActivity(intent)
         }
-        binding.calendarList.adapter = calendarAdapter
+        binding.calendarList.adapter = subscriptionsAdapter
 
         binding.fab.setOnClickListener {
             onAddCalendar()
         }
 
-        model.calendars.observe(this) { calendars ->
-            calendarAdapter.submitList(calendars)
+        model.subscriptions.observe(this) { subscriptions ->
+            subscriptionsAdapter.submitList(subscriptions)
 
-            val colors = mutableSetOf<Int>()
+            val colors = subscriptions.mapNotNull { it.color }.toMutableSet()
             colors += defaultRefreshColor
-            colors.addAll(calendars.mapNotNull { it.color })
             binding.refresh.setColorSchemeColors(*colors.toIntArray())
         }
-        model.reinit()
 
         // startup fragments
         if (savedInstanceState == null)
