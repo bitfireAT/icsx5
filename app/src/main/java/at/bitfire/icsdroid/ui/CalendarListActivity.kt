@@ -48,11 +48,31 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.DateFormat
 import java.util.*
 
-class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
+class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
+    companion object {
+        /**
+         * Represents one day in seconds.
+         * @since 20221225
+         */
+        const val ONE_DAY = 86400
+    }
 
+    /**
+     * The ViewModel used for doing background work, and watching subscriptions.
+     * @since 20221225
+     */
     private val model by viewModels<CalendarModel>()
+
+    /**
+     * Stores the view binding of the activity.
+     * @since 20221225
+     */
     private lateinit var binding: CalendarListActivityBinding
 
+    /**
+     * Stores the snackbar currently being shown.
+     * @since 20221225
+     */
     private var snackBar: Snackbar? = null
 
 
@@ -114,7 +134,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                 .forEach { it.initialize(this) }
 
         // check sync settings when sync interval has been edited
-        supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
                 if (f is SyncIntervalDialogFragment)
                     checkSyncSettings()
@@ -154,14 +174,14 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
-                    AppAccount.syncInterval(this) < 86400 -> {
+                    AppAccount.syncInterval(this) < ONE_DAY -> {
                 snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_battery_whitelist_settings) {
-                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                            startActivity(intent)
-                        }.also {
-                            it.show()
-                        }
+                    .setAction(R.string.calendar_list_battery_whitelist_settings) {
+                        val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        startActivity(intent)
+                    }.also {
+                        it.show()
+                    }
             }
         }
     }
@@ -190,10 +210,10 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         val newMode = !settings.forceDarkMode()
         settings.forceDarkMode(newMode)
         AppCompatDelegate.setDefaultNightMode(
-                if (newMode)
-                    AppCompatDelegate.MODE_NIGHT_YES
-                else
-                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            if (newMode)
+                AppCompatDelegate.MODE_NIGHT_YES
+            else
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         )
     }
 
@@ -201,7 +221,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
      * Provides a list adapter for the subscriptions list.
      * @since 20221225
      */
-    inner class SubscriptionListAdapter: ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<Subscription>() {
+    inner class SubscriptionListAdapter : ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<Subscription>() {
         override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription): Boolean =
             oldItem.id == newItem.id
 
@@ -213,7 +233,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
          */
         var clickListener: ((subscription: Subscription) -> Unit)? = null
 
-        inner class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
+        inner class ViewHolder(val binding: CalendarListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val binding = CalendarListItemBinding.inflate(LayoutInflater.from(this@CalendarListActivity))
@@ -255,24 +275,24 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     @Deprecated("Use SubscriptionListAdapter", replaceWith = ReplaceWith("SubscriptionListAdapter"))
     class CalendarListAdapter(
-            val context: Context
-    ): ListAdapter<LocalCalendar, CalendarListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<LocalCalendar>() {
+        val context: Context
+    ) : ListAdapter<LocalCalendar, CalendarListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<LocalCalendar>() {
 
         override fun areItemsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-                oldItem.id == newItem.id
+            oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-                // compare all displayed fields
-                oldItem.url == newItem.url &&
-                oldItem.displayName == newItem.displayName &&
-                oldItem.isSynced == newItem.isSynced &&
-                oldItem.lastSync == newItem.lastSync &&
-                oldItem.color == newItem.color &&
-                oldItem.errorMessage == newItem.errorMessage
+            // compare all displayed fields
+            oldItem.url == newItem.url &&
+                    oldItem.displayName == newItem.displayName &&
+                    oldItem.isSynced == newItem.isSynced &&
+                    oldItem.lastSync == newItem.lastSync &&
+                    oldItem.color == newItem.color &&
+                    oldItem.errorMessage == newItem.errorMessage
 
     }) {
 
-        class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
+        class ViewHolder(val binding: CalendarListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 
         var clickListener: ((LocalCalendar) -> Unit)? = null
@@ -331,7 +351,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
      */
     class CalendarModel(
         application: Application
-    ): AndroidViewModel(application) {
+    ) : AndroidViewModel(application) {
 
         companion object {
             @Deprecated("Use the contents of requiredPermissions")
@@ -365,6 +385,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         @Deprecated("Use subscriptions.", replaceWith = ReplaceWith("this.subscriptions"))
         val calendars = MutableLiveData<List<LocalCalendar>>()
+
         @Deprecated("Removed together with calendars. No longer required. Replace with Room.")
         private var observer: ContentObserver? = null
 
@@ -392,7 +413,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                     Log.d(Constants.TAG, "Watching calendars")
                     startWatchingCalendars()
                 } else
-                    Log.w(Constants.TAG,"Can't watch calendars (permission denied)")
+                    Log.w(Constants.TAG, "Can't watch calendars (permission denied)")
             }
         }
 
@@ -406,7 +427,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         fun checkPermissions() {
             val permissions = arrayListOf<String>()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                if(ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                if (ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                     permissions.add(Manifest.permission.POST_NOTIFICATIONS)
 
             requiredPermissions.postValue(permissions.toTypedArray())
@@ -418,7 +439,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         @Deprecated("No longer required with Room.")
         private fun startWatchingCalendars() {
-            val newObserver = object: ContentObserver(null) {
+            val newObserver = object : ContentObserver(null) {
                 override fun onChange(selfChange: Boolean) {
                     loadCalendars()
                 }
@@ -444,7 +465,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                 try {
                     val result = LocalCalendar.findAll(AppAccount.get(getApplication()), provider)
                     calendars.postValue(result)
-                } catch(e: CalendarStorageException) {
+                } catch (e: CalendarStorageException) {
                     Log.e(Constants.TAG, "Couldn't load calendar list", e)
                 } finally {
                     provider.release()
