@@ -2,9 +2,11 @@ package at.bitfire.icsdroid.db.dao
 
 import android.database.SQLException
 import androidx.annotation.WorkerThread
+import androidx.room.Dao
 import androidx.room.Query
 import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 
+@Dao
 interface EventsDao {
     /**
      * Gets a list of all the available events.
