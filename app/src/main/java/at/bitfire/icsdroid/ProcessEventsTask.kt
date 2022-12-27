@@ -16,6 +16,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.Event
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
@@ -58,10 +59,14 @@ class ProcessEventsTask(
     @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
     val calendar: LocalCalendar = LocalCalendar.Factory.newInstance(subscription.account, Subscription.getProvider(context)!!, subscription.id)
 
+    private lateinit var database: AppDatabase
+
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
+            database = AppDatabase.getInstance(context)
+
             // provide iCalendar event color values to Android
             subscription.insertColors(context)
 
@@ -128,8 +133,10 @@ class ProcessEventsTask(
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 data.reader(contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
-                        subscription.updateStatusSuccess(context, eTag, lastModified ?: 0L)
+                        Log.v(Constants.TAG, "Updating subscription (${subscription.id}) success status. eTag=$eTag, lastModified=$lastModified")
+                        subscription.updateStatusSuccess(context, eTag, lastModified)
 
+                        Log.v(Constants.TAG, "Getting events from reader...")
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
@@ -224,9 +231,12 @@ class ProcessEventsTask(
                 val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
                 androidEvent.add()
 
+                Log.v(Constants.TAG, "Adding event ($uid) to the database...")
+                SubscriptionEvent(subscription, event).let { database.eventsDao().add(it) }
+
                 subscription.updateEventId(context, uid, androidEvent.id)
             } else {
-                var lastModified = if (ignoreLastModified) null else event.lastModified
+                var lastModified = event.lastModified.takeUnless { ignoreLastModified }
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
                 val localEvent = subscriptionEvent.event(context) ?: error("Could not find the event in Android's database. Uid: ${subscriptionEvent.uid}")
