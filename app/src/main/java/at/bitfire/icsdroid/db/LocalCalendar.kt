@@ -39,7 +39,11 @@ class LocalCalendar private constructor(
 ) : AndroidCalendar<LocalEvent>(account, provider, LocalEvent.Factory, id) {
 
     companion object {
-
+        @Deprecated(
+            "Use Subscription",
+            replaceWith = ReplaceWith("Subscription.DEFAULT_COLOR", "at.bitfire.icsdroid.db.entity.Subscription"),
+            level = DeprecationLevel.ERROR,
+        )
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
 
         const val COLUMN_ETAG = Calendars.CAL_SYNC1
