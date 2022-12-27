@@ -56,6 +56,7 @@ data class Subscription(
 
     val lastModified: Long = 0L,
     val lastSync: Long = 0L,
+    val syncEvents: Boolean = false,
     val errorMessage: String? = null,
 
     val ignoreEmbeddedAlerts: Boolean = false,
@@ -93,6 +94,13 @@ data class Subscription(
         AppDatabase.getInstance(context)
             .subscriptionsDao()
             .getErrorMessageLive(id)
+
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun delete(context: Context) =
+        AppDatabase.getInstance(context)
+            .subscriptionsDao()
+            .delete(this)
 
     /**
      * Updates the status of a subscription that has not been modified. This is updating its [Subscription.lastSync] to the current time.
