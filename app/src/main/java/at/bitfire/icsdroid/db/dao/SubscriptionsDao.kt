@@ -4,6 +4,7 @@ import android.database.SQLException
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -76,6 +77,18 @@ interface SubscriptionsDao {
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     @Throws(SQLException::class)
     fun getErrorMessageLive(id: Long): LiveData<String?>
+
+    /**
+     * Removed all the given subscriptions from the database.
+     * @author Arnau Mora
+     * @since 20221224
+     * @param subscriptions All the subscriptions to be removed.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Delete
+    @Throws(SQLException::class)
+    suspend fun delete(vararg subscriptions: Subscription)
 
     /**
      * Updates the given subscriptions in the database.
