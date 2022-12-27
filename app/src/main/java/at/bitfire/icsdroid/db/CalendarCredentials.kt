@@ -18,7 +18,7 @@ class CalendarCredentials(context: Context) {
 
     private val credentialPrefs = context.getSharedPreferences(PREF_CREDENTIALS, 0)
 
-    @Deprecated("Use Room database", replaceWith = ReplaceWith("this.get(subscription)"))
+    @Deprecated("Use Room database", replaceWith = ReplaceWith("this.get(subscription)"), level = DeprecationLevel.ERROR)
     fun get(calendar: LocalCalendar): Pair<String?, String?> {
         val url = calendar.url
         val id = calendar.id
@@ -49,7 +49,7 @@ class CalendarCredentials(context: Context) {
         return Pair(username, password)
     }
 
-    @Deprecated("Use Room database", replaceWith = ReplaceWith("this.put(subscription, username, password)"))
+    @Deprecated("Use Room database", replaceWith = ReplaceWith("this.put(subscription, username, password)"), level = DeprecationLevel.ERROR)
     fun put(calendar: LocalCalendar, username: String?, password: String?) {
         val prefs = credentialPrefs.edit()
         val id = calendar.id
