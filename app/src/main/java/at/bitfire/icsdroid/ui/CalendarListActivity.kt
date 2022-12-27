@@ -127,6 +127,9 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
             binding.refresh.setColorSchemeColors(*colors.toIntArray())
         }
 
+        // Check for missing permissions and ask for them
+        model.checkPermissions()
+
         // startup fragments
         if (savedInstanceState == null)
             ServiceLoader
@@ -272,79 +275,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
         }
     }
 
-
-    @Deprecated("Use SubscriptionListAdapter", replaceWith = ReplaceWith("SubscriptionListAdapter"))
-    class CalendarListAdapter(
-        val context: Context
-    ) : ListAdapter<LocalCalendar, CalendarListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<LocalCalendar>() {
-
-        override fun areItemsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-            // compare all displayed fields
-            oldItem.url == newItem.url &&
-                    oldItem.displayName == newItem.displayName &&
-                    oldItem.isSynced == newItem.isSynced &&
-                    oldItem.lastSync == newItem.lastSync &&
-                    oldItem.color == newItem.color &&
-                    oldItem.errorMessage == newItem.errorMessage
-
-    }) {
-
-        class ViewHolder(val binding: CalendarListItemBinding) : RecyclerView.ViewHolder(binding.root)
-
-
-        var clickListener: ((LocalCalendar) -> Unit)? = null
-
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            Log.i(Constants.TAG, "Creating view holder")
-            val binding = CalendarListItemBinding.inflate(LayoutInflater.from(context), parent, false)
-            return ViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val calendar = currentList[position]
-
-            holder.binding.root.setOnClickListener {
-                clickListener?.let { listener ->
-                    listener(calendar)
-                }
-            }
-
-            holder.binding.apply {
-                url.text = calendar.url
-                title.text = calendar.displayName
-
-                syncStatus.text =
-                    if (!calendar.isSynced)
-                        context.getString(R.string.calendar_list_sync_disabled)
-                    else {
-                        if (calendar.lastSync == 0L)
-                            context.getString(R.string.calendar_list_not_synced_yet)
-                        else
-                            DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
-                                .format(Date(calendar.lastSync))
-                    }
-
-                calendar.color?.let {
-                    color.setColor(it)
-                }
-            }
-
-            val errorMessage = calendar.errorMessage
-            if (errorMessage == null)
-                holder.binding.errorMessage.visibility = View.GONE
-            else {
-                holder.binding.errorMessage.text = errorMessage
-                holder.binding.errorMessage.visibility = View.VISIBLE
-            }
-        }
-
-    }
-
-
     /**
      * Data model for this view. Updates calendar subscriptions in real-time.
      * @since 20221225
@@ -353,18 +283,10 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
         application: Application
     ) : AndroidViewModel(application) {
 
-        companion object {
-            @Deprecated("Use the contents of requiredPermissions")
-            val REQUIRED_PERMISSIONS =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    PermissionUtils.CALENDAR_PERMISSIONS + Manifest.permission.POST_NOTIFICATIONS
-                else
-                    PermissionUtils.CALENDAR_PERMISSIONS
-        }
-
-        @Deprecated("Room replaces the content resolver.")
-        private val resolver = application.contentResolver
-
+        /**
+         * A reference to the instance of the Room database.
+         * @since 20221227
+         */
         private val database = AppDatabase.getInstance(application)
 
         /**
@@ -375,19 +297,10 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
          */
         val requiredPermissions: MutableLiveData<Array<String>> = MutableLiveData(emptyArray())
 
-        @Deprecated("Replace with proper permissions list.", replaceWith = ReplaceWith("this.requiredPermissions"))
-        val askForPermissions = MutableLiveData(false)
-
         /** whether there are running sync workers */
         val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
         }
-
-        @Deprecated("Use subscriptions.", replaceWith = ReplaceWith("this.subscriptions"))
-        val calendars = MutableLiveData<List<LocalCalendar>>()
-
-        @Deprecated("Removed together with calendars. No longer required. Replace with Room.")
-        private var observer: ContentObserver? = null
 
         /**
          * Provides a LiveData that gets updated with all the subscriptions made in the database.
@@ -395,34 +308,12 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
          */
         val subscriptions = database.subscriptionsDao().getAllLive()
 
-
-        @Deprecated("No initializations are required, just permissions check.", replaceWith = ReplaceWith("this.checkPermissions"))
-        fun reinit() {
-            val haveCalendarPermissions = PermissionUtils.haveCalendarPermissions(getApplication())
-            val haveNotificationPermissions =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-                else
-                    true
-            askForPermissions.value = !haveCalendarPermissions || !haveNotificationPermissions
-
-            // It's not necessary to watch calendars since they are already being updated by room.
-            if (observer == null) {
-                // we're not watching the calendars yet
-                if (haveCalendarPermissions) {
-                    Log.d(Constants.TAG, "Watching calendars")
-                    startWatchingCalendars()
-                } else
-                    Log.w(Constants.TAG, "Can't watch calendars (permission denied)")
-            }
-        }
-
         /**
          * Checks if all the required permissions are granted. This includes:
          * - Notification permission (API 33+)
-         * Updates [askForPermissions] with the result of the check.
+         * Updates [requiredPermissions] with the result of the check.
          * @since 20221225
-         * @see askForPermissions
+         * @see requiredPermissions
          */
         fun checkPermissions() {
             val permissions = arrayListOf<String>()
@@ -432,46 +323,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
             requiredPermissions.postValue(permissions.toTypedArray())
         }
-
-        override fun onCleared() {
-            stopWatchingCalendars()
-        }
-
-        @Deprecated("No longer required with Room.")
-        private fun startWatchingCalendars() {
-            val newObserver = object : ContentObserver(null) {
-                override fun onChange(selfChange: Boolean) {
-                    loadCalendars()
-                }
-            }
-            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, newObserver)
-            observer = newObserver
-
-            loadCalendars()
-        }
-
-        @Deprecated("No longer required with Room.")
-        private fun stopWatchingCalendars() {
-            observer?.let {
-                resolver.unregisterContentObserver(it)
-                observer = null
-            }
-        }
-
-        @Deprecated("No longer required with Room.")
-        private fun loadCalendars() {
-            val provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-            if (provider != null)
-                try {
-                    val result = LocalCalendar.findAll(AppAccount.get(getApplication()), provider)
-                    calendars.postValue(result)
-                } catch (e: CalendarStorageException) {
-                    Log.e(Constants.TAG, "Couldn't load calendar list", e)
-                } finally {
-                    provider.release()
-                }
-        }
-
     }
 
 }
