@@ -3,13 +3,12 @@ package at.bitfire.icsdroid.db.entity
 import android.accounts.Account
 import android.content.ContentProviderClient
 import android.content.ContentUris
-import android.content.ContentValues
 import android.content.Context
 import android.database.SQLException
 import android.os.RemoteException
 import android.provider.CalendarContract
-import android.provider.CalendarContract.Events
 import android.provider.CalendarContract.Calendars
+import android.provider.CalendarContract.Events
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
@@ -22,11 +21,7 @@ import at.bitfire.ical4android.*
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
-import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
-import net.fortuna.ical4j.model.DateTime
-import net.fortuna.ical4j.model.property.LastModified
 import java.io.FileNotFoundException
 
 /**

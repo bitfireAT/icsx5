@@ -9,7 +9,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
-import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Subscription
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
