@@ -1,21 +1,12 @@
 package at.bitfire.icsdroid.db.entity
 
-import android.accounts.Account
-import android.content.ContentProviderClient
-import android.content.ContentUris
-import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
-import android.provider.CalendarContract
 import androidx.annotation.WorkerThread
 import androidx.room.Entity
 import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import at.bitfire.ical4android.*
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
-import at.bitfire.icsdroid.ui
 import net.fortuna.ical4j.model.DateTime
 import net.fortuna.ical4j.model.property.LastModified
 
@@ -60,7 +51,8 @@ data class SubscriptionEvent(
         .getById(subscriptionId) ?: throw IllegalArgumentException("The event's parent subscription id ($subscriptionId) doesn't match a valid subscription.")
 
     /**
-     * Converts the current event into a [SubscriptionAndroidEvent].
+     * Converts the current event into a [SubscriptionAndroidEvent]. Fetches an event from the system's calendar that has [subscriptionId] as parent, and [uid]
+     * as uid.
      * @author Arnau Mora
      * @since 20221227
      * @param context The context that is making the request.
