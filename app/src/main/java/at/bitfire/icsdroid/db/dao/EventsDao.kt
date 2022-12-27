@@ -3,12 +3,27 @@ package at.bitfire.icsdroid.db.dao
 import android.database.SQLException
 import androidx.annotation.WorkerThread
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 
 @Dao
 interface EventsDao {
+    /**
+     * Adds one or more new events to the database.
+     *
+     * **This doesn't add the event to the system's calendar.**
+     * @author Arnau Mora
+     * @since 20221227
+     * @param events All the events to be added.
+     * @throws SQLException If any error occurs with the request.
+     */
+    @Insert
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun add(vararg events: SubscriptionEvent)
+
     /**
      * Gets a list of all the available events.
      * @author Arnau Mora
