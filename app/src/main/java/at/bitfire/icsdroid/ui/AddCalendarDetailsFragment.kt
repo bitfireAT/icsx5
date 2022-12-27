@@ -4,13 +4,9 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.content.ContentProviderClient
 import android.content.ContentUris
-import android.content.ContentValues
 import android.database.SQLException
 import android.os.Bundle
-import android.provider.CalendarContract
-import android.provider.CalendarContract.Calendars
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -19,16 +15,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Subscription
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
@@ -97,6 +87,9 @@ class AddCalendarDetailsFragment: Fragment() {
         )
 
         try {
+            if (credentialsModel.requiresAuth.value == true)
+                CalendarCredentials(requireActivity()).put(subscription, credentialsModel.username.value, credentialsModel.password.value)
+
             val database = AppDatabase.getInstance(requireContext())
             val dao = database.subscriptionsDao()
             val uri = subscription.add(requireContext())
