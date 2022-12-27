@@ -59,7 +59,7 @@ class ProcessEventsTask(
             subscription.insertColors(context)
 
             processEvents()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
             subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
         }
@@ -105,7 +105,7 @@ class ProcessEventsTask(
         val uri =
             try {
                 Uri.parse(subscription.url)
-            } catch(e: MalformedURLException) {
+            } catch (e: MalformedURLException) {
                 Log.e(Constants.TAG, "Invalid calendar URL", e)
                 subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
                 return
@@ -117,7 +117,7 @@ class ProcessEventsTask(
         notificationManager.cancel(subscription.id.toString(), 0)
         var exception: Throwable? = null
 
-        val downloader = object: CalendarFetcher(context, uri) {
+        val downloader = object : CalendarFetcher(context, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 data.reader(contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
@@ -174,18 +174,18 @@ class ProcessEventsTask(
             errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
 
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
-                    .setSmallIcon(R.drawable.ic_sync_problem_white)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setGroup(context.getString(R.string.app_name))
-                    .setContentTitle(context.getString(R.string.sync_error_title))
-                    .setContentText(message)
-                    .setSubText(subscription.displayName)
-                    .setContentIntent(
-                        PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat)
-                    )
-                    .setAutoCancel(true)
-                    .setWhen(System.currentTimeMillis())
-                    .setOnlyAlertOnce(true)
+                .setSmallIcon(R.drawable.ic_sync_problem_white)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setGroup(context.getString(R.string.app_name))
+                .setContentTitle(context.getString(R.string.sync_error_title))
+                .setContentText(message)
+                .setSubText(subscription.displayName)
+                .setContentIntent(
+                    PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat)
+                )
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setOnlyAlertOnce(true)
             subscription.color?.let { notification.color = it }
             notificationManager.notify(subscription.id.toString(), 0, notification.build())
 
@@ -199,9 +199,8 @@ class ProcessEventsTask(
      * @param events The list of events to be processed.
      * @param ignoreLastModified Whether to ignore the last modified date.
      * @throws IllegalArgumentException If there's a missing argument in the event being processed.
-     * @throws IllegalStateException If the event should be stored in Android's database, but it isn't.
      */
-    @Throws(IllegalArgumentException::class, IllegalStateException::class)
+    @Throws(IllegalArgumentException::class)
     private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
@@ -213,21 +212,26 @@ class ProcessEventsTask(
             uids += uid
 
             val subscriptionEvent = subscription.queryEventByUid(context, uid)
-            if (subscriptionEvent == null) {
+            val localEvent = subscriptionEvent?.event(context)
+            if (subscriptionEvent == null || localEvent == null) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
 
-                val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
-                androidEvent.add()
+                // TODO: Check logic. Removes events from calendar after adding them. Something is wrong with uids maybe
 
-                Log.v(Constants.TAG, "Adding event ($uid) to the database...")
-                SubscriptionEvent(subscription, event).let { database.eventsDao().add(it) }
+                val androidEvent = localEvent ?: SubscriptionAndroidEvent(context, subscription, event)
+                if (localEvent == null)
+                    androidEvent.add()
 
-                subscription.updateEventId(context, uid, androidEvent.id)
+                if (subscriptionEvent == null) {
+                    Log.v(Constants.TAG, "Adding event ($uid) to the database...")
+                    SubscriptionEvent(subscription, event).let { database.eventsDao().add(it) }
+                }
+
+                if (localEvent == null)
+                    subscription.updateEventId(context, uid, androidEvent.id)
             } else {
                 var lastModified = event.lastModified.takeUnless { ignoreLastModified }
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
-
-                val localEvent = subscriptionEvent.event(context) ?: error("Could not find the event in Android's database. Uid: ${subscriptionEvent.uid}")
 
                 if (lastModified != null) {
                     // process LAST-MODIFIED of exceptions
