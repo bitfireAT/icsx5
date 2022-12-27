@@ -20,6 +20,8 @@ import at.bitfire.icsdroid.db.entity.Subscription
 interface SubscriptionsDao {
     /**
      * Adds one or more new subscriptions to the database.
+     *
+     * **This doesn't add the subscription to the system's calendar.**
      * @author Arnau Mora
      * @since 20221227
      * @param subscriptions All the subscriptions to be added.

@@ -6,18 +6,22 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.SQLException
 import android.provider.CalendarContract
-import androidx.annotation.ColorInt
+import android.provider.CalendarContract.Events
+import android.provider.CalendarContract.Calendars
 import androidx.annotation.WorkerThread
+import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import androidx.room.Query
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.AndroidEvent
-import at.bitfire.ical4android.AndroidEventFactory
+import at.bitfire.ical4android.*
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.LocalEvent
+import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
+import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
+import net.fortuna.ical4j.model.DateTime
+import net.fortuna.ical4j.model.property.LastModified
+import java.io.FileNotFoundException
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -37,10 +41,10 @@ import at.bitfire.icsdroid.db.LocalCalendar
 @Entity(tableName = "subscriptions")
 data class Subscription(
     @PrimaryKey val id: Long,
-    val url: String? = null,
+    val url: String,
     val eTag: String? = null,
 
-    val displayName: String? = null,
+    val displayName: String,
 
     val accountName: String,
     val accountType: String,
@@ -155,6 +159,22 @@ data class Subscription(
             )
 
     /**
+     * Updates the given event's [SubscriptionEvent.id], given its [SubscriptionEvent.uid].
+     * @author Arnau Mora
+     * @since 20221227
+     * @param context The context that is making the request.
+     * @param uid The uid of the event to update.
+     * @param id The new id to set to the event.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun updateEventId(context: Context, uid: String, id: Long?) =
+        AppDatabase.getInstance(context)
+            .eventsDao()
+            .updateId(this.id, uid, id)
+
+    /**
      * Queries a [SubscriptionEvent] from its [SubscriptionEvent.uid].
      * @author Arnau Mora
      * @since 20221224
@@ -177,28 +197,57 @@ data class Subscription(
      * @param context The context that is making the request.
      * @return A new calendar that matches the current subscription.
      * @throws NullPointerException If a provider could not be obtained from the [context].
+     * @throws FileNotFoundException If the calendar is not available in the system's database.
      */
-    @Throws(NullPointerException::class)
-    fun getCalendar(context: Context) = object : AndroidCalendar<AndroidEvent>(account, getProvider(context)!!, object : AndroidEventFactory<AndroidEvent> {
-        override fun fromProvider(calendar: AndroidCalendar<AndroidEvent>, values: ContentValues): AndroidEvent =
-            object : AndroidEvent(calendar, values) {
-                // TODO: Populate fields
+    @Throws(NullPointerException::class, FileNotFoundException::class)
+    fun getCalendar(context: Context) = AndroidCalendar.findByID(account, getProvider(context)!!, SubscriptionAndroidCalendar.Factory(), id)
+
+    /**
+     * Removes all the events from the subscription that are not in the [uids] list.
+     * @author Arnau Mora
+     * @since 20221227
+     * @param context The context that is making the request.
+     * @param uids The list of uids to retain.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun retainByUid(context: Context, uids: Set<String>) = AppDatabase.getInstance(context)
+        .eventsDao()
+        .retainByUidFromSubscription(id, uids)
+
+    /**
+     * Provides iCalendar event color values to Android.
+     * @author Arnau Mora
+     * @since 20221227
+     * @param context The context that is making the request.
+     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
+     * @see AndroidCalendar.insertColors
+     */
+    fun insertColors(context: Context) =
+        (getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
+            .let { provider ->
+                AndroidCalendar.insertColors(provider, account)
             }
-    }, id) {
-        override fun populate(info: ContentValues) {
-            info.put(CalendarContract.Calendars.ACCOUNT_NAME, account.name)
-            info.put(CalendarContract.Calendars.ACCOUNT_TYPE, account.type)
-            info.put(CalendarContract.Calendars.NAME, url)
-            info.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, displayName)
-            info.put(CalendarContract.Calendars.CALENDAR_COLOR, color)
-            info.put(CalendarContract.Calendars.OWNER_ACCOUNT, account.name)
-            info.put(CalendarContract.Calendars.SYNC_EVENTS, 1)
-            info.put(CalendarContract.Calendars.VISIBLE, 1)
-            info.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_READ)
-            info.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
-            info.put(LocalCalendar.COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
-        }
-    }
+
+    fun queryAndroidEventById(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+
+    fun add(context: Context) = AndroidCalendar.create(
+        account,
+        getProvider(context)!!,
+        contentValuesOf(
+            Calendars._ID to id,
+            Calendars.ACCOUNT_NAME to account.name,
+            Calendars.ACCOUNT_TYPE to account.type,
+            Calendars.NAME to url,
+            Calendars.CALENDAR_DISPLAY_NAME to displayName,
+            Calendars.CALENDAR_COLOR to color,
+            Calendars.OWNER_ACCOUNT to account.name,
+            Calendars.SYNC_EVENTS to 1,
+            Calendars.VISIBLE to 1,
+            Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
+        ),
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

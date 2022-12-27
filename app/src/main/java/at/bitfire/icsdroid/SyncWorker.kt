@@ -115,7 +115,7 @@ class SyncWorker(
                 .subscriptionsDao()
                 .getAll()
                 .filter { it.isSynced }
-                .forEach { ProcessEventsTask(applicationContext, provider, account, it, forceResync).sync() }
+                .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)

@@ -21,6 +21,7 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.entity.SubscriptionEvent
+import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
@@ -51,20 +52,18 @@ import java.time.Duration
  */
 class ProcessEventsTask(
     val context: Context,
-    val provider: ContentProviderClient,
-    val account: Account,
     val subscription: Subscription,
     val forceResync: Boolean
 ) {
     @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
-    val calendar: LocalCalendar = LocalCalendar.Factory.newInstance(account, provider, subscription.id)
+    val calendar: LocalCalendar = LocalCalendar.Factory.newInstance(subscription.account, Subscription.getProvider(context)!!, subscription.id)
 
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
             // provide iCalendar event color values to Android
-            AndroidCalendar.insertColors(provider, account)
+            subscription.insertColors(context)
 
             processEvents()
         } catch(e: Exception) {
@@ -82,7 +81,7 @@ class ProcessEventsTask(
      * @return The given [event], with the alarms updated.
      */
     private fun updateAlarms(event: Event): Event = event.apply {
-        if (subscription.ignoreEmbeddedAlerts == true) {
+        if (subscription.ignoreEmbeddedAlerts) {
             // Remove all alerts
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
@@ -127,13 +126,14 @@ class ProcessEventsTask(
 
         val downloader = object: CalendarFetcher(context, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
+                data.reader(contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
+                        subscription.updateStatusSuccess(context, eTag, lastModified ?: 0L)
+
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                        subscription.updateStatusSuccess(context, eTag, lastModified ?: 0L)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
                         exception = e
@@ -198,6 +198,15 @@ class ProcessEventsTask(
         }
     }
 
+    /**
+     * Processes all the given events.
+     * @since 20221227
+     * @param events The list of events to be processed.
+     * @param ignoreLastModified Whether to ignore the last modified date.
+     * @throws IllegalArgumentException If there's a missing argument in the event being processed.
+     * @throws IllegalStateException If the event should be stored in Android's database, but it isn't.
+     */
+    @Throws(IllegalArgumentException::class, IllegalStateException::class)
     private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
@@ -211,14 +220,16 @@ class ProcessEventsTask(
             val subscriptionEvent = subscription.queryEventByUid(context, uid)
             if (subscriptionEvent == null) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
-                SubscriptionEvent(subscription, event)
-                    .event(context)
-                    .add()
+
+                val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
+                androidEvent.add()
+
+                subscription.updateEventId(context, uid, androidEvent.id)
             } else {
                 var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
-                val localEvent = subscriptionEvent.event(context)
+                val localEvent = subscriptionEvent.event(context) ?: error("Could not find the event in Android's database. Uid: ${subscriptionEvent.uid}")
 
                 if (lastModified != null) {
                     // process LAST-MODIFIED of exceptions
@@ -242,7 +253,7 @@ class ProcessEventsTask(
         }
 
         Log.i(Constants.TAG, "Deleting old events (retaining ${uids.size} events by UID) …")
-        val deleted = calendar.retainByUID(uids)
+        val deleted = subscription.retainByUid(context, uids)
         Log.i(Constants.TAG, "… $deleted events deleted")
     }
 

@@ -87,8 +87,8 @@ class AddCalendarDetailsFragment: Fragment() {
             eTag = null,
             lastModified = 0L,
             lastSync = 0L,
-            url = titleColorModel.url.value,
-            displayName = titleColorModel.title.value,
+            url = titleColorModel.url.value!!,
+            displayName = titleColorModel.title.value!!,
             color = titleColorModel.color.value,
             ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
             defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
@@ -96,27 +96,18 @@ class AddCalendarDetailsFragment: Fragment() {
             accountType = account.type,
         )
 
-        val calInfo = ContentValues(9)
-        calInfo.put(Calendars.ACCOUNT_NAME, account.name)
-        calInfo.put(Calendars.ACCOUNT_TYPE, account.type)
-        calInfo.put(Calendars.NAME, titleColorModel.url.value)
-        calInfo.put(Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
-        calInfo.put(Calendars.CALENDAR_COLOR, titleColorModel.color.value)
-        calInfo.put(Calendars.OWNER_ACCOUNT, account.name)
-        calInfo.put(Calendars.SYNC_EVENTS, 1)
-        calInfo.put(Calendars.VISIBLE, 1)
-        calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
-        calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
-        calInfo.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
-
         try {
             val database = AppDatabase.getInstance(requireContext())
             val dao = database.subscriptionsDao()
-            dao.add(subscription)
+            val uri = subscription.add(requireContext())
+            val id = ContentUris.parseId(uri)
+            dao.add(subscription.copy(id = id))
+
             ui {
                 Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
                 requireActivity().invalidateOptionsMenu()
             }
+
             calendarCreated.postValue(true)
         } catch (e: SQLException) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
