@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:visibility="@{model.calendars.empty ? View.GONE : View.VISIBLE }" />
+                android:visibility="@{model.subscriptions.empty ? View.GONE : View.VISIBLE }" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -37,7 +37,7 @@
             style="@style/TextAppearance.MaterialComponents.Body1"
             android:layout_margin="16dp"
             android:text="@string/calendar_list_empty_info"
-            android:visibility="@{model.calendars.empty ? View.VISIBLE : View.GONE }" />
+            android:visibility="@{model.subscriptions.empty ? View.VISIBLE : View.GONE }" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
