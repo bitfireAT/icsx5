@@ -4,22 +4,15 @@
 
 package at.bitfire.icsdroid
 
-import android.accounts.Account
 import android.app.PendingIntent
-import android.content.ContentProviderClient
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
-import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
@@ -29,11 +22,9 @@ import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
-import net.fortuna.ical4j.model.property.Description
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.net.MalformedURLException
 import java.time.Duration
 
@@ -56,9 +47,6 @@ class ProcessEventsTask(
     val subscription: Subscription,
     val forceResync: Boolean
 ) {
-    @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
-    val calendar: LocalCalendar = LocalCalendar.Factory.newInstance(subscription.account, Subscription.getProvider(context)!!, subscription.id)
-
     private lateinit var database: AppDatabase
 
     suspend fun sync() {
