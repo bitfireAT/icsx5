@@ -2,12 +2,15 @@ package at.bitfire.icsdroid.db.entity
 
 import android.accounts.Account
 import android.content.ContentProviderClient
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.database.SQLException
+import android.os.RemoteException
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import android.provider.CalendarContract.Calendars
+import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
@@ -15,6 +18,8 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import at.bitfire.ical4android.*
+import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
@@ -120,11 +125,11 @@ data class Subscription(
     suspend fun updateStatusSuccess(
         context: Context,
         eTag: String? = this.eTag,
-        lastModified: Long = this.lastModified,
+        lastModified: Long? = this.lastModified,
         lastSync: Long = System.currentTimeMillis()
     ) = AppDatabase.getInstance(context)
         .subscriptionsDao()
-        .updateStatusSuccess(id, eTag, lastModified, lastSync)
+        .updateStatusSuccess(id, eTag, lastModified ?: 0L, lastSync)
 
     /**
      * Updates the error message of the subscription.
@@ -209,12 +214,18 @@ data class Subscription(
      * @param context The context that is making the request.
      * @param uids The list of uids to retain.
      * @throws SQLException If any error occurs with the update.
+     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
+     * @throws CalendarStorageException If there's an error while deleting an event.
+     * @return The amount of events removed.
      */
     @WorkerThread
-    @Throws(SQLException::class)
-    suspend fun retainByUid(context: Context, uids: Set<String>) = AppDatabase.getInstance(context)
-        .eventsDao()
-        .retainByUidFromSubscription(id, uids)
+    @Throws(SQLException::class, IllegalArgumentException::class, CalendarStorageException::class)
+    suspend fun retainByUid(context: Context, uids: Set<String>): Int {
+        AppDatabase.getInstance(context)
+            .eventsDao()
+            .retainByUidFromSubscription(id, uids)
+        return androidRetainByUid(context, uids.toMutableSet())
+    }
 
     /**
      * Provides iCalendar event color values to Android.
@@ -229,6 +240,45 @@ data class Subscription(
             .let { provider ->
                 AndroidCalendar.insertColors(provider, account)
             }
+
+    /**
+     * Removes all events from the system's calendar whose uid is not included in the [uids] list.
+     * @author Arnau Mora
+     * @since 20221227
+     * @param context The context that is making the request.
+     * @param uids The uids to keep.
+     * @return The amount of events removed.
+     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
+     * @throws CalendarStorageException If there's an error while deleting an event.
+     */
+    @WorkerThread
+    @Throws(IllegalArgumentException::class, CalendarStorageException::class)
+    private fun androidRetainByUid(context: Context, uids: MutableSet<String>): Int {
+        val provider = getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
+        var deleted = 0
+        try {
+            provider.query(
+                Events.CONTENT_URI.asSyncAdapter(account),
+                arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
+                "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null
+            )?.use { row ->
+                while (row.moveToNext()) {
+                    val eventId = row.getLong(0)
+                    val syncId = row.getString(1)
+                    if (!uids.contains(syncId)) {
+                        provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
+                        deleted++
+
+                        uids -= syncId
+                    }
+                }
+            }
+            return deleted
+        } catch (e: RemoteException) {
+            Log.e(Constants.TAG, "Could not delete local events.", e)
+            throw CalendarStorageException("Couldn't delete local events")
+        }
+    }
 
     fun queryAndroidEventById(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
