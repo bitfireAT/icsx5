@@ -10,6 +10,7 @@ import at.bitfire.ical4android.*
 import net.fortuna.ical4j.model.DateTime
 import net.fortuna.ical4j.model.property.LastModified
 
+@Deprecated("Room should be used.")
 class LocalEvent: AndroidEvent {
 
     companion object {
