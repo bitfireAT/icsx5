@@ -181,7 +181,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
     // Room Database
-    implementation "androidx.room:room-runtime:${versions.room}"
+    implementation "androidx.room:room-ktx:${versions.room}"
     ksp "androidx.room:room-compiler:${versions.room}"
 
     // for tests
