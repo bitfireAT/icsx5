@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.entity.Subscription
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 
@@ -24,7 +25,7 @@ class ColorPickerActivity: AppCompatActivity(), ColorPickerDialogListener {
             putExtra(EXTRA_COLOR, input)
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): Int = intent?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR) ?: LocalCalendar.DEFAULT_COLOR
+        override fun parseResult(resultCode: Int, intent: Intent?): Int = intent?.getIntExtra(EXTRA_COLOR, Subscription.DEFAULT_COLOR) ?: Subscription.DEFAULT_COLOR
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +38,7 @@ class ColorPickerActivity: AppCompatActivity(), ColorPickerDialogListener {
 
             intent?.apply {
                 if (hasExtra(EXTRA_COLOR))
-                    builder.setColor(getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR))
+                    builder.setColor(getIntExtra(EXTRA_COLOR, Subscription.DEFAULT_COLOR))
             }
 
             val dialog = builder.create()

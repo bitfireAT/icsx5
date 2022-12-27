@@ -11,6 +11,7 @@ import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import android.provider.CalendarContract.Calendars
 import android.util.Log
+import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
@@ -65,6 +66,13 @@ data class Subscription(
     val color: Int? = null
 ) {
     companion object {
+        /**
+         * The default color to use in all subscriptions.
+         * @since 20221227
+         */
+        @ColorInt
+        const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
+
         /**
          * Gets the calendar provider for a given context.
          * @author Arnau Mora

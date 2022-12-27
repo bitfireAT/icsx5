@@ -8,7 +8,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.PermissionUtils
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.entity.Subscription
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -44,7 +44,7 @@ class AddCalendarActivity: AppCompatActivity() {
                     titleColorModel.title.value = it
                 }
                 if (hasExtra(EXTRA_COLOR))
-                    titleColorModel.color.value = getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                    titleColorModel.color.value = getIntExtra(EXTRA_COLOR, Subscription.DEFAULT_COLOR)
             }
         }
     }
