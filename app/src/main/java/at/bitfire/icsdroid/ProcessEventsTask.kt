@@ -4,7 +4,9 @@
 
 package at.bitfire.icsdroid
 
+import android.accounts.Account
 import android.app.PendingIntent
+import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -18,6 +20,7 @@ import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
@@ -42,48 +45,49 @@ import java.time.Duration
  * - for updating the local events (will only be updated when LAST-MODIFIED is newer).
  *
  * @param context      context to work in
- * @param calendar     represents the subscription to be checked
  * @param subscription represents the subscription to be checked
  * @param forceResync  enforces that the calendar is fetched and all events are fully processed
  *                     (useful when subscription settings have been changed)
  */
 class ProcessEventsTask(
     val context: Context,
-    @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
-    val calendar: LocalCalendar,
+    val provider: ContentProviderClient,
+    val account: Account,
     val subscription: Subscription,
     val forceResync: Boolean
 ) {
+    @Deprecated("LocalCalendar is deprecated. Use Room", replaceWith = ReplaceWith("this.subscription"))
+    val calendar: LocalCalendar = LocalCalendar.Factory.newInstance(account, provider, subscription.id)
 
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
             // provide iCalendar event color values to Android
-            AndroidCalendar.insertColors(calendar.provider, calendar.account)
+            AndroidCalendar.insertColors(provider, account)
 
             processEvents()
         } catch(e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
-            calendar.updateStatusError(e.localizedMessage ?: e.toString())
+            subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
 
     /**
-     * Updates the alarms of the given event according to the [calendar]'s [LocalCalendar.defaultAlarmMinutes] and [LocalCalendar.ignoreEmbeddedAlerts]
+     * Updates the alarms of the given event according to the [subscription]'s [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
      * parameters.
      * @since 20221208
      * @param event The event to update.
      * @return The given [event], with the alarms updated.
      */
     private fun updateAlarms(event: Event): Event = event.apply {
-        if (calendar.ignoreEmbeddedAlerts == true) {
+        if (subscription.ignoreEmbeddedAlerts == true) {
             // Remove all alerts
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
         }
-        calendar.defaultAlarmMinutes?.let { minutes ->
+        subscription.defaultAlarmMinutes?.let { minutes ->
             // Check if already added alarm
             val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
             if (alarm != null) return@let
@@ -170,7 +174,7 @@ class ProcessEventsTask(
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()
 
             val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            errorIntent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
             errorIntent.putExtra(EditCalendarActivity.ERROR_MESSAGE, message)
             errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
 
@@ -180,19 +184,21 @@ class ProcessEventsTask(
                     .setGroup(context.getString(R.string.app_name))
                     .setContentTitle(context.getString(R.string.sync_error_title))
                     .setContentText(message)
-                    .setSubText(calendar.displayName)
-                    .setContentIntent(PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
+                    .setSubText(subscription.displayName)
+                    .setContentIntent(
+                        PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat)
+                    )
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .setOnlyAlertOnce(true)
             subscription.color?.let { notification.color = it }
-            notificationManager.notify(calendar.id.toString(), 0, notification.build())
+            notificationManager.notify(subscription.id.toString(), 0, notification.build())
 
             subscription.updateStatusError(context, message)
         }
     }
 
-    private fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
+    private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
 
@@ -202,15 +208,17 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
 
-            val localEvents = calendar.queryByUID(uid)
-            if (localEvents.isEmpty()) {
+            val subscriptionEvent = subscription.queryEventByUid(context, uid)
+            if (subscriptionEvent == null) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
-                LocalEvent(calendar, event).add()
-
+                SubscriptionEvent(subscription, event)
+                    .event(context)
+                    .add()
             } else {
-                val localEvent = localEvents.first()
                 var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
+
+                val localEvent = subscriptionEvent.event(context)
 
                 if (lastModified != null) {
                     // process LAST-MODIFIED of exceptions
@@ -224,7 +232,7 @@ class ProcessEventsTask(
                     }
                 }
 
-                if (lastModified == null || lastModified.dateTime.time > localEvent.lastModified) {
+                if (lastModified == null || subscriptionEvent.lastModified == null || lastModified.dateTime.time > subscriptionEvent.lastModified) {
                     // either there is no LAST-MODIFIED, or LAST-MODIFIED has been increased
                     Log.d(Constants.TAG, "Updating $uid in local calendar")
                     localEvent.update(event)

@@ -44,6 +44,8 @@ class EditCalendarActivity: AppCompatActivity() {
     companion object {
         const val ERROR_MESSAGE = "errorMessage"
         const val THROWABLE = "errorThrowable"
+
+        const val EXTRA_SUBSCRIPTION_ID = "SubscriptionId"
     }
 
     private val model by viewModels<CalendarModel>()
@@ -82,9 +84,11 @@ class EditCalendarActivity: AppCompatActivity() {
         binding.model = model
 
         if (inState == null) {
+            // TODO: Remove permissions check
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
                 // permissions OK, load calendar from provider
+                // TODO: Not using uri, use extra EXTRA_SUBSCRIPTION_ID
                 val uri = intent.data ?: throw IllegalArgumentException("Intent data empty (must be calendar URI)")
                 val calendarId = ContentUris.parseId(uri)
                 try {

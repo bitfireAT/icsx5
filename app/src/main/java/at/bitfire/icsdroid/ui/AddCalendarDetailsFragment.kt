@@ -7,27 +7,35 @@ package at.bitfire.icsdroid.ui
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.ContentValues
+import android.database.SQLException
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.WorkerThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
-import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.*
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+
+    private val calendarCreated = MutableLiveData<Boolean>(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +50,8 @@ class AddCalendarDetailsFragment: Fragment() {
 
         // Set the default value to null so that the visibility of the summary is updated
         titleColorModel.defaultAlarmMinutes.postValue(null)
+
+        calendarCreated.observe(this) { if (it) requireActivity().finish() }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -62,15 +72,29 @@ class AddCalendarDetailsFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) =
             if (item.itemId == R.id.create_calendar) {
-                if (createCalendar())
-                    requireActivity().finish()
+                doAsync { createCalendar() }
                 true
             } else
                 false
 
 
-    private fun createCalendar(): Boolean {
+    @WorkerThread
+    private suspend fun createCalendar() {
         val account = AppAccount.get(requireActivity())
+
+        val subscription = Subscription(
+            id = 0L,
+            eTag = null,
+            lastModified = 0L,
+            lastSync = 0L,
+            url = titleColorModel.url.value,
+            displayName = titleColorModel.title.value,
+            color = titleColorModel.color.value,
+            ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
+            defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+            accountName = account.name,
+            accountType = account.type,
+        )
 
         val calInfo = ContentValues(9)
         calInfo.put(Calendars.ACCOUNT_NAME, account.name)
@@ -85,24 +109,19 @@ class AddCalendarDetailsFragment: Fragment() {
         calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
         calInfo.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
 
-        val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-        return try {
-            client?.let {
-                val uri = AndroidCalendar.create(account, it, calInfo)
-                val calendar = LocalCalendar.findById(account, client, ContentUris.parseId(uri))
-
-                if (credentialsModel.requiresAuth.value == true)
-                    CalendarCredentials(requireActivity()).put(calendar, credentialsModel.username.value, credentialsModel.password.value)
+        try {
+            val database = AppDatabase.getInstance(requireContext())
+            val dao = database.subscriptionsDao()
+            dao.add(subscription)
+            ui {
+                Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
+                requireActivity().invalidateOptionsMenu()
             }
-            Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
-            requireActivity().invalidateOptionsMenu()
-            true
-        } catch(e: Exception) {
+            calendarCreated.postValue(true)
+        } catch (e: SQLException) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
-            false
-        } finally {
-            client?.closeCompat()
+            ui { Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show() }
+            calendarCreated.postValue(false)
         }
     }
 

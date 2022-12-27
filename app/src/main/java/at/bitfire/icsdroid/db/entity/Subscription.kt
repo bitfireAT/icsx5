@@ -1,16 +1,23 @@
 package at.bitfire.icsdroid.db.entity
 
+import android.accounts.Account
+import android.content.ContentProviderClient
+import android.content.ContentValues
 import android.content.Context
 import android.database.SQLException
+import android.provider.CalendarContract
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidEvent
+import at.bitfire.ical4android.AndroidEventFactory
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.LocalCalendar
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -35,15 +42,32 @@ data class Subscription(
 
     val displayName: String? = null,
 
+    val accountName: String,
+    val accountType: String,
+
     val lastModified: Long = 0L,
     val lastSync: Long = 0L,
     val errorMessage: String? = null,
 
-    val ignoreEmbeddedAlerts: Boolean? = null,
+    val ignoreEmbeddedAlerts: Boolean = false,
     val defaultAlarmMinutes: Long? = null,
 
     val color: Int? = null
 ) {
+    companion object {
+        /**
+         * Gets the calendar provider for a given context.
+         * @author Arnau Mora
+         * @since 20221227
+         * @param context The context that is making the request.
+         * @return The [ContentProviderClient] that provides an interface with the system's calendar.
+         */
+        fun getProvider(context: Context) = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+    }
+
+    @Ignore
+    val account = Account(accountName, accountType)
+
     // TODO: Update accordingly
     var isSynced = true
     var isVisible = true
@@ -146,6 +170,36 @@ data class Subscription(
             .eventsDao()
             .getEventByUid(id, uid)
 
+    /**
+     * Provides an [AndroidCalendar] from the current subscription.
+     * @author Arnau Mora
+     * @since 20221227
+     * @param context The context that is making the request.
+     * @return A new calendar that matches the current subscription.
+     * @throws NullPointerException If a provider could not be obtained from the [context].
+     */
+    @Throws(NullPointerException::class)
+    fun getCalendar(context: Context) = object : AndroidCalendar<AndroidEvent>(account, getProvider(context)!!, object : AndroidEventFactory<AndroidEvent> {
+        override fun fromProvider(calendar: AndroidCalendar<AndroidEvent>, values: ContentValues): AndroidEvent =
+            object : AndroidEvent(calendar, values) {
+                // TODO: Populate fields
+            }
+    }, id) {
+        override fun populate(info: ContentValues) {
+            info.put(CalendarContract.Calendars.ACCOUNT_NAME, account.name)
+            info.put(CalendarContract.Calendars.ACCOUNT_TYPE, account.type)
+            info.put(CalendarContract.Calendars.NAME, url)
+            info.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, displayName)
+            info.put(CalendarContract.Calendars.CALENDAR_COLOR, color)
+            info.put(CalendarContract.Calendars.OWNER_ACCOUNT, account.name)
+            info.put(CalendarContract.Calendars.SYNC_EVENTS, 1)
+            info.put(CalendarContract.Calendars.VISIBLE, 1)
+            info.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_READ)
+            info.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
+            info.put(LocalCalendar.COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -174,7 +228,7 @@ data class Subscription(
         result = 31 * result + lastModified.hashCode()
         result = 31 * result + lastSync.hashCode()
         result = 31 * result + (errorMessage?.hashCode() ?: 0)
-        result = 31 * result + (ignoreEmbeddedAlerts?.hashCode() ?: 0)
+        result = 31 * result + ignoreEmbeddedAlerts.hashCode()
         result = 31 * result + (defaultAlarmMinutes?.hashCode() ?: 0)
         result = 31 * result + (color ?: 0)
         return result

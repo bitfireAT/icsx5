@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -110,9 +111,11 @@ class SyncWorker(
     private suspend fun performSync(account: Account, provider: ContentProviderClient, forceResync: Boolean): Result {
         Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
-            LocalCalendar.findAll(account, provider)
+            AppDatabase.getInstance(applicationContext)
+                .subscriptionsDao()
+                .getAll()
                 .filter { it.isSynced }
-                .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
+                .forEach { ProcessEventsTask(applicationContext, provider, account, it, forceResync).sync() }
 
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)

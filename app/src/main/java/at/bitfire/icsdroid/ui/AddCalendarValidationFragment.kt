@@ -10,6 +10,7 @@ import android.app.ProgressDialog
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -63,7 +64,7 @@ class AddCalendarValidationFragment: DialogFragment() {
                 titleColorModel.url.value = info.uri.toString()
 
                 if (titleColorModel.color.value == null)
-                    titleColorModel.color.value = info.calendarColor ?: resources.getColor(R.color.lightblue)
+                    titleColorModel.color.value = info.calendarColor ?: ContextCompat.getColor(requireContext(), R.color.lightblue)
 
                 if (titleColorModel.title.value.isNullOrBlank())
                     titleColorModel.title.value = info.calendarName ?: info.uri.toString()
@@ -120,7 +121,7 @@ class AddCalendarValidationFragment: DialogFragment() {
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(context, originalUri) {
-                override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+                override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                     InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                         val properties = mutableMapOf<String, String>()
                         val events = Event.eventsFromReader(reader, properties)
@@ -146,13 +147,13 @@ class AddCalendarValidationFragment: DialogFragment() {
                     result.postValue(info)
                 }
 
-                override fun onNewPermanentUrl(target: Uri) {
+                override suspend fun onNewPermanentUrl(target: Uri) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
                     val location = uri.toURI().resolve(target.toURI())
                     info.uri = location.toUri()
                 }
 
-                override fun onError(error: Exception) {
+                override suspend fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
                     result.postValue(info)

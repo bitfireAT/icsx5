@@ -4,6 +4,7 @@ import android.database.SQLException
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import at.bitfire.icsdroid.db.AppDatabase
@@ -17,6 +18,18 @@ import at.bitfire.icsdroid.db.entity.Subscription
  */
 @Dao
 interface SubscriptionsDao {
+    /**
+     * Adds one or more new subscriptions to the database.
+     * @author Arnau Mora
+     * @since 20221227
+     * @param subscriptions All the subscriptions to be added.
+     * @throws SQLException If any error occurs with the request.
+     */
+    @Insert
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun add(vararg subscriptions: Subscription)
+
     /**
      * Gets a [LiveData] with all the made subscriptions. Updates automatically when new ones are added.
      * @author Arnau Mora
