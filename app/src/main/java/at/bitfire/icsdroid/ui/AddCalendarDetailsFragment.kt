@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.content.ContentUris
 import android.database.SQLException
 import android.os.Bundle
 import android.util.Log
@@ -20,7 +19,7 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 
-class AddCalendarDetailsFragment: Fragment() {
+class AddCalendarDetailsFragment : Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
@@ -41,6 +40,7 @@ class AddCalendarDetailsFragment: Fragment() {
         // Set the default value to null so that the visibility of the summary is updated
         titleColorModel.defaultAlarmMinutes.postValue(null)
 
+        // Finish activity when calendar is created
         calendarCreated.observe(this) { if (it) requireActivity().finish() }
     }
 
@@ -61,11 +61,11 @@ class AddCalendarDetailsFragment: Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
-            if (item.itemId == R.id.create_calendar) {
-                doAsync { createCalendar() }
-                true
-            } else
-                false
+        if (item.itemId == R.id.create_calendar) {
+            doAsync { createCalendar() }
+            true
+        } else
+            false
 
 
     @WorkerThread
@@ -90,11 +90,9 @@ class AddCalendarDetailsFragment: Fragment() {
             if (credentialsModel.requiresAuth.value == true)
                 CalendarCredentials(requireActivity()).put(subscription, credentialsModel.username.value, credentialsModel.password.value)
 
-            val database = AppDatabase.getInstance(requireContext())
-            val dao = database.subscriptionsDao()
-            val uri = subscription.add(requireContext())
-            val id = ContentUris.parseId(uri)
-            dao.add(subscription.copy(id = id))
+            AppDatabase.getInstance(requireContext())
+                .subscriptionsDao()
+                .add(subscription)
 
             ui {
                 Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
