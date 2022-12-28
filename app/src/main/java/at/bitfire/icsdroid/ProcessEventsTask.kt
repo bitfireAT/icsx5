@@ -216,6 +216,7 @@ class ProcessEventsTask(
      */
     @Throws(IllegalArgumentException::class)
     private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
+        // events is the list of events fetched from the server.
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
 
@@ -225,25 +226,32 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
 
-            val subscriptionEvent = subscription.queryEventByUid(context, uid)
-            val localEvent = subscriptionEvent?.event(context)
-            if (subscriptionEvent == null || localEvent == null) {
+            // First check if the event is stored in the database
+            var subscriptionEvent = subscription.queryEventByUid(context, uid)
+            if (subscriptionEvent == null) {
+                // If the event is not stored, add it
+                subscriptionEvent = SubscriptionEvent(subscription, event)
+                subscription.addNewEvent(context, subscriptionEvent)
+            } else {
+                // Otherwise, update it
+                subscription.updateEvents(context, subscriptionEvent)
+            }
+
+            // Now check if the event is in the system's calendar
+            val localEvent = subscriptionEvent.event(context)
+            if (localEvent == null) {
+                // If the event is not in the calendar, add it
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
 
-                // TODO: Check logic. Removes events from calendar after adding them. Something is wrong with uids maybe
+                // Create a new Android event
+                val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
+                // Add it to the calendar
+                androidEvent.add()
 
-                val androidEvent = localEvent ?: SubscriptionAndroidEvent(context, subscription, event)
-                if (localEvent == null)
-                    androidEvent.add()
-
-                if (subscriptionEvent == null) {
-                    Log.v(Constants.TAG, "Adding event ($uid) to the database...")
-                    SubscriptionEvent(subscription, event).let { database.eventsDao().add(it) }
-                }
-
-                if (localEvent == null)
-                    subscription.updateEventId(context, uid, androidEvent.id)
+                // Update the id of the event in the calendar, with the one the event has in the calendar
+                subscription.updateEventId(context, uid, androidEvent.id)
             } else {
+                // If the event is already in the calendar, update it
                 var lastModified = event.lastModified.takeUnless { ignoreLastModified }
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
@@ -259,7 +267,7 @@ class ProcessEventsTask(
                     }
                 }
 
-                if (lastModified == null || subscriptionEvent.lastModified == null || lastModified.dateTime.time > subscriptionEvent.lastModified) {
+                if (lastModified == null || subscriptionEvent.lastModified == null || lastModified.dateTime.time > subscriptionEvent.lastModified!!) {
                     // either there is no LAST-MODIFIED, or LAST-MODIFIED has been increased
                     Log.d(Constants.TAG, "Updating $uid in local calendar")
                     localEvent.update(event)
