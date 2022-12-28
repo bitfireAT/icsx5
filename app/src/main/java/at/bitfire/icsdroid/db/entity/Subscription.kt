@@ -244,8 +244,10 @@ data class Subscription(
      * @since 20221227
      * @param context The context that is making the request.
      * @throws IllegalArgumentException If a provider could not be obtained from the [context].
+     * @throws SQLException If there's any issues while updating the system's database.
      * @see AndroidCalendar.insertColors
      */
+    @Throws(SQLException::class, IllegalArgumentException::class)
     fun insertColors(context: Context) =
         (getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
             .let { provider ->
