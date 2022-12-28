@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 
@@ -61,6 +62,20 @@ interface EventsDao {
     @Query("DELETE FROM events WHERE subscriptionId=:subscriptionId AND uid NOT IN (:uids)")
     @Throws(SQLException::class)
     suspend fun retainByUidFromSubscription(subscriptionId: Long, uids: Set<String>)
+
+    /**
+     * Updates one or more new events to the database.
+     *
+     * **This doesn't update the event in the system's calendar.**
+     * @author Arnau Mora
+     * @since 20221227
+     * @param events All the events to be updated.
+     * @throws SQLException If any error occurs with the request.
+     */
+    @Update
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun update(vararg events: SubscriptionEvent)
 
     /**
      * Updates the [SubscriptionEvent.id] from its [Subscription.id] and [SubscriptionEvent.uid].
