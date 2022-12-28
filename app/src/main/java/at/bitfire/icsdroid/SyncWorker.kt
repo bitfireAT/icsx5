@@ -87,14 +87,9 @@ class SyncWorker(
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
 
-        withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.Default) {
             performSync(AppAccount.get(applicationContext), forceResync)
         }
-
-        return if (runAttemptCount >= MAX_ATTEMPTS)
-            Result.failure()
-        else
-            Result.retry()
     }
 
     /**
@@ -103,7 +98,7 @@ class SyncWorker(
      * @param account The owner account of the subscriptions.
      * @param forceResync Enforces that the calendar is fetched and all events are fully processed (useful when subscription settings have been changed).
      */
-    private suspend fun performSync(account: Account, forceResync: Boolean) {
+    private suspend fun performSync(account: Account, forceResync: Boolean): Result {
         Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             AppDatabase.getInstance(applicationContext)
@@ -112,11 +107,19 @@ class SyncWorker(
                 .filter { it.isSynced }
                 .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
+            // TODO: Remove all calendars from system that have been removed from database
+
+            return Result.success()
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
         }
+
+        return if (runAttemptCount >= MAX_ATTEMPTS)
+            Result.failure()
+        else
+            Result.retry()
     }
 
 }
