@@ -6,13 +6,10 @@ package at.bitfire.icsdroid
 
 import android.accounts.Account
 import android.annotation.SuppressLint
-import android.content.ContentProviderClient
 import android.content.Context
-import android.provider.CalendarContract
 import android.util.Log
 import androidx.work.*
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.db.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -92,22 +89,18 @@ class SyncWorker(
     @SuppressLint("Recycle")
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
-        applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
-            try {
-                return withContext(Dispatchers.Default) {
-                    performSync(AppAccount.get(applicationContext), providerClient, forceResync)
-                }
-            } finally {
-                providerClient.closeCompat()
-            }
+
+        withContext(Dispatchers.Default) {
+            performSync(AppAccount.get(applicationContext), forceResync)
         }
+
         return if (runAttemptCount >= MAX_ATTEMPTS)
             Result.failure()
         else
             Result.retry()
     }
 
-    private suspend fun performSync(account: Account, provider: ContentProviderClient, forceResync: Boolean): Result {
+    private suspend fun performSync(account: Account, forceResync: Boolean): Result {
         Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             AppDatabase.getInstance(applicationContext)
