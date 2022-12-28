@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid
 
 import android.accounts.Account
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.work.*
@@ -85,8 +84,6 @@ class SyncWorker(
 
     }
 
-
-    @SuppressLint("Recycle")
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
 
@@ -100,7 +97,13 @@ class SyncWorker(
             Result.retry()
     }
 
-    private suspend fun performSync(account: Account, forceResync: Boolean): Result {
+    /**
+     * Fecthes all the subscriptions from the database, and runs [ProcessEventsTask] on each of them.
+     * @since 20221228
+     * @param account The owner account of the subscriptions.
+     * @param forceResync Enforces that the calendar is fetched and all events are fully processed (useful when subscription settings have been changed).
+     */
+    private suspend fun performSync(account: Account, forceResync: Boolean) {
         Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             AppDatabase.getInstance(applicationContext)
@@ -114,8 +117,6 @@ class SyncWorker(
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
         }
-
-        return Result.success()
     }
 
 }
