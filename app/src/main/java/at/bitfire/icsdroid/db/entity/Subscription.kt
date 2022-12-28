@@ -207,6 +207,40 @@ data class Subscription(
             .getEventByUid(id, uid)
 
     /**
+     * Adds all the given events to the database.
+     *
+     * **This doesn't add the event to the system's calendar.**
+     * @author Arnau Mora
+     * @since 20221228
+     * @param context The context that is making the request.
+     * @param events All the events to be added.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun addNewEvent(context: Context, vararg events: SubscriptionEvent) =
+        AppDatabase.getInstance(context)
+            .eventsDao()
+            .add(*events)
+
+    /**
+     * Updates all the given events in the database.
+     *
+     * **This doesn't update the event in the system's calendar.**
+     * @author Arnau Mora
+     * @since 20221228
+     * @param context The context that is making the request.
+     * @param events All the events to be updated.
+     * @throws SQLException If any error occurs with the update.
+     */
+    @WorkerThread
+    @Throws(SQLException::class)
+    suspend fun updateEvents(context: Context, vararg events: SubscriptionEvent) =
+        AppDatabase.getInstance(context)
+            .eventsDao()
+            .update(*events)
+
+    /**
      * Provides an [AndroidCalendar] from the current subscription.
      * @author Arnau Mora
      * @since 20221227
