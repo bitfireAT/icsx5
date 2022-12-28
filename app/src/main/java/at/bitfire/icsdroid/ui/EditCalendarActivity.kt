@@ -6,7 +6,6 @@ package at.bitfire.icsdroid.ui
 
 import android.Manifest
 import android.app.Application
-import android.content.ContentUris
 import android.content.pm.PackageManager
 import android.database.SQLException
 import android.net.Uri
@@ -35,6 +34,7 @@ import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.utils.getSerializableCompat
 import kotlinx.coroutines.Job
 import java.io.FileNotFoundException
 
@@ -102,7 +102,7 @@ class EditCalendarActivity : AppCompatActivity() {
             }
 
             intent.getStringExtra(ERROR_MESSAGE)?.let { error ->
-                AlertFragment.create(error, intent.getSerializableExtra(THROWABLE) as? Throwable)
+                AlertFragment.create(error, intent.getSerializableCompat(THROWABLE, Throwable::class))
                     .show(supportFragmentManager, null)
             }
         }

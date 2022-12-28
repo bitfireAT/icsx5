@@ -5,9 +5,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.app.Dialog
-import android.os.Build
 import android.os.Bundle
-import androidx.core.app.BundleCompat
 import androidx.core.app.ShareCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
@@ -47,7 +45,7 @@ class AlertFragment : DialogFragment() {
                     ex.printStackTrace(PrintWriter(details))
                 }
 
-                val share = ShareCompat.IntentBuilder.from(requireActivity())
+                val share = ShareCompat.IntentBuilder(requireContext())
                     .setType("text/plain")
                     .setText(details.toString())
                     .createChooserIntent()
