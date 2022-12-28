@@ -7,6 +7,7 @@ package at.bitfire.icsdroid
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.database.SQLException
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -59,6 +60,15 @@ class ProcessEventsTask(
             subscription.insertColors(context)
 
             processEvents()
+        } catch (e: SQLException) {
+            Log.e(Constants.TAG, "Couldn't update calendar colors.", e)
+            subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
+        } catch (e: IllegalArgumentException) {
+            Log.e(Constants.TAG, "The context given doesn't have a valid content provider.", e)
+            subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
+        } catch (e: MalformedURLException) {
+            Log.e(Constants.TAG, "The url of the subscription (${subscription.url}) is malformed.")
+            subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
             subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
@@ -101,15 +111,18 @@ class ProcessEventsTask(
         }
     }
 
+    /**
+     * Fetches all the events from the calendar's server, and processes them.
+     * @since 20221228
+     * @throws MalformedURLException If the url of the subscription is malformed.
+     */
+    @Throws(MalformedURLException::class)
     private suspend fun processEvents() {
-        val uri =
-            try {
-                Uri.parse(subscription.url)
-            } catch (e: MalformedURLException) {
-                Log.e(Constants.TAG, "Invalid calendar URL", e)
-                subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
-                return
-            }
+        val uri = try {
+            Uri.parse(subscription.url)
+        } catch (e: MalformedURLException) {
+            throw MalformedURLException("Invalid calendar URL")
+        }
         Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
