@@ -59,7 +59,7 @@ class ProcessEventsTask(
             // provide iCalendar event color values to Android
             subscription.insertColors(context)
 
-            processEvents()
+            fetchAndProcessEvents()
         } catch (e: SQLException) {
             Log.e(Constants.TAG, "Couldn't update calendar colors.", e)
             subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
@@ -115,9 +115,10 @@ class ProcessEventsTask(
      * Fetches all the events from the calendar's server, and processes them.
      * @since 20221228
      * @throws MalformedURLException If the url of the subscription is malformed.
+     * @see processEvents
      */
     @Throws(MalformedURLException::class)
-    private suspend fun processEvents() {
+    private suspend fun fetchAndProcessEvents() {
         val uri = try {
             Uri.parse(subscription.url)
         } catch (e: MalformedURLException) {
