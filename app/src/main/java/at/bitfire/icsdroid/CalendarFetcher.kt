@@ -72,33 +72,27 @@ open class CalendarFetcher(
     var inForeground = false
 
     /**
-     * Fetches the data from the [uri] given.
+     * Fetches the data from the [uri] given. Awaits until the fetch is completed. Errors are thrown through [onError].
      * @since 20221228
      */
     @WorkerThread
     suspend fun fetch() {
-        if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
-            try {
+        try {
+            if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
                 fetchNetwork()
-            } catch (e: HttpServerException) {
-                onError(e)
-            } catch (e: HttpInvalidResponseException) {
-                onError(e)
-            }
-        else
-            try {
+            else
                 fetchLocal()
-            } catch (e: FileNotFoundException) {
-                // file not there (anymore)
-                onError(FileNotFoundException(context.getString(R.string.could_not_open_storage_file)))
-            } catch (e: SecurityException) {
-                // no access to file (anymore)
-                onError(SecurityException(context.getString(R.string.could_not_open_storage_file), e))
-            } catch (e: Exception) {
-                // other error
-                Log.e(Constants.TAG, "Couldn't open SAF document", e)
-                onError(e)
-            }
+        } catch (e: FileNotFoundException) {
+            // file not there (anymore)
+            onError(FileNotFoundException(context.getString(R.string.could_not_open_storage_file)))
+        } catch (e: SecurityException) {
+            // no access to file (anymore)
+            onError(SecurityException(context.getString(R.string.could_not_open_storage_file), e))
+        } catch (e: Exception) {
+            // other error
+            Log.e(Constants.TAG, "Couldn't open SAF document", e)
+            onError(e)
+        }
     }
 
     /**
