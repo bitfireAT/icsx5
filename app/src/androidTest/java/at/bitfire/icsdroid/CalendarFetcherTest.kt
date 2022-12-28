@@ -9,7 +9,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
-import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType
@@ -55,9 +54,8 @@ class CalendarFetcherTest {
 
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
-                data.close()
+            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+                data.use { ical = IOUtils.toString(it, Charsets.UTF_8) }
             }
         }
         runBlocking {
@@ -90,11 +88,12 @@ class CalendarFetcherTest {
         var etag: String? = null
         var lastmod: Long? = null
         val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
-                etag = eTag
-                lastmod = lastModified
-                data.close()
+            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+                data.use {
+                    ical = IOUtils.toString(it, Charsets.UTF_8)
+                    etag = eTag
+                    lastmod = lastModified
+                }
             }
         }
         runBlocking {
@@ -132,9 +131,8 @@ class CalendarFetcherTest {
                 redirects += target
                 super.onRedirect(httpCode, target)
             }
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
-                data.close()
+            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+                data.use { ical = IOUtils.toString(it, Charsets.UTF_8) }
             }
         }
         runBlocking {
@@ -165,7 +163,7 @@ class CalendarFetcherTest {
         var e: Exception? = null
         runBlocking {
             object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-                override fun onError(error: Exception) {
+                override suspend fun onError(error: Exception) {
                     e = error
                 }
             }.fetch()
@@ -182,7 +180,7 @@ class CalendarFetcherTest {
         var notModified = false
         runBlocking {
             object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-                override fun onNotModified() {
+                override suspend fun onNotModified() {
                     notModified = true
                 }
             }.fetch()
@@ -199,7 +197,7 @@ class CalendarFetcherTest {
         var e: Exception? = null
         runBlocking {
             object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-                override fun onError(error: Exception) {
+                override suspend fun onError(error: Exception) {
                     e = error
                 }
             }.fetch()
