@@ -19,7 +19,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import at.bitfire.ical4android.*
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
-import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
 import java.io.FileNotFoundException
@@ -301,6 +301,7 @@ data class Subscription(
     @WorkerThread
     @Throws(IllegalArgumentException::class, CalendarStorageException::class)
     private fun androidRetainByUid(context: Context, uids: MutableSet<String>): Int {
+        Log.v(TAG, "Removing all events whose uid is not in: $uids")
         val provider = getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
@@ -313,6 +314,7 @@ data class Subscription(
                     val eventId = row.getLong(0)
                     val syncId = row.getString(1)
                     if (!uids.contains(syncId)) {
+                        Log.v(TAG, "Removing event with id $syncId.")
                         provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
                         deleted++
 
@@ -322,7 +324,7 @@ data class Subscription(
             }
             return deleted
         } catch (e: RemoteException) {
-            Log.e(Constants.TAG, "Could not delete local events.", e)
+            Log.e(TAG, "Could not delete local events.", e)
             throw CalendarStorageException("Couldn't delete local events")
         }
     }
