@@ -329,7 +329,17 @@ data class Subscription(
         }
     }
 
-    fun queryAndroidEventById(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+    /**
+     * Queries an Android Event from the System's Calendar by its uid.
+     * @author Arnau Mora
+     * @since 20221230
+     * @param context The context that is making the request.
+     * @param uid The uid of the event.
+     * @throws FileNotFoundException If the subscription still not has a Calendar in the system.
+     * @throws NullPointerException If a provider could not be obtained from the [context].
+     */
+    @Throws(FileNotFoundException::class, NullPointerException::class)
+    fun queryAndroidEventByUid(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
     fun add(context: Context) = AndroidCalendar.create(
         account,
