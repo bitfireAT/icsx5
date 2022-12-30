@@ -84,7 +84,6 @@ class EditCalendarActivity : AppCompatActivity() {
         binding.model = model
 
         if (inState == null) {
-            // TODO: Remove permissions check
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
             ) {

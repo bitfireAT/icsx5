@@ -107,8 +107,6 @@ class SyncWorker(
                 .filter { it.isSynced }
                 .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
-            // TODO: Remove all calendars from system that have been removed from database
-
             return Result.success()
         } catch (e: CalendarStorageException) {
             Log.e(Constants.TAG, "Calendar storage exception", e)
