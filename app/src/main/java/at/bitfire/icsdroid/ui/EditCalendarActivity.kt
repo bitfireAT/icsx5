@@ -35,6 +35,7 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.utils.getSerializableCompat
+import at.bitfire.icsdroid.utils.toast
 import kotlinx.coroutines.Job
 import java.io.FileNotFoundException
 
@@ -218,11 +219,9 @@ class EditCalendarActivity : AppCompatActivity() {
     private fun onDelete() {
         model.delete().invokeOnCompletion { error ->
             error?.let { Log.e(Constants.TAG, "Could not delete subscription.", it) }
-            Toast.makeText(
-                this,
-                getString(if (error != null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            blockingUi {
+                toast(if (error != null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed)
+            }
             finish()
         }
     }
