@@ -199,11 +199,9 @@ class EditCalendarActivity : AppCompatActivity() {
     fun onSave(item: MenuItem?) {
         model.save(titleColorModel, credentialsModel).invokeOnCompletion { err ->
             err?.let { Log.e(Constants.TAG, "Could not save changes.", err) }
-            Toast.makeText(
-                this,
-                getString(if (err != null) R.string.edit_calendar_saved else R.string.edit_calendar_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            blockingUi {
+                toast(if (err == null) R.string.edit_calendar_saved else R.string.edit_calendar_failed)
+            }
 
             finish()
         }
@@ -220,7 +218,7 @@ class EditCalendarActivity : AppCompatActivity() {
         model.delete().invokeOnCompletion { error ->
             error?.let { Log.e(Constants.TAG, "Could not delete subscription.", it) }
             blockingUi {
-                toast(if (error != null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed)
+                toast(if (error == null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed)
             }
             finish()
         }
