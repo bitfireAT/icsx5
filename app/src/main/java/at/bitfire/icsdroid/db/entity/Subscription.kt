@@ -341,7 +341,8 @@ data class Subscription(
     @Throws(FileNotFoundException::class, NullPointerException::class)
     fun queryAndroidEventByUid(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
 
-    fun add(context: Context) = AndroidCalendar.create(
+    @WorkerThread
+    fun addAndroidEvent(context: Context) = AndroidCalendar.create(
         account,
         getProvider(context)!!,
         contentValuesOf(
