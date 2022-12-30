@@ -94,6 +94,9 @@ class AddCalendarDetailsFragment : Fragment() {
                 .subscriptionsDao()
                 .add(subscription)
 
+            Log.v(TAG, "Adding subscription to system...")
+            subscription.add(requireContext())
+
             ui {
                 Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
                 requireActivity().invalidateOptionsMenu()
