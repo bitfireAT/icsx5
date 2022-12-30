@@ -358,6 +358,23 @@ data class Subscription(
         ),
     )
 
+    /**
+     * Deletes the Android calendar associated with this subscription.
+     * @author Arnau Mora
+     * @since 20221230
+     * @param context The context making the request.
+     * @return The number of rows affected, or null if the [context] given doesn't have a valid
+     * provider.
+     * @throws RemoteException If there's an error while making the request.
+     */
+    @WorkerThread
+    @Throws(RemoteException::class)
+    fun deleteAndroidEvent(context: Context) = getProvider(context)?.delete(
+        Calendars.CONTENT_URI.asSyncAdapter(account),
+        "${Calendars._ID}=?",
+        arrayOf(id.toString()),
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
