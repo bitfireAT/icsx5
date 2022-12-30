@@ -58,7 +58,10 @@ data class Subscription(
     val ignoreEmbeddedAlerts: Boolean = false,
     val defaultAlarmMinutes: Long? = null,
 
-    val color: Int? = null
+    val color: Int? = null,
+
+    val isSynced: Boolean = true,
+    val isVisible: Boolean = true,
 ) {
     companion object {
         /**
@@ -80,10 +83,6 @@ data class Subscription(
 
     @Ignore
     val account = Account(accountName, accountType)
-
-    // TODO: Update accordingly
-    var isSynced = true
-    var isVisible = true
 
     /**
      * Gets a [LiveData] that gets updated with the error message of the given subscription.
@@ -353,8 +352,8 @@ data class Subscription(
             Calendars.CALENDAR_DISPLAY_NAME to displayName,
             Calendars.CALENDAR_COLOR to color,
             Calendars.OWNER_ACCOUNT to account.name,
-            Calendars.SYNC_EVENTS to 1,
-            Calendars.VISIBLE to 1,
+            Calendars.SYNC_EVENTS to if (syncEvents) 1 else 0,
+            Calendars.VISIBLE to if (isVisible) 1 else 0,
             Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
         ),
     )
