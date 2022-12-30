@@ -3,11 +3,7 @@ package at.bitfire.icsdroid.db.dao
 import android.database.SQLException
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 
@@ -127,7 +123,7 @@ interface SubscriptionsDao {
      * @throws SQLException If any error occurs with the update.
      */
     @WorkerThread
-    @Query("UPDATE subscriptions SET eTag=:eTag AND lastModified=:lastModified AND lastSync=:lastSync AND errorMessage=null WHERE id=:id")
+    @Query("UPDATE subscriptions SET eTag=:eTag, lastModified=:lastModified, lastSync=:lastSync, errorMessage=null WHERE id=:id")
     @Throws(SQLException::class)
     suspend fun updateStatusSuccess(id: Long, eTag: String?, lastModified: Long, lastSync: Long = System.currentTimeMillis())
 
