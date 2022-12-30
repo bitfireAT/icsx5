@@ -62,5 +62,5 @@ data class SubscriptionEvent(
      */
     @WorkerThread
     @Throws(IllegalArgumentException::class, NullPointerException::class)
-    suspend fun event(context: Context): SubscriptionAndroidEvent? = subscription(context).queryAndroidEventById(context, uid).firstOrNull()
+    suspend fun event(context: Context): SubscriptionAndroidEvent? = subscription(context).queryAndroidEventByUid(context, uid).firstOrNull()
 }
