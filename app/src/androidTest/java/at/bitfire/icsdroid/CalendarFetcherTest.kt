@@ -9,6 +9,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
+import at.bitfire.icsdroid.exceptions.HttpInvalidResponseException
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType
@@ -155,7 +156,7 @@ class CalendarFetcherTest {
         assertEquals("icalCorrect", ical)
     }
 
-    @Test
+    @Test(expected = HttpInvalidResponseException::class)
     fun testFetchNetwork_onRedirectWithoutLocation() {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
@@ -169,7 +170,7 @@ class CalendarFetcherTest {
             }.fetch()
         }
 
-        assertEquals(IOException::class.java, e?.javaClass)
+        throw e!!
     }
 
     @Test
