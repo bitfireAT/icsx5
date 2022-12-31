@@ -5,7 +5,8 @@ buildscript {
         okhttp: '5.0.0-alpha.10',
         ksp: '1.0.7',
         room: '2.4.3',
-        compose : '1.3.2'
+        compose : '1.3.2',
+        composeBom: '2022.12.00'
     ]
 
     repositories {
