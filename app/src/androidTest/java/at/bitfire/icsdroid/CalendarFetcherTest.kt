@@ -189,7 +189,7 @@ class CalendarFetcherTest {
         assert(notModified)
     }
 
-    @Test
+    @Test(expected = IOException::class)
     fun testFetchNetwork_onError() {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
@@ -203,6 +203,6 @@ class CalendarFetcherTest {
             }.fetch()
         }
 
-        assertEquals(IOException::class.java, e?.javaClass)
+        throw e!!
     }
 }
