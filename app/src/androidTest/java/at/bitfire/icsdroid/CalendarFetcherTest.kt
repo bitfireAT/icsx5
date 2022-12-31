@@ -51,7 +51,7 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchLocal_readsCorrectly() {
-        val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.vienna_evolution}")
+        val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${testContext.packageName}/${R.raw.vienna_evolution}")
 
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
