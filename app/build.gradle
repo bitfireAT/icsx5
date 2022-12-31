@@ -44,6 +44,11 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = versions.compose
     }
 
     flavorDimensions "distribution"
