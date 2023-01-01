@@ -217,6 +217,7 @@ dependencies {
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    implementation "io.github.serpro69:kotlin-faker:${versions.faker}"
 
     testImplementation 'junit:junit:4.13.2'
 }
