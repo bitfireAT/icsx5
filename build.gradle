@@ -6,7 +6,9 @@ buildscript {
         ksp: '1.0.7',
         room: '2.4.3',
         compose : '1.3.2',
-        composeBom: '2022.12.00'
+        composeBom: '2022.12.00',
+        accompanist: '0.28.0',
+        faker: '1.13.0'
     ]
 
     repositories {
