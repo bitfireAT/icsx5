@@ -9,6 +9,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
+import at.bitfire.icsdroid.exceptions.HttpInvalidResponseException
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType
@@ -50,7 +51,7 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchLocal_readsCorrectly() {
-        val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.vienna_evolution}")
+        val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${testContext.packageName}/${R.raw.vienna_evolution}")
 
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
@@ -155,7 +156,7 @@ class CalendarFetcherTest {
         assertEquals("icalCorrect", ical)
     }
 
-    @Test
+    @Test(expected = HttpInvalidResponseException::class)
     fun testFetchNetwork_onRedirectWithoutLocation() {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
@@ -169,7 +170,7 @@ class CalendarFetcherTest {
             }.fetch()
         }
 
-        assertEquals(IOException::class.java, e?.javaClass)
+        throw e!!
     }
 
     @Test
@@ -189,7 +190,7 @@ class CalendarFetcherTest {
         assert(notModified)
     }
 
-    @Test
+    @Test(expected = IOException::class)
     fun testFetchNetwork_onError() {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
@@ -203,6 +204,6 @@ class CalendarFetcherTest {
             }.fetch()
         }
 
-        assertEquals(IOException::class.java, e?.javaClass)
+        throw e!!
     }
 }

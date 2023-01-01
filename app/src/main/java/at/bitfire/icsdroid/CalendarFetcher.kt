@@ -170,11 +170,13 @@ open class CalendarFetcher(
      *
      * Network exceptions:
      * - [HttpServerException]: When the server has given an error response.
-     * - [HttpInvalidResponseException]: When a redirection response given by the server is not valid. This is a redirection without the `Location` header.
+     * - [HttpInvalidResponseException]: When a redirection response given by the server is not valid. This is a
+     * redirection without the `Location` header.
      *
      * Local file exceptions:
      * - [FileNotFoundException]: When the file selected doesn't exist.
      * - [SecurityException]: When there's no longer access to the file selected.
+     * - [IllegalStateException]: If the content resolver returned a `null` [InputStream] for the given [uri].
      * @since 20221228
      * @param error The exception thrown.
      */
@@ -187,9 +189,10 @@ open class CalendarFetcher(
      * @since 20221228
      * @throws FileNotFoundException When the file selected doesn't exist.
      * @throws SecurityException When there's no longer access to the file selected.
+     * @throws IllegalStateException If the content resolver returned a `null` [InputStream] for the given [uri].
      */
     @WorkerThread
-    @Throws(FileNotFoundException::class, SecurityException::class)
+    @Throws(FileNotFoundException::class, SecurityException::class, IllegalStateException::class)
     private suspend fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
 
@@ -210,7 +213,7 @@ open class CalendarFetcher(
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
             onSuccess(inputStream, null, null, null, displayName)
-        }
+        } ?: throw IllegalStateException("Could not open input stream for the given URI.")
     }
 
     /**
