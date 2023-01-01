@@ -6,7 +6,7 @@
     <color name="redorange">#ff2200</color>
     
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/lightblue</item>
         <item name="colorPrimaryDark">@color/darkblue</item>
         <item name="colorSecondary">@color/redorange</item>
