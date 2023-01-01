@@ -22,7 +22,9 @@ import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
+import io.github.serpro69.kfaker.Faker
 import java.io.FileNotFoundException
+import kotlin.random.Random
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -79,6 +81,18 @@ data class Subscription(
          * @return The [ContentProviderClient] that provides an interface with the system's calendar.
          */
         fun getProvider(context: Context) = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+
+        val mock: Subscription
+            get() = Faker().let { faker ->
+                Subscription(
+                    Random.nextLong(),
+                    url = "https://${faker.internet.domain()}/${faker.random.randomString(32)}",
+                    eTag = faker.random.randomString(32),
+                    displayName = faker.adjective.positive() + ' ' + faker.food.fruits(),
+                    accountName = faker.name.name(),
+                    accountType = faker.random.randomString(5),
+                )
+            }
     }
 
     @Ignore
