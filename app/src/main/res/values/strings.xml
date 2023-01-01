@@ -11,6 +11,7 @@
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="permissions_required">Permissions required</string>
+    <string name="overflow">Menu options</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -34,6 +35,8 @@
     <string name="add_calendar_create">Subscribe now</string>
     <string name="add_calendar_created">Subscribed successfully</string>
     <string name="add_calendar_password">Password</string>
+    <string name="add_calendar_password_show">Show Password</string>
+    <string name="add_calendar_password_hide">Hide Password</string>
     <string name="add_calendar_requires_authentication">Requires authentication</string>
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
@@ -52,7 +55,13 @@
     <string name="default_alarm_dialog_message">This will add an alarm for all events</string>
     <string name="default_alarm_dialog_hint">Minutes before event</string>
     <string name="default_alarm_dialog_set">Set</string>
+    <string name="default_alarm_dialog_cancel">Cancel</string>
     <string name="default_alarm_dialog_error">Introduce a valid number</string>
+
+    <string name="color_dialog_select">Select</string>
+    <string name="color_dialog_custom">Custom</string>
+    <string name="color_dialog_dynamic">Dynamic Colors</string>
+    <string name="color_dialog_material">Material Colors</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>
@@ -70,6 +79,7 @@
     <string name="edit_calendar_send_url">Send URL</string>
     <string name="edit_calendar_sync_this_calendar">Synchronize this calendar</string>
     <string name="edit_calendar_unsaved_changes">There are unsaved changes.</string>
+    <string name="edit_calendar_options">More options</string>
 
     <!-- synchronization -->
     <string name="sync_error_title">Synchronization error</string>
