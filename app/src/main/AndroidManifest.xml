@@ -67,13 +67,17 @@
         </service>
 
         <activity
-            android:name=".ui.CalendarListActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.CalendarListActivity"
+            android:exported="true" />
         <activity
             android:name=".ui.AddCalendarActivity"
             android:label="@string/activity_add_calendar"
