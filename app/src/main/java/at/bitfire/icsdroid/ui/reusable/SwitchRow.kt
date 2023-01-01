@@ -30,7 +30,7 @@ fun SwitchRow(title: String, subtitle: String? = null, checked: Boolean, onCheck
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
             )
             subtitle?.let {
                 Text(
