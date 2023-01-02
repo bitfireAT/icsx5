@@ -9,7 +9,6 @@ import kotlinx.coroutines.*
 /**
  * Runs the code in [block] asynchronously, in the IO thread.
  * @author Arnau Mora
- * @since 20221227
  * @param block The block of code to be run.
  * @return A job that notifies about the result of the work.
  */
@@ -18,7 +17,6 @@ fun doAsync(@WorkerThread block: suspend CoroutineScope.() -> Unit) = CoroutineS
 /**
  * Runs the code in [block] in the UI thread.
  * @author Arnau Mora
- * @since 20221227
  * @param block The block of code to be run.
  * @return The result of [block].
  */
@@ -27,7 +25,6 @@ suspend fun <T> ui(@UiThread block: suspend CoroutineScope.() -> T): T = withCon
 /**
  * Runs the code in [block] in the UI thread, blocking the current thread.
  * @author Arnau Mora
- * @since 20221230
  * @param block The block of code to be run.
  * @return The result of [block].
  */
@@ -36,7 +33,6 @@ fun <T> blockingUi(@UiThread block: suspend CoroutineScope.() -> T): T = runBloc
 /**
  * Runs the given block of code in the IO thread using the view model scope ([ViewModel.viewModelScope]).
  * @author Arnau Mora
- * @since 20221227
  * @param block The block of code to be run.
  * @return A job that notifies about the result of the work.
  */

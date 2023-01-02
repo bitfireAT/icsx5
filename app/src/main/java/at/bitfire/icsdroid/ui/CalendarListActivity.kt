@@ -45,26 +45,22 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
     companion object {
         /**
          * Represents one day in seconds.
-         * @since 20221225
          */
         const val ONE_DAY = 86400
     }
 
     /**
      * The ViewModel used for doing background work, and watching subscriptions.
-     * @since 20221225
      */
     private val model by viewModels<CalendarModel>()
 
     /**
      * Stores the view binding of the activity.
-     * @since 20221225
      */
     private lateinit var binding: CalendarListActivityBinding
 
     /**
      * Stores the snackbar currently being shown.
-     * @since 20221225
      */
     private var snackBar: Snackbar? = null
 
@@ -215,7 +211,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
     /**
      * Provides a list adapter for the subscriptions list.
-     * @since 20221225
      */
     inner class SubscriptionListAdapter : ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<Subscription>() {
         override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription): Boolean =
@@ -225,7 +220,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
     }) {
         /**
          * Will get invoked when an item is clicked. Provides the subscription tapped.
-         * @since 20221225
          */
         var clickListener: ((subscription: Subscription) -> Unit)? = null
 
@@ -270,7 +264,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
     /**
      * Data model for this view. Updates calendar subscriptions in real-time.
-     * @since 20221225
      */
     class CalendarModel(
         application: Application
@@ -278,14 +271,12 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
         /**
          * A reference to the instance of the Room database.
-         * @since 20221227
          */
         private val database = AppDatabase.getInstance(application)
 
         /**
          * Gets updated with the results of the permissions check. If the array is empty, it means that no permissions shall be asked for. Otherwise, the user
          * must be requested all the permissions given.
-         * @since 20221225
          * @see checkPermissions
          */
         val requiredPermissions: MutableLiveData<Array<String>> = MutableLiveData(emptyArray())
@@ -297,7 +288,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
         /**
          * Provides a LiveData that gets updated with all the subscriptions made in the database.
-         * @since 20221225
          */
         val subscriptions = database.subscriptionsDao().getAllLive()
 
@@ -305,7 +295,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
          * Checks if all the required permissions are granted. This includes:
          * - Notification permission (API 33+)
          * Updates [requiredPermissions] with the result of the check.
-         * @since 20221225
          * @see requiredPermissions
          */
         fun checkPermissions() {

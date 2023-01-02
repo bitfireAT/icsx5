@@ -13,13 +13,11 @@ import at.bitfire.icsdroid.R
 
 /**
  * Provides some utilities for notifications.
- * @since 20221228
  */
 object NotificationUtils {
 
     /**
      * The name of the sync channel.
-     * @since 20221228
      */
     const val CHANNEL_SYNC = "sync"
 
@@ -28,7 +26,6 @@ object NotificationUtils {
 
     /**
      * Contains the [PendingIntent.FLAG_IMMUTABLE] on SDK level 23+.
-     * @since 20221228
      */
     val flagImmutableCompat: Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -39,7 +36,6 @@ object NotificationUtils {
 
     /**
      * Creates all the required notification channels.
-     * @since 20221228
      * @param context The context that is making the request.
      * @return A reference to the [NotificationManager].
      */

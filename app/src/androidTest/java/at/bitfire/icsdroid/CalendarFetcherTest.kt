@@ -159,16 +159,13 @@ class CalendarFetcherTest {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
 
-        var e: Exception? = null
         runBlocking {
             object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
                 override suspend fun onError(error: Exception) {
-                    e = error
+                    throw error
                 }
             }.fetch()
         }
-
-        throw e!!
     }
 
     @Test
@@ -193,15 +190,12 @@ class CalendarFetcherTest {
         server.enqueue(MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
 
-        var e: Exception? = null
         runBlocking {
             object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
                 override suspend fun onError(error: Exception) {
-                    e = error
+                    throw error
                 }
             }.fetch()
         }
-
-        throw e!!
     }
 }

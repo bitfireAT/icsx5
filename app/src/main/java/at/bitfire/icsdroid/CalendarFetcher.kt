@@ -27,38 +27,34 @@ import java.util.*
 
 /**
  * Provides an utility for fetching the events data from a server's or local uri.
- * @since 20221228
  * @param context The context that is making the request.
  * @param uri The target uri to make the request to. Supports servers (http/https) or local files.
  */
+@WorkerThread
 open class CalendarFetcher(
     val context: Context,
-    var uri: Uri,
+    var uri: Uri
 ) {
 
     companion object {
         /**
          * The MIME type that accepts calendar or other types.
-         * @since 20221228
          */
         const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
 
         /**
          * The maximum redirection count allowed. When reached, [CalendarFetcher.onError] will throw [MaxRedirectCountException].
-         * @since 20221228
          */
         const val MAX_REDIRECT_COUNT = 5
     }
 
     /**
      * Stores the amount of redirections made.
-     * @since 20221228
      */
     private var redirectCount = 0
 
     /**
      * Stores if the redirection made is temporal or permanent.
-     * @since 20221228
      */
     private var hasFollowedTempRedirect = false
 
@@ -71,10 +67,10 @@ open class CalendarFetcher(
     var inForeground = false
 
     /**
-     * Fetches the data from the [uri] given. Awaits until the fetch is completed. Errors are thrown through [onError].
-     * @since 20221228
+     * Fetches the data from the [uri] given.
+     *
+     * In case of an error, [onError] is called.
      */
-    @WorkerThread
     suspend fun fetch() {
         try {
             if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
@@ -96,7 +92,6 @@ open class CalendarFetcher(
 
     /**
      * Gets called when the data has been successfully fetched.
-     * @since 20221228
      * @param data The data read from the target uri. You can use a [InputStreamReader] together
      *             with [Event.eventsFromReader] to process the events. You don't need to close this stream.
      * @param contentType The [MediaType] of the result. Only available when fetching from remote server.
@@ -104,29 +99,23 @@ open class CalendarFetcher(
      * @param lastModified The last modification timestamp header. Only available when fetching from remote server.
      * @param displayName The display name of the file. Only available when fetching from local file.
      */
-    @WorkerThread
     open suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
     /**
      * Gets called when fetching a server, and it returns a `HTTP_NOT_MODIFIED` result.
-     * @since 20221228
      */
-    @WorkerThread
     open suspend fun onNotModified() {
     }
 
     /**
      * Called when the server gives a redirection response.
-     * @since 20221228
      * @param httpCode The response code that the server has given.
      * @param target The target uri the server is requesting a redirection to.
      * @throws MaxRedirectCountException When the redirection count has reached [MAX_REDIRECT_COUNT].
      * @throws IOSecurityException When there's a redirection from https to http.
      * @see onNewPermanentUrl
      */
-    @WorkerThread
-    @Throws(MaxRedirectCountException::class, IOSecurityException::class)
     open suspend fun onRedirect(httpCode: Int, target: Uri) {
         Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
@@ -158,10 +147,8 @@ open class CalendarFetcher(
 
     /**
      * Called when received a permanent redirection.
-     * @since 20221228
      * @param target The target uri the redirection is targeting to.
      */
-    @WorkerThread
     open suspend fun onNewPermanentUrl(target: Uri) {
     }
 
@@ -177,22 +164,17 @@ open class CalendarFetcher(
      * - [FileNotFoundException]: When the file selected doesn't exist.
      * - [SecurityException]: When there's no longer access to the file selected.
      * - [IllegalStateException]: If the content resolver returned a `null` [InputStream] for the given [uri].
-     * @since 20221228
      * @param error The exception thrown.
      */
-    @WorkerThread
     open suspend fun onError(error: Exception) {
     }
 
     /**
      * Fetch the file with Android SAF. Calls [onSuccess] when finished.
-     * @since 20221228
      * @throws FileNotFoundException When the file selected doesn't exist.
      * @throws SecurityException When there's no longer access to the file selected.
      * @throws IllegalStateException If the content resolver returned a `null` [InputStream] for the given [uri].
      */
-    @WorkerThread
-    @Throws(FileNotFoundException::class, SecurityException::class, IllegalStateException::class)
     private suspend fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
 
@@ -218,12 +200,9 @@ open class CalendarFetcher(
 
     /**
      * Fetch the file over network.
-     * @since 20221228
      * @throws HttpServerException When the server has given an error response.
      * @throws HttpInvalidResponseException When a redirection response given by the server is not valid. This is a redirection without the `Location` header.
      */
-    @WorkerThread
-    @Throws(HttpServerException::class, HttpInvalidResponseException::class)
     private suspend fun fetchNetwork() {
         Log.i(Constants.TAG, "Fetching remote file $uri")
         val request = Request.Builder()

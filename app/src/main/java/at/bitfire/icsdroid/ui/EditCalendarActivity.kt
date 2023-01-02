@@ -270,7 +270,6 @@ class EditCalendarActivity : AppCompatActivity() {
         /**
          * Saves the currently loaded subscription with the data of the given view models. Job may throw exceptions. Runs [SyncWorker].
          * @author Arnau Mora
-         * @since 20221227
          * @param titleColorModel The view model containing all the changes made.
          * @param credentialsModel The view model for storing the subscription's credentials.
          * @return A [Job] that keeps track of the task's progress.
@@ -303,7 +302,6 @@ class EditCalendarActivity : AppCompatActivity() {
         /**
          * Deletes the currently loaded subscription. Job may throw exceptions
          * @author Arnau Mora
-         * @since 20221227
          * @return A [Job] that keeps track of the task's progress.
          * @throws IllegalStateException If there isn't any loaded subscription ([subscription] is null).
          * @throws SQLException If there's any issue while updating the database.

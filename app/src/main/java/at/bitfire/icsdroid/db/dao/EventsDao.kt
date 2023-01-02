@@ -16,30 +16,25 @@ interface EventsDao {
      *
      * **This doesn't add the event to the system's calendar.**
      * @author Arnau Mora
-     * @since 20221227
      * @param events All the events to be added.
      * @throws SQLException If any error occurs with the request.
      */
     @Insert
     @WorkerThread
-    @Throws(SQLException::class)
     suspend fun add(vararg events: SubscriptionEvent)
 
     /**
      * Gets a list of all the available events.
      * @author Arnau Mora
-     * @since 20221224
      * @return A list of all the events stored in the database.
      */
     @WorkerThread
     @Query("SELECT * FROM events")
-    @Throws(SQLException::class)
     suspend fun getEvents(): List<SubscriptionEvent>
 
     /**
      * Queries a [SubscriptionEvent] from its [SubscriptionEvent.uid].
      * @author Arnau Mora
-     * @since 20221224
      * @param subscriptionId The id of the subscription that the event belongs to.
      * @param uid The uid of the event.
      * @return `null` if the event was not found, otherwise, the event requested is returned.
@@ -47,20 +42,17 @@ interface EventsDao {
      */
     @WorkerThread
     @Query("SELECT * FROM events WHERE uid=:uid AND subscriptionId=:subscriptionId LIMIT 1")
-    @Throws(SQLException::class)
     suspend fun getEventByUid(subscriptionId: Long, uid: String): SubscriptionEvent?
 
     /**
      * Removes all the events from the given subscription that are not in the [uids] list provided.
      * @author Arnau Mora
-     * @since 20221227
      * @param subscriptionId The id of the parent subscription.
      * @param uids The list of uids to retain.
      * @throws SQLException If any error occurs with the update.
      */
     @WorkerThread
     @Query("DELETE FROM events WHERE subscriptionId=:subscriptionId AND uid NOT IN (:uids)")
-    @Throws(SQLException::class)
     suspend fun retainByUidFromSubscription(subscriptionId: Long, uids: Set<String>)
 
     /**
@@ -68,19 +60,16 @@ interface EventsDao {
      *
      * **This doesn't update the event in the system's calendar.**
      * @author Arnau Mora
-     * @since 20221227
      * @param events All the events to be updated.
      * @throws SQLException If any error occurs with the request.
      */
     @Update
     @WorkerThread
-    @Throws(SQLException::class)
     suspend fun update(vararg events: SubscriptionEvent)
 
     /**
      * Updates the [SubscriptionEvent.id] from its [Subscription.id] and [SubscriptionEvent.uid].
      * @author Arnau Mora
-     * @since 20221227
      * @param subscriptionId The id of the event's parent subscription.
      * @param uid The uid of the event to be updated.
      * @param id The new id to set to the event.
@@ -88,6 +77,5 @@ interface EventsDao {
      */
     @WorkerThread
     @Query("UPDATE events SET id=:id WHERE subscriptionId=:subscriptionId AND uid=:uid")
-    @Throws(SQLException::class)
     suspend fun updateId(subscriptionId: Long, uid: String, id: Long?)
 }

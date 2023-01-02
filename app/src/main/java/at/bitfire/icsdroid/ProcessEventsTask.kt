@@ -79,7 +79,6 @@ class ProcessEventsTask(
     /**
      * Updates the alarms of the given event according to the [subscription]'s [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
      * parameters.
-     * @since 20221208
      * @param event The event to update.
      * @return The given [event], with the alarms updated.
      */
@@ -113,11 +112,9 @@ class ProcessEventsTask(
 
     /**
      * Fetches all the events from the calendar's server, and processes them.
-     * @since 20221228
      * @throws MalformedURLException If the url of the subscription is malformed.
      * @see processEvents
      */
-    @Throws(MalformedURLException::class)
     private suspend fun fetchAndProcessEvents() {
         val uri = try {
             Uri.parse(subscription.url)
@@ -208,12 +205,10 @@ class ProcessEventsTask(
 
     /**
      * Processes all the given events.
-     * @since 20221227
      * @param events The list of events to be processed.
      * @param ignoreLastModified Whether to ignore the last modified date.
      * @throws IllegalArgumentException If there's a missing argument in the event being processed.
      */
-    @Throws(IllegalArgumentException::class)
     private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
         // events is the list of events fetched from the server.
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")

@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 /**
  * Makes a new toast, and shows it.
  * @author Arnau Mora
- * @since 20221230
  * @param textRes The resource string of the text to display.
  * @param duration The duration of the toast.
  * @return The toast being displayed.
@@ -19,14 +18,12 @@ import androidx.fragment.app.Fragment
  * @see Toast.LENGTH_LONG
  */
 @UiThread
-@Throws(NotFoundException::class)
 fun Context.toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT): Toast =
     Toast.makeText(this, textRes, duration).also { it.show() }
 
 /**
  * Makes a new toast, and shows it.
  * @author Arnau Mora
- * @since 20221230
  * @param text The text to display.
  * @param duration The duration of the toast.
  * @return The toast being displayed.
@@ -40,7 +37,6 @@ fun Context.toast(text: String, duration: Int = Toast.LENGTH_SHORT): Toast =
 /**
  * Makes a new toast, and shows it.
  * @author Arnau Mora
- * @since 20221230
  * @param textRes The resource string of the text to display.
  * @param duration The duration of the toast.
  * @return The toast being displayed.
@@ -50,14 +46,12 @@ fun Context.toast(text: String, duration: Int = Toast.LENGTH_SHORT): Toast =
  * @see Toast.LENGTH_LONG
  */
 @UiThread
-@Throws(NotFoundException::class, IllegalArgumentException::class)
 fun Fragment.toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT): Toast =
     Toast.makeText(requireContext(), textRes, duration).also { it.show() }
 
 /**
  * Makes a new toast, and shows it.
  * @author Arnau Mora
- * @since 20221230
  * @param text The text to display.
  * @param duration The duration of the toast.
  * @return The toast being displayed.
@@ -66,6 +60,5 @@ fun Fragment.toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT):
  * @see Toast.LENGTH_LONG
  */
 @UiThread
-@Throws(IllegalArgumentException::class)
 fun Fragment.toast(text: String, duration: Int = Toast.LENGTH_SHORT): Toast =
     Toast.makeText(requireContext(), text, duration).also { it.show() }

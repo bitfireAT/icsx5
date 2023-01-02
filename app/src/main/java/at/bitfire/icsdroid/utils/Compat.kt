@@ -8,7 +8,6 @@ import kotlin.reflect.KClass
 /**
  * Uses the correct method of [Bundle.getSerializable] according to the current SDK level.
  * @author Arnau Mora
- * @since 20221227
  * @param key A String, or null
  * @param kClass The expected class of the returned type
  * @return A Serializable value, or null
@@ -23,7 +22,6 @@ fun <T : java.io.Serializable> Bundle.getSerializableCompat(key: String?, kClass
 /**
  * Uses the correct method of [Intent.getSerializableExtra] according to the current SDK level.
  * @author Arnau Mora
- * @since 20221227
  * @param key A String, or null
  * @param kClass The expected class of the returned type
  * @return A Serializable value, or null

@@ -27,13 +27,11 @@ class SyncWorker(
 
         /**
          * The maximum number of attempts to make until considering the server as "unreachable".
-         * @since 20221212
          */
         private const val MAX_ATTEMPTS = 5
 
         /**
          * The amount of time (in seconds) to wait once the conditions are met, before launching the work.
-         * @since 20221214
          */
         private const val INITIAL_DELAY = 10L
 
@@ -94,7 +92,6 @@ class SyncWorker(
 
     /**
      * Fecthes all the subscriptions from the database, and runs [ProcessEventsTask] on each of them.
-     * @since 20221228
      * @param account The owner account of the subscriptions.
      * @param forceResync Enforces that the calendar is fetched and all events are fully processed (useful when subscription settings have been changed).
      */

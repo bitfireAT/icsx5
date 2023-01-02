@@ -11,7 +11,6 @@ import at.bitfire.icsdroid.db.entity.SubscriptionEvent
 
 /**
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
- * @since 20221206
  */
 @Database(entities = [Subscription::class, SubscriptionEvent::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
@@ -21,7 +20,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
          * Gets or instantiates a reference to the database's singleton.
-         * @since 20221216
          * @param context The application's context.
          * @return An instance of [AppDatabase].
          */
