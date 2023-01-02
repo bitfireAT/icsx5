@@ -10,8 +10,10 @@ class SubscriptionAndroidCalendar private constructor(
     provider: ContentProviderClient,
     id: Long,
 ): AndroidCalendar<SubscriptionAndroidEvent>(account, provider, SubscriptionAndroidEvent.Factory(), id) {
+
     class Factory: AndroidCalendarFactory<SubscriptionAndroidCalendar> {
         override fun newInstance(account: Account, provider: ContentProviderClient, id: Long): SubscriptionAndroidCalendar =
             SubscriptionAndroidCalendar(account, provider, id)
     }
+
 }

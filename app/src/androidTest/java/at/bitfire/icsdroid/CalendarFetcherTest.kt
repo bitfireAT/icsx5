@@ -56,7 +56,7 @@ class CalendarFetcherTest {
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                data.use { ical = IOUtils.toString(it, Charsets.UTF_8) }
+                ical = IOUtils.toString(data, Charsets.UTF_8)
             }
         }
         runBlocking {
@@ -90,11 +90,9 @@ class CalendarFetcherTest {
         var lastmod: Long? = null
         val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                data.use {
-                    ical = IOUtils.toString(it, Charsets.UTF_8)
-                    etag = eTag
-                    lastmod = lastModified
-                }
+                ical = IOUtils.toString(data, Charsets.UTF_8)
+                etag = eTag
+                lastmod = lastModified
             }
         }
         runBlocking {
@@ -133,7 +131,7 @@ class CalendarFetcherTest {
                 super.onRedirect(httpCode, target)
             }
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                data.use { ical = IOUtils.toString(it, Charsets.UTF_8) }
+                ical = IOUtils.toString(data, Charsets.UTF_8)
             }
         }
         runBlocking {

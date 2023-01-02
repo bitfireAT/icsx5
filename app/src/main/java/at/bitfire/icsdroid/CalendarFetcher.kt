@@ -9,7 +9,6 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.WorkerThread
-import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.exceptions.HttpInvalidResponseException
@@ -98,7 +97,8 @@ open class CalendarFetcher(
     /**
      * Gets called when the data has been successfully fetched.
      * @since 20221228
-     * @param data The data read from the target uri. You can use a [InputStreamReader] together with [Event.eventsFromReader] to process the events.
+     * @param data The data read from the target uri. You can use a [InputStreamReader] together
+     *             with [Event.eventsFromReader] to process the events. You don't need to close this stream.
      * @param contentType The [MediaType] of the result. Only available when fetching from remote server.
      * @param eTag The eTag header of the response. Only available when fetching from remote server.
      * @param lastModified The last modification timestamp header. Only available when fetching from remote server.

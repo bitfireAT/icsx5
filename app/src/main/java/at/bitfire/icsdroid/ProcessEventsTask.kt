@@ -133,20 +133,19 @@ class ProcessEventsTask(
 
         val downloader = object : CalendarFetcher(context, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                data.reader(contentType?.charset() ?: Charsets.UTF_8).use { reader ->
-                    try {
-                        Log.v(Constants.TAG, "Updating subscription (${subscription.id}) success status. eTag=$eTag, lastModified=$lastModified")
-                        subscription.updateStatusSuccess(context, eTag, lastModified)
+                val reader = data.reader(contentType?.charset() ?: Charsets.UTF_8)
+                try {
+                    Log.v(Constants.TAG, "Updating subscription (${subscription.id}) success status. eTag=$eTag, lastModified=$lastModified")
+                    subscription.updateStatusSuccess(context, eTag, lastModified)
 
-                        Log.v(Constants.TAG, "Getting events from reader...")
-                        val events = Event.eventsFromReader(reader)
-                        processEvents(events, forceResync)
+                    Log.v(Constants.TAG, "Getting events from reader...")
+                    val events = Event.eventsFromReader(reader)
+                    processEvents(events, forceResync)
 
-                        Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                    } catch (e: Exception) {
-                        Log.e(Constants.TAG, "Couldn't process events", e)
-                        exception = e
-                    }
+                    Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
+                } catch (e: Exception) {
+                    Log.e(Constants.TAG, "Couldn't process events", e)
+                    exception = e
                 }
             }
 
