@@ -164,7 +164,7 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                 .padding(horizontal = 8.dp),
         ) {
             Text(
-                text = subscription.url,
+                text = subscription.url.toString(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlpha.disabled),
             )

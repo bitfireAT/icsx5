@@ -3,10 +3,12 @@ package at.bitfire.icsdroid.ui.model
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.doAsync
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class EditSubscriptionModel(application: Application): AndroidViewModel(application) {
     private val database = AppDatabase.getInstance(application)
@@ -22,7 +24,7 @@ class EditSubscriptionModel(application: Application): AndroidViewModel(applicat
      * @param id The id of the subscription.
      * @return A [Job] for supervising the status of the request.
      */
-    fun load(id: Long) = doAsync {
+    fun load(id: Long) = viewModelScope.launch(Dispatchers.IO) {
         dao.getById(id)?.let { subscription.postValue(it) }
     }
 }

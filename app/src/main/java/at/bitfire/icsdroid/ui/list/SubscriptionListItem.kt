@@ -47,7 +47,7 @@ fun SubscriptionListItem(
             }
 
             Text(
-                subscription.url,
+                subscription.url.toString(),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = ContentAlpha.disabled),

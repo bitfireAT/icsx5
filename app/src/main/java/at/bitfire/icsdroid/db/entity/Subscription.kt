@@ -24,8 +24,10 @@ import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.sync.LocalCalendar
+import io.github.serpro69.kfaker.Faker
 import java.io.FileNotFoundException
 import java.net.MalformedURLException
+import kotlin.random.Random
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -71,6 +73,18 @@ data class Subscription(
          */
         @ColorInt
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
+
+        val mock: Subscription
+            get() = Faker().let { faker ->
+                Subscription(
+                    Random.nextLong(),
+                    url = Uri.parse("https://${faker.internet.domain()}/${faker.random.randomString(32)}"),
+                    eTag = faker.random.randomString(32),
+                    displayName = faker.adjective.positive() + ' ' + faker.food.fruits(),
+                    accountName = faker.name.name(),
+                    accountType = faker.random.randomString(5),
+                )
+            }
 
         /**
          * Gets the calendar provider for a given context.
