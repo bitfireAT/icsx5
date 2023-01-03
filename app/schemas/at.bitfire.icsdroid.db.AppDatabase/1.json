@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "248de74f029a04586259aa02c261738c",
+    "identityHash": "ecefe45454e98f1584ad8ada865802e8",
     "entities": [
       {
         "tableName": "subscriptions",
@@ -107,51 +107,12 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "events",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `uid` TEXT NOT NULL, `subscriptionId` INTEGER NOT NULL, `lastModified` INTEGER, PRIMARY KEY(`uid`, `subscriptionId`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "uid",
-            "columnName": "uid",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "subscriptionId",
-            "columnName": "subscriptionId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "uid",
-            "subscriptionId"
-          ],
-          "autoGenerate": false
-        },
-        "indices": [],
-        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '248de74f029a04586259aa02c261738c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ecefe45454e98f1584ad8ada865802e8')"
     ]
   }
 }

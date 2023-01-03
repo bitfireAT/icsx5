@@ -17,7 +17,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import at.bitfire.ical4android.*
+import at.bitfire.ical4android.AndroidCalendar
+import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
@@ -75,7 +76,8 @@ data class Subscription(
          * @param context The context that is making the request.
          * @return The [ContentProviderClient] that provides an interface with the system's calendar.
          */
-        fun getProvider(context: Context) = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+        fun getProvider(context: Context) =
+            context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
     }
 
     @Ignore
@@ -106,7 +108,10 @@ data class Subscription(
      * @throws SQLException If any error occurs with the update.
      */
     @WorkerThread
-    suspend fun updateStatusNotModified(context: Context, lastSync: Long = System.currentTimeMillis()) =
+    suspend fun updateStatusNotModified(
+        context: Context,
+        lastSync: Long = System.currentTimeMillis()
+    ) =
         AppDatabase.getInstance(context)
             .subscriptionsDao()
             .updateStatusNotModified(id, lastSync)
@@ -160,64 +165,6 @@ data class Subscription(
             )
 
     /**
-     * Updates the given event's [SubscriptionEvent.id], given its [SubscriptionEvent.uid].
-     * @author Arnau Mora
-     * @param context The context that is making the request.
-     * @param uid The uid of the event to update.
-     * @param id The new id to set to the event.
-     * @throws SQLException If any error occurs with the update.
-     */
-    @WorkerThread
-    suspend fun updateEventId(context: Context, uid: String, id: Long?) =
-        AppDatabase.getInstance(context)
-            .eventsDao()
-            .updateId(this.id, uid, id)
-
-    /**
-     * Queries a [SubscriptionEvent] from its [SubscriptionEvent.uid].
-     * @author Arnau Mora
-     * @param context The context that is making the request.
-     * @param uid The uid of the event.
-     * @return `null` if the event was not found, otherwise, the event requested is returned.
-     * @throws SQLException If any error occurs with the update.
-     */
-    @WorkerThread
-    suspend fun queryEventByUid(context: Context, uid: String) =
-        AppDatabase.getInstance(context)
-            .eventsDao()
-            .getEventByUid(id, uid)
-
-    /**
-     * Adds all the given events to the database.
-     *
-     * **This doesn't add the event to the system's calendar.**
-     * @author Arnau Mora
-     * @param context The context that is making the request.
-     * @param events All the events to be added.
-     * @throws SQLException If any error occurs with the update.
-     */
-    @WorkerThread
-    suspend fun addNewEvent(context: Context, vararg events: SubscriptionEvent) =
-        AppDatabase.getInstance(context)
-            .eventsDao()
-            .add(*events)
-
-    /**
-     * Updates all the given events in the database.
-     *
-     * **This doesn't update the event in the system's calendar.**
-     * @author Arnau Mora
-     * @param context The context that is making the request.
-     * @param events All the events to be updated.
-     * @throws SQLException If any error occurs with the update.
-     */
-    @WorkerThread
-    suspend fun updateEvents(context: Context, vararg events: SubscriptionEvent) =
-        AppDatabase.getInstance(context)
-            .eventsDao()
-            .update(*events)
-
-    /**
      * Provides an [AndroidCalendar] from the current subscription.
      * @author Arnau Mora
      * @param context The context that is making the request.
@@ -225,7 +172,12 @@ data class Subscription(
      * @throws NullPointerException If a provider could not be obtained from the [context].
      * @throws FileNotFoundException If the calendar is not available in the system's database.
      */
-    fun getCalendar(context: Context) = AndroidCalendar.findByID(account, getProvider(context)!!, SubscriptionAndroidCalendar.Factory(), id)
+    fun getCalendar(context: Context) = AndroidCalendar.findByID(
+        account,
+        getProvider(context)!!,
+        SubscriptionAndroidCalendar.Factory(),
+        id
+    )
 
     /**
      * Removes all the events from the subscription that are not in the [uids] list.
@@ -238,12 +190,8 @@ data class Subscription(
      * @return The amount of events removed.
      */
     @WorkerThread
-    suspend fun retainByUid(context: Context, uids: Set<String>): Int {
-        AppDatabase.getInstance(context)
-            .eventsDao()
-            .retainByUidFromSubscription(id, uids)
-        return androidRetainByUid(context, uids.toMutableSet())
-    }
+    fun retainByUid(context: Context, uids: Set<String>): Int =
+        androidRetainByUid(context, uids.toMutableSet())
 
     /**
      * Provides iCalendar event color values to Android.
@@ -254,7 +202,8 @@ data class Subscription(
      * @see AndroidCalendar.insertColors
      */
     fun insertColors(context: Context) =
-        (getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
+        (getProvider(context)
+            ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
             .let { provider ->
                 AndroidCalendar.insertColors(provider, account)
             }
@@ -271,20 +220,26 @@ data class Subscription(
     @WorkerThread
     private fun androidRetainByUid(context: Context, uids: MutableSet<String>): Int {
         Log.v(TAG, "Removing all events whose uid is not in: $uids")
-        val provider = getProvider(context) ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
+        val provider = getProvider(context)
+            ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
             provider.query(
                 Events.CONTENT_URI.asSyncAdapter(account),
                 arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
-                "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null
+                "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL",
+                arrayOf(id.toString()),
+                null
             )?.use { row ->
                 while (row.moveToNext()) {
                     val eventId = row.getLong(0)
                     val syncId = row.getString(1)
                     if (!uids.contains(syncId)) {
                         Log.v(TAG, "Removing event with id $syncId.")
-                        provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
+                        provider.delete(
+                            ContentUris.withAppendedId(Events.CONTENT_URI, eventId)
+                                .asSyncAdapter(account), null, null
+                        )
                         deleted++
 
                         uids -= syncId
@@ -306,7 +261,16 @@ data class Subscription(
      * @throws FileNotFoundException If the subscription still not has a Calendar in the system.
      * @throws NullPointerException If a provider could not be obtained from the [context].
      */
-    fun queryAndroidEventByUid(context: Context, uid: String) = getCalendar(context).queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+    fun queryAndroidEventByUid(context: Context, uid: String) =
+        // Fetch the calendar instance for this subscription
+        getCalendar(context)
+            // Run a query with the UID given
+            .queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+            // If no events are returned, just return null
+            .takeIf { it.isNotEmpty() }
+            // Since only one event should have the given uid, and we know the list is not
+            // empty, return the first element.
+            ?.first()
 
     @WorkerThread
     fun addAndroidEvent(context: Context) = AndroidCalendar.create(
