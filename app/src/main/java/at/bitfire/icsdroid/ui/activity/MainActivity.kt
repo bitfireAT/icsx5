@@ -18,6 +18,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.data.NavigationPath
 import at.bitfire.icsdroid.ui.data.composable
 import at.bitfire.icsdroid.ui.model.CalendarModel
+import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.LoadingBox
 import at.bitfire.icsdroid.ui.screens.CreateSubscription
@@ -50,6 +51,8 @@ class MainActivity : AppCompatActivity() {
     private val model by viewModels<CalendarModel>()
 
     private val editModel by viewModels<EditSubscriptionModel>()
+
+    private val createModel by viewModels<CreateSubscriptionModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                         SubscriptionScreen(navController, it)
                     } ?: LoadingBox()
                 }
-                composable(Paths.Create) { CreateSubscription(navController) }
+                composable(Paths.Create) { CreateSubscription(navController, createModel) }
             }
         }
     }
