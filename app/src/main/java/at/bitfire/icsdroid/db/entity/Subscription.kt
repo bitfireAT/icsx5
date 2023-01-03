@@ -272,8 +272,14 @@ data class Subscription(
             // empty, return the first element.
             ?.first()
 
+    /**
+     * Creates a calendar in the system that matches the subscription.
+     * @param context The context that is making the request.
+     * @throws NullPointerException If the [context] given doesn't have a valid provider.
+     * @throws Exception If the calendar could not be created.
+     */
     @WorkerThread
-    fun addAndroidEvent(context: Context) = AndroidCalendar.create(
+    fun createAndroidCalendar(context: Context) = AndroidCalendar.create(
         account,
         getProvider(context)!!,
         contentValuesOf(

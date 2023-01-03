@@ -102,7 +102,7 @@ class AddCalendarDetailsFragment : Fragment() {
                 .add(subscription)
 
             Log.v(TAG, "Adding subscription to system...")
-            subscription.addAndroidEvent(requireContext())
+            subscription.createAndroidCalendar(requireContext())
 
             withContext(Dispatchers.Main) {
                 toast(R.string.add_calendar_created)
