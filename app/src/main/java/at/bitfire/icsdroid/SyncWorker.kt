@@ -8,8 +8,12 @@ import android.accounts.Account
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -56,7 +60,7 @@ class SyncWorker(
                 .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
-                Log.i(Constants.TAG, "Manual sync, ignoring network condition")
+                Log.i(TAG, "Manual sync, ignoring network condition")
 
                 // overwrite existing syncs (which may have unwanted constraints)
                 ExistingWorkPolicy.REPLACE
@@ -96,19 +100,54 @@ class SyncWorker(
      * @param forceResync Enforces that the calendar is fetched and all events are fully processed (useful when subscription settings have been changed).
      */
     private suspend fun performSync(account: Account, forceResync: Boolean): Result {
-        Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
+        Log.i(TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
-            AppDatabase.getInstance(applicationContext)
+            // Get the subscriptions dao for interacting with the database.
+            val dao = AppDatabase.getInstance(applicationContext)
                 .subscriptionsDao()
-                .getAll()
+            // Get a list of all the subscriptions from the database
+            val subscriptions = dao.getAll().toMutableList()
+
+            // Get a provider from the application context, or return failure
+            val provider = Subscription.getProvider(applicationContext) ?: return Result.failure()
+            // If there's a provider available, get all the calendars available in the system
+            val calendars = AndroidCalendar.find(
+                account,
+                provider,
+                SubscriptionAndroidCalendar.Factory(),
+                null,
+                null,
+            )
+
+            // Check that all the calendars have a matching subscription
+            for (calendar in calendars) {
+                val id = calendar.id
+                val match = subscriptions.find { subscription -> subscription.id == id }
+                // If there's already a calendar matching the subscription, continue
+                if (match != null) continue
+                try {
+                    // Otherwise, create a subscription for the calendar
+                    val newSubscription = Subscription.fromCalendar(calendar)
+                    // Add it to the database
+                    dao.add(newSubscription)
+                    // And add it to `subscriptions` so it gets processed now.
+                    subscriptions.add(newSubscription)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Could not create subscription from calendar. Migration failed.", e)
+                    continue
+                }
+            }
+
+            // Process each subscription
+            subscriptions
                 .filter { it.isSynced }
                 .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
             return Result.success()
         } catch (e: CalendarStorageException) {
-            Log.e(Constants.TAG, "Calendar storage exception", e)
+            Log.e(TAG, "Calendar storage exception", e)
         } catch (e: InterruptedException) {
-            Log.e(Constants.TAG, "Thread interrupted", e)
+            Log.e(TAG, "Thread interrupted", e)
         }
 
         return if (runAttemptCount >= MAX_ATTEMPTS)
