@@ -238,7 +238,7 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
                 root.setOnClickListener { clickListener?.invoke(subscription) }
 
                 // Update the url and title texts
-                url.text = subscription.url
+                url.text = subscription.url.toString()
                 title.text = subscription.displayName
 
                 // Update the sync status text

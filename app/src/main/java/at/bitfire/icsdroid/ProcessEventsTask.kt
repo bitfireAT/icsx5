@@ -115,11 +115,7 @@ class ProcessEventsTask(
      * @see processEvents
      */
     private suspend fun fetchAndProcessEvents() {
-        val uri = try {
-            Uri.parse(subscription.url)
-        } catch (e: MalformedURLException) {
-            throw MalformedURLException("Invalid calendar URL")
-        }
+        val uri = subscription.url
         Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications

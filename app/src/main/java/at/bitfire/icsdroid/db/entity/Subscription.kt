@@ -5,6 +5,7 @@ import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
 import android.database.SQLException
+import android.net.Uri
 import android.os.RemoteException
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
@@ -24,6 +25,7 @@ import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
 import java.io.FileNotFoundException
+import java.net.MalformedURLException
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -42,7 +44,7 @@ import java.io.FileNotFoundException
 @Entity(tableName = "subscriptions")
 data class Subscription(
     @PrimaryKey val id: Long,
-    val url: String,
+    val url: Uri,
     val eTag: String? = null,
 
     val displayName: String,
@@ -157,12 +159,23 @@ data class Subscription(
      * @throws SQLException If any error occurs with the update.
      */
     @WorkerThread
-    suspend fun updateUrl(context: Context, url: String) =
+    suspend fun updateUrl(context: Context, url: Uri) =
         AppDatabase.getInstance(context)
             .subscriptionsDao()
             .update(
                 copy(url = url)
             )
+
+    /**
+     * Updates the [Subscription.url] field to the given one.
+     * @author Arnau Mora
+     * @param context The context that is making the request.
+     * @param url The new url to set.
+     * @throws SQLException If any error occurs with the update.
+     * @throws MalformedURLException If the given [url] cannot be parsed to [Uri].
+     */
+    @WorkerThread
+    suspend fun updateUrl(context: Context, url: String) = updateUrl(context, Uri.parse(url))
 
     /**
      * Provides an [AndroidCalendar] from the current subscription.

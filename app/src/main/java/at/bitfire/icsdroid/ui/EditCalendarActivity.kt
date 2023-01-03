@@ -8,7 +8,6 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.database.SQLException
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -138,7 +137,7 @@ class EditCalendarActivity : AppCompatActivity() {
             .setVisible(dirty)
 
         // if local file, hide authentication fragment
-        val uri = Uri.parse(model.subscription.value?.url)
+        val uri = model.subscription.value!!.url
         binding.credentials.visibility =
             if (HttpUtils.supportsAuthentication(uri))
                 View.VISIBLE
@@ -159,7 +158,7 @@ class EditCalendarActivity : AppCompatActivity() {
     }
 
     private fun onSubscriptionLoaded(subscription: Subscription) {
-        titleColorModel.url.value = subscription.url
+        titleColorModel.url.value = subscription.url.toString()
         subscription.displayName.let {
             titleColorModel.originalTitle = it
             titleColorModel.title.value = it
@@ -238,7 +237,7 @@ class EditCalendarActivity : AppCompatActivity() {
         model.subscription.value?.let {
             ShareCompat.IntentBuilder(this)
                 .setSubject(it.displayName)
-                .setText(it.url)
+                .setText(it.url.toString())
                 .setType("text/plain")
                 .setChooserTitle(R.string.edit_calendar_send_url)
                 .startChooser()
