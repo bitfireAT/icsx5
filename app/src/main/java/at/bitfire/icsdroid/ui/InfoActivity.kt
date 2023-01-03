@@ -64,7 +64,7 @@ class InfoActivity: AppCompatActivity() {
     }
 
     private fun launchUri(uri: Uri) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/icsx5app"))
+        val intent = Intent(Intent.ACTION_VIEW, uri)
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
