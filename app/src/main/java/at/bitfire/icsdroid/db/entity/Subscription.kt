@@ -341,7 +341,7 @@ data class Subscription(
      * @throws RemoteException If there's an error while making the request.
      */
     @WorkerThread
-    fun deleteAndroidEvent(context: Context) = getProvider(context)?.delete(
+    fun deleteAndroidCalendar(context: Context) = getProvider(context)?.delete(
         Calendars.CONTENT_URI.asSyncAdapter(account),
         "${Calendars._ID}=?",
         arrayOf(id.toString()),
