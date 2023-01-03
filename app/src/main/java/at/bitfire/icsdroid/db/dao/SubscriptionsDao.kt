@@ -64,7 +64,7 @@ interface SubscriptionsDao {
     fun getErrorMessageLive(id: Long): LiveData<String?>
 
     /**
-     * Removed all the given subscriptions from the database.
+     * Removes all the given subscriptions from the database.
      * @author Arnau Mora
      * @param subscriptions All the subscriptions to be removed.
      * @throws SQLException If any error occurs with the update.
