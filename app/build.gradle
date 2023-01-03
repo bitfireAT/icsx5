@@ -42,6 +42,8 @@ android {
     }
 
     buildFeatures {
+        dataBinding true
+        viewBinding true
         compose true
     }
 
@@ -208,6 +210,7 @@ dependencies {
 
     // Jetpack Compose - Accompanist
     implementation "com.google.accompanist:accompanist-navigation-animation:${versions.accompanist}"
+    implementation "com.google.accompanist:accompanist-pager:${versions.accompanist}"
 
     // for tests
     androidTestImplementation 'androidx.test:runner:1.5.0'
