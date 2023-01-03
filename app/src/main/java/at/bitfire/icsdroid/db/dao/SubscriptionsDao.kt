@@ -64,7 +64,8 @@ interface SubscriptionsDao {
     fun getErrorMessageLive(id: Long): LiveData<String?>
 
     /**
-     * Removes all the given subscriptions from the database.
+     * Removes all the given subscriptions from the database. Doesn't remove the matching calendar
+     * from the system. Use of [Subscription.delete] is preferred.
      * @author Arnau Mora
      * @param subscriptions All the subscriptions to be removed.
      * @throws SQLException If any error occurs with the update.
