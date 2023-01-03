@@ -15,8 +15,7 @@ import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.db.entity.SubscriptionEvent
-import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
+import at.bitfire.icsdroid.db.sync.LocalEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
@@ -79,7 +78,6 @@ class ProcessEventsTask(
     /**
      * Updates the alarms of the given event according to the [subscription]'s [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
      * parameters.
-     * @since 20221208
      * @param event The event to update.
      * @return The given [event], with the alarms updated.
      */
@@ -113,17 +111,11 @@ class ProcessEventsTask(
 
     /**
      * Fetches all the events from the calendar's server, and processes them.
-     * @since 20221228
      * @throws MalformedURLException If the url of the subscription is malformed.
      * @see processEvents
      */
-    @Throws(MalformedURLException::class)
     private suspend fun fetchAndProcessEvents() {
-        val uri = try {
-            Uri.parse(subscription.url)
-        } catch (e: MalformedURLException) {
-            throw MalformedURLException("Invalid calendar URL")
-        }
+        val uri = subscription.url
         Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
@@ -133,20 +125,19 @@ class ProcessEventsTask(
 
         val downloader = object : CalendarFetcher(context, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                data.reader(contentType?.charset() ?: Charsets.UTF_8).use { reader ->
-                    try {
-                        Log.v(Constants.TAG, "Updating subscription (${subscription.id}) success status. eTag=$eTag, lastModified=$lastModified")
-                        subscription.updateStatusSuccess(context, eTag, lastModified)
+                val reader = data.reader(contentType?.charset() ?: Charsets.UTF_8)
+                try {
+                    Log.v(Constants.TAG, "Updating subscription (${subscription.id}) success status. eTag=$eTag, lastModified=$lastModified")
+                    subscription.updateStatusSuccess(context, eTag, lastModified)
 
-                        Log.v(Constants.TAG, "Getting events from reader...")
-                        val events = Event.eventsFromReader(reader)
-                        processEvents(events, forceResync)
+                    Log.v(Constants.TAG, "Getting events from reader...")
+                    val events = Event.eventsFromReader(reader)
+                    processEvents(events, forceResync)
 
-                        Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                    } catch (e: Exception) {
-                        Log.e(Constants.TAG, "Couldn't process events", e)
-                        exception = e
-                    }
+                    Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
+                } catch (e: Exception) {
+                    Log.e(Constants.TAG, "Couldn't process events", e)
+                    exception = e
                 }
             }
 
@@ -209,13 +200,11 @@ class ProcessEventsTask(
 
     /**
      * Processes all the given events.
-     * @since 20221227
      * @param events The list of events to be processed.
      * @param ignoreLastModified Whether to ignore the last modified date.
      * @throws IllegalArgumentException If there's a missing argument in the event being processed.
      */
-    @Throws(IllegalArgumentException::class)
-    private suspend fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
+    private fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
         // events is the list of events fetched from the server.
         Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
         val uids = HashSet<String>(events.size)
@@ -226,30 +215,16 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
 
-            // First check if the event is stored in the database
-            var subscriptionEvent = subscription.queryEventByUid(context, uid)
-            if (subscriptionEvent == null) {
-                // If the event is not stored, add it
-                subscriptionEvent = SubscriptionEvent(subscription, event)
-                subscription.addNewEvent(context, subscriptionEvent)
-            } else {
-                // Otherwise, update it
-                subscription.updateEvents(context, subscriptionEvent)
-            }
-
             // Now check if the event is in the system's calendar
-            val localEvent = subscriptionEvent.event(context)
+            val localEvent = subscription.queryAndroidEventByUid(context, uid)
             if (localEvent == null) {
                 // If the event is not in the calendar, add it
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
 
                 // Create a new Android event
-                val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
+                val androidEvent = LocalEvent(context, subscription, event)
                 // Add it to the calendar
                 androidEvent.add()
-
-                // Update the id of the event in the calendar, with the one the event has in the calendar
-                subscription.updateEventId(context, uid, androidEvent.id)
             } else {
                 // If the event is already in the calendar, update it
                 var lastModified = event.lastModified.takeUnless { ignoreLastModified }
@@ -267,7 +242,7 @@ class ProcessEventsTask(
                     }
                 }
 
-                if (lastModified == null || subscriptionEvent.lastModified == null || lastModified.dateTime.time > subscriptionEvent.lastModified!!) {
+                if (lastModified == null || lastModified.dateTime.time > localEvent.lastModified) {
                     // either there is no LAST-MODIFIED, or LAST-MODIFIED has been increased
                     Log.d(Constants.TAG, "Updating $uid in local calendar")
                     localEvent.update(event)

@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.ui
 
 import android.database.SQLException
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -19,9 +20,12 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.doAsync
-import at.bitfire.icsdroid.ui
 import at.bitfire.icsdroid.utils.toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.MalformedURLException
 
 class AddCalendarDetailsFragment : Fragment() {
 
@@ -66,7 +70,7 @@ class AddCalendarDetailsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) =
         if (item.itemId == R.id.create_calendar) {
-            doAsync { createCalendar() }
+            CoroutineScope(Dispatchers.IO).launch { createCalendar() }
             true
         } else
             false
@@ -76,21 +80,21 @@ class AddCalendarDetailsFragment : Fragment() {
     private suspend fun createCalendar() {
         val account = AppAccount.get(requireActivity())
 
-        val subscription = Subscription(
-            id = 0L,
-            eTag = null,
-            lastModified = 0L,
-            lastSync = 0L,
-            url = titleColorModel.url.value!!,
-            displayName = titleColorModel.title.value!!,
-            color = titleColorModel.color.value,
-            ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
-            defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
-            accountName = account.name,
-            accountType = account.type,
-        )
-
         try {
+            val subscription = Subscription(
+                id = 0L,
+                eTag = null,
+                lastModified = 0L,
+                lastSync = 0L,
+                url = Uri.parse(titleColorModel.url.value!!),
+                displayName = titleColorModel.title.value!!,
+                color = titleColorModel.color.value,
+                ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
+                defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+                accountName = account.name,
+                accountType = account.type,
+            )
+
             if (credentialsModel.requiresAuth.value == true)
                 CalendarCredentials(requireActivity()).put(subscription, credentialsModel.username.value, credentialsModel.password.value)
 
@@ -100,9 +104,9 @@ class AddCalendarDetailsFragment : Fragment() {
                 .add(subscription)
 
             Log.v(TAG, "Adding subscription to system...")
-            subscription.addAndroidEvent(requireContext())
+            subscription.createAndroidCalendar(requireContext())
 
-            ui {
+            withContext(Dispatchers.Main) {
                 toast(R.string.add_calendar_created)
                 requireActivity().invalidateOptionsMenu()
             }
@@ -110,7 +114,11 @@ class AddCalendarDetailsFragment : Fragment() {
             calendarCreated.postValue(true)
         } catch (e: SQLException) {
             Log.e(TAG, "Couldn't create calendar", e)
-            e.localizedMessage?.let { ui { toast(it).show() } }
+            e.localizedMessage?.let { withContext(Dispatchers.Main) { toast(it).show() } }
+            calendarCreated.postValue(false)
+        } catch (e: MalformedURLException) {
+            Log.e(TAG, "Couldn't create calendar", e)
+            e.localizedMessage?.let { withContext(Dispatchers.Main) { toast(it).show() } }
             calendarCreated.postValue(false)
         }
     }

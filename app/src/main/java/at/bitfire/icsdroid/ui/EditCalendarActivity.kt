@@ -8,7 +8,6 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.database.SQLException
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -29,14 +28,21 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.bitfire.icsdroid.*
+import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.utils.getSerializableCompat
 import at.bitfire.icsdroid.utils.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
 
 class EditCalendarActivity : AppCompatActivity() {
@@ -131,7 +137,7 @@ class EditCalendarActivity : AppCompatActivity() {
             .setVisible(dirty)
 
         // if local file, hide authentication fragment
-        val uri = Uri.parse(model.subscription.value?.url)
+        val uri = model.subscription.value!!.url
         binding.credentials.visibility =
             if (HttpUtils.supportsAuthentication(uri))
                 View.VISIBLE
@@ -152,7 +158,7 @@ class EditCalendarActivity : AppCompatActivity() {
     }
 
     private fun onSubscriptionLoaded(subscription: Subscription) {
-        titleColorModel.url.value = subscription.url
+        titleColorModel.url.value = subscription.url.toString()
         subscription.displayName.let {
             titleColorModel.originalTitle = it
             titleColorModel.title.value = it
@@ -198,7 +204,7 @@ class EditCalendarActivity : AppCompatActivity() {
     fun onSave(item: MenuItem?) {
         model.save(titleColorModel, credentialsModel).invokeOnCompletion { err ->
             err?.let { Log.e(Constants.TAG, "Could not save changes.", err) }
-            blockingUi {
+            runBlocking(Dispatchers.Main) {
                 toast(if (err == null) R.string.edit_calendar_saved else R.string.edit_calendar_failed)
             }
 
@@ -216,7 +222,7 @@ class EditCalendarActivity : AppCompatActivity() {
     private fun onDelete() {
         model.delete().invokeOnCompletion { error ->
             error?.let { Log.e(Constants.TAG, "Could not delete subscription.", it) }
-            blockingUi {
+            runBlocking(Dispatchers.Main) {
                 toast(if (error == null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed)
             }
             finish()
@@ -231,7 +237,7 @@ class EditCalendarActivity : AppCompatActivity() {
         model.subscription.value?.let {
             ShareCompat.IntentBuilder(this)
                 .setSubject(it.displayName)
-                .setText(it.url)
+                .setText(it.url.toString())
                 .setType("text/plain")
                 .setChooserTitle(R.string.edit_calendar_send_url)
                 .startChooser()
@@ -262,7 +268,7 @@ class EditCalendarActivity : AppCompatActivity() {
          * @param id  The id of the calendar to look for.
          * @throws FileNotFoundException when the calendar doesn't exist (anymore)
          */
-        fun loadSubscription(id: Long) = doAsync {
+        fun loadSubscription(id: Long) = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscriptionsDao.getById(id)
             this@SubscriptionModel.subscription.postValue(subscription)
         }
@@ -270,14 +276,16 @@ class EditCalendarActivity : AppCompatActivity() {
         /**
          * Saves the currently loaded subscription with the data of the given view models. Job may throw exceptions. Runs [SyncWorker].
          * @author Arnau Mora
-         * @since 20221227
          * @param titleColorModel The view model containing all the changes made.
          * @param credentialsModel The view model for storing the subscription's credentials.
          * @return A [Job] that keeps track of the task's progress.
          * @throws IllegalStateException If there isn't any loaded subscription ([subscription] is null).
          * @throws SQLException If there's any issue while updating the database.
          */
-        fun save(titleColorModel: TitleColorFragment.TitleColorModel, credentialsModel: CredentialsFragment.CredentialsModel): Job = doAsync {
+        fun save(
+            titleColorModel: TitleColorFragment.TitleColorModel,
+            credentialsModel: CredentialsFragment.CredentialsModel,
+        ): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to save.")
             subscriptionsDao.update(
                 subscription.copy(
@@ -303,15 +311,13 @@ class EditCalendarActivity : AppCompatActivity() {
         /**
          * Deletes the currently loaded subscription. Job may throw exceptions
          * @author Arnau Mora
-         * @since 20221227
          * @return A [Job] that keeps track of the task's progress.
          * @throws IllegalStateException If there isn't any loaded subscription ([subscription] is null).
          * @throws SQLException If there's any issue while updating the database.
          */
-        fun delete(): Job = doAsync {
+        fun delete(): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to delete.")
             subscription.delete(getApplication())
-            subscription.deleteAndroidEvent(getApplication())
             CalendarCredentials(getApplication()).put(subscription, null, null)
         }
     }
