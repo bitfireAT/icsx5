@@ -132,6 +132,7 @@ class SyncWorker(
                     dao.add(newSubscription)
                     // And add it to `subscriptions` so it gets processed now.
                     subscriptions.add(newSubscription)
+                    Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
                 } catch (e: Exception) {
                     Log.e(TAG, "Could not create subscription from calendar. Migration failed.", e)
                     continue
