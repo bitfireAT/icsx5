@@ -5,17 +5,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
+import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionFilePage
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionLinkPage
 import at.bitfire.icsdroid.ui.reusable.TabWithTextAndIcon
@@ -25,9 +28,11 @@ import com.google.accompanist.pager.rememberPagerState
 
 @Composable
 @ExperimentalPagerApi
+@ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-fun CreateSubscription(navHostController: NavHostController) {
-    var selectedTab by remember { mutableStateOf(0) }
+fun CreateSubscription(navHostController: NavHostController, model: CreateSubscriptionModel) {
+    var selectedTab by model.currentPage
+    val isValid by model.isValid
 
     val pagerState = rememberPagerState()
     LaunchedEffect(pagerState) {
@@ -48,6 +53,16 @@ fun CreateSubscription(navHostController: NavHostController) {
                 },
             )
         },
+        floatingActionButton = {
+            if (isValid)
+                ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Rounded.ChevronRight,
+                        contentDescription = stringResource(R.string.add_calendar_continue),
+                    )
+                    Text(stringResource(R.string.add_calendar_continue))
+                }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -79,9 +94,11 @@ fun CreateSubscription(navHostController: NavHostController) {
                     .fillMaxWidth()
                     .weight(1f)
             ) { page ->
-                when (page) {
-                    0 -> CreateSubscriptionLinkPage()
-                    1 -> CreateSubscriptionFilePage()
+                Column(Modifier.fillMaxSize()) {
+                    when (page) {
+                        0 -> CreateSubscriptionLinkPage(model)
+                        1 -> CreateSubscriptionFilePage()
+                    }
                 }
             }
         }
