@@ -323,7 +323,7 @@ data class Subscription(
             Calendars._ID to id,
             Calendars.ACCOUNT_NAME to account.name,
             Calendars.ACCOUNT_TYPE to account.type,
-            Calendars.NAME to url,
+            Calendars.NAME to url.toString(),
             Calendars.CALENDAR_DISPLAY_NAME to displayName,
             Calendars.CALENDAR_COLOR to color,
             Calendars.OWNER_ACCOUNT to account.name,
