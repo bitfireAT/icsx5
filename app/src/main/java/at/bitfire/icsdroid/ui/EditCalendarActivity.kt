@@ -29,14 +29,21 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.bitfire.icsdroid.*
+import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.utils.getSerializableCompat
 import at.bitfire.icsdroid.utils.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
 
 class EditCalendarActivity : AppCompatActivity() {
@@ -198,7 +205,7 @@ class EditCalendarActivity : AppCompatActivity() {
     fun onSave(item: MenuItem?) {
         model.save(titleColorModel, credentialsModel).invokeOnCompletion { err ->
             err?.let { Log.e(Constants.TAG, "Could not save changes.", err) }
-            blockingUi {
+            runBlocking(Dispatchers.Main) {
                 toast(if (err == null) R.string.edit_calendar_saved else R.string.edit_calendar_failed)
             }
 
@@ -216,7 +223,7 @@ class EditCalendarActivity : AppCompatActivity() {
     private fun onDelete() {
         model.delete().invokeOnCompletion { error ->
             error?.let { Log.e(Constants.TAG, "Could not delete subscription.", it) }
-            blockingUi {
+            runBlocking(Dispatchers.Main) {
                 toast(if (error == null) R.string.edit_calendar_deleted else R.string.edit_calendar_failed)
             }
             finish()
@@ -262,7 +269,7 @@ class EditCalendarActivity : AppCompatActivity() {
          * @param id  The id of the calendar to look for.
          * @throws FileNotFoundException when the calendar doesn't exist (anymore)
          */
-        fun loadSubscription(id: Long) = doAsync {
+        fun loadSubscription(id: Long) = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscriptionsDao.getById(id)
             this@SubscriptionModel.subscription.postValue(subscription)
         }
@@ -276,7 +283,10 @@ class EditCalendarActivity : AppCompatActivity() {
          * @throws IllegalStateException If there isn't any loaded subscription ([subscription] is null).
          * @throws SQLException If there's any issue while updating the database.
          */
-        fun save(titleColorModel: TitleColorFragment.TitleColorModel, credentialsModel: CredentialsFragment.CredentialsModel): Job = doAsync {
+        fun save(
+            titleColorModel: TitleColorFragment.TitleColorModel,
+            credentialsModel: CredentialsFragment.CredentialsModel,
+        ): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to save.")
             subscriptionsDao.update(
                 subscription.copy(
@@ -306,7 +316,7 @@ class EditCalendarActivity : AppCompatActivity() {
          * @throws IllegalStateException If there isn't any loaded subscription ([subscription] is null).
          * @throws SQLException If there's any issue while updating the database.
          */
-        fun delete(): Job = doAsync {
+        fun delete(): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to delete.")
             subscription.delete(getApplication())
             subscription.deleteAndroidEvent(getApplication())

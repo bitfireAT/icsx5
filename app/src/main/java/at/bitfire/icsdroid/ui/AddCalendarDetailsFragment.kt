@@ -19,9 +19,11 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.doAsync
-import at.bitfire.icsdroid.ui
 import at.bitfire.icsdroid.utils.toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddCalendarDetailsFragment : Fragment() {
 
@@ -66,7 +68,7 @@ class AddCalendarDetailsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) =
         if (item.itemId == R.id.create_calendar) {
-            doAsync { createCalendar() }
+            CoroutineScope(Dispatchers.IO).launch { createCalendar() }
             true
         } else
             false
@@ -102,7 +104,7 @@ class AddCalendarDetailsFragment : Fragment() {
             Log.v(TAG, "Adding subscription to system...")
             subscription.addAndroidEvent(requireContext())
 
-            ui {
+            withContext(Dispatchers.Main) {
                 toast(R.string.add_calendar_created)
                 requireActivity().invalidateOptionsMenu()
             }
@@ -110,7 +112,7 @@ class AddCalendarDetailsFragment : Fragment() {
             calendarCreated.postValue(true)
         } catch (e: SQLException) {
             Log.e(TAG, "Couldn't create calendar", e)
-            e.localizedMessage?.let { ui { toast(it).show() } }
+            e.localizedMessage?.let { withContext(Dispatchers.Main) { toast(it).show() } }
             calendarCreated.postValue(false)
         }
     }
