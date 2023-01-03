@@ -15,7 +15,7 @@ import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.db.sync.SubscriptionAndroidEvent
+import at.bitfire.icsdroid.db.sync.LocalEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
@@ -222,7 +222,7 @@ class ProcessEventsTask(
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
 
                 // Create a new Android event
-                val androidEvent = SubscriptionAndroidEvent(context, subscription, event)
+                val androidEvent = LocalEvent(context, subscription, event)
                 // Add it to the calendar
                 androidEvent.add()
             } else {

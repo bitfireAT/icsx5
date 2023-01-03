@@ -13,7 +13,7 @@ import net.fortuna.ical4j.model.property.LastModified
  *
  * Formerly `LocalEvent`.
  */
-class SubscriptionAndroidEvent : AndroidEvent {
+class LocalEvent : AndroidEvent {
 
     companion object {
         /**
@@ -93,10 +93,10 @@ class SubscriptionAndroidEvent : AndroidEvent {
     /**
      * Provides a builder for events to be used with [AndroidCalendar].
      */
-    class Factory : AndroidEventFactory<SubscriptionAndroidEvent> {
+    class Factory : AndroidEventFactory<LocalEvent> {
         override fun fromProvider(
             calendar: AndroidCalendar<AndroidEvent>,
             values: ContentValues
-        ): SubscriptionAndroidEvent = SubscriptionAndroidEvent(calendar, values)
+        ): LocalEvent = LocalEvent(calendar, values)
     }
 }

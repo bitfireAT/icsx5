@@ -11,7 +11,7 @@ class LocalCalendar private constructor(
     account: Account,
     provider: ContentProviderClient,
     id: Long,
-): AndroidCalendar<SubscriptionAndroidEvent>(account, provider, SubscriptionAndroidEvent.Factory(), id) {
+): AndroidCalendar<LocalEvent>(account, provider, LocalEvent.Factory(), id) {
 
     companion object {
         const val COLUMN_ETAG = Calendars.CAL_SYNC1
