@@ -30,10 +30,30 @@ class NavigationPath(
 fun NavGraphBuilder.composable(
     path: NavigationPath,
     deepLinks: List<NavDeepLink> = emptyList(),
-    enterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
-    exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)? = null,
-    popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
-    popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)? = null,
+    enterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? = {
+        slideIntoContainer(
+            AnimatedContentScope.SlideDirection.Left,
+            animationSpec = tween(400)
+        )
+    },
+    exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)? = {
+        slideOutOfContainer(
+            AnimatedContentScope.SlideDirection.Right,
+            animationSpec = tween(400)
+        )
+    },
+    popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? = {
+        slideIntoContainer(
+            AnimatedContentScope.SlideDirection.Right,
+            animationSpec = tween(700)
+        )
+    },
+    popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?)? = {
+        slideOutOfContainer(
+            AnimatedContentScope.SlideDirection.Right,
+            animationSpec = tween(700)
+        )
+    },
     content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)
 ) {
     composable(
@@ -45,42 +65,5 @@ fun NavGraphBuilder.composable(
         popEnterTransition,
         popExitTransition,
         content,
-    )
-}
-
-@ExperimentalAnimationApi
-fun NavGraphBuilder.animatedComposable(
-    path: NavigationPath,
-    deepLinks: List<NavDeepLink> = emptyList(),
-    content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
-) {
-    composable(
-        path,
-        deepLinks = deepLinks,
-        enterTransition = {
-            slideIntoContainer(
-                AnimatedContentScope.SlideDirection.Left,
-                animationSpec = tween(400)
-            )
-        },
-        exitTransition = {
-            slideOutOfContainer(
-                AnimatedContentScope.SlideDirection.Right,
-                animationSpec = tween(400)
-            )
-        },
-        popEnterTransition = {
-            slideIntoContainer(
-                AnimatedContentScope.SlideDirection.Right,
-                animationSpec = tween(700)
-            )
-        },
-        popExitTransition = {
-            slideOutOfContainer(
-                AnimatedContentScope.SlideDirection.Right,
-                animationSpec = tween(700)
-            )
-        },
-        content = content,
     )
 }

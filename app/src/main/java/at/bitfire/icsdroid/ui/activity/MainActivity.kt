@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavType
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.data.NavigationPath
-import at.bitfire.icsdroid.ui.data.animatedComposable
+import at.bitfire.icsdroid.ui.data.composable
 import at.bitfire.icsdroid.ui.model.CalendarModel
 import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.LoadingBox
@@ -50,12 +50,12 @@ class MainActivity : AppCompatActivity() {
         setContentThemed {
             val navController = rememberAnimatedNavController()
             AnimatedNavHost(navController, startDestination = Paths.Subscriptions.route) {
-                animatedComposable(Paths.Subscriptions) { SubscriptionsScreen(navController, model) }
-                animatedComposable(Paths.Subscription) { entry ->
+                composable(Paths.Subscriptions) { SubscriptionsScreen(navController, model) }
+                composable(Paths.Subscription) { entry ->
                     val id = entry.arguments?.getLong("id") ?: run {
                         toast(stringResource(R.string.could_not_load_calendar))
                         navController.navigate(Paths.Subscriptions.route)
-                        return@animatedComposable
+                        return@composable
                     }
                     LaunchedEffect(Unit) {
                         editModel.load(id)
