@@ -7,7 +7,7 @@ import android.provider.CalendarContract.Calendars
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 
-class SubscriptionAndroidCalendar private constructor(
+class LocalCalendar private constructor(
     account: Account,
     provider: ContentProviderClient,
     id: Long,
@@ -64,9 +64,9 @@ class SubscriptionAndroidCalendar private constructor(
         info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
     }
 
-    class Factory: AndroidCalendarFactory<SubscriptionAndroidCalendar> {
-        override fun newInstance(account: Account, provider: ContentProviderClient, id: Long): SubscriptionAndroidCalendar =
-            SubscriptionAndroidCalendar(account, provider, id)
+    class Factory: AndroidCalendarFactory<LocalCalendar> {
+        override fun newInstance(account: Account, provider: ContentProviderClient, id: Long): LocalCalendar =
+            LocalCalendar(account, provider, id)
     }
 
 }

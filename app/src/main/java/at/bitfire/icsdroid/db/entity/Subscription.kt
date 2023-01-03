@@ -23,7 +23,7 @@ import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
+import at.bitfire.icsdroid.db.sync.LocalCalendar
 import java.io.FileNotFoundException
 import java.net.MalformedURLException
 
@@ -82,12 +82,12 @@ data class Subscription(
             context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
         /**
-         * Creates a [Subscription] from a [SubscriptionAndroidCalendar].
+         * Creates a [Subscription] from a [LocalCalendar].
          * @param calendar The calendar to create the subscription from.
          * @return A new subscription that has the contents of [calendar].
          * @throws IllegalArgumentException If the [calendar] doesn't have a valid display name.
          */
-        fun fromCalendar(calendar: SubscriptionAndroidCalendar) =
+        fun fromCalendar(calendar: LocalCalendar) =
             Subscription(
                 id = calendar.id,
                 url = calendar.url!!.let { Uri.parse(it) },
@@ -212,7 +212,7 @@ data class Subscription(
     fun getCalendar(context: Context) = AndroidCalendar.findByID(
         account,
         getProvider(context)!!,
-        SubscriptionAndroidCalendar.Factory(),
+        LocalCalendar.Factory(),
         id
     )
 

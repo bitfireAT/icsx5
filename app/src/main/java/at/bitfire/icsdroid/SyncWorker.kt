@@ -13,7 +13,7 @@ import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.db.sync.SubscriptionAndroidCalendar
+import at.bitfire.icsdroid.db.sync.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -114,7 +114,7 @@ class SyncWorker(
             val calendars = AndroidCalendar.find(
                 account,
                 provider,
-                SubscriptionAndroidCalendar.Factory(),
+                LocalCalendar.Factory(),
                 null,
                 null,
             )
