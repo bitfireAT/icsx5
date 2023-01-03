@@ -2,6 +2,7 @@ package at.bitfire.icsdroid.ui.data
 
 import android.util.Log
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.*
 import at.bitfire.icsdroid.Constants
@@ -44,5 +45,42 @@ fun NavGraphBuilder.composable(
         popEnterTransition,
         popExitTransition,
         content,
+    )
+}
+
+@ExperimentalAnimationApi
+fun NavGraphBuilder.animatedComposable(
+    path: NavigationPath,
+    deepLinks: List<NavDeepLink> = emptyList(),
+    content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
+) {
+    composable(
+        path,
+        deepLinks = deepLinks,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(400)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(400)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(700)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(700)
+            )
+        },
+        content = content,
     )
 }

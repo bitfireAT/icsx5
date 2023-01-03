@@ -3,9 +3,7 @@ package at.bitfire.icsdroid.ui.activity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
@@ -16,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavType
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.data.NavigationPath
-import at.bitfire.icsdroid.ui.data.composable
+import at.bitfire.icsdroid.ui.data.animatedComposable
 import at.bitfire.icsdroid.ui.model.CalendarModel
 import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.LoadingBox
@@ -52,64 +50,12 @@ class MainActivity : AppCompatActivity() {
         setContentThemed {
             val navController = rememberAnimatedNavController()
             AnimatedNavHost(navController, startDestination = Paths.Subscriptions.route) {
-                composable(
-                    Paths.Subscriptions,
-                    enterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentScope.SlideDirection.Left,
-                            animationSpec = tween(700)
-                        )
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentScope.SlideDirection.Left,
-                            animationSpec = tween(700)
-                        )
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
-                    }
-                ) { SubscriptionsScreen(navController, model) }
-                composable(
-                    Paths.Subscription,
-                    enterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentScope.SlideDirection.Left,
-                            animationSpec = tween(400)
-                        )
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(400)
-                        )
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(700)
-                        )
-                    }
-                ) { entry ->
+                animatedComposable(Paths.Subscriptions) { SubscriptionsScreen(navController, model) }
+                animatedComposable(Paths.Subscription) { entry ->
                     val id = entry.arguments?.getLong("id") ?: run {
                         toast(stringResource(R.string.could_not_load_calendar))
                         navController.navigate(Paths.Subscriptions.route)
-                        return@composable
+                        return@animatedComposable
                     }
                     LaunchedEffect(Unit) {
                         editModel.load(id)
