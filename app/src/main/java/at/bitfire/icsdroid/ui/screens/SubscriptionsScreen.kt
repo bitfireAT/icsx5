@@ -62,7 +62,7 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(onClick = { Paths.Create.navigate(navHostController) }) {
                 Icon(
                     Icons.Rounded.Add,
                     stringResource(R.string.activity_add_calendar),

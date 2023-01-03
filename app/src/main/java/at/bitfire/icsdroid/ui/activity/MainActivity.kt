@@ -18,16 +18,19 @@ import at.bitfire.icsdroid.ui.data.composable
 import at.bitfire.icsdroid.ui.model.CalendarModel
 import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.LoadingBox
+import at.bitfire.icsdroid.ui.screens.CreateSubscription
 import at.bitfire.icsdroid.ui.screens.SubscriptionScreen
 import at.bitfire.icsdroid.ui.screens.SubscriptionsScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import at.bitfire.icsdroid.utils.toast
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.pager.ExperimentalPagerApi
 
 @OptIn(
-    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
     ExperimentalMaterialApi::class,
+    ExperimentalAnimationApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
 )
@@ -37,6 +40,8 @@ class MainActivity : AppCompatActivity() {
             val Subscriptions = NavigationPath("subscriptions")
 
             val Subscription = NavigationPath("subscription", mapOf("id" to NavType.LongType))
+
+            val Create = NavigationPath("create")
         }
     }
 
@@ -65,6 +70,7 @@ class MainActivity : AppCompatActivity() {
                         SubscriptionScreen(navController, it)
                     } ?: LoadingBox()
                 }
+                composable(Paths.Create) { CreateSubscription(navController) }
             }
         }
     }
