@@ -10,8 +10,6 @@ import net.fortuna.ical4j.model.property.LastModified
 
 /**
  * Serves as an interface with the system's calendar.
- *
- * Formerly `LocalEvent`.
  */
 class LocalEvent : AndroidEvent {
 
@@ -22,7 +20,14 @@ class LocalEvent : AndroidEvent {
         const val COLUMN_LAST_MODIFIED = CalendarContract.Events.SYNC_DATA2
     }
 
+    /**
+     * The uid of the event.
+     */
     var uid: String? = null
+
+    /**
+     * The timestamp of the moment when the event was modified for the last time.
+     */
     var lastModified = 0L
 
     /**
