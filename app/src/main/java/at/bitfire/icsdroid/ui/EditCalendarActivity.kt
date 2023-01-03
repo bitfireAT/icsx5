@@ -318,7 +318,6 @@ class EditCalendarActivity : AppCompatActivity() {
         fun delete(): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to delete.")
             subscription.delete(getApplication())
-            subscription.deleteAndroidEvent(getApplication())
             CalendarCredentials(getApplication()).put(subscription, null, null)
         }
     }
