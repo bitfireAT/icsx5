@@ -74,7 +74,6 @@ data class Subscription(
 
         /**
          * Gets the calendar provider for a given context.
-         * @author Arnau Mora
          * @param context The context that is making the request.
          * @return The [ContentProviderClient] that provides an interface with the system's calendar.
          */
@@ -92,7 +91,8 @@ data class Subscription(
                 id = calendar.id,
                 url = calendar.url!!.let { Uri.parse(it) },
                 eTag = calendar.eTag,
-                displayName = calendar.displayName ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
+                displayName = calendar.displayName
+                    ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
                 accountName = calendar.account.name,
                 accountType = calendar.account.type,
                 lastModified = calendar.lastModified,
@@ -111,7 +111,6 @@ data class Subscription(
 
     /**
      * Gets a [LiveData] that gets updated with the error message of the given subscription.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @throws SQLException If any error occurs with the request.
      */
@@ -120,15 +119,25 @@ data class Subscription(
             .subscriptionsDao()
             .getErrorMessageLive(id)
 
+    /**
+     * Removes the subscription from the database, and its matching calendar from the system.
+     * @param context The context that is making the request.
+     * @throws SQLException If any error occurs when updating the database.
+     * @throws RemoteException If any error occurs when updating the system's database.
+     */
     @WorkerThread
-    suspend fun delete(context: Context) =
+    suspend fun delete(context: Context) {
+        // Remove the subscription from the database
         AppDatabase.getInstance(context)
             .subscriptionsDao()
             .delete(this)
 
+        // Remove the calendar from the system
+        deleteAndroidCalendar(context)
+    }
+
     /**
      * Updates the status of a subscription that has not been modified. This is updating its [Subscription.lastSync] to the current time.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param lastSync The synchronization time to set. Can be left as default, and will match the current system time.
      * @throws SQLException If any error occurs with the update.
@@ -145,7 +154,6 @@ data class Subscription(
     /**
      * Updates the status of a subscription that has just been modified. This removes its [Subscription.errorMessage], and updates the [Subscription.eTag],
      * [Subscription.lastModified] and [Subscription.lastSync].
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param eTag The new eTag to set.
      * @param lastModified The new date to set for [Subscription.lastModified].
@@ -164,7 +172,6 @@ data class Subscription(
 
     /**
      * Updates the error message of the subscription.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param message The error message to give to the subscription.
      * @throws SQLException If any error occurs with the update.
@@ -177,7 +184,6 @@ data class Subscription(
 
     /**
      * Updates the [Subscription.url] field to the given one.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param url The new url to set.
      * @throws SQLException If any error occurs with the update.
@@ -192,7 +198,6 @@ data class Subscription(
 
     /**
      * Updates the [Subscription.url] field to the given one.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param url The new url to set.
      * @throws SQLException If any error occurs with the update.
@@ -203,7 +208,6 @@ data class Subscription(
 
     /**
      * Provides an [AndroidCalendar] from the current subscription.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @return A new calendar that matches the current subscription.
      * @throws NullPointerException If a provider could not be obtained from the [context].
@@ -218,7 +222,6 @@ data class Subscription(
 
     /**
      * Removes all the events from the subscription that are not in the [uids] list.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param uids The list of uids to retain.
      * @throws SQLException If any error occurs with the update.
@@ -232,7 +235,6 @@ data class Subscription(
 
     /**
      * Provides iCalendar event color values to Android.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @throws IllegalArgumentException If a provider could not be obtained from the [context].
      * @throws SQLException If there's any issues while updating the system's database.
@@ -247,7 +249,6 @@ data class Subscription(
 
     /**
      * Removes all events from the system's calendar whose uid is not included in the [uids] list.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param uids The uids to keep.
      * @return The amount of events removed.
@@ -292,7 +293,6 @@ data class Subscription(
 
     /**
      * Queries an Android Event from the System's Calendar by its uid.
-     * @author Arnau Mora
      * @param context The context that is making the request.
      * @param uid The uid of the event.
      * @throws FileNotFoundException If the subscription still not has a Calendar in the system.
@@ -335,7 +335,6 @@ data class Subscription(
 
     /**
      * Deletes the Android calendar associated with this subscription.
-     * @author Arnau Mora
      * @param context The context making the request.
      * @return The number of rows affected, or null if the [context] given doesn't have a valid
      * provider.
