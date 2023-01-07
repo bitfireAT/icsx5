@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
+import at.bitfire.icsdroid.ui.reusable.WarningCard
 
 @Preview(
     showBackground = true,
@@ -41,6 +42,7 @@ fun CreateSubscriptionLinkPage(model: CreateSubscriptionModel = viewModel()) {
 
     val url by model.url
     val urlError by model.urlError
+    val showInsecureUrlWarning by model.insecureUrlWarning
 
     var requiresAuth by model.requiresAuth
     var username by model.username
@@ -57,6 +59,10 @@ fun CreateSubscriptionLinkPage(model: CreateSubscriptionModel = viewModel()) {
         autofillTypes = listOf(AutofillType.Password),
         onFill = { password = it },
     ).also { LocalAutofillTree.current += it }
+
+    AnimatedVisibility(visible = showInsecureUrlWarning) {
+        WarningCard(textRes = R.string.add_calendar_authentication_without_https_warning)
+    }
 
     OutlinedTextField(
         value = url,

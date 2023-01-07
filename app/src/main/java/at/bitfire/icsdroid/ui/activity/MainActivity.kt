@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        createModel.initialize(this)
+
         setContentThemed {
             val navController = rememberAnimatedNavController()
             AnimatedNavHost(navController, startDestination = Paths.Subscriptions.route) {

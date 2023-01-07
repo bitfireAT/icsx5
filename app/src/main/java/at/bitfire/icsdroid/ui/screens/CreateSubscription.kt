@@ -97,7 +97,7 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                 Column(Modifier.fillMaxSize()) {
                     when (page) {
                         0 -> CreateSubscriptionLinkPage(model)
-                        1 -> CreateSubscriptionFilePage()
+                        1 -> CreateSubscriptionFilePage(model)
                     }
                 }
             }
