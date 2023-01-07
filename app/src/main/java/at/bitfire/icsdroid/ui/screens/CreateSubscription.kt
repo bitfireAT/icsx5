@@ -1,15 +1,13 @@
 package at.bitfire.icsdroid.ui.screens
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
-import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -17,27 +15,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
 import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.ui.pages.CreateSubscriptionFilePage
-import at.bitfire.icsdroid.ui.pages.CreateSubscriptionLinkPage
-import at.bitfire.icsdroid.ui.reusable.TabWithTextAndIcon
+import at.bitfire.icsdroid.ui.pages.CreateSubscriptionSelectPage
+import at.bitfire.icsdroid.ui.pages.CreateSubscriptionValidationPage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 
 @Composable
 @ExperimentalPagerApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 fun CreateSubscription(navHostController: NavHostController, model: CreateSubscriptionModel) {
-    var selectedTab by model.currentPage
+    val scope = rememberCoroutineScope()
+
+    var page by model.page
+
+    var selectedTab by model.selectionType
     val isValid by model.isValid
+
+    val selectionPagerState = rememberPagerState()
+    LaunchedEffect(selectionPagerState) {
+        snapshotFlow { selectionPagerState.currentPage }.collect { selectedTab = it }
+    }
 
     val pagerState = rememberPagerState()
     LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { selectedTab = it }
+        snapshotFlow { pagerState.currentPage }
+            .collect {
+                page = it
+                // If the validation page is selected, validate source
+                if (it == 1) model.validation(
+                    onSuccess = {
+                        // The uri is fine, go to the next page
+                        scope.launch { pagerState.animateScrollToPage(2) }
+                    },
+                    onError = { error ->
+                        // There has been an issue with the uri
+                        Log.e(TAG, "Uri is not valid.", error)
+                        // Go to the previous page
+                        scope.launch { pagerState.animateScrollToPage(0) }
+                        // Show error to the user
+                        // TODO: Show error to the user
+                    },
+                )
+            }
     }
 
     fun onBack() {
@@ -62,8 +88,10 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
             )
         },
         floatingActionButton = {
-            if (isValid)
-                ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
+            if (isValid && page == 0)
+                ExtendedFloatingActionButton(
+                    onClick = { scope.launch { pagerState.animateScrollToPage(page + 1) } }
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.ChevronRight,
                         contentDescription = stringResource(R.string.add_calendar_continue),
@@ -72,41 +100,28 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                 }
         }
     ) { paddingValues ->
-        Column(
+        HorizontalPager(
+            count = 3,
+            userScrollEnabled = false,
+            state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 8.dp),
-        ) {
-            TabRow(
-                selectedTabIndex = selectedTab,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                TabWithTextAndIcon(
-                    selected = selectedTab == 0,
-                    onClick = { pagerState.animateScrollToPage(0) },
-                    icon = Icons.Rounded.Link,
-                    text = R.string.add_calendar_subscribe_url,
-                )
-                TabWithTextAndIcon(
-                    selected = selectedTab == 1,
-                    onClick = { pagerState.animateScrollToPage(1) },
-                    icon = Icons.Rounded.Folder,
-                    text = R.string.add_calendar_subscribe_file,
-                )
-            }
-            HorizontalPager(
-                count = 2,
-                state = pagerState,
+                .padding(paddingValues),
+        ) { page ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) { page ->
-                Column(Modifier.fillMaxSize()) {
-                    when (page) {
-                        0 -> CreateSubscriptionLinkPage(model)
-                        1 -> CreateSubscriptionFilePage(model)
-                    }
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp),
+            ) {
+                when (page) {
+                    0 -> CreateSubscriptionSelectPage(
+                        pagerState = selectionPagerState,
+                        model = model,
+                        selectedTab = selectedTab,
+                        onTabSelected = { selectionPagerState.animateScrollToPage(it) },
+                    )
+                    1 -> CreateSubscriptionValidationPage()
+                    2 -> Text("TODO")
                 }
             }
         }

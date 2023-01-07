@@ -12,11 +12,27 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import at.bitfire.ical4android.Css3Color
+import at.bitfire.ical4android.Event
+import at.bitfire.ical4android.ICalendar
+import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.HttpUtils.toURI
+import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.utils.getString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import net.fortuna.ical4j.model.property.Color
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -36,7 +52,15 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     val fileUri = mutableStateOf<Uri?>(null)
     val fileName = mutableStateOf<String?>(null)
 
-    val currentPage = mutableStateOf(0)
+    /**
+     * Stores the type of subscription on the first page of the subscription creation wizard.
+     */
+    val selectionType = mutableStateOf(0)
+
+    /**
+     * Stores the current page in the general progress of configuration of the subscription.
+     */
+    val page = mutableStateOf(0)
 
     val isValid = mutableStateOf(false)
 
@@ -111,6 +135,30 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
         isValid.value = uri?.let { true } ?: false
     }
 
+    /**
+     * Starts the validation of the currently selected source.
+     */
+    fun validation(
+        onSuccess: () -> Unit,
+        onError: (exception: Exception) -> Unit,
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        validate { info ->
+            val exception = info.exception
+            if (exception != null) {
+                // There has been an error
+                onError(exception)
+            } else {
+                // There are no errors, everything is fine
+                onSuccess()
+            }
+        }
+    }
+
+    /**
+     * Checks that the given url is valid, or shows an error message through [urlError] otherwise.
+     * @param url The url to check for.
+     * @return A parsed [Uri] from the given [url] or `null` if [url] is not valid.
+     */
     private fun validateUri(url: String): Uri? {
         var errorMsg: String? = null
 
@@ -176,5 +224,72 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
             urlError.value = errorMsg
         }
         return uri
+    }
+
+    /**
+     * Validates that the given uri is reachable and valid.
+     */
+    private suspend fun validate(@UiThread callback: suspend CoroutineScope.(info: ResourceInfo) -> Unit) {
+        val uri = when (selectionType.value) {
+            0 -> Uri.parse(url.value)
+            else -> fileUri.value
+        }
+            ?: throw IllegalStateException("There is no valid uri stored. Type=${selectionType.value}, url=${url.value}, file=${fileUri.value}")
+        Log.i(TAG, "Validating Webcal feed $uri (authentication: $username)")
+
+        val info = ResourceInfo(uri)
+        val downloader = object : CalendarFetcher(getApplication(), uri) {
+            override suspend fun onSuccess(
+                data: InputStream,
+                contentType: MediaType?,
+                eTag: String?,
+                lastModified: Long?,
+                displayName: String?
+            ) {
+                InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
+                    val properties = mutableMapOf<String, String>()
+                    val events = Event.eventsFromReader(reader, properties)
+
+                    info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
+                    info.calendarColor =
+                            // try COLOR first
+                        properties[Color.PROPERTY_NAME]?.let { colorValue ->
+                            Css3Color.colorFromString(colorValue)
+                        } ?:
+                                // try X-APPLE-CALENDAR-COLOR second
+                                try {
+                                    properties[ICalendar.CALENDAR_COLOR]?.let { colorValue ->
+                                        Css3Color.colorFromString(colorValue)
+                                    }
+                                } catch (e: IllegalArgumentException) {
+                                    Log.w(TAG, "Couldn't parse calendar COLOR", e)
+                                    null
+                                }
+                    info.eventsFound = events.size
+                }
+
+                runBlocking(Dispatchers.Main) { callback(info) }
+            }
+
+            override suspend fun onNewPermanentUrl(target: Uri) {
+                Log.i(TAG, "Got permanent redirect when validating, saving new URL: $target")
+                val location = uri.toURI().resolve(target.toURI())
+                info.uri = location.toUri()
+            }
+
+            override suspend fun onError(error: Exception) {
+                Log.e(TAG, "Couldn't validate calendar", error)
+                info.exception = error
+                runBlocking(Dispatchers.Main) { callback(info) }
+            }
+        }
+
+        downloader.username = username.value
+        downloader.password = password.value
+
+        // directly ask for confirmation of custom certificates
+        downloader.inForeground = true
+
+        downloader.fetch()
     }
 }
