@@ -86,6 +86,24 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
         filePicker!!.launch(CALENDAR_MIME_TYPES)
     }
 
+    /**
+     * Resets all the values introduced into the form.
+     */
+    fun dispose() {
+        url.value = ""
+        urlError.value = null
+        insecureUrlWarning.value = false
+
+        requiresAuth.value = false
+        username.value = ""
+        password.value = ""
+
+        fileUri.value = null
+        fileName.value = null
+
+        isValid.value = false
+    }
+
     @UiThread
     fun updateUrl(url: String) {
         val uri = validateUri(url)

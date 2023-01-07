@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,12 +40,19 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
         snapshotFlow { pagerState.currentPage }.collect { selectedTab = it }
     }
 
+    fun onBack() {
+        Paths.Subscriptions.navigate(navHostController)
+        model.dispose()
+    }
+
+    BackHandler(onBack = ::onBack)
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.activity_add_calendar)) },
                 navigationIcon = {
-                    IconButton(onClick = { Paths.Subscriptions.navigate(navHostController) }) {
+                    IconButton(onClick = ::onBack) {
                         Icon(
                             Icons.Rounded.KeyboardArrowLeft,
                             stringResource(R.string.edit_calendar_cancel),
