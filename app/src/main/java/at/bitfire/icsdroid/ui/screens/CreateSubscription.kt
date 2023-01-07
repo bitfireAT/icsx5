@@ -67,8 +67,15 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
     }
 
     fun onBack() {
-        Paths.Subscriptions.navigate(navHostController)
-        model.dispose()
+        if (page == 0) {
+            // If on the first page, go to the main screen
+            Paths.Subscriptions.navigate(navHostController)
+            model.dispose()
+        } else if (page == 2) {
+            // If on the third page, go back to the first one
+            scope.launch { pagerState.scrollToPage(0) }
+        }
+        // Note, back pressing when validating does nothing
     }
 
     BackHandler(onBack = ::onBack)
