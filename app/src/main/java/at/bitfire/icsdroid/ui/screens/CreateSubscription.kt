@@ -102,9 +102,9 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.ChevronRight,
-                        contentDescription = stringResource(R.string.add_calendar_continue),
+                        contentDescription = stringResource(R.string.action_next),
                     )
-                    Text(stringResource(R.string.add_calendar_continue))
+                    Text(stringResource(R.string.action_next))
                 }
         }
     ) { paddingValues ->
