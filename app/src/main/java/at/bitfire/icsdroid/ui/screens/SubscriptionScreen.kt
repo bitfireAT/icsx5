@@ -186,7 +186,11 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
-                    ColorPicker(color = color?.let { Color(it) }) { newColor ->
+                    ColorPicker(
+                        color = color?.let { Color(it) },
+                        modifier = Modifier
+                            .padding(end = 20.dp),
+                    ) { newColor ->
                         color = newColor.toArgb()
                         checkDirty()
                     }
