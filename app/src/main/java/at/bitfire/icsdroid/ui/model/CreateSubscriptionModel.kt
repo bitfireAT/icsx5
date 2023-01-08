@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
@@ -22,13 +23,13 @@ import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.utils.getString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.fortuna.ical4j.model.property.Color
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType
 import java.io.InputStream
@@ -36,7 +37,7 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.net.URISyntaxException
 
-class CreateSubscriptionModel(application: Application) : AndroidViewModel(application) {
+class CreateSubscriptionModel(application: Application) : SubscriptionDetailsModel(application) {
     companion object {
         private val CALENDAR_MIME_TYPES = arrayOf("text/calendar")
     }
@@ -44,10 +45,6 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     val url = mutableStateOf("")
     val urlError = mutableStateOf<String?>(null)
     val insecureUrlWarning = mutableStateOf(false)
-
-    val requiresAuth = mutableStateOf(false)
-    val username = mutableStateOf("")
-    val password = mutableStateOf("")
 
     val fileUri = mutableStateOf<Uri?>(null)
     val fileName = mutableStateOf<String?>(null)
@@ -149,6 +146,9 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 onError(exception)
             } else {
                 // There are no errors, everything is fine
+                info.calendarColor?.let { color.value = Color(it) }
+                info.calendarName?.let { displayName.value = it }
+                uri.value = info.uri
                 onSuccess()
             }
         }
@@ -253,7 +253,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                     info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
                     info.calendarColor =
                             // try COLOR first
-                        properties[Color.PROPERTY_NAME]?.let { colorValue ->
+                        properties[net.fortuna.ical4j.model.property.Color.PROPERTY_NAME]?.let { colorValue ->
                             Css3Color.colorFromString(colorValue)
                         } ?:
                                 // try X-APPLE-CALENDAR-COLOR second
