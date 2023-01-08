@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.databinding.CredentialsBinding
 
+@Deprecated("Use Jetpack Compose")
 class CredentialsFragment: Fragment() {
 
     val model by activityViewModels<CredentialsModel>()

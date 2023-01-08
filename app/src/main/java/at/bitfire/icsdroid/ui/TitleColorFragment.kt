@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.joda.time.Minutes
 import org.joda.time.format.PeriodFormat
 
+@Deprecated("Use Jetpack Compose")
 class TitleColorFragment : Fragment() {
 
     private val model by activityViewModels<TitleColorModel>()

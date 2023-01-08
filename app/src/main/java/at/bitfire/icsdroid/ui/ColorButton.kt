@@ -11,6 +11,7 @@ import android.graphics.drawable.shapes.OvalShape
 import android.util.AttributeSet
 import android.view.View
 
+@Deprecated("Use Jetpack Compose")
 class ColorButton(
         context: Context,
         attributeSet: AttributeSet?

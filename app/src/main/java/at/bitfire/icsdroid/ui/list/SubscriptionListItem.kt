@@ -35,7 +35,12 @@ fun SubscriptionListItem(
             .padding(16.dp)
             .clickable(enabled = onClick != null) { onClick?.invoke() },
     ) {
-        ColorPicker(color = subscription.color?.let { Color(it) }, enabled = false)
+        ColorPicker(
+            color = subscription.color?.let { Color(it) },
+            enabled = false,
+            modifier = Modifier
+                .padding(end = 20.dp),
+        )
         Column(
             modifier = Modifier
                 .weight(1f),

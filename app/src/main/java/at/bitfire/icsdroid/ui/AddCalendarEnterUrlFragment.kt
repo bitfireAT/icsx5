@@ -21,6 +21,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
 
+@Deprecated("Use Jetpack Compose")
 class AddCalendarEnterUrlFragment: Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()

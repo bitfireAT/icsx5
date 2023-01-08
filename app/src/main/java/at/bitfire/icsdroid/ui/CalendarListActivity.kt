@@ -41,6 +41,7 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.DateFormat
 import java.util.*
 
+@Deprecated("Use Jetpack Compose")
 class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
     companion object {
         /**

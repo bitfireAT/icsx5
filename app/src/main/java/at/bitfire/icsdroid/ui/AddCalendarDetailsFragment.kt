@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.MalformedURLException
 
+@Deprecated("Use Jetpack Compose")
 class AddCalendarDetailsFragment : Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()

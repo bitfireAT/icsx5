@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.db.entity.Subscription
 
+@Deprecated("Use Jetpack Compose")
 class AddCalendarActivity: AppCompatActivity() {
 
     companion object {

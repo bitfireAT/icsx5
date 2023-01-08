@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
 
+@Deprecated("Use Jetpack Compose")
 class EditCalendarActivity : AppCompatActivity() {
 
     companion object {

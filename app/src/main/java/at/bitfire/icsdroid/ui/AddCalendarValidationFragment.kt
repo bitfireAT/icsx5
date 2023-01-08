@@ -31,6 +31,7 @@ import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 
+@Deprecated("Use Jetpack Compose")
 class AddCalendarValidationFragment: DialogFragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
