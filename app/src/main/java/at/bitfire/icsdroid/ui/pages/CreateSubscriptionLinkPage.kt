@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
+import at.bitfire.icsdroid.ui.reusable.RequiresAuthCard
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
 import at.bitfire.icsdroid.ui.reusable.WarningCard
 
@@ -44,22 +45,6 @@ fun CreateSubscriptionLinkPage(model: CreateSubscriptionModel = viewModel()) {
     val urlError by model.urlError
     val showInsecureUrlWarning by model.insecureUrlWarning
 
-    var requiresAuth by model.requiresAuth
-    var username by model.username
-    var password by model.password
-
-    var showPassword by remember { mutableStateOf(false) }
-
-    val passwordFocusRequester = FocusRequester()
-    val autofillUsernameNode = AutofillNode(
-        autofillTypes = listOf(AutofillType.Username, AutofillType.EmailAddress),
-        onFill = { username = it },
-    ).also { LocalAutofillTree.current += it }
-    val autofillPasswordNode = AutofillNode(
-        autofillTypes = listOf(AutofillType.Password),
-        onFill = { password = it },
-    ).also { LocalAutofillTree.current += it }
-
     AnimatedVisibility(visible = showInsecureUrlWarning) {
         WarningCard(textRes = R.string.add_calendar_authentication_without_https_warning)
     }
@@ -74,79 +59,16 @@ fun CreateSubscriptionLinkPage(model: CreateSubscriptionModel = viewModel()) {
         placeholder = { Text(stringResource(R.string.add_calendar_url_sample)) },
         isError = urlError != null,
         supportingText = { urlError?.let { Text(it) } },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Uri,
+            imeAction = ImeAction.Done,
+        ),
+        keyboardActions = KeyboardActions { keyboardController?.hide() },
     )
 
-    Card {
-        SwitchRow(
-            title = stringResource(R.string.add_calendar_requires_authentication),
-            checked = requiresAuth,
-            onCheckedChanged = { requiresAuth = it },
-        )
-        AnimatedVisibility(visible = requiresAuth) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 8.dp),
-            ) {
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned {
-                            autofillUsernameNode.boundingBox = it.boundsInWindow()
-                        },
-                    label = { Text(stringResource(R.string.add_calendar_user_name)) },
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.None,
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Text,
-                    ),
-                    keyboardActions = KeyboardActions { keyboardController?.hide() },
-                )
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(passwordFocusRequester)
-                        .onGloballyPositioned {
-                            autofillPasswordNode.boundingBox = it.boundsInWindow()
-                        },
-                    label = { Text(stringResource(R.string.add_calendar_password)) },
-                    visualTransformation = if (showPassword)
-                        VisualTransformation.None
-                    else
-                        PasswordVisualTransformation(),
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.None,
-                        imeAction = ImeAction.Done,
-                        keyboardType = KeyboardType.Password,
-                    ),
-                    keyboardActions = KeyboardActions { passwordFocusRequester.requestFocus() },
-                    trailingIcon = {
-                        IconButton(onClick = { showPassword = !showPassword }) {
-                            Icon(
-                                imageVector = if (showPassword)
-                                    Icons.Rounded.Visibility
-                                else
-                                    Icons.Rounded.VisibilityOff,
-                                contentDescription = stringResource(
-                                    if (showPassword)
-                                        R.string.add_calendar_password_hide
-                                    else
-                                        R.string.add_calendar_password_show
-                                ),
-                            )
-                        }
-                    },
-                )
-            }
-        }
-    }
+    RequiresAuthCard(
+        requiresAuthState = model.requiresAuth,
+        usernameState = model.username,
+        passwordState = model.password,
+    )
 }
