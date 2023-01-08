@@ -110,19 +110,16 @@ class CreateSubscriptionModel(application: Application) : SubscriptionDetailsMod
     /**
      * Resets all the values introduced into the form.
      */
-    fun dispose() {
-        url.value = ""
-        urlError.value = null
-        insecureUrlWarning.value = false
+    override fun dispose() {
+        super.dispose()
 
         requiresAuth.value = false
         username.value = ""
         password.value = ""
 
-        fileUri.value = null
-        fileName.value = null
-
-        isValid.value = false
+        color.value = Color(Subscription.DEFAULT_COLOR)
+        displayName.value = ""
+        uri.value = null
     }
 
     @UiThread
