@@ -19,6 +19,7 @@ import at.bitfire.icsdroid.R
 @Composable
 fun ColorPicker(
     color: Color?,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onColorPicked: (color: Color) -> Unit = {}
 ) {
@@ -114,8 +115,8 @@ fun ColorPicker(
     ColorCircle(
         modifier = Modifier
             .size(52.dp)
-            .padding(end = 20.dp)
-            .clickable(enabled) { showingDialog = true },
+            .clickable(enabled) { showingDialog = true }
+            .then(modifier),
         color = color ?: Color.White,
     )
 }
