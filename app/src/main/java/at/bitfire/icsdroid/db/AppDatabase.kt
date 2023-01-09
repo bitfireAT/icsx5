@@ -21,6 +21,15 @@ abstract class AppDatabase : RoomDatabase() {
         private var instance: AppDatabase? = null
 
         /**
+         * This function is only intended to be used by tests, use [getInstance], it initializes
+         * the instance automatically.
+         */
+        @Deprecated("This function is only intended to be used by tests.", ReplaceWith(""))
+        fun setInstance(instance: AppDatabase?) {
+            this.instance = instance
+        }
+
+        /**
          * Gets or instantiates the database singleton. Thread-safe.
          * @param context The application's context, required to create the database.
          */
