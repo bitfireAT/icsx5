@@ -1,6 +1,5 @@
 package at.bitfire.icsdroid.migration
 
-import android.Manifest
 import android.accounts.Account
 import android.content.ContentProviderClient
 import android.content.ContentResolver
@@ -11,7 +10,6 @@ import android.util.Log
 import androidx.core.content.contentValuesOf
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.work.Configuration
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
