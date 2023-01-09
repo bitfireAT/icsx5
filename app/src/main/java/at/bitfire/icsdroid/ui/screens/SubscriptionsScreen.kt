@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.screens
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
+import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
+import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.SubscriptionListItem
 import at.bitfire.icsdroid.ui.model.CalendarModel
 
@@ -35,6 +38,11 @@ import at.bitfire.icsdroid.ui.model.CalendarModel
 @ExperimentalMaterial3Api
 fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarModel) {
     val context = LocalContext.current
+
+    var showSyncIntervalDialog by remember { mutableStateOf(false) }
+
+    if (showSyncIntervalDialog)
+        SyncIntervalDialog { showSyncIntervalDialog = false }
 
     Scaffold(
         topBar = {
@@ -50,11 +58,13 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
                         onDismissRequest = { menuExpanded = false },
                     ) {
                         DropdownMenuItem(
-                            onClick = { },
+                            onClick = { showSyncIntervalDialog = true },
                             text = { Text(stringResource(R.string.calendar_list_set_sync_interval)) },
                         )
                         DropdownMenuItem(
-                            onClick = { },
+                            onClick = {
+                                context.startActivity(Intent(context, InfoActivity::class.java))
+                            },
                             text = { Text(stringResource(R.string.calendar_list_info)) },
                         )
                     }
