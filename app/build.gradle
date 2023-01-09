@@ -213,11 +213,13 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:${versions.accompanist}"
 
     // for tests
-    androidTestImplementation 'androidx.test:runner:1.5.0'
-    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation "androidx.test:runner:${versions.androidxTest}"
+    androidTestImplementation "androidx.test:rules:${versions.androidxTest}"
+    androidTestImplementation "androidx.test:core-ktx:${versions.androidxTest}"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+    androidTestImplementation "androidx.work:work-testing:2.7.1"
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
     implementation "io.github.serpro69:kotlin-faker:${versions.faker}"

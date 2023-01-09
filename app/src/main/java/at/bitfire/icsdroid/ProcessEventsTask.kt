@@ -47,14 +47,10 @@ class ProcessEventsTask(
     val subscription: Subscription,
     val forceResync: Boolean
 ) {
-    private lateinit var database: AppDatabase
-
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
-            database = AppDatabase.getInstance(context)
-
             // provide iCalendar event color values to Android
             subscription.insertColors(context)
 
