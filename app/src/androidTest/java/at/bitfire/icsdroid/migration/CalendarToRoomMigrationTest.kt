@@ -67,7 +67,6 @@ class CalendarToRoomMigrationTest {
         database = Room.inMemoryDatabaseBuilder(appContext, AppDatabase::class.java).build()
         dao = database.subscriptionsDao()
 
-        @Suppress("DEPRECATION")
         AppDatabase.setInstance(database)
     }
 
