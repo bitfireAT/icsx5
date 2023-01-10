@@ -70,6 +70,33 @@ class CalendarToRoomMigrationTest {
         AppDatabase.setInstance(database)
     }
 
+    private val account = Account("LocalCalendarTest", ACCOUNT_TYPE_LOCAL)
+    private lateinit var calendar: LocalCalendar
+
+    @Before
+    fun prepareCalendar() {
+        val resUri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${CalendarFetcherTest.testContext.packageName}/${R.raw.vienna_evolution}"
+        val uri = AndroidCalendar.create(
+            account,
+            provider,
+            contentValuesOf(
+                CalendarContract.Calendars.NAME to resUri,
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME to "LocalCalendarTest",
+            ),
+        )
+        calendar = AndroidCalendar.findByID(
+            account,
+            provider,
+            LocalCalendar.Factory(),
+            ContentUris.parseId(uri)
+        )
+    }
+
+    @After
+    fun shutdown() {
+        calendar.delete()
+    }
+
     @Test
     fun testSubscriptionCreated() {
         val worker = TestListenableWorkerBuilder<SyncWorker>(
