@@ -101,6 +101,12 @@ class CalendarToRoomMigrationTest {
     fun testSubscriptionCreated() {
         val worker = TestListenableWorkerBuilder<SyncWorker>(
             context = appContext,
+        ).setInputData(
+            workDataOf(
+                // Choose the correct account type
+                SyncWorker.ACCOUNT_NAME to account.name,
+                SyncWorker.ACCOUNT_TYPE to account.type,
+            ),
         ).build()
 
         runBlocking {
