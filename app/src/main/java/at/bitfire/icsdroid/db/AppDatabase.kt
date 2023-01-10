@@ -1,6 +1,7 @@
 package at.bitfire.icsdroid.db
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -24,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
          * This function is only intended to be used by tests, use [getInstance], it initializes
          * the instance automatically.
          */
-        @Deprecated("This function is only intended to be used by tests.", ReplaceWith(""))
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         fun setInstance(instance: AppDatabase?) {
             this.instance = instance
         }
