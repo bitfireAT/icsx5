@@ -14,4 +14,7 @@ object Constants {
 
     val USER_AGENT = "ICSx5/${BuildConfig.VERSION_NAME} (ical4j/${Ical4Android.ical4jVersion} okhttp/${OkHttp.VERSION} Android/${Build.VERSION.RELEASE})"
 
+    /** Represents one day in seconds. */
+    const val ONE_DAY = 86400
+
 }
