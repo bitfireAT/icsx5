@@ -45,6 +45,8 @@ open class SubscriptionDetailsModel(application: Application): AndroidViewModel(
         color.value = Color(Subscription.DEFAULT_COLOR)
         displayName.value = ""
         uri.value = null
+
+        fieldsEnabled.value = true
     }
 
     fun getUriDisplayName() = uri.value?.let { uri ->
