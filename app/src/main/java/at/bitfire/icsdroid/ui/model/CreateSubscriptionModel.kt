@@ -12,7 +12,6 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
@@ -71,7 +70,9 @@ class CreateSubscriptionModel(application: Application) : SubscriptionDetailsMod
      * Initializes all the features of the view model that require an activity.
      * @param activity The activity that will be doing all the calls to the ViewModel.
      */
-    fun initialize(activity: AppCompatActivity) {
+    override fun initialize(activity: AppCompatActivity) {
+        super.initialize(activity)
+
         filePicker =
             activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                 if (uri != null) {
@@ -145,7 +146,13 @@ class CreateSubscriptionModel(application: Application) : SubscriptionDetailsMod
                 // There are no errors, everything is fine
                 info.calendarColor?.let { color.value = Color(it) }
                 info.calendarName?.let { displayName.value = it }
-                uri.value = info.uri
+                uri.value = when (selectionType.value) {
+                    // If the selection type is URL
+                    0 -> Uri.parse(url.value)
+                    // If the selection type is file
+                    else -> fileUri.value
+                }
+                getUriDisplayName()?.let { displayName.value = it }
                 onSuccess()
             }
         }
