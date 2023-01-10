@@ -1,14 +1,9 @@
 package at.bitfire.icsdroid
 
 import android.Manifest
-import android.accounts.Account
-import android.content.ContentValues
 import android.os.Build
-import android.provider.CalendarContract
 import android.util.Log
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.Constants.TAG
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -47,16 +42,8 @@ class InitCalendarProviderRule private constructor(): TestRule {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT < 31)
                 Log.w(TAG, "Calendar provider initialization may or may not work. See InitCalendarProviderRule")
-            initCalendarProvider()
 
             base.evaluate()
-        }
-
-        private fun initCalendarProvider() {
-            val account = Account("LocalCalendarTest", CalendarContract.ACCOUNT_TYPE_LOCAL)
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val provider = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
-            AndroidCalendar.create(account, provider, ContentValues())
         }
     }
 
