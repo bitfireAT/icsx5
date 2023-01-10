@@ -1,9 +1,14 @@
 package at.bitfire.icsdroid.migration
 
+import android.accounts.Account
 import android.content.ContentProviderClient
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.provider.CalendarContract
+import android.provider.CalendarContract.ACCOUNT_TYPE_LOCAL
 import android.util.Log
+import androidx.core.content.contentValuesOf
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
@@ -11,14 +16,20 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.testing.WorkManagerTestInitHelper
+import androidx.work.workDataOf
+import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.icsdroid.CalendarFetcherTest
 import at.bitfire.icsdroid.InitCalendarProviderRule
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
+import at.bitfire.icsdroid.db.sync.LocalCalendar
+import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.runBlocking
 import org.junit.*
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.rules.TestRule
 
 class CalendarToRoomMigrationTest {
@@ -116,7 +127,7 @@ class CalendarToRoomMigrationTest {
             // Get all the subscriptions
             val subscriptions = dao.getAll()
             // Check that the created calendar has been added to the subscriptions list
-            assertNotNull(subscriptions.find { it.id == calendarId })
+            assertNotNull(subscriptions.find { it.id == calendar.id })
         }
     }
 }
