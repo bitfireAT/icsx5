@@ -15,7 +15,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SwitchRow(title: String, subtitle: String? = null, checked: Boolean, onCheckedChanged: (checked: Boolean) -> Unit, modifier: Modifier = Modifier) {
+fun SwitchRow(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    checked: Boolean,
+    onCheckedChanged: (checked: Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -46,6 +53,7 @@ fun SwitchRow(title: String, subtitle: String? = null, checked: Boolean, onCheck
             onCheckedChange = onCheckedChanged,
             modifier = Modifier
                 .padding(12.dp),
+            enabled = enabled,
         )
     }
 }

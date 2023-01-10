@@ -33,6 +33,7 @@ fun RequiresAuthCard(
     requiresAuthState: MutableState<Boolean>,
     usernameState: MutableState<String>,
     passwordState: MutableState<String>,
+    enabled: Boolean = true,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -57,6 +58,7 @@ fun RequiresAuthCard(
             title = stringResource(R.string.add_calendar_requires_authentication),
             checked = requiresAuth,
             onCheckedChanged = { requiresAuth = it },
+            enabled = enabled,
         )
         AnimatedVisibility(visible = requiresAuth) {
             Column(
@@ -76,6 +78,7 @@ fun RequiresAuthCard(
                     label = { Text(stringResource(R.string.add_calendar_user_name)) },
                     singleLine = true,
                     maxLines = 1,
+                    enabled = enabled,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next,
@@ -99,6 +102,7 @@ fun RequiresAuthCard(
                         PasswordVisualTransformation(),
                     singleLine = true,
                     maxLines = 1,
+                    enabled = enabled,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Done,
