@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -24,16 +25,20 @@ import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionSelectPage
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionValidationPage
 import at.bitfire.icsdroid.ui.pages.SubscriptionDetailsPage
+import at.bitfire.icsdroid.utils.toast
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
 @ExperimentalPagerApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 fun CreateSubscription(navHostController: NavHostController, model: CreateSubscriptionModel) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var page by model.page
@@ -114,6 +119,22 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                 ExtendedFloatingActionButton(
                     onClick = {
                         model.fieldsEnabled.value = false
+                        model.create().invokeOnCompletion { exception ->
+                            runBlocking(Dispatchers.Main) {
+                                if (exception != null) {
+                                    Log.e(TAG, "Could not create subscription.", exception)
+                                    exception.localizedMessage?.let { context.toast(it) }
+                                } else {
+                                    Log.i(TAG, "Created subscription successfully.")
+                                    // Show toast to the user
+                                    context.toast(R.string.add_calendar_created)
+                                    // Navigate to the subscriptions screen
+                                    Paths.Subscriptions.navigate(navHostController)
+                                    // Dispose the form
+                                    model.dispose()
+                                }
+                            }
+                        }
                     },
                     containerColor = FloatingActionButtonDefaults.containerColor.copy(
                         alpha = if (fieldsEnabled) 1f else ContentAlpha.disabled,
