@@ -1,6 +1,10 @@
 package at.bitfire.icsdroid.ui.screens
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +29,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import at.bitfire.icsdroid.AppAccount
+import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants.ONE_DAY
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.ui.InfoActivity
@@ -32,6 +39,7 @@ import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.SubscriptionListItem
 import at.bitfire.icsdroid.ui.model.CalendarModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 @ExperimentalMaterialApi
@@ -43,6 +51,52 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
 
     if (showSyncIntervalDialog)
         SyncIntervalDialog { showSyncIntervalDialog = false }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val syncInterval by AppAccount.syncInterval.observeAsState()
+
+    // Show an snackbar or dismiss the current one when sync interval is changed
+    LaunchedEffect(syncInterval) {
+        snapshotFlow { syncInterval }
+            .distinctUntilChanged()
+            .collect { syncInterval ->
+                // TODO: Warnings are only shown the first time you open the app, or when settings are updated
+                when {
+                    // Show warning if periodic sync not enabled
+                    syncInterval == AppAccount.SYNC_INTERVAL_MANUALLY ->
+                        snackbarHostState.showSnackbar(
+                            context.getString(R.string.calendar_list_sync_interval_manually),
+                            duration = SnackbarDuration.Indefinite,
+                        )
+
+                    // Show warning if battery optimization is enabled
+                    // Battery optimizations ignore was introduced in Android M
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                            // If battery optimization is enabled
+                            !(context.getSystemService(Context.POWER_SERVICE) as PowerManager)
+                                .isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
+                            // The sync interval is set to less than a day
+                            AppAccount.syncInterval(context) < ONE_DAY &&
+                            // And there's no snackbar currently being shown
+                            snackbarHostState.currentSnackbarData == null ->
+                        snackbarHostState.showSnackbar(
+                            message = context.getString(R.string.calendar_list_battery_whitelist),
+                            actionLabel = context.getString(R.string.calendar_list_battery_whitelist_settings),
+                            duration = SnackbarDuration.Indefinite,
+                        ).also { snackbarResult ->
+                            // Check if an action has been performed, ie clicking the settings text
+                            if (snackbarResult == SnackbarResult.ActionPerformed)
+                                context.startActivity(
+                                    Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                )
+                        }
+
+                    // If any alert to be shown, dismiss all
+                    else -> snackbarHostState.currentSnackbarData?.dismiss()
+                }
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -79,6 +133,7 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
                 )
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         val isRefreshing by model.isRefreshing.observeAsState(false)
         val subscriptions by model.subscriptions.observeAsState(emptyList())
@@ -93,6 +148,7 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(subscriptions) { subscription ->
                     SubscriptionListItem(subscription) {
+                        // When an item is selected, navigate to the given subscription
                         Paths.Subscription.navigate(
                             navHostController,
                             "id" to subscription.id,
@@ -101,6 +157,7 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
                 }
             }
 
+            // Show a message when no subscriptions have been created
             AnimatedVisibility(
                 visible = subscriptions.isEmpty(),
                 modifier = Modifier
@@ -114,6 +171,7 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
                 )
             }
 
+            // Allow pull-to-refresh
             PullRefreshIndicator(isRefreshing, refreshState, Modifier.align(Alignment.TopCenter))
         }
     }
