@@ -1,13 +1,9 @@
 package at.bitfire.icsdroid.migration
 
-import android.accounts.Account
 import android.content.ContentProviderClient
-import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
-import androidx.core.content.contentValuesOf
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
@@ -15,28 +11,21 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.testing.WorkManagerTestInitHelper
-import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.InitCalendarProviderRule
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
-import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.runBlocking
 import org.junit.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.rules.TestRule
-import kotlin.random.Random
 
 class CalendarToRoomMigrationTest {
     companion object {
         @JvmField
         @ClassRule
         val initCalendarProviderRule: TestRule = InitCalendarProviderRule.getInstance()
-
-        val testContext: Context by lazy { InstrumentationRegistry.getInstrumentation().context }
 
         private lateinit var appContext: Context
 
@@ -60,9 +49,6 @@ class CalendarToRoomMigrationTest {
     private lateinit var database: AppDatabase
     private lateinit var dao: SubscriptionsDao
 
-    /** The id of the calendar to be created */
-    private var calendarId = Random.nextLong()
-
     // Initialize the test WorkManager for scheduling workers
     @Before
     fun prepareWorkManager() {
@@ -83,34 +69,6 @@ class CalendarToRoomMigrationTest {
 
         @Suppress("DEPRECATION")
         AppDatabase.setInstance(database)
-    }
-
-    @Before
-    fun prepareOldCalendar() {
-        // We add a calendar before running the worker. If everything works fine, a subscription
-        // shall be created automatically.
-        val account = Account(
-            appContext.getString(R.string.account_name),
-            appContext.getString(R.string.account_type),
-        )
-        val uri =
-            Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${testContext.packageName}/${at.bitfire.icsdroid.test.R.raw.vienna_evolution}")
-        AndroidCalendar.create(
-            account,
-            provider,
-            contentValuesOf(
-                CalendarContract.Calendars._ID to calendarId,
-                CalendarContract.Calendars.ACCOUNT_NAME to account.name,
-                CalendarContract.Calendars.ACCOUNT_TYPE to account.type,
-                CalendarContract.Calendars.NAME to uri.toString(),
-                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME to "Vienna Evolution",
-                CalendarContract.Calendars.CALENDAR_COLOR to Subscription.DEFAULT_COLOR,
-                CalendarContract.Calendars.OWNER_ACCOUNT to account.name,
-                CalendarContract.Calendars.SYNC_EVENTS to 1,
-                CalendarContract.Calendars.VISIBLE to 1,
-                CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL to CalendarContract.Calendars.CAL_ACCESS_READ,
-            ),
-        )
     }
 
     @Test

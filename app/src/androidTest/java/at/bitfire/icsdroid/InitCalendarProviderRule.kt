@@ -1,9 +1,14 @@
 package at.bitfire.icsdroid
 
 import android.Manifest
+import android.accounts.Account
+import android.content.ContentValues
 import android.os.Build
+import android.provider.CalendarContract
 import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.icsdroid.Constants.TAG
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -42,40 +47,17 @@ class InitCalendarProviderRule private constructor(): TestRule {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT < 31)
                 Log.w(TAG, "Calendar provider initialization may or may not work. See InitCalendarProviderRule")
-            // initCalendarProvider()
+            initCalendarProvider()
 
             base.evaluate()
         }
 
-        /*private fun initCalendarProvider() {
+        private fun initCalendarProvider() {
             val account = Account("LocalCalendarTest", CalendarContract.ACCOUNT_TYPE_LOCAL)
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val provider = context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
-            val uri = AndroidCalendar.create(account, provider, ContentValues())
-            val calendar = AndroidCalendar.findByID(account, provider, LocalCalendar.Factory, ContentUris.parseId(uri))
-            try {
-                // single event init
-                val normalEvent = Event().apply {
-                    dtStart = DtStart("20220120T010203Z")
-                    summary = "Event with 1 instance"
-                }
-                val normalLocalEvent = LocalEvent(calendar, normalEvent, null, null, null, 0)
-                normalLocalEvent.add()
-                LocalEvent.numInstances(provider, account, normalLocalEvent.id!!)
-
-                // recurring event init
-                val recurringEvent = Event().apply {
-                    dtStart = DtStart("20220120T010203Z")
-                    summary = "Event over 22 years"
-                    rRules.add(RRule("FREQ=YEARLY;UNTIL=20740119T010203Z"))     // year needs to be  >2074 (not supported by Android <11 Calendar Storage)
-                }
-                val localRecurringEvent = LocalEvent(calendar, recurringEvent, null, null, null, 0)
-                localRecurringEvent.add()
-                LocalEvent.numInstances(provider, account, localRecurringEvent.id!!)
-            } finally {
-                calendar.delete()
-            }
-        }*/
+            AndroidCalendar.create(account, provider, ContentValues())
+        }
     }
 
 }
