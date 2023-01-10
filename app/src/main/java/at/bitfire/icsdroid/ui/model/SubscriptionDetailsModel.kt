@@ -29,6 +29,8 @@ open class SubscriptionDetailsModel(application: Application): AndroidViewModel(
     val ignoreEmbeddedAlerts = mutableStateOf(false)
     val defaultAlarm = mutableStateOf<Long?>(null)
 
+    val fieldsEnabled = mutableStateOf(true)
+
     private lateinit var contentResolver: ContentResolver
 
     open fun initialize(activity: AppCompatActivity) {

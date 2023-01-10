@@ -2,9 +2,11 @@ package at.bitfire.icsdroid.ui.screens
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
@@ -38,6 +40,8 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
 
     var selectedTab by model.selectionType
     val isValid by model.isValid
+    val displayName by model.displayName
+    val fieldsEnabled by model.fieldsEnabled
 
     val selectionPagerState = rememberPagerState()
     LaunchedEffect(selectionPagerState) {
@@ -106,6 +110,30 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                     )
                     Text(stringResource(R.string.action_next))
                 }
+            else if (page == 2 && displayName.isNotBlank())
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        model.fieldsEnabled.value = false
+                    },
+                    containerColor = FloatingActionButtonDefaults.containerColor.copy(
+                        alpha = if (fieldsEnabled) 1f else ContentAlpha.disabled,
+                    ),
+                    elevation = if (fieldsEnabled)
+                        FloatingActionButtonDefaults.elevation()
+                    else
+                        FloatingActionButtonDefaults.loweredElevation(),
+                ) {
+                    if (fieldsEnabled)
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = stringResource(R.string.add_calendar_create),
+                        )
+                    else
+                        CircularProgressIndicator()
+                    AnimatedVisibility(visible = fieldsEnabled) {
+                        Text(stringResource(R.string.add_calendar_create))
+                    }
+                }
         }
     ) { paddingValues ->
         HorizontalPager(
@@ -129,7 +157,7 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                         onTabSelected = { selectionPagerState.animateScrollToPage(it) },
                     )
                     1 -> CreateSubscriptionValidationPage()
-                    2 -> SubscriptionDetailsPage()
+                    2 -> SubscriptionDetailsPage(model)
                 }
             }
         }

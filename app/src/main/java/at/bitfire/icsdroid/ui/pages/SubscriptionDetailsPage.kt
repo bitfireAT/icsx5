@@ -15,7 +15,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.model.SubscriptionDetailsModel
 import at.bitfire.icsdroid.ui.reusable.ColorPicker
@@ -25,13 +24,15 @@ import at.bitfire.icsdroid.ui.reusable.SwitchRow
 @Composable
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-fun SubscriptionDetailsPage(model: SubscriptionDetailsModel = viewModel()) {
+fun SubscriptionDetailsPage(model: SubscriptionDetailsModel) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var displayName by model.displayName
     var color by model.color
     var ignoreEmbeddedAlerts by model.ignoreEmbeddedAlerts
     var defaultAlarm by model.defaultAlarm
+
+    val fieldsEnabled by model.fieldsEnabled
 
     val url by model.uri
 
@@ -107,12 +108,14 @@ fun SubscriptionDetailsPage(model: SubscriptionDetailsModel = viewModel()) {
         keyboardActions = KeyboardActions { },
         singleLine = true,
         maxLines = 1,
+        enabled = fieldsEnabled,
         label = { Text(stringResource(R.string.add_calendar_title_hint)) },
         leadingIcon = {
             ColorPicker(
                 color = color,
                 modifier = Modifier
                     .padding(8.dp),
+                enabled = fieldsEnabled,
             ) { color = it }
         },
     )
@@ -122,6 +125,7 @@ fun SubscriptionDetailsPage(model: SubscriptionDetailsModel = viewModel()) {
         subtitle = stringResource(R.string.add_calendar_alarms_ignore_description),
         checked = ignoreEmbeddedAlerts,
         onCheckedChanged = { ignoreEmbeddedAlerts = it },
+        enabled = fieldsEnabled,
     )
     SwitchRow(
         title = stringResource(R.string.add_calendar_alarms_default_title),
@@ -138,11 +142,13 @@ fun SubscriptionDetailsPage(model: SubscriptionDetailsModel = viewModel()) {
                 showDefaultAlarmDialog = true
             } else defaultAlarm = null
         },
+        enabled = fieldsEnabled,
     )
 
     RequiresAuthCard(
         requiresAuthState = model.requiresAuth,
         usernameState = model.username,
         passwordState = model.password,
+        enabled = fieldsEnabled,
     )
 }
