@@ -2,6 +2,7 @@ package at.bitfire.icsdroid.ui.dialog
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,16 +27,15 @@ fun SyncIntervalDialog(onDismissRequested: () -> Unit) {
         text = {
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = it },
+                onExpandedChange = { expanded = !expanded },
             ) {
                 OutlinedTextField(
                     value = options[selection],
                     onValueChange = {},
+                    modifier = Modifier.menuAnchor(),
                     readOnly = true,
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
