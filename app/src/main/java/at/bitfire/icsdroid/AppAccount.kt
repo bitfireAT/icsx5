@@ -10,6 +10,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.provider.CalendarContract
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 
 object AppAccount {
 
@@ -20,6 +21,8 @@ object AppAccount {
     private const val KEY_SYNC_INTERVAL = "syncInterval"
 
     private var account: Account? = null
+
+    val syncInterval = MutableLiveData<Long>()
 
 
     @Synchronized
@@ -53,7 +56,9 @@ object AppAccount {
 
 
     fun syncInterval(context: Context) =
-        preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY)
+        preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY).also {
+            syncInterval.postValue(it.takeIf { it != SYNC_INTERVAL_MANUALLY })
+        }
 
     fun syncInterval(context: Context, syncInterval: Long) {
         // don't use the sync framework anymore (legacy)
@@ -63,6 +68,9 @@ object AppAccount {
         preferences(context).edit()
                 .putLong(KEY_SYNC_INTERVAL, syncInterval)
                 .apply()
+
+        // Update the live data
+        this.syncInterval.postValue(syncInterval.takeIf { it != SYNC_INTERVAL_MANUALLY })
 
         // set up periodic worker
         PeriodicSyncWorker.setInterval(
