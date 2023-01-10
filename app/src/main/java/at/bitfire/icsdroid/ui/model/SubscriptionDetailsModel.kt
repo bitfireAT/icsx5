@@ -48,8 +48,8 @@ open class SubscriptionDetailsModel(application: Application): AndroidViewModel(
     fun getUriDisplayName() = uri.value?.let { uri ->
         Log.v(TAG, "Getting display name for uri: $uri")
         if (uri.scheme?.startsWith("http", true) == true) {
-            // If the uri is an url, return as is
-            uri.toString()
+            // If the uri is an url, return nothing
+            uri.toString().split('/').last()
         } else {
             // Otherwise, it's a file, try to get the file name
             Log.v(TAG, "Querying file display name...")
