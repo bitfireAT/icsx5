@@ -12,6 +12,7 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
@@ -22,6 +23,8 @@ import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.utils.getString
@@ -295,5 +298,43 @@ class CreateSubscriptionModel(application: Application) : SubscriptionDetailsMod
         downloader.inForeground = true
 
         downloader.fetch()
+    }
+
+    /**
+     * Creates the subscription.
+     * @throws IllegalStateException If [uri] is null.
+     * @return A job for supervising the progress of the request.
+     */
+    fun create() = viewModelScope.launch(Dispatchers.IO) {
+        val uri = uri.value ?: throw IllegalStateException("Uri is null")
+
+        val subscription = Subscription(
+            id = 0L,
+            eTag = null,
+            lastModified = 0L,
+            lastSync = 0L,
+            url = uri,
+            displayName = displayName.value,
+            accountName = getApplication<Application>().getString(R.string.account_name),
+            accountType = getApplication<Application>().getString(R.string.account_type),
+            ignoreEmbeddedAlerts = ignoreEmbeddedAlerts.value,
+            defaultAlarmMinutes = defaultAlarm.value,
+            color = color.value.toArgb(),
+        )
+
+        if (requiresAuth.value)
+            CalendarCredentials(getApplication()).put(
+                subscription,
+                username.value,
+                password.value,
+            )
+
+        Log.v(TAG, "Adding subscription to database...")
+        AppDatabase.getInstance(getApplication())
+            .subscriptionsDao()
+            .add(subscription)
+
+        Log.v(TAG, "Adding subscription to system...")
+        subscription.createAndroidCalendar(getApplication())
     }
 }
