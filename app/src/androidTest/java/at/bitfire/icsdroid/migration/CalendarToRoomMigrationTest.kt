@@ -36,14 +36,16 @@ class CalendarToRoomMigrationTest {
         @ClassRule
         val initCalendarProviderRule: TestRule = InitCalendarProviderRule.getInstance()
 
-        val appContext: Context by lazy { InstrumentationRegistry.getInstrumentation().targetContext }
         val testContext: Context by lazy { InstrumentationRegistry.getInstrumentation().context }
+
+        private lateinit var appContext: Context
 
         private lateinit var provider: ContentProviderClient
 
         @BeforeClass
         @JvmStatic
         fun setUpProvider() {
+            appContext = InstrumentationRegistry.getInstrumentation().targetContext
             provider = appContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
         }
 
