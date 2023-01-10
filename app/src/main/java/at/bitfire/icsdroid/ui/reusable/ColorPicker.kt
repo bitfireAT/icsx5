@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
@@ -117,6 +118,6 @@ fun ColorPicker(
             .size(52.dp)
             .clickable(enabled) { showingDialog = true }
             .then(modifier),
-        color = color ?: Color.White,
+        color = (color ?: Color.White).copy(alpha = if (enabled) 1f else ContentAlpha.disabled),
     )
 }
