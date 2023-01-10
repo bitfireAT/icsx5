@@ -17,7 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
+import at.bitfire.icsdroid.ui.model.SubscriptionDetailsModel
 import at.bitfire.icsdroid.ui.reusable.ColorPicker
 import at.bitfire.icsdroid.ui.reusable.RequiresAuthCard
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
@@ -25,7 +25,7 @@ import at.bitfire.icsdroid.ui.reusable.SwitchRow
 @Composable
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-fun CreateSubscriptionDetailsPage(model: CreateSubscriptionModel = viewModel()) {
+fun SubscriptionDetailsPage(model: SubscriptionDetailsModel = viewModel()) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var displayName by model.displayName
@@ -33,7 +33,7 @@ fun CreateSubscriptionDetailsPage(model: CreateSubscriptionModel = viewModel()) 
     var ignoreEmbeddedAlerts by model.ignoreEmbeddedAlerts
     var defaultAlarm by model.defaultAlarm
 
-    val url by model.url
+    val url by model.uri
 
     var defaultAlarmTemp by remember { mutableStateOf("") }
     var showDefaultAlarmDialog by remember { mutableStateOf(false) }
@@ -87,7 +87,7 @@ fun CreateSubscriptionDetailsPage(model: CreateSubscriptionModel = viewModel()) 
     }
 
     Text(
-        text = url,
+        text = url?.toString() ?: "",
         modifier = Modifier.fillMaxWidth(),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onBackground.copy(ContentAlpha.disabled),

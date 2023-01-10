@@ -19,9 +19,9 @@ import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
 import at.bitfire.icsdroid.ui.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.ui.pages.CreateSubscriptionDetailsPage
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionSelectPage
 import at.bitfire.icsdroid.ui.pages.CreateSubscriptionValidationPage
+import at.bitfire.icsdroid.ui.pages.SubscriptionDetailsPage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -129,7 +129,7 @@ fun CreateSubscription(navHostController: NavHostController, model: CreateSubscr
                         onTabSelected = { selectionPagerState.animateScrollToPage(it) },
                     )
                     1 -> CreateSubscriptionValidationPage()
-                    2 -> CreateSubscriptionDetailsPage()
+                    2 -> SubscriptionDetailsPage()
                 }
             }
         }
