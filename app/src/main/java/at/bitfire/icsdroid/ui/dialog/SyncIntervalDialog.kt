@@ -45,6 +45,7 @@ fun SyncIntervalDialog(onDismissRequested: () -> Unit) {
                         DropdownMenuItem(
                             text = { Text(value) },
                             onClick = { selection = index; expanded = false },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )
                     }
                 }
