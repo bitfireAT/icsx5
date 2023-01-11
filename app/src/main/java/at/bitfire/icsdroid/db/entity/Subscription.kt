@@ -43,7 +43,7 @@ import java.net.MalformedURLException
  */
 @Entity(tableName = "subscriptions")
 data class Subscription(
-    @PrimaryKey val id: Long,
+    @PrimaryKey val id: Long = 0L,
     val url: Uri,
     val eTag: String? = null,
 
