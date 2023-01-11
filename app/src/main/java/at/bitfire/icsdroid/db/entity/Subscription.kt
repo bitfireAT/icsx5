@@ -110,16 +110,6 @@ data class Subscription(
     val account = Account(accountName, accountType)
 
     /**
-     * Gets a [LiveData] that gets updated with the error message of the given subscription.
-     * @param context The context that is making the request.
-     * @throws SQLException If any error occurs with the request.
-     */
-    fun getErrorMessageLive(context: Context): LiveData<String?> =
-        AppDatabase.getInstance(context)
-            .subscriptionsDao()
-            .getErrorMessageLive(id)
-
-    /**
      * Removes the subscription from the database, and its matching calendar from the system.
      * @param context The context that is making the request.
      * @throws SQLException If any error occurs when updating the database.
