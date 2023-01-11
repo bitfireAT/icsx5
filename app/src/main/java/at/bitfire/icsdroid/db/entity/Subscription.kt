@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
-import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -105,6 +104,30 @@ data class Subscription(
                 isVisible = calendar.isVisible,
             )
     }
+
+    /**
+     * An alternative construction that takes an [Account] directly instead of individual account
+     * name and types.
+     */
+    constructor(
+        id: Long = 0L,
+        url: Uri,
+        eTag: String? = null,
+        displayName: String,
+        account: Account,
+        lastModified: Long = 0L,
+        lastSync: Long = 0L,
+        syncEvents: Boolean = false,
+        errorMessage: String? = null,
+        ignoreEmbeddedAlerts: Boolean = false,
+        defaultAlarmMinutes: Long? = null,
+        color: Int? = null,
+        isSynced: Boolean = true,
+        isVisible: Boolean = true,
+    ): this(
+        id, url, eTag, displayName, account.name, account.type, lastModified, lastSync, syncEvents,
+        errorMessage, ignoreEmbeddedAlerts, defaultAlarmMinutes, color, isSynced, isVisible,
+    )
 
     @Ignore
     val account = Account(accountName, accountType)
