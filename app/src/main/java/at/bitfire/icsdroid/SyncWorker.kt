@@ -16,7 +16,6 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.sync.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 
 class SyncWorker(
     context: Context,
@@ -42,17 +41,6 @@ class SyncWorker(
         const val ACCOUNT_NAME = "accountName"
 
         /**
-         * The maximum number of attempts to make until considering the server as "unreachable".
-         */
-        private const val MAX_ATTEMPTS = 5
-
-        /**
-         * The amount of time (in seconds) to wait once the conditions are met, before launching the work.
-         */
-        private const val INITIAL_DELAY = 10L
-
-
-        /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
@@ -67,13 +55,6 @@ class SyncWorker(
             account: Account? = null
         ) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                // Add an initial delay of 20 seconds to allow the network connection to boot up
-                .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
-                .setBackoffCriteria(
-                    BackoffPolicy.EXPONENTIAL,
-                    OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
-                    TimeUnit.MILLISECONDS,
-                )
                 .setInputData(
                     workDataOf(
                         *arrayListOf<Pair<String, Any?>>(FORCE_RESYNC to forceResync).apply {
@@ -188,10 +169,7 @@ class SyncWorker(
             Log.e(TAG, "Thread interrupted", e)
         }
 
-        return if (runAttemptCount >= MAX_ATTEMPTS)
-            Result.failure()
-        else
-            Result.retry()
+        return Result.failure()
     }
 
 }
