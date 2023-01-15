@@ -15,6 +15,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavType
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.ui.data.NavigationPath
 import at.bitfire.icsdroid.ui.data.composable
 import at.bitfire.icsdroid.ui.model.CalendarModel
@@ -60,6 +61,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         createModel.initialize(this)
+
+        // Synchronize manually when loading, this also does the migration if required
+        SyncWorker.run(this, true)
 
         setContentThemed {
             val navController = rememberAnimatedNavController()
