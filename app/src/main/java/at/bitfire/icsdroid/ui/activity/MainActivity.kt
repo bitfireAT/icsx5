@@ -29,6 +29,7 @@ import at.bitfire.icsdroid.utils.toast
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @OptIn(
     ExperimentalPagerApi::class,
@@ -36,6 +37,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
     ExperimentalAnimationApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
+    ExperimentalPermissionsApi::class,
 )
 class MainActivity : AppCompatActivity() {
     companion object {
