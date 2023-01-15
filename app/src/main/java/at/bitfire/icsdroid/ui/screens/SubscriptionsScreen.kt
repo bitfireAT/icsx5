@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.screens
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -39,11 +40,15 @@ import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.SubscriptionListItem
 import at.bitfire.icsdroid.ui.model.CalendarModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
+@ExperimentalPermissionsApi
 fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarModel) {
     val context = LocalContext.current
 
@@ -55,6 +60,30 @@ fun SubscriptionsScreen(navHostController: NavHostController, model: CalendarMod
     val snackbarHostState = remember { SnackbarHostState() }
 
     val syncInterval by AppAccount.syncInterval.observeAsState()
+
+    val permissions = rememberMultiplePermissionsState(
+        permissions = listOf(
+            // Add the post notifications permission if on Android 13+
+            *(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+            else emptyArray())
+        )
+    )
+
+    // Request permission if not granted
+    LaunchedEffect(permissions) {
+        // Listen for changes on the permissions state list
+        snapshotFlow { permissions.permissions }
+            // Call when change
+            .distinctUntilChanged()
+            // Collect changes
+            .collect { perms ->
+                // Check if any permission is not granted
+                val shouldRequest = perms.any { !it.status.isGranted }
+                // If there's a permission that has not been granted, request
+                if (shouldRequest) permissions.launchMultiplePermissionRequest()
+            }
+    }
 
     // Show an snackbar or dismiss the current one when sync interval is changed
     LaunchedEffect(syncInterval) {
