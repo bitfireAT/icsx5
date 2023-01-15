@@ -211,6 +211,7 @@ dependencies {
     // Jetpack Compose - Accompanist
     implementation "com.google.accompanist:accompanist-navigation-animation:${versions.accompanist}"
     implementation "com.google.accompanist:accompanist-pager:${versions.accompanist}"
+    implementation "com.google.accompanist:accompanist-permissions:${versions.accompanist}"
 
     // for tests
     androidTestImplementation "androidx.test:runner:${versions.androidxTest}"
