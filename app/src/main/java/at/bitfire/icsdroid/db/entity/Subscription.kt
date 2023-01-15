@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
-import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -45,7 +44,7 @@ import kotlin.random.Random
  */
 @Entity(tableName = "subscriptions")
 data class Subscription(
-    @PrimaryKey val id: Long,
+    @PrimaryKey val id: Long = 0L,
     val url: Uri,
     val eTag: String? = null,
 
@@ -120,18 +119,32 @@ data class Subscription(
             )
     }
 
+    /**
+     * An alternative construction that takes an [Account] directly instead of individual account
+     * name and types.
+     */
+    constructor(
+        id: Long = 0L,
+        url: Uri,
+        eTag: String? = null,
+        displayName: String,
+        account: Account,
+        lastModified: Long = 0L,
+        lastSync: Long = 0L,
+        syncEvents: Boolean = false,
+        errorMessage: String? = null,
+        ignoreEmbeddedAlerts: Boolean = false,
+        defaultAlarmMinutes: Long? = null,
+        color: Int? = null,
+        isSynced: Boolean = true,
+        isVisible: Boolean = true,
+    ): this(
+        id, url, eTag, displayName, account.name, account.type, lastModified, lastSync, syncEvents,
+        errorMessage, ignoreEmbeddedAlerts, defaultAlarmMinutes, color, isSynced, isVisible,
+    )
+
     @Ignore
     val account = Account(accountName, accountType)
-
-    /**
-     * Gets a [LiveData] that gets updated with the error message of the given subscription.
-     * @param context The context that is making the request.
-     * @throws SQLException If any error occurs with the request.
-     */
-    fun getErrorMessageLive(context: Context): LiveData<String?> =
-        AppDatabase.getInstance(context)
-            .subscriptionsDao()
-            .getErrorMessageLive(id)
 
     /**
      * Removes the subscription from the database, and its matching calendar from the system.

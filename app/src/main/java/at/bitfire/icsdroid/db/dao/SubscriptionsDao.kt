@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.db.interfaces.create
 
 /**
  * Creates an interface with all the subscriptions made in the database.
@@ -17,7 +18,8 @@ interface SubscriptionsDao {
     /**
      * Adds one or more new subscriptions to the database.
      *
-     * **This doesn't add the subscription to the system's calendar.**
+     * **This doesn't add the subscription to the system's calendar.** It's preferable to use
+     * [Subscription.create] adding new subscriptions.
      * @author Arnau Mora
      * @param subscriptions All the subscriptions to be added.
      * @throws SQLException If any error occurs with the request.

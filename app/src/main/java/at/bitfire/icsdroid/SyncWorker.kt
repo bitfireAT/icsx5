@@ -16,7 +16,6 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.sync.LocalCalendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 
 class SyncWorker(
     context: Context,
@@ -30,15 +29,16 @@ class SyncWorker(
         const val FORCE_RESYNC = "forceResync"
 
         /**
-         * The maximum number of attempts to make until considering the server as "unreachable".
+         * Gives the type of the account to synchronized. Must be defined together with
+         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
          */
-        private const val MAX_ATTEMPTS = 5
+        const val ACCOUNT_TYPE = "accountType"
 
         /**
-         * The amount of time (in seconds) to wait once the conditions are met, before launching the work.
+         * Gives the name of the account to synchronized. Must be defined together with
+         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
          */
-        private const val INITIAL_DELAY = 10L
-
+        const val ACCOUNT_NAME = "accountName"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -48,16 +48,23 @@ class SyncWorker(
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
          */
-        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
+        fun run(
+            context: Context,
+            force: Boolean = false,
+            forceResync: Boolean = false,
+            account: Account? = null
+        ) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                // Add an initial delay of 20 seconds to allow the network connection to boot up
-                .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
-                .setBackoffCriteria(
-                    BackoffPolicy.EXPONENTIAL,
-                    OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
-                    TimeUnit.MILLISECONDS,
+                .setInputData(
+                    workDataOf(
+                        *arrayListOf<Pair<String, Any?>>(FORCE_RESYNC to forceResync).apply {
+                            if (account != null) {
+                                add(ACCOUNT_NAME to account.name)
+                                add(ACCOUNT_TYPE to account.type)
+                            }
+                        }.toTypedArray()
+                    )
                 )
-                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")
@@ -88,9 +95,20 @@ class SyncWorker(
 
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
+        val account = if (
+            // If input data has an account name
+            inputData.hasKeyWithValueOfType<String>(ACCOUNT_NAME) &&
+            // And an account type
+            inputData.hasKeyWithValueOfType<String>(ACCOUNT_TYPE)
+        )
+            // Initialize a new account with the given parameters
+            Account(inputData.getString(ACCOUNT_NAME), inputData.getString(ACCOUNT_TYPE))
+        else
+            // Otherwise get the AppAccount
+            AppAccount.get(applicationContext)
 
         return withContext(Dispatchers.Default) {
-            performSync(AppAccount.get(applicationContext), forceResync)
+            performSync(account, forceResync)
         }
     }
 
@@ -151,10 +169,7 @@ class SyncWorker(
             Log.e(TAG, "Thread interrupted", e)
         }
 
-        return if (runAttemptCount >= MAX_ATTEMPTS)
-            Result.failure()
-        else
-            Result.retry()
+        return Result.failure()
     }
 
 }

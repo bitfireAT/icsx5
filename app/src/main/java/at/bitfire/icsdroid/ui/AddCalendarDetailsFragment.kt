@@ -17,9 +17,9 @@ import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.db.interfaces.create
 import at.bitfire.icsdroid.utils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -99,13 +99,7 @@ class AddCalendarDetailsFragment : Fragment() {
             if (credentialsModel.requiresAuth.value == true)
                 CalendarCredentials(requireActivity()).put(subscription, credentialsModel.username.value, credentialsModel.password.value)
 
-            Log.v(TAG, "Adding subscription to database...")
-            AppDatabase.getInstance(requireContext())
-                .subscriptionsDao()
-                .add(subscription)
-
-            Log.v(TAG, "Adding subscription to system...")
-            subscription.createAndroidCalendar(requireContext())
+            subscription.create(requireContext())
 
             withContext(Dispatchers.Main) {
                 toast(R.string.add_calendar_created)
