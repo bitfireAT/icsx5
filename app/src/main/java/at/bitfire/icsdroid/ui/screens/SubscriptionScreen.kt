@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -69,7 +70,12 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
         ).any { (a, b) -> a != b }
     }
 
-    val dismissDialog = { showDefaultAlarmPicker = false }
+    fun onBack() {
+        Paths.Subscriptions.navigate(navHostController)
+    }
+
+    BackHandler(onBack = ::onBack)
+
     if (showDefaultAlarmPicker)
         AlarmSetDialog(
             { showDefaultAlarmPicker = false },
@@ -85,7 +91,7 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
             TopAppBar(
                 title = { Text(stringResource(R.string.activity_edit_calendar)) },
                 navigationIcon = {
-                    IconButton(onClick = { Paths.Subscriptions.navigate(navHostController) }) {
+                    IconButton(onClick = ::onBack) {
                         Icon(
                             Icons.Rounded.KeyboardArrowLeft,
                             stringResource(R.string.edit_calendar_cancel),
@@ -175,7 +181,6 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                     if (!checked)
                         defaultAlarmMinutes = null
                     else {
-                        defaultAlarmMinutesDialog = ""
                         showDefaultAlarmPicker = true
                     }
                 },
@@ -233,7 +238,9 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                         maxLines = 1,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onGloballyPositioned { autofillUsernameNode.boundingBox = it.boundsInWindow() },
+                            .onGloballyPositioned {
+                                autofillUsernameNode.boundingBox = it.boundsInWindow()
+                            },
                     )
                     TextField(
                         value = password,
@@ -253,7 +260,9 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(passwordFocusRequester)
-                            .onGloballyPositioned { autofillPasswordNode.boundingBox = it.boundsInWindow() },
+                            .onGloballyPositioned {
+                                autofillPasswordNode.boundingBox = it.boundsInWindow()
+                            },
                         trailingIcon = {
                             IconButton(onClick = { showPassword = !showPassword }) {
                                 Icon(
