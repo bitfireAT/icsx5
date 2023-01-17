@@ -38,6 +38,7 @@ fun SubscriptionListItem(
         ColorPicker(
             color = subscription.color?.let { Color(it) },
             enabled = false,
+            displayAsEnabled = true,
             modifier = Modifier
                 .padding(end = 20.dp),
         )
