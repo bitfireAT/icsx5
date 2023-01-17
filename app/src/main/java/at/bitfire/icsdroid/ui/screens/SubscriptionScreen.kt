@@ -31,6 +31,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
+import at.bitfire.icsdroid.ui.dialog.AlarmSetDialog
 import at.bitfire.icsdroid.ui.reusable.ColorPicker
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
 
@@ -53,7 +54,6 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
     var password by remember { mutableStateOf(passwordCred ?: "") }
 
     var showDefaultAlarmPicker by remember { mutableStateOf(false) }
-    var defaultAlarmMinutesDialog by remember { mutableStateOf("") }
 
     var dirty by remember { mutableStateOf(false) }
 
@@ -71,53 +71,13 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
 
     val dismissDialog = { showDefaultAlarmPicker = false }
     if (showDefaultAlarmPicker)
-        AlertDialog(
-            onDismissRequest = dismissDialog,
-            title = { Text(stringResource(R.string.default_alarm_dialog_title)) },
-            text = {
-                Column {
-                    Text(
-                        stringResource(R.string.default_alarm_dialog_message),
-                        Modifier.fillMaxWidth(),
-                    )
-                    TextField(
-                        value = defaultAlarmMinutesDialog,
-                        onValueChange = { t ->
-                            t.toLongOrNull()
-                                ?.takeIf { it > 0 }
-                                ?.let { defaultAlarmMinutesDialog = it.toString() }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(stringResource(R.string.default_alarm_dialog_hint)) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done,
-                        ),
-                        keyboardActions = KeyboardActions {
-                            keyboardController?.hide()
-                        },
-                        singleLine = true,
-                        maxLines = 1,
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = defaultAlarmMinutesDialog.isNotBlank() && defaultAlarmMinutesDialog.toLongOrNull() != null,
-                    onClick = {
-                        defaultAlarmMinutes = defaultAlarmMinutesDialog.toLong()
-                        showDefaultAlarmPicker = false
-                        checkDirty()
-                    },
-                ) {
-                    Text(stringResource(R.string.default_alarm_dialog_set))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = dismissDialog) {
-                    Text(stringResource(R.string.default_alarm_dialog_cancel))
-                }
-            },
+        AlarmSetDialog(
+            { showDefaultAlarmPicker = false },
+            { newMinutes ->
+                defaultAlarmMinutes = newMinutes
+                showDefaultAlarmPicker = false
+                checkDirty()
+            }
         )
 
     Scaffold(
