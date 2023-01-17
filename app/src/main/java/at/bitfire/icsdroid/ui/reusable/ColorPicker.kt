@@ -17,12 +17,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 
+/**
+ * Displays a color picker that has a circle shape, filled with the [color] given.
+ *
+ * If enabled, when the user clicks the circle, a dialog appears, that lets them choose a new color.
+ * After the selection is done, [onColorPicked] is called with the new color.
+ * @param color The color to display. If null, the color will be white.
+ * @param modifier Modifiers to apply to the view.
+ * @param enabled Whether the button can be clicked.
+ * @param displayAsEnabled Only for aesthetic purposes, defaults to [enabled]. If false, the field
+ * will appear as if it was disabled, and if false, the other way around.
+ * @param onColorPicked Gets called when the user chooses a new color.
+ */
 @Composable
 fun ColorPicker(
     color: Color?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    onColorPicked: (color: Color) -> Unit = {}
+    displayAsEnabled: Boolean = enabled,
+    onColorPicked: (color: Color) -> Unit = {},
 ) {
     var currentColor by remember { mutableStateOf(color ?: Color.White) }
     var currentColorIndex by remember { mutableStateOf(0) }
@@ -118,6 +131,6 @@ fun ColorPicker(
             .size(52.dp)
             .clickable(enabled) { showingDialog = true }
             .then(modifier),
-        color = (color ?: Color.White).copy(alpha = if (enabled) 1f else ContentAlpha.disabled),
+        color = (color ?: Color.White).copy(alpha = if (displayAsEnabled) 1f else ContentAlpha.disabled),
     )
 }
