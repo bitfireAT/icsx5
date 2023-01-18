@@ -33,6 +33,8 @@ import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.activity.MainActivity.Companion.Paths
 import at.bitfire.icsdroid.ui.dialog.AlarmSetDialog
+import at.bitfire.icsdroid.ui.dialog.DeleteConfirmationDialog
+import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.ColorPicker
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
 
@@ -55,6 +57,7 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
     var password by remember { mutableStateOf(passwordCred ?: "") }
 
     var showDefaultAlarmPicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     var dirty by remember { mutableStateOf(false) }
 
@@ -84,6 +87,19 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                 showDefaultAlarmPicker = false
                 checkDirty()
             }
+        )
+    if (showDeleteDialog)
+        DeleteConfirmationDialog(
+            { showDeleteDialog = false },
+            {
+                model.delete(subscription).invokeOnCompletion { error ->
+                    if (error != null) {
+                        // TODO: Display error to user
+                        throw error
+                    }
+                    scope.launch { onBack() }
+                }
+            },
         )
 
     Scaffold(
