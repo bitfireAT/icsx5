@@ -27,4 +27,13 @@ class EditSubscriptionModel(application: Application): AndroidViewModel(applicat
     fun load(id: Long) = viewModelScope.launch(Dispatchers.IO) {
         dao.getById(id)?.let { subscription.postValue(it) }
     }
+
+    /**
+     * Unsubscribes from a subscription. Also removes the calendar from the system.
+     * @param subscription The subscription to remove.
+     * @return A [Job] for supervising the status of the request.
+     */
+    fun delete(subscription: Subscription) = viewModelScope.launch(Dispatchers.IO) {
+        subscription.delete(getApplication())
+    }
 }

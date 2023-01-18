@@ -37,13 +37,19 @@ import at.bitfire.icsdroid.ui.dialog.DeleteConfirmationDialog
 import at.bitfire.icsdroid.ui.model.EditSubscriptionModel
 import at.bitfire.icsdroid.ui.reusable.ColorPicker
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
+import kotlinx.coroutines.launch
 
 @Composable
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-fun SubscriptionScreen(navHostController: NavHostController, subscription: Subscription) {
+fun SubscriptionScreen(
+    navHostController: NavHostController,
+    subscription: Subscription,
+    model: EditSubscriptionModel,
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val (usernameCred, passwordCred) = remember { CalendarCredentials(context).get(subscription) }
 
@@ -121,7 +127,9 @@ fun SubscriptionScreen(navHostController: NavHostController, subscription: Subsc
                             stringResource(R.string.edit_calendar_send_url),
                         )
                     }
-                    IconButton(onClick = { TODO() }) {
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                    ) {
                         Icon(
                             Icons.Rounded.Delete,
                             stringResource(R.string.edit_calendar_delete),

@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     val subscription by editModel.subscription.observeAsState()
                     subscription?.let {
-                        SubscriptionScreen(navController, it)
+                        SubscriptionScreen(navController, it, editModel)
                     } ?: LoadingBox()
                 }
                 composable(Paths.Create) { CreateSubscription(navController, createModel) }
