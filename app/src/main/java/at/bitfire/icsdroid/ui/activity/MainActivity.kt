@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,10 +13,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.data.NavigationPath
 import at.bitfire.icsdroid.ui.data.composable
 import at.bitfire.icsdroid.ui.model.CalendarModel
@@ -49,6 +53,9 @@ class MainActivity : AppCompatActivity() {
 
             val Create = NavigationPath("create")
         }
+
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_COLOR = "color"
     }
 
     private val model by viewModels<CalendarModel>()
@@ -56,6 +63,8 @@ class MainActivity : AppCompatActivity() {
     private val editModel by viewModels<EditSubscriptionModel>()
 
     private val createModel by viewModels<CreateSubscriptionModel>()
+
+    private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +75,10 @@ class MainActivity : AppCompatActivity() {
         SyncWorker.run(this, true)
 
         setContentThemed {
-            val navController = rememberAnimatedNavController()
+            navController = rememberAnimatedNavController()
+
+            LaunchedEffect(Unit) { handleActions() }
+
             AnimatedNavHost(navController, startDestination = Paths.Subscriptions.route) {
                 composable(
                     Paths.Subscriptions,
@@ -111,6 +123,26 @@ class MainActivity : AppCompatActivity() {
                 }
                 composable(Paths.Create) { CreateSubscription(navController, createModel) }
             }
+        }
+    }
+
+    private fun handleActions() {
+        if (intent.action == Intent.ACTION_VIEW) {
+            // If launched by an url intent, update the url
+            intent.data?.toString()?.let { createModel.url.value = it }
+
+            Paths.Create.navigate(navController)
+        }
+        intent?.getStringExtra(EXTRA_TITLE)?.let {
+            createModel.displayName.value = it
+
+            Paths.Create.navigate(navController)
+        }
+        if (intent?.hasExtra(EXTRA_COLOR) == true) {
+            createModel.color.value = Color(
+                intent.getIntExtra(EXTRA_COLOR, Subscription.DEFAULT_COLOR)
+            )
+            Paths.Create.navigate(navController)
         }
     }
 }

@@ -74,6 +74,39 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter android:label="@string/add_calendar_subscribe_url">
+                <!-- intent filter for resources with text/calendar MIME type -->
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="text/calendar" />
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+            <intent-filter android:label="@string/add_calendar_subscribe_url">
+                <!-- intent filter for resources with webcal(s) URI scheme -->
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="webcal" />
+                <data android:scheme="webcals" />
+            </intent-filter>
+            <intent-filter android:label="@string/add_calendar_subscribe_url">
+                <!-- intent filter for resources without MIME type, but URL ending with .ics -->
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.ics" />
+                <data android:pathPattern=".*\\..*\\.ics" />
+                <data android:pathPattern=".*\\..*\\..*\\.ics" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.ics" />
+            </intent-filter>
         </activity>
 
         <activity
