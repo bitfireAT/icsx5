@@ -14,7 +14,22 @@ import at.bitfire.icsdroid.db.entity.Subscription
 class AddCalendarActivity: AppCompatActivity() {
 
     companion object {
+        @Deprecated(
+            "Use MainActivity",
+            replaceWith = ReplaceWith(
+                "EXTRA_TITLE",
+                "at.bitfire.icsdroid.ui.activity.MainActivity.EXTRA_TITLE",
+            ),
+        )
         const val EXTRA_TITLE = "title"
+
+        @Deprecated(
+            "Use MainActivity",
+            replaceWith = ReplaceWith(
+                "EXTRA_COLOR",
+                "at.bitfire.icsdroid.ui.activity.MainActivity.EXTRA_COLOR",
+            ),
+        )
         const val EXTRA_COLOR = "color"
     }
 
