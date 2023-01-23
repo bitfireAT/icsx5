@@ -168,8 +168,11 @@ class SyncWorker(
                 oldCredentials.get(subscription)
                     // Take only if there's at least an username or password
                     .takeIf { (u, p) -> u != null && p != null }
+                    // Convert the username and password into Credential
                     ?.let { Credential(subscription, it.first, it.second) }
+                    // Store the credential in the database
                     ?.let { credentialsDao.put(it) }
+                    // Remove the credential from shared preferences
                     ?.also { oldCredentials.put(subscription, null, null) }
 
             // Process each subscription
