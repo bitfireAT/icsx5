@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -38,6 +39,8 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity.Companion.EXTRA_SUBSCRIPTION_ID
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.*
 
@@ -118,6 +121,9 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
         // Check for missing permissions and ask for them
         model.checkPermissions()
+
+        // Run the synchronization for migration
+        model.firstSync()
 
         // startup fragments
         if (savedInstanceState == null)
@@ -304,6 +310,17 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
                     permissions.add(Manifest.permission.POST_NOTIFICATIONS)
 
             requiredPermissions.postValue(permissions.toTypedArray())
+        }
+
+        /**
+         * Gets a list of all the subscriptions, and if empty, runs the synchronization. This way,
+         * when the app is updated from the old calendar storage to the new database, migration is
+         * performed automatically.
+         */
+        fun firstSync() = viewModelScope.launch(Dispatchers.IO) {
+            val subscriptions = AppDatabase.getInstance(getApplication()).subscriptionsDao().getAll()
+            if (subscriptions.isEmpty())
+                SyncWorker.run(getApplication())
         }
     }
 
