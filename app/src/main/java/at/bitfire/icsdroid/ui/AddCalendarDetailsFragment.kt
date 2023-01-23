@@ -17,7 +17,7 @@ import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.interfaces.create
 import at.bitfire.icsdroid.utils.toast
@@ -97,7 +97,8 @@ class AddCalendarDetailsFragment : Fragment() {
             )
 
             if (credentialsModel.requiresAuth.value == true)
-                CalendarCredentials(requireActivity()).put(subscription, credentialsModel.username.value, credentialsModel.password.value)
+                Credential(subscription, credentialsModel.username, credentialsModel.password)
+                    .put(requireContext())
 
             subscription.create(requireContext())
 

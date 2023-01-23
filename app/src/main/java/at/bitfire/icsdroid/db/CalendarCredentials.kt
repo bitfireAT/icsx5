@@ -7,6 +7,13 @@ package at.bitfire.icsdroid.db
 import android.content.Context
 import at.bitfire.icsdroid.db.entity.Subscription
 
+@Deprecated(
+    "Use Room's Credentials from database.",
+    replaceWith = ReplaceWith(
+        "CredentialsDao.getInstance(context)",
+        "at.bitfire.icsdroid.db.AppDatabase"
+    ),
+)
 class CalendarCredentials(context: Context) {
 
     companion object {
@@ -18,6 +25,7 @@ class CalendarCredentials(context: Context) {
 
     private val credentialPrefs = context.getSharedPreferences(PREF_CREDENTIALS, 0)
 
+    @Deprecated("Use Database get function.")
     fun get(subscription: Subscription): Pair<String?, String?> {
         val url = subscription.url
         val id = subscription.id
@@ -33,6 +41,7 @@ class CalendarCredentials(context: Context) {
         return Pair(username, password)
     }
 
+    @Deprecated("Use Database put function.")
     fun put(subscription: Subscription, username: String?, password: String?) {
         val prefs = credentialPrefs.edit()
         val id = subscription.id

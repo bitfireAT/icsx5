@@ -12,6 +12,9 @@ import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.dao.put
+import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.sync.LocalCalendar
 import kotlinx.coroutines.Dispatchers
@@ -120,11 +123,11 @@ class SyncWorker(
     private suspend fun performSync(account: Account, forceResync: Boolean): Result {
         Log.i(TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
+            val database = AppDatabase.getInstance(applicationContext)
             // Get the subscriptions dao for interacting with the database.
-            val dao = AppDatabase.getInstance(applicationContext)
-                .subscriptionsDao()
+            val subscriptionsDao = database.subscriptionsDao()
             // Get a list of all the subscriptions from the database
-            val subscriptions = dao.getAll().toMutableList()
+            val subscriptions = subscriptionsDao.getAll().toMutableList()
 
             // Get a provider from the application context, or return failure
             val provider = Subscription.getProvider(applicationContext) ?: return Result.failure()
@@ -147,7 +150,7 @@ class SyncWorker(
                     // Otherwise, create a subscription for the calendar
                     val newSubscription = Subscription.fromCalendar(calendar)
                     // Add it to the database
-                    dao.add(newSubscription)
+                    subscriptionsDao.add(newSubscription)
                     // And add it to `subscriptions` so it gets processed now.
                     subscriptions.add(newSubscription)
                     Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
@@ -156,6 +159,21 @@ class SyncWorker(
                     continue
                 }
             }
+
+            // Migrate all credentials to the database
+            val credentialsDao = database.credentialsDao()
+            val oldCredentials = CalendarCredentials(applicationContext)
+            for (subscription in subscriptions)
+                // Get the credentials that might be stored for the subscription
+                oldCredentials.get(subscription)
+                    // Take only if there's at least an username or password
+                    .takeIf { (u, p) -> u != null && p != null }
+                    // Convert the username and password into Credential
+                    ?.let { Credential(subscription, it.first, it.second) }
+                    // Store the credential in the database
+                    ?.let { credentialsDao.put(it) }
+                    // Remove the credential from shared preferences
+                    ?.also { oldCredentials.put(subscription, null, null) }
 
             // Process each subscription
             subscriptions
