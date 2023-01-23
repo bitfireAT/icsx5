@@ -35,7 +35,11 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.dao.CredentialsDao
+import at.bitfire.icsdroid.db.dao.get
+import at.bitfire.icsdroid.db.dao.pop
+import at.bitfire.icsdroid.db.dao.put
+import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.utils.getSerializableCompat
 import at.bitfire.icsdroid.utils.toast
@@ -178,14 +182,16 @@ class EditCalendarActivity : AppCompatActivity() {
 
         model.active.value = subscription.isSynced
 
-        val (username, password) = CalendarCredentials(this).get(subscription)
-        val requiresAuth = username != null && password != null
-        credentialsModel.originalRequiresAuth = requiresAuth
-        credentialsModel.requiresAuth.value = requiresAuth
-        credentialsModel.originalUsername = username
-        credentialsModel.username.value = username
-        credentialsModel.originalPassword = password
-        credentialsModel.password.value = password
+        runBlocking { CredentialsDao.getInstance(this@EditCalendarActivity).get(subscription) }?.let { cred ->
+            val (_, username, password) = cred
+            val requiresAuth = username != null && password != null
+            credentialsModel.originalRequiresAuth = requiresAuth
+            credentialsModel.requiresAuth.value = requiresAuth
+            credentialsModel.originalUsername = username
+            credentialsModel.username.value = username
+            credentialsModel.originalPassword = password
+            credentialsModel.password.value = password
+        }
     }
 
 
@@ -300,11 +306,13 @@ class EditCalendarActivity : AppCompatActivity() {
             SyncWorker.run(getApplication(), forceResync = true)
 
             credentialsModel.let { model ->
-                val credentials = CalendarCredentials(getApplication())
+                val credentials = CredentialsDao.getInstance(getApplication())
                 if (model.requiresAuth.value == true)
-                    credentials.put(subscription, model.username.value, model.password.value)
+                    Credential(subscription, model.username, model.password).let {
+                        credentials.put(it)
+                    }
                 else
-                    credentials.put(subscription, null, null)
+                    credentials.pop(subscription)
             }
         }
 
@@ -318,7 +326,7 @@ class EditCalendarActivity : AppCompatActivity() {
         fun delete(): Job = viewModelScope.launch(Dispatchers.IO) {
             val subscription = subscription.value ?: throw IllegalStateException("There's no loaded subscription to delete.")
             subscription.delete(getApplication())
-            CalendarCredentials(getApplication()).put(subscription, null, null)
+            CredentialsDao.getInstance(getApplication()).pop(subscription)
         }
     }
 

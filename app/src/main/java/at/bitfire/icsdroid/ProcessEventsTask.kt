@@ -12,8 +12,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
-import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.dao.CredentialsDao
+import at.bitfire.icsdroid.db.dao.get
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.db.sync.LocalEvent
 import at.bitfire.icsdroid.ui.EditCalendarActivity
@@ -154,7 +154,8 @@ class ProcessEventsTask(
             }
         }
 
-        CalendarCredentials(context).get(subscription).let { (username, password) ->
+        val credentialsDao = CredentialsDao.getInstance(context)
+        credentialsDao.get(subscription)?.let { (_, username, password) ->
             downloader.username = username
             downloader.password = password
         }
