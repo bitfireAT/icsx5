@@ -7,14 +7,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import at.bitfire.icsdroid.db.AppDatabase.Companion.getInstance
+import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
+import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 
 /**
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
  */
 @TypeConverters(Converters::class)
-@Database(entities = [Subscription::class], version = 1)
+@Database(entities = [Subscription::class, Credential::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
@@ -57,4 +59,5 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun subscriptionsDao(): SubscriptionsDao
 
+    abstract fun credentialsDao(): CredentialsDao
 }
