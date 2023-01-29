@@ -50,7 +50,7 @@ fun Iterable<JSONObject>.toJSONArray(): JSONArray = JSONArray().apply {
  */
 fun JSONArray.mapJSONObjects(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }
 
-fun JSONArray.iterator(): IntIterator = (0 until length()).iterator()
+fun JSONArray.iterator(): Iterator<Pair<Int, Any>> = (0 until length()).map { it to get(it) }.iterator()
 
 /**
  * Checks that two arrays have the same items, with the same contents.
@@ -59,8 +59,8 @@ fun JSONArray.iterator(): IntIterator = (0 until length()).iterator()
 fun JSONArray.matches(other: JSONArray): Boolean {
     if (length() != other.length()) return false
 
-    for (index in iterator())
-        if (get(index) != other.get(index)) return false
+    for ((index, item) in iterator())
+        if (item != other.get(index)) return false
 
     return true
 }
