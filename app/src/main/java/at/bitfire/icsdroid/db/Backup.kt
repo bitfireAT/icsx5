@@ -197,11 +197,18 @@ class Backup : BackupAgent() {
      *
      * @return `true` if the application's data has changed since
      * the last backup operation; `false` otherwise.
+     * @throws JSONException If there's an issue while parsing some JSON.
      */
     private fun compareStateFile(oldState: ParcelFileDescriptor): Boolean {
         val inputStream = FileInputStream(oldState.fileDescriptor)
         val data = DataInputStream(inputStream)
-        val inputJson = JSONObject(data.reader().readText())
+        val inputJson = try {
+            JSONObject(data.reader().readText())
+        } catch (_: JSONException) {
+            // The contents of the backup stored are not correct, create a new one
+            return true
+        }
+
         return try {
             val stateVersion: Int = inputJson.getInt("agentVersion")
             if (stateVersion > AGENT_VERSION) {
