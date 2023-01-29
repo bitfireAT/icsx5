@@ -64,6 +64,15 @@ interface CredentialsDao {
     @WorkerThread
     @Query("SELECT * FROM credentials")
     suspend fun getAll(): List<Credential>
+
+    /**
+     * Clears the contents of the database.
+     *
+     * **ATTENTION!!! NO RECOVERY IS POSSIBLE**
+     */
+    @WorkerThread
+    @Query("DELETE FROM credentials")
+    suspend fun nuke()
 }
 
 /**

@@ -2,6 +2,7 @@ package at.bitfire.icsdroid.db
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -60,4 +61,15 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun subscriptionsDao(): SubscriptionsDao
 
     abstract fun credentialsDao(): CredentialsDao
+
+    /**
+     * Clears the contents of the database.
+     *
+     * **ATTENTION!!! NO RECOVERY IS POSSIBLE**
+     */
+    @WorkerThread
+    suspend fun nuke() {
+        subscriptionsDao().nuke()
+        credentialsDao().nuke()
+    }
 }

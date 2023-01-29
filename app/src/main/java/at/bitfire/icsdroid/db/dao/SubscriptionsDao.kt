@@ -121,4 +121,13 @@ interface SubscriptionsDao {
     @WorkerThread
     @Query("UPDATE subscriptions SET errorMessage=:message WHERE id=:id")
     suspend fun updateStatusError(id: Long, message: String?)
+
+    /**
+     * Clears the contents of the database.
+     *
+     * **ATTENTION!!! NO RECOVERY IS POSSIBLE**
+     */
+    @WorkerThread
+    @Query("DELETE FROM subscriptions")
+    suspend fun nuke()
 }
