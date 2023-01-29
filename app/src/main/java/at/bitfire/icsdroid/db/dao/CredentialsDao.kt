@@ -56,6 +56,14 @@ interface CredentialsDao {
     @WorkerThread
     @Query("DELETE FROM credentials WHERE subscriptionId=:subscriptionId")
     suspend fun pop(subscriptionId: Long)
+
+    /**
+     * Gets a list with all the stored credentials in the database.
+     * @throws SQLException If there's an error while making the fetch.
+     */
+    @WorkerThread
+    @Query("SELECT * FROM credentials")
+    suspend fun getAll(): List<Credential>
 }
 
 /**
