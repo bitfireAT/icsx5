@@ -17,4 +17,15 @@
           android:onClick="onShowInfo"
           app:showAsAction="never"/>
 
+    <item android:title="@string/backup"
+          app:showAsAction="never">
+        <menu>
+            <item android:title="@string/create_backup"
+                  android:onClick="onCreateBackup" />
+
+            <item android:title="@string/restore_backup"
+                  android:onClick="onRestoreBackup"  />
+        </menu>
+    </item>
+
 </menu>
