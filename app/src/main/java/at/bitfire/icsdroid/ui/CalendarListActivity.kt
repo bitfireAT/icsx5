@@ -125,8 +125,7 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
                         ?.use { stream ->
                             val raw = stream.bufferedReader().readText()
                             val json = JSONObject(raw)
-                            val data = json.getJSONObject("data")
-                            Backup.restoreBackup(this@CalendarListActivity, data, clear)
+                            Backup.restoreBackup(this@CalendarListActivity, json, clear)
                         }
 
                     withContext(Dispatchers.Main) { toast(R.string.backup_restored) }
@@ -140,15 +139,15 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.restore_method_dialog_title)
             .setMessage(R.string.restore_method_dialog_message)
-            .setPositiveButton(android.R.string.yes) { dialog, _ ->
+            .setPositiveButton(R.string.yes) { dialog, _ ->
                 dialog.dismiss()
                 restoreBackup(true)
             }
-            .setNeutralButton(android.R.string.no) { dialog, _ ->
+            .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
                 restoreBackup(false)
             }
-            .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
