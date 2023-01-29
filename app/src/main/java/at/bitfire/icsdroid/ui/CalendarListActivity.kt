@@ -102,11 +102,11 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
                 withContext(Dispatchers.Main) { toast(R.string.backup_created) }
             } catch (e: FileNotFoundException) {
-                // TODO: Handle exceptions
                 Log.e(TAG, "Could not find the backup file.", e)
+                withContext(Dispatchers.Main) { toast(R.string.file_doesnt_exist) }
             } catch (e: IOException) {
-                // TODO: Handle exceptions
                 Log.e(TAG, "Could not create the backup file.", e)
+                withContext(Dispatchers.Main) { toast(R.string.backup_create_error) }
             }
         }
     }
@@ -130,8 +130,8 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
                     withContext(Dispatchers.Main) { toast(R.string.backup_restored) }
                 } catch (e: IOException) {
-                    // TODO: Handle exceptions
                     Log.e(TAG, "Could not load the backup file.", e)
+                    withContext(Dispatchers.Main) { toast(R.string.backup_restore_error) }
                 }
             }
         }

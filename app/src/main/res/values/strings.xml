@@ -13,6 +13,7 @@
     <string name="permissions_required">Permissions required</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="file_doesnt_exist">The file doesn\'t exist.</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -28,6 +29,8 @@
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="settings_force_dark_theme">Force dark theme</string>
+
+    <!-- Backup -->
     <string name="backup">Backup</string>
     <string name="create_backup">Create Backup</string>
     <string name="restore_backup">Restore Backup</string>
@@ -39,6 +42,8 @@
     <string name="credentials_not_encrypted_dialog_message">The credentials stored in the backup will be in plain-text. Please, keep in a safe place.</string>
     <string name="restore_method_dialog_title">Choose restore method</string>
     <string name="restore_method_dialog_message">Do you want to clear the existing data before restoring? This action is not reversible.</string>
+    <string name="backup_create_error">Could not create backup</string>
+    <string name="backup_restore_error">Could not restore backup</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
