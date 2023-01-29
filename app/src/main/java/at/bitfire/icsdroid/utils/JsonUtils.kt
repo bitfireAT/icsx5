@@ -49,3 +49,18 @@ fun Iterable<JSONObject>.toJSONArray(): JSONArray = JSONArray().apply {
  * in the conversion.
  */
 fun JSONArray.mapJSONObjects(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }
+
+fun JSONArray.iterator(): IntIterator = (0 until length()).iterator()
+
+/**
+ * Checks that two arrays have the same items, with the same contents.
+ * @param other The array to compare `this` with.
+ */
+fun JSONArray.matches(other: JSONArray): Boolean {
+    if (length() != other.length()) return false
+
+    for (index in iterator())
+        if (get(index) != other.get(index)) return false
+
+    return true
+}
