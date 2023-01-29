@@ -1,5 +1,7 @@
 package at.bitfire.icsdroid.utils
 
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -34,3 +36,16 @@ fun JSONObject.getIntOrNull(key: String): Int? =
         getInt(key)
     else
         null
+
+/** Converts the [Iterable] into a [JSONArray]. */
+fun Iterable<JSONObject>.toJSONArray(): JSONArray = JSONArray().apply {
+    for (item in this@toJSONArray)
+        put(item)
+}
+
+/**
+ * Converts the array into a list of [JSONObject].
+ * @throws JSONException If an element of the array is not a [JSONObject], or an error has occurred
+ * in the conversion.
+ */
+fun JSONArray.mapJSONObjects(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }
