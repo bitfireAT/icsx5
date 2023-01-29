@@ -26,6 +26,17 @@
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="settings_force_dark_theme">Force dark theme</string>
+    <string name="backup">Backup</string>
+    <string name="create_backup">Create Backup</string>
+    <string name="restore_backup">Restore Backup</string>
+    <string name="creating_backup">Creating Backup…</string>
+    <string name="restoring_backup">Restoring Backup…</string>
+    <string name="backup_created">Backup stored!</string>
+    <string name="backup_restored">Backup restored!</string>
+    <string name="credentials_not_encrypted_dialog_title">Credentials not encrypted!</string>
+    <string name="credentials_not_encrypted_dialog_message">The credentials stored in the backup will be in plain-text. Please, keep in a safe place.</string>
+    <string name="restore_method_dialog_title">Choose restore method</string>
+    <string name="restore_method_dialog_message">Do you want to clear the existing data before restoring? This action is not reversible.</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
