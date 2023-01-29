@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -49,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -79,7 +81,9 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
     private var snackBar: Snackbar? = null
 
     /** Used for selecting a file for creating a backup */
-    private val backupCreator = registerForActivityResult(CreateDocument("application/json")) { uri ->
+    private val backupCreator = registerForActivityResult(
+        CreateDocument("application/json")
+    ) { uri ->
         if (uri == null) return@registerForActivityResult
 
         toast(R.string.creating_backup)
@@ -105,6 +109,47 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
                 Log.e(TAG, "Could not create the backup file.", e)
             }
         }
+    }
+
+    /** Used for selecting a backup to restore */
+    private val backupPicker = registerForActivityResult(OpenDocument()) { uri ->
+        if (uri == null) return@registerForActivityResult
+
+        fun restoreBackup(clear: Boolean) {
+            toast(R.string.restoring_backup)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    contentResolver
+                        .openInputStream(uri)
+                        ?.use { stream ->
+                            val raw = stream.bufferedReader().readText()
+                            val json = JSONObject(raw)
+                            val data = json.getJSONObject("data")
+                            Backup.restoreBackup(this@CalendarListActivity, data, clear)
+                        }
+
+                    withContext(Dispatchers.Main) { toast(R.string.backup_restored) }
+                } catch (e: IOException) {
+                    // TODO: Handle exceptions
+                    Log.e(TAG, "Could not load the backup file.", e)
+                }
+            }
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.restore_method_dialog_title)
+            .setMessage(R.string.restore_method_dialog_message)
+            .setPositiveButton(android.R.string.yes) { dialog, _ ->
+                dialog.dismiss()
+                restoreBackup(true)
+            }
+            .setNeutralButton(android.R.string.no) { dialog, _ ->
+                dialog.dismiss()
+                restoreBackup(false)
+            }
+            .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     /** Requests permissions when needed. Takes from [CalendarModel.REQUIRED_PERMISSIONS] */
@@ -272,7 +317,7 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
     }
 
     fun onRestoreBackup(item: MenuItem) {
-
+        backupPicker.launch(arrayOf("application/json"))
     }
 
     fun onToggleDarkMode(item: MenuItem) {
