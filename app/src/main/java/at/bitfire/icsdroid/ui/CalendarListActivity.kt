@@ -14,7 +14,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -33,14 +35,22 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
 import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.Backup
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity.Companion.EXTRA_SUBSCRIPTION_ID
+import at.bitfire.icsdroid.utils.toast
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.DateFormat
 import java.util.*
 
@@ -66,6 +76,35 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
      * Stores the snackbar currently being shown.
      */
     private var snackBar: Snackbar? = null
+
+    /** Used for selecting a file for creating a backup */
+    private val backupCreator = registerForActivityResult(CreateDocument("application/json")) { uri ->
+        if (uri == null) return@registerForActivityResult
+
+        toast(R.string.creating_backup)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val backup = Backup.createBackup(this@CalendarListActivity)
+                val backupString = backup.toString()
+                val bytes = backupString.toByteArray()
+
+                contentResolver.openFileDescriptor(uri, "w")?.use { descriptor ->
+                    FileOutputStream(descriptor.fileDescriptor).use { stream ->
+                        stream.write(bytes)
+                    }
+                }
+
+                withContext(Dispatchers.Main) { toast(R.string.backup_created) }
+            } catch (e: FileNotFoundException) {
+                // TODO: Handle exceptions
+                Log.e(TAG, "Could not find the backup file.", e)
+            } catch (e: IOException) {
+                // TODO: Handle exceptions
+                Log.e(TAG, "Could not create the backup file.", e)
+            }
+        }
+    }
 
     /** Requests permissions when needed. Takes from [CalendarModel.REQUIRED_PERMISSIONS] */
     val permissionsRequest = PermissionUtils.registerPermissionRequest(
@@ -217,6 +256,14 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
 
     fun onSetSyncInterval(item: MenuItem) {
         SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
+    }
+
+    fun onCreateBackup(item: MenuItem) {
+        backupCreator.launch("backup.json")
+    }
+
+    fun onRestoreBackup(item: MenuItem) {
+
     }
 
     fun onToggleDarkMode(item: MenuItem) {
