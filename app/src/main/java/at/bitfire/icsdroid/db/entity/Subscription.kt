@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -23,6 +24,12 @@ import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.sync.LocalCalendar
+import at.bitfire.icsdroid.utils.getIntOrNull
+import at.bitfire.icsdroid.utils.getLongOrNull
+import at.bitfire.icsdroid.utils.getStringOrNull
+import at.bitfire.icsdroid.utils.serialization.JsonSerializable
+import at.bitfire.icsdroid.utils.serialization.JsonSerializer
+import org.json.JSONObject
 import java.io.FileNotFoundException
 import java.net.MalformedURLException
 
@@ -63,8 +70,8 @@ data class Subscription(
 
     val isSynced: Boolean = true,
     val isVisible: Boolean = true,
-) {
-    companion object {
+): JsonSerializable {
+    companion object: JsonSerializer<Subscription> {
         /**
          * The default color to use in all subscriptions.
          */
@@ -103,6 +110,25 @@ data class Subscription(
                 isSynced = calendar.isSynced,
                 isVisible = calendar.isVisible,
             )
+
+        /** Converts the given [json] into [Credential]. */
+        override fun fromJSON(json: JSONObject): Subscription = Subscription(
+            json.getLong("id"),
+            json.getString("url").toUri(),
+            json.getStringOrNull("eTag"),
+            json.getString("displayName"),
+            json.getString("accountName"),
+            json.getString("accountType"),
+            json.getLong("lastModified"),
+            json.getLong("lastSync"),
+            json.getBoolean("syncEvents"),
+            json.getStringOrNull("errorMessage"),
+            json.getBoolean("ignoreEmbeddedAlerts"),
+            json.getLongOrNull("defaultAlarmMinutes"),
+            json.getIntOrNull("color"),
+            json.getBoolean("isSynced"),
+            json.getBoolean("isVisible"),
+        )
     }
 
     /**
@@ -392,5 +418,24 @@ data class Subscription(
         result = 31 * result + (defaultAlarmMinutes?.hashCode() ?: 0)
         result = 31 * result + (color ?: 0)
         return result
+    }
+
+    /** Converts the subscription's data into a [JSONObject]. */
+    override fun toJSON(): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("url", url.toString())
+        put("eTag", eTag)
+        put("displayName", displayName)
+        put("accountName", accountName)
+        put("accountType", accountType)
+        put("lastModified", lastModified)
+        put("lastSync", lastSync)
+        put("syncEvents", syncEvents)
+        put("errorMessage", errorMessage)
+        put("ignoreEmbeddedAlerts", ignoreEmbeddedAlerts)
+        put("defaultAlarmMinutes", defaultAlarmMinutes)
+        put("color", color)
+        put("isSynced", isSynced)
+        put("isVisible", isVisible)
     }
 }
