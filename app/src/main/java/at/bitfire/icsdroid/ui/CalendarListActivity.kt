@@ -43,6 +43,7 @@ import at.bitfire.icsdroid.db.Backup
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity.Companion.EXTRA_SUBSCRIPTION_ID
 import at.bitfire.icsdroid.utils.toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -259,7 +260,15 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
     }
 
     fun onCreateBackup(item: MenuItem) {
-        backupCreator.launch("backup.json")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.credentials_not_encrypted_dialog_title)
+            .setMessage(R.string.credentials_not_encrypted_dialog_message)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                backupCreator.launch("backup.json")
+            }
+            .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     fun onRestoreBackup(item: MenuItem) {
