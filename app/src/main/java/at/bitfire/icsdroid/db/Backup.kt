@@ -4,11 +4,18 @@ import android.app.backup.BackupAgent
 import android.app.backup.BackupDataInput
 import android.app.backup.BackupDataOutput
 import android.content.Context
+import android.database.SQLException
 import android.os.ParcelFileDescriptor
+import androidx.annotation.WorkerThread
+import at.bitfire.icsdroid.db.dao.put
+import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.utils.mapJSONObjects
 import at.bitfire.icsdroid.utils.matches
 import at.bitfire.icsdroid.utils.toJSONArray
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
 
@@ -20,6 +27,9 @@ class Backup : BackupAgent() {
         /** The data key where the backup is stored at */
         private const val APP_DATA_KEY = "icsx5_data"
 
+        /** The name used by the backup file */
+        private const val BACKUP_FILE_NAME = "backup.json"
+
         /**
          * Converts all the data stored in the database into a [JSONObject].
          * @param context The [Context] that is making the request.
@@ -27,6 +37,7 @@ class Backup : BackupAgent() {
          * contains a [JSONArray] that contain all the subscriptions and all the credentials
          * respectively.
          */
+        @WorkerThread
         suspend fun createBackup(context: Context): JSONObject {
             val database = AppDatabase.getInstance(context)
             val subscriptionsJson = database
@@ -50,6 +61,60 @@ class Backup : BackupAgent() {
                 put("credentials", credentialsJson)
             }
         }
+
+        /**
+         * Stores the backup obtained into the database. Data already stored in the database will
+         * not be overridden.
+         *
+         * If a subscription is found with an older [Subscription.lastModified] or
+         * [Subscription.lastSync], it will be overwritten.
+         * @param context The context that is requesting to restore the database.
+         * @param backup The backup contents.
+         * @param clear If `true`, the database will be cleared, and only the contents of [backup]
+         * will be present.
+         * @throws SQLException If there's a problem while writing into the database.
+         * @throws JSONException If there's a problem while parsing the contents of [backup].
+         */
+        @WorkerThread
+        suspend fun restoreBackup(context: Context, backup: JSONObject, clear: Boolean = false) {
+            val database = AppDatabase.getInstance(context)
+            val subscriptionsDao = database.subscriptionsDao()
+            val credentialsDao = database.credentialsDao()
+
+            if (clear) database.nuke()
+
+            // Write all the subscriptions into the database
+            val subscriptions = backup.getJSONArray("subscriptions").mapJSONObjects()
+            for (subscription in subscriptions) {
+                val newSubscription = Subscription.fromJSON(subscription)
+
+                // Check if there's any credential for the subscription id
+                val dbSubscription = subscriptionsDao.getById(subscription.getLong("id"))
+                if (dbSubscription == null) {
+                    // If there is not a subscription stored, write it
+                    subscriptionsDao.add(newSubscription)
+                } else {
+                    // If there's already a subscription stored, check if the one we have got is newer
+                    val lastModified = dbSubscription.lastModified
+                    val lastSync = dbSubscription.lastSync
+                    if (newSubscription.lastModified < lastModified || newSubscription.lastSync < lastSync) {
+                        // The one in the backup is newer, overwrite
+                        subscriptionsDao.add(newSubscription)
+                    }
+                }
+            }
+
+            // Write all the credentials into the database
+            val credentials = backup.getJSONArray("credentials").mapJSONObjects()
+            for (credential in credentials) {
+                // Check if there's any credential for the subscription id
+                val dbCredential = credentialsDao.get(credential.getLong("subscriptionId"))
+                if (dbCredential == null) {
+                    // If there is not a credential stored for that subscription, write it
+                    credentialsDao.put(Credential.fromJSON(credential))
+                }
+            }
+        }
     }
 
     /** The file to store the data at */
@@ -63,7 +128,7 @@ class Backup : BackupAgent() {
 
     override fun onCreate() {
         super.onCreate()
-        dataFile = File(filesDir, "backup-" + System.currentTimeMillis() + ".json")
+        dataFile = File(filesDir, BACKUP_FILE_NAME)
     }
 
     override fun onBackup(
@@ -102,10 +167,28 @@ class Backup : BackupAgent() {
     }
 
     override fun onRestore(
-        data: BackupDataInput?,
+        data: BackupDataInput,
         appVersionCode: Int,
         newState: ParcelFileDescriptor?
     ) {
+        while (data.readNextHeader()) {
+            val key = data.key
+            val size = data.dataSize
+
+            if (key == APP_DATA_KEY) {
+                // Read the data from the entity
+                val dataBuf = ByteArray(size)
+                data.readEntityData(dataBuf, 0, size)
+                val inStream = dataBuf.inputStream()
+                val raw = inStream.reader().readText()
+                // Convert into json, and get the data field
+                val json = JSONObject(raw)
+                val jsonData = json.getJSONObject("data")
+                // Restore the backup
+                runBlocking { restoreBackup(this@Backup, jsonData) }
+            } else
+                data.skipEntityData()
+        }
     }
 
     /**
