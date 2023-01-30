@@ -15,12 +15,12 @@ import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.content.contentValuesOf
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
 import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
 import java.io.FileNotFoundException
@@ -48,9 +48,6 @@ data class Subscription(
 
     val displayName: String,
 
-    val accountName: String,
-    val accountType: String,
-
     val lastModified: Long = 0L,
     val lastSync: Long = 0L,
     val syncEvents: Boolean = false,
@@ -70,6 +67,12 @@ data class Subscription(
          */
         @ColorInt
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
+
+        /** Gets the account to be used for the subscriptions. */
+        fun getAccount(context: Context) = Account(
+            context.getString(R.string.account_type),
+            context.getString(R.string.account_name),
+        )
 
         /**
          * Gets the calendar provider for a given context.
@@ -92,8 +95,6 @@ data class Subscription(
                 eTag = calendar.eTag,
                 displayName = calendar.displayName
                     ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
-                accountName = calendar.account.name,
-                accountType = calendar.account.type,
                 lastModified = calendar.lastModified,
                 lastSync = calendar.lastSync,
                 errorMessage = calendar.errorMessage,
@@ -104,33 +105,6 @@ data class Subscription(
                 isVisible = calendar.isVisible,
             )
     }
-
-    /**
-     * An alternative construction that takes an [Account] directly instead of individual account
-     * name and types.
-     */
-    constructor(
-        id: Long = 0L,
-        url: Uri,
-        eTag: String? = null,
-        displayName: String,
-        account: Account,
-        lastModified: Long = 0L,
-        lastSync: Long = 0L,
-        syncEvents: Boolean = false,
-        errorMessage: String? = null,
-        ignoreEmbeddedAlerts: Boolean = false,
-        defaultAlarmMinutes: Long? = null,
-        color: Int? = null,
-        isSynced: Boolean = true,
-        isVisible: Boolean = true,
-    ) : this(
-        id, url, eTag, displayName, account.name, account.type, lastModified, lastSync, syncEvents,
-        errorMessage, ignoreEmbeddedAlerts, defaultAlarmMinutes, color, isSynced, isVisible,
-    )
-
-    @Ignore
-    val account = Account(accountName, accountType)
 
     /**
      * Removes the subscription from the database, and its matching calendar from the system.
@@ -227,7 +201,7 @@ data class Subscription(
      * @throws FileNotFoundException If the calendar is not available in the system's database.
      */
     fun getCalendar(context: Context) = AndroidCalendar.findByID(
-        account,
+        getAccount(context),
         getProvider(context)!!,
         LocalCalendar.Factory,
         id
@@ -256,9 +230,7 @@ data class Subscription(
     fun insertColors(context: Context) =
         (getProvider(context)
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
-            .let { provider ->
-                AndroidCalendar.insertColors(provider, account)
-            }
+            .let { provider -> AndroidCalendar.insertColors(provider, getAccount(context)) }
 
     /**
      * Removes all events from the system's calendar whose uid is not included in the [uids] list.
@@ -275,6 +247,7 @@ data class Subscription(
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
+            val account = getAccount(context)
             provider.query(
                 Events.CONTENT_URI.asSyncAdapter(account),
                 arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
@@ -329,22 +302,24 @@ data class Subscription(
      * @throws Exception If the calendar could not be created.
      */
     @WorkerThread
-    fun createAndroidCalendar(context: Context) = AndroidCalendar.create(
-        account,
-        getProvider(context)!!,
-        contentValuesOf(
-            Calendars._ID to id,
-            Calendars.ACCOUNT_NAME to account.name,
-            Calendars.ACCOUNT_TYPE to account.type,
-            Calendars.NAME to url.toString(),
-            Calendars.CALENDAR_DISPLAY_NAME to displayName,
-            Calendars.CALENDAR_COLOR to color,
-            Calendars.OWNER_ACCOUNT to account.name,
-            Calendars.SYNC_EVENTS to if (syncEvents) 1 else 0,
-            Calendars.VISIBLE to if (isVisible) 1 else 0,
-            Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
-        ),
-    )
+    fun createAndroidCalendar(context: Context) = getAccount(context).let { account ->
+        AndroidCalendar.create(
+            account,
+            getProvider(context)!!,
+            contentValuesOf(
+                Calendars._ID to id,
+                Calendars.ACCOUNT_NAME to account.name,
+                Calendars.ACCOUNT_TYPE to account.type,
+                Calendars.NAME to url.toString(),
+                Calendars.CALENDAR_DISPLAY_NAME to displayName,
+                Calendars.CALENDAR_COLOR to color,
+                Calendars.OWNER_ACCOUNT to account.name,
+                Calendars.SYNC_EVENTS to if (syncEvents) 1 else 0,
+                Calendars.VISIBLE to if (isVisible) 1 else 0,
+                Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
+            ),
+        )
+    }
 
     /**
      * Deletes the Android calendar associated with this subscription.
@@ -355,7 +330,7 @@ data class Subscription(
      */
     @WorkerThread
     fun deleteAndroidCalendar(context: Context) = getProvider(context)?.delete(
-        Calendars.CONTENT_URI.asSyncAdapter(account),
+        Calendars.CONTENT_URI.asSyncAdapter(getAccount(context)),
         "${Calendars._ID}=?",
         arrayOf(id.toString()),
     )
