@@ -20,20 +20,20 @@ import at.bitfire.icsdroid.db.AppDatabase
 )
 data class Credential(
     @PrimaryKey val subscriptionId: Long,
-    val username: String?,
-    val password: String?,
+    val username: String,
+    val password: String,
 ) {
     constructor(
         subscription: Subscription,
-        username: String?,
-        password: String?,
+        username: String,
+        password: String,
     ) : this(subscription.id, username, password)
 
     constructor(
         subscription: Subscription,
-        username: LiveData<String?>,
-        password: LiveData<String?>,
-    ) : this(subscription.id, username.value, password.value)
+        username: LiveData<String>,
+        password: LiveData<String>,
+    ) : this(subscription.id, username.value!!, password.value!!)
 
     @WorkerThread
     fun put(context: Context) = AppDatabase.getInstance(context)
