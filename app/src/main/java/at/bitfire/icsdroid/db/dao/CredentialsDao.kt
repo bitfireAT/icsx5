@@ -46,5 +46,5 @@ interface CredentialsDao {
      */
     @WorkerThread
     @Query("DELETE FROM credentials WHERE subscriptionId=:subscriptionId")
-    fun pop(subscriptionId: Long)
+    fun remove(subscriptionId: Long)
 }
