@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "faeac16c0f71f84cfcbbce2db3345dec",
+    "identityHash": "f8ce1d0c55ab5f8ed12f7553d32158ed",
     "entities": [
       {
         "tableName": "subscriptions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `accountName` TEXT NOT NULL, `accountType` TEXT NOT NULL, `lastModified` INTEGER NOT NULL, `lastSync` INTEGER NOT NULL, `syncEvents` INTEGER NOT NULL, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER, `isSynced` INTEGER NOT NULL, `isVisible` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `lastModified` INTEGER, `lastSync` INTEGER, `syncEvents` INTEGER NOT NULL, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER, `isSynced` INTEGER NOT NULL, `isVisible` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -33,28 +33,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "accountName",
-            "columnName": "accountName",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountType",
-            "columnName": "accountType",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
             "fieldPath": "lastModified",
             "columnName": "lastModified",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "lastSync",
             "columnName": "lastSync",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "syncEvents",
@@ -110,7 +98,7 @@
       },
       {
         "tableName": "credentials",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriptionId` INTEGER NOT NULL, `username` TEXT, `password` TEXT, PRIMARY KEY(`subscriptionId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriptionId` INTEGER NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, PRIMARY KEY(`subscriptionId`), FOREIGN KEY(`subscriptionId`) REFERENCES `subscriptions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "subscriptionId",
@@ -122,13 +110,13 @@
             "fieldPath": "username",
             "columnName": "username",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "password",
             "columnName": "password",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -138,13 +126,25 @@
           "autoGenerate": false
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "subscriptions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "subscriptionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'faeac16c0f71f84cfcbbce2db3345dec')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8ce1d0c55ab5f8ed12f7553d32158ed')"
     ]
   }
 }
