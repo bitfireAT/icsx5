@@ -85,23 +85,6 @@ data class Subscription(
         context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
     /**
-     * Removes the subscription from the database, and its matching calendar from the system.
-     * @param context The context that is making the request.
-     * @throws SQLException If any error occurs when updating the database.
-     * @throws RemoteException If any error occurs when updating the system's database.
-     */
-    @WorkerThread
-    fun delete(context: Context) {
-        // Remove the subscription from the database
-        AppDatabase.getInstance(context)
-            .subscriptionsDao()
-            .delete(this)
-
-        // Remove the calendar from the system
-        deleteAndroidCalendar(context)
-    }
-
-    /**
      * Updates the status of a subscription that has not been modified. This is updating its [Subscription.lastSync] to the current time.
      * @param context The context that is making the request.
      * @param lastSync The synchronization time to set. Can be left as default, and will match the current system time.
