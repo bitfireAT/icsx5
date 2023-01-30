@@ -295,38 +295,4 @@ data class Subscription(
         "${Calendars._ID}=?",
         arrayOf(id.toString()),
     )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Subscription
-
-        if (id != other.id) return false
-        if (displayName != other.displayName) return false
-        if (url != other.url) return false
-        if (eTag != other.eTag) return false
-        if (lastModified != other.lastModified) return false
-        if (lastSync != other.lastSync) return false
-        if (errorMessage != other.errorMessage) return false
-        if (ignoreEmbeddedAlerts != other.ignoreEmbeddedAlerts) return false
-        if (defaultAlarmMinutes != other.defaultAlarmMinutes) return false
-        if (color != other.color) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + url.hashCode()
-        result = 31 * result + displayName.hashCode()
-        result = 31 * result + (eTag?.hashCode() ?: 0)
-        result = 31 * result + lastModified.hashCode()
-        result = 31 * result + lastSync.hashCode()
-        result = 31 * result + (errorMessage?.hashCode() ?: 0)
-        result = 31 * result + ignoreEmbeddedAlerts.hashCode()
-        result = 31 * result + (defaultAlarmMinutes?.hashCode() ?: 0)
-        result = 31 * result + (color ?: 0)
-        return result
-    }
 }
