@@ -73,15 +73,16 @@ data class Subscription(
             context.getString(R.string.account_type),
             context.getString(R.string.account_name),
         )
-
-        /**
-         * Gets the calendar provider for a given context.
-         * @param context The context that is making the request.
-         * @return The [ContentProviderClient] that provides an interface with the system's calendar.
-         */
-        fun getProvider(context: Context) =
-            context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
     }
+
+    /**
+     * Gets the calendar provider for a given context.
+     * FIXME Keep this inside of Subscription, or move to ContextUtils or something?
+     * @param context The context that is making the request.
+     * @return The [ContentProviderClient] that provides an interface with the system's calendar.
+     */
+    private fun getProvider(context: Context) =
+        context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
     /**
      * Removes the subscription from the database, and its matching calendar from the system.
