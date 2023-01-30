@@ -1,11 +1,8 @@
 package at.bitfire.icsdroid.db.entity
 
-import android.content.Context
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.icsdroid.db.AppDatabase
 
 /**
  * Stores the credentials to be used with a specific subscription.
@@ -35,8 +32,4 @@ data class Credential(
         password: LiveData<String>,
     ) : this(subscription.id, username.value!!, password.value!!)
 
-    @WorkerThread
-    fun put(context: Context) = AppDatabase.getInstance(context)
-        .credentialsDao()
-        .put(subscriptionId, username, password)
 }
