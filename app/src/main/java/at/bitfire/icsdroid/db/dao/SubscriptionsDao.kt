@@ -61,7 +61,7 @@ interface SubscriptionsDao {
      * @throws SQLException If any error occurs with the request.
      */
     @WorkerThread
-    @Query("SELECT * FROM subscriptions WHERE id=:id LIMIT 1")
+    @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getById(id: Long): Subscription?
 
     /**
