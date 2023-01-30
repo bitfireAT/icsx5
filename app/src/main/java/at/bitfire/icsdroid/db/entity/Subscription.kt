@@ -48,8 +48,8 @@ data class Subscription(
 
     val displayName: String,
 
-    val lastModified: Long = 0L,
-    val lastSync: Long = 0L,
+    val lastModified: Long? = null,
+    val lastSync: Long? = null,
     val syncEvents: Boolean = false,
     val errorMessage: String? = null,
 
@@ -95,8 +95,8 @@ data class Subscription(
                 eTag = calendar.eTag,
                 displayName = calendar.displayName
                     ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
-                lastModified = calendar.lastModified,
-                lastSync = calendar.lastSync,
+                lastModified = calendar.lastModified.takeIf { it > 0 },
+                lastSync = calendar.lastSync.takeIf { it > 0 },
                 errorMessage = calendar.errorMessage,
                 ignoreEmbeddedAlerts = calendar.ignoreEmbeddedAlerts ?: false,
                 defaultAlarmMinutes = calendar.defaultAlarmMinutes,
