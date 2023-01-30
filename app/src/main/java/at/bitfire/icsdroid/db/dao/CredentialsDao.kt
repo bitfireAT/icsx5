@@ -1,6 +1,5 @@
 package at.bitfire.icsdroid.db.dao
 
-import android.content.Context
 import android.database.SQLException
 import android.database.sqlite.SQLiteConstraintException
 import androidx.annotation.WorkerThread
@@ -17,14 +16,6 @@ import at.bitfire.icsdroid.db.entity.Subscription
  */
 @Dao
 interface CredentialsDao {
-    companion object {
-        /**
-         * Alias for [AppDatabase.getInstance] -> [AppDatabase.credentialsDao].
-         * @param context The context that is requesting access to the dao.
-         */
-        fun getInstance(context: Context) = AppDatabase.getInstance(context).credentialsDao()
-    }
-
     /**
      * Gets all the credentials stored for the given subscription.
      * @param subscriptionId The id of the subscription to get the credentials for.
