@@ -24,7 +24,7 @@ interface CredentialsDao {
      */
     @WorkerThread
     @Query("SELECT * FROM credentials WHERE subscriptionId=:subscriptionId")
-    fun get(subscriptionId: Long): Credential?
+    fun getBySubscriptionId(subscriptionId: Long): Credential?
 
     /**
      * Inserts a new credential into the table.
