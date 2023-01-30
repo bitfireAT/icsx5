@@ -1,29 +1,15 @@
 package at.bitfire.icsdroid.db.entity
 
 import android.accounts.Account
-import android.content.ContentProviderClient
-import android.content.ContentUris
 import android.content.Context
 import android.database.SQLException
 import android.net.Uri
-import android.os.RemoteException
-import android.provider.CalendarContract
-import android.provider.CalendarContract.Calendars
-import android.provider.CalendarContract.Events
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
-import androidx.core.content.contentValuesOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
-import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.LocalCalendar
-import java.io.FileNotFoundException
 import java.net.MalformedURLException
 
 /**
@@ -74,15 +60,6 @@ data class Subscription(
             context.getString(R.string.account_name),
         )
     }
-
-    /**
-     * Gets the calendar provider for a given context.
-     * FIXME Keep this inside of Subscription, or move to ContextUtils or something?
-     * @param context The context that is making the request.
-     * @return The [ContentProviderClient] that provides an interface with the system's calendar.
-     */
-    private fun getProvider(context: Context) =
-        context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
     /**
      * Updates the status of a subscription that has not been modified. This is updating its [Subscription.lastSync] to the current time.
@@ -154,145 +131,4 @@ data class Subscription(
     @WorkerThread
     fun updateUrl(context: Context, url: String) = updateUrl(context, Uri.parse(url))
 
-    /**
-     * Provides an [AndroidCalendar] from the current subscription.
-     * @param context The context that is making the request.
-     * @return A new calendar that matches the current subscription.
-     * @throws NullPointerException If a provider could not be obtained from the [context].
-     * @throws FileNotFoundException If the calendar is not available in the system's database.
-     */
-    fun getCalendar(context: Context) = AndroidCalendar.findByID(
-        getAccount(context),
-        getProvider(context)!!,
-        LocalCalendar.Factory,
-        id
-    )
-
-    /**
-     * Removes all the events from the subscription that are not in the [uids] list.
-     * @param context The context that is making the request.
-     * @param uids The list of uids to retain.
-     * @throws SQLException If any error occurs with the update.
-     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
-     * @throws CalendarStorageException If there's an error while deleting an event.
-     * @return The amount of events removed.
-     */
-    @WorkerThread
-    fun retainByUid(context: Context, uids: Set<String>): Int =
-        androidRetainByUid(context, uids.toMutableSet())
-
-    /**
-     * Provides iCalendar event color values to Android.
-     * @param context The context that is making the request.
-     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
-     * @throws SQLException If there's any issues while updating the system's database.
-     * @see AndroidCalendar.insertColors
-     */
-    fun insertColors(context: Context) =
-        (getProvider(context)
-            ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
-            .let { provider -> AndroidCalendar.insertColors(provider, getAccount(context)) }
-
-    /**
-     * Removes all events from the system's calendar whose uid is not included in the [uids] list.
-     * @param context The context that is making the request.
-     * @param uids The uids to keep.
-     * @return The amount of events removed.
-     * @throws IllegalArgumentException If a provider could not be obtained from the [context].
-     * @throws CalendarStorageException If there's an error while deleting an event.
-     */
-    @WorkerThread
-    private fun androidRetainByUid(context: Context, uids: MutableSet<String>): Int {
-        Log.v(TAG, "Removing all events whose uid is not in: $uids")
-        val provider = getProvider(context)
-            ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
-        var deleted = 0
-        try {
-            val account = getAccount(context)
-            provider.query(
-                Events.CONTENT_URI.asSyncAdapter(account),
-                arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
-                "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL",
-                arrayOf(id.toString()),
-                null
-            )?.use { row ->
-                while (row.moveToNext()) {
-                    val eventId = row.getLong(0)
-                    val syncId = row.getString(1)
-                    if (!uids.contains(syncId)) {
-                        Log.v(TAG, "Removing event with id $syncId.")
-                        provider.delete(
-                            ContentUris.withAppendedId(Events.CONTENT_URI, eventId)
-                                .asSyncAdapter(account), null, null
-                        )
-                        deleted++
-
-                        uids -= syncId
-                    }
-                }
-            }
-            return deleted
-        } catch (e: RemoteException) {
-            Log.e(TAG, "Could not delete local events.", e)
-            throw CalendarStorageException("Couldn't delete local events")
-        }
-    }
-
-    /**
-     * Queries an Android Event from the System's Calendar by its uid.
-     * @param context The context that is making the request.
-     * @param uid The uid of the event.
-     * @throws FileNotFoundException If the subscription still not has a Calendar in the system.
-     * @throws NullPointerException If a provider could not be obtained from the [context].
-     */
-    fun queryAndroidEventByUid(context: Context, uid: String) =
-        // Fetch the calendar instance for this subscription
-        getCalendar(context)
-            // Run a query with the UID given
-            .queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
-            // If no events are returned, just return null
-            .takeIf { it.isNotEmpty() }
-            // Since only one event should have the given uid, and we know the list is not
-            // empty, return the first element.
-            ?.first()
-
-    /**
-     * Creates a calendar in the system that matches the subscription.
-     * @param context The context that is making the request.
-     * @throws NullPointerException If the [context] given doesn't have a valid provider.
-     * @throws Exception If the calendar could not be created.
-     */
-    @WorkerThread
-    fun createAndroidCalendar(context: Context) = getAccount(context).let { account ->
-        AndroidCalendar.create(
-            account,
-            getProvider(context)!!,
-            contentValuesOf(
-                Calendars._ID to id,
-                Calendars.ACCOUNT_NAME to account.name,
-                Calendars.ACCOUNT_TYPE to account.type,
-                Calendars.NAME to url.toString(),
-                Calendars.CALENDAR_DISPLAY_NAME to displayName,
-                Calendars.CALENDAR_COLOR to color,
-                Calendars.OWNER_ACCOUNT to account.name,
-                Calendars.SYNC_EVENTS to if (syncEvents) 1 else 0,
-                Calendars.VISIBLE to if (isVisible) 1 else 0,
-                Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
-            ),
-        )
-    }
-
-    /**
-     * Deletes the Android calendar associated with this subscription.
-     * @param context The context making the request.
-     * @return The number of rows affected, or null if the [context] given doesn't have a valid
-     * provider.
-     * @throws RemoteException If there's an error while making the request.
-     */
-    @WorkerThread
-    fun deleteAndroidCalendar(context: Context) = getProvider(context)?.delete(
-        Calendars.CONTENT_URI.asSyncAdapter(getAccount(context)),
-        "${Calendars._ID}=?",
-        arrayOf(id.toString()),
-    )
 }
