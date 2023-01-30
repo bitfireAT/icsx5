@@ -81,29 +81,6 @@ data class Subscription(
          */
         fun getProvider(context: Context) =
             context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-
-        /**
-         * Creates a [Subscription] from a [LocalCalendar].
-         * @param calendar The calendar to create the subscription from.
-         * @return A new subscription that has the contents of [calendar].
-         * @throws IllegalArgumentException If the [calendar] doesn't have a valid display name.
-         */
-        fun fromCalendar(calendar: LocalCalendar) =
-            Subscription(
-                id = calendar.id,
-                url = calendar.url!!.let { Uri.parse(it) },
-                eTag = calendar.eTag,
-                displayName = calendar.displayName
-                    ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
-                lastModified = calendar.lastModified.takeIf { it > 0 },
-                lastSync = calendar.lastSync.takeIf { it > 0 },
-                errorMessage = calendar.errorMessage,
-                ignoreEmbeddedAlerts = calendar.ignoreEmbeddedAlerts ?: false,
-                defaultAlarmMinutes = calendar.defaultAlarmMinutes,
-                color = calendar.color,
-                isSynced = calendar.isSynced,
-                isVisible = calendar.isVisible,
-            )
     }
 
     /**
