@@ -1,2 +1,7 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
 
 include ':app', ':cert4android', ':ical4android'
