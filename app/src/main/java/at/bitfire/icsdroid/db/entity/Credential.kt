@@ -1,6 +1,5 @@
 package at.bitfire.icsdroid.db.entity
 
-import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -21,17 +20,4 @@ data class Credential(
     @PrimaryKey val subscriptionId: Long,
     val username: String,
     val password: String,
-) {
-    constructor(
-        subscription: Subscription,
-        username: String,
-        password: String,
-    ) : this(subscription.id, username, password)
-
-    constructor(
-        subscription: Subscription,
-        username: LiveData<String>,
-        password: LiveData<String>,
-    ) : this(subscription.id, username.value!!, password.value!!)
-
-}
+)
