@@ -10,6 +10,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.LocalCalendar
 import java.net.MalformedURLException
 
 /**
@@ -59,6 +60,29 @@ data class Subscription(
             context.getString(R.string.account_type),
             context.getString(R.string.account_name),
         )
+
+        /**
+         * Creates a [Subscription] from a [LocalCalendar].
+         * @param calendar The calendar to create the subscription from.
+         * @return A new subscription that has the contents of [calendar].
+         * @throws IllegalArgumentException If the [calendar] doesn't have a valid display name.
+         */
+        fun fromCalendar(calendar: LocalCalendar) =
+            Subscription(
+                id = calendar.id,
+                url = calendar.url!!.let { Uri.parse(it) },
+                eTag = calendar.eTag,
+                displayName = calendar.displayName
+                    ?: throw IllegalArgumentException("Every subscription requires a displayName, and the calendar given doesn't have one."),
+                lastModified = calendar.lastModified,
+                lastSync = calendar.lastSync,
+                errorMessage = calendar.errorMessage,
+                ignoreEmbeddedAlerts = calendar.ignoreEmbeddedAlerts ?: false,
+                defaultAlarmMinutes = calendar.defaultAlarmMinutes,
+                color = calendar.color,
+                isSynced = calendar.isSynced,
+                isVisible = calendar.isVisible,
+            )
     }
 
     /**

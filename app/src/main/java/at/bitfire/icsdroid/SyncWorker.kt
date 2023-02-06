@@ -6,14 +6,18 @@ package at.bitfire.icsdroid
 
 import android.accounts.Account
 import android.annotation.SuppressLint
-import android.content.ContentProviderClient
 import android.content.Context
-import android.provider.CalendarContract
 import android.util.Log
 import androidx.work.*
+import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
-import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.DatabaseAndroidInterface
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -70,7 +74,7 @@ class SyncWorker(
                 )
 
             val policy: ExistingWorkPolicy = if (force) {
-                Log.i(Constants.TAG, "Manual sync, ignoring network condition")
+                Log.i(TAG, "Manual sync, ignoring network condition")
 
                 // overwrite existing syncs (which may have unwanted constraints)
                 ExistingWorkPolicy.REPLACE
@@ -113,29 +117,79 @@ class SyncWorker(
             AppAccount.get(applicationContext)
         }
 
-        applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
-            try {
-                return withContext(Dispatchers.Default) {
-                    performSync(AppAccount.get(applicationContext), providerClient, forceResync)
-                }
-            } finally {
-                providerClient.closeCompat()
-            }
+        return withContext(Dispatchers.Default) {
+            performSync(account, forceResync)
         }
-        return Result.failure()
     }
 
-    private suspend fun performSync(account: Account, provider: ContentProviderClient, forceResync: Boolean): Result {
-        Log.i(Constants.TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
+    private suspend fun performSync(account: Account, forceResync: Boolean): Result {
+        Log.i(TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
-            LocalCalendar.findAll(account, provider)
+            val database = AppDatabase.getInstance(applicationContext)
+            // Get the subscriptions dao for interacting with the database.
+            val subscriptionsDao = database.subscriptionsDao()
+            // Get a list of all the subscriptions from the database
+            val subscriptions = subscriptionsDao.getAll().toMutableList()
+
+            // Get a provider from the application context, or return failure
+            val provider = DatabaseAndroidInterface.getProvider(applicationContext) ?: return Result.failure()
+            // If there's a provider available, get all the calendars available in the system
+            val calendars = AndroidCalendar.find(
+                account,
+                provider,
+                LocalCalendar.Factory,
+                null,
+                null,
+            )
+
+            // Check that all the calendars have a matching subscription
+            for (calendar in calendars) {
+                val id = calendar.id
+                val match = subscriptions.find { subscription -> subscription.id == id }
+                // If there's already a calendar matching the subscription, continue
+                if (match != null) continue
+                try {
+                    // Otherwise, create a subscription for the calendar
+                    val newSubscription = Subscription.fromCalendar(calendar)
+                    // Add it to the database
+                    subscriptionsDao.add(newSubscription)
+                    // And add it to `subscriptions` so it gets processed now.
+                    subscriptions.add(newSubscription)
+                    Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Could not create subscription from calendar. Migration failed.", e)
+                    continue
+                }
+            }
+
+            // Migrate all credentials to the database
+            val credentialsDao = database.credentialsDao()
+            @Suppress("DEPRECATION") val oldCredentials = CalendarCredentials(applicationContext)
+            for (subscription in subscriptions) {
+                val databaseAndroidInterface = DatabaseAndroidInterface(applicationContext, subscription)
+                val calendar = databaseAndroidInterface.getCalendar()
+                calendar
+                    // Get the credentials that might be stored for the subscription
+                    .let { oldCredentials.get(it) }
+                    // Take only if there's an username and password
+                    .takeIf { (u, p) -> u != null && p != null }
+                    // Convert the username and password into Credential
+                    ?.let { Credential(subscription.id, it.first!!, it.second!!) }
+                    // Store the credential in the database
+                    ?.let { credentialsDao.put(it.subscriptionId, it.username, it.password) }
+                    // Remove the credential from shared preferences
+                    ?.also { oldCredentials.put(calendar, null, null) }
+            }
+
+            // Process each subscription
+            subscriptions
                 .filter { it.isSynced }
                 .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
 
         } catch (e: CalendarStorageException) {
-            Log.e(Constants.TAG, "Calendar storage exception", e)
+            Log.e(TAG, "Calendar storage exception", e)
         } catch (e: InterruptedException) {
-            Log.e(Constants.TAG, "Thread interrupted", e)
+            Log.e(TAG, "Thread interrupted", e)
         }
 
         return Result.success()

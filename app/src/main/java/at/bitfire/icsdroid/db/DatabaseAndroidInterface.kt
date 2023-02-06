@@ -24,12 +24,14 @@ class DatabaseAndroidInterface(
     private val context: Context,
     private val subscription: Subscription,
 ) {
-    /**
-     * Gets the calendar provider for a given context.
-     * @return The [ContentProviderClient] that provides an interface with the system's calendar.
-     */
-    private fun getProvider() =
-        context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+    companion object {
+        /**
+         * Gets the calendar provider for a given context.
+         * @return The [ContentProviderClient] that provides an interface with the system's calendar.
+         */
+        fun getProvider(context: Context) =
+            context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
+    }
 
     /**
      * Provides an [AndroidCalendar] from the current subscription.
@@ -39,7 +41,7 @@ class DatabaseAndroidInterface(
      */
     fun getCalendar() = AndroidCalendar.findByID(
         Subscription.getAccount(context),
-        getProvider()!!,
+        getProvider(context)!!,
         LocalCalendar.Factory,
         subscription.id,
     )
@@ -51,7 +53,7 @@ class DatabaseAndroidInterface(
      * @see AndroidCalendar.insertColors
      */
     fun insertColors() =
-        (getProvider()
+        (getProvider(context)
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
             .let { provider ->
                 AndroidCalendar.insertColors(
@@ -68,9 +70,9 @@ class DatabaseAndroidInterface(
      * @throws CalendarStorageException If there's an error while deleting an event.
      */
     @WorkerThread
-    private fun androidRetainByUid(uids: Set<String>): Int {
+    fun androidRetainByUid(uids: Set<String>): Int {
         Log.v(Constants.TAG, "Removing all events whose uid is not in: $uids")
-        val provider = getProvider()
+        val provider = getProvider(context)
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
@@ -136,7 +138,7 @@ class DatabaseAndroidInterface(
     fun createAndroidCalendar() = Subscription.getAccount(context).let { account ->
         AndroidCalendar.create(
             account,
-            getProvider()!!,
+            getProvider(context)!!,
             contentValuesOf(
                 CalendarContract.Calendars._ID to subscription.id,
                 CalendarContract.Calendars.ACCOUNT_NAME to account.name,
@@ -159,7 +161,7 @@ class DatabaseAndroidInterface(
      * @throws RemoteException If there's an error while making the request.
      */
     @WorkerThread
-    fun deleteAndroidCalendar() = getProvider()?.delete(
+    fun deleteAndroidCalendar() = getProvider(context)?.delete(
         CalendarContract.Calendars.CONTENT_URI.asSyncAdapter(Subscription.getAccount(context)),
         "${CalendarContract.Calendars._ID}=?",
         arrayOf(subscription.id.toString()),
