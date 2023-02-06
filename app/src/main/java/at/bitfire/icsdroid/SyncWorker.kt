@@ -28,6 +28,18 @@ class SyncWorker(
 
         const val FORCE_RESYNC = "forceResync"
 
+        /**
+         * Gives the type of the account to synchronized. Must be defined together with
+         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
+         */
+        const val ACCOUNT_TYPE = "accountType"
+
+        /**
+         * Gives the name of the account to synchronized. Must be defined together with
+         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
+         */
+        const val ACCOUNT_NAME = "accountName"
+
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -36,10 +48,26 @@ class SyncWorker(
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
+         * @param account      _Used for testing._ The account to be used with the worker. Defaults
+         * to [AppAccount.get].
          */
-        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
+        fun run(
+            context: Context,
+            force: Boolean = false,
+            forceResync: Boolean = false,
+            account: Account? = null,
+        ) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
+                .setInputData(
+                    workDataOf(
+                        *arrayListOf<Pair<String, Any?>>(FORCE_RESYNC to forceResync).apply {
+                            if (account != null) {
+                                add(ACCOUNT_NAME to account.name)
+                                add(ACCOUNT_TYPE to account.type)
+                            }
+                        }.toTypedArray()
+                    )
+                )
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(Constants.TAG, "Manual sync, ignoring network condition")
@@ -70,6 +98,21 @@ class SyncWorker(
     @SuppressLint("Recycle")
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
+
+        // Get a custom account, or the default one
+        val account = if (
+        // If input data has an account name
+            inputData.hasKeyWithValueOfType<String>(ACCOUNT_NAME) &&
+            // And an account type
+            inputData.hasKeyWithValueOfType<String>(ACCOUNT_TYPE)
+        ) {
+            // Initialize a new account with the given parameters
+            Account(inputData.getString(ACCOUNT_NAME), inputData.getString(ACCOUNT_TYPE))
+        } else {
+            // Otherwise get the AppAccount
+            AppAccount.get(applicationContext)
+        }
+
         applicationContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)?.let { providerClient ->
             try {
                 return withContext(Dispatchers.Default) {
