@@ -26,22 +26,20 @@ class DatabaseAndroidInterface(
 ) {
     /**
      * Gets the calendar provider for a given context.
-     * @param context The context that is making the request.
      * @return The [ContentProviderClient] that provides an interface with the system's calendar.
      */
-    private fun getProvider(context: Context) =
+    private fun getProvider() =
         context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
 
     /**
      * Provides an [AndroidCalendar] from the current subscription.
-     * @param context The context that is making the request.
      * @return A new calendar that matches the current subscription.
      * @throws NullPointerException If a provider could not be obtained from the [context].
      * @throws FileNotFoundException If the calendar is not available in the system's database.
      */
-    fun getCalendar(context: Context) = AndroidCalendar.findByID(
+    fun getCalendar() = AndroidCalendar.findByID(
         Subscription.getAccount(context),
-        getProvider(context)!!,
+        getProvider()!!,
         LocalCalendar.Factory,
         subscription.id,
     )
@@ -53,11 +51,14 @@ class DatabaseAndroidInterface(
      * @see AndroidCalendar.insertColors
      */
     fun insertColors() =
-        (getProvider(context)
+        (getProvider()
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context."))
-            .let { provider -> AndroidCalendar.insertColors(provider,
-                Subscription.getAccount(context)
-            ) }
+            .let { provider ->
+                AndroidCalendar.insertColors(
+                    provider,
+                    Subscription.getAccount(context),
+                )
+            }
 
     /**
      * Removes all events from the system's calendar whose uid is not included in the [uids] list.
@@ -69,14 +70,18 @@ class DatabaseAndroidInterface(
     @WorkerThread
     private fun androidRetainByUid(uids: Set<String>): Int {
         Log.v(Constants.TAG, "Removing all events whose uid is not in: $uids")
-        val provider = getProvider(context)
+        val provider = getProvider()
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
             val account = Subscription.getAccount(context)
             provider.query(
                 CalendarContract.Events.CONTENT_URI.asSyncAdapter(account),
-                arrayOf(CalendarContract.Events._ID, CalendarContract.Events._SYNC_ID, CalendarContract.Events.ORIGINAL_SYNC_ID),
+                arrayOf(
+                    CalendarContract.Events._ID,
+                    CalendarContract.Events._SYNC_ID,
+                    CalendarContract.Events.ORIGINAL_SYNC_ID
+                ),
                 "${CalendarContract.Events.CALENDAR_ID}=? AND ${CalendarContract.Events.ORIGINAL_SYNC_ID} IS NULL",
                 arrayOf(subscription.id.toString()),
                 null
@@ -113,7 +118,7 @@ class DatabaseAndroidInterface(
      */
     fun queryAndroidEventByUid(uid: String) =
         // Fetch the calendar instance for this subscription
-        getCalendar(context)
+        getCalendar()
             // Run a query with the UID given
             .queryEvents("${CalendarContract.Events._SYNC_ID}=?", arrayOf(uid))
             // If no events are returned, just return null
@@ -131,7 +136,7 @@ class DatabaseAndroidInterface(
     fun createAndroidCalendar() = Subscription.getAccount(context).let { account ->
         AndroidCalendar.create(
             account,
-            getProvider(context)!!,
+            getProvider()!!,
             contentValuesOf(
                 CalendarContract.Calendars._ID to subscription.id,
                 CalendarContract.Calendars.ACCOUNT_NAME to account.name,
@@ -154,7 +159,7 @@ class DatabaseAndroidInterface(
      * @throws RemoteException If there's an error while making the request.
      */
     @WorkerThread
-    fun deleteAndroidCalendar() = getProvider(context)?.delete(
+    fun deleteAndroidCalendar() = getProvider()?.delete(
         CalendarContract.Calendars.CONTENT_URI.asSyncAdapter(Subscription.getAccount(context)),
         "${CalendarContract.Calendars._ID}=?",
         arrayOf(subscription.id.toString()),
