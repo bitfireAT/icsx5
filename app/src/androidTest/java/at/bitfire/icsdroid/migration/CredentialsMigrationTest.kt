@@ -52,7 +52,14 @@ class CredentialsMigrationTest {
     /** A sample subscription for the credentials to check for */
     private val subscription = Subscription(123, Uri.EMPTY, null, "Test subscription")
 
+    /** For interfacing between the Android system and Room */
     private val databaseAndroidInterface = DatabaseAndroidInterface(appContext, subscription)
+
+    @Before
+    fun useTestingAccounts() {
+        // Set the account for subscriptions to our testing account instead of the default one
+        Subscription.setAccount(account)
+    }
 
     // Initialize the Room database
     @Before
@@ -75,6 +82,8 @@ class CredentialsMigrationTest {
     fun prepareSubscription() {
         // Add the sample subscription to the database
         subscriptionsDao.add(subscription)
+        // And add it to the system's calendar
+        databaseAndroidInterface.createAndroidCalendar()
     }
 
     @Before
@@ -119,6 +128,8 @@ class CredentialsMigrationTest {
 
     @After
     fun removeSubscription() {
+        // Remove the calendar from the system
+        databaseAndroidInterface.deleteAndroidCalendar()
         // Remove the created subscription from the database
         subscriptionsDao.delete(subscription)
     }

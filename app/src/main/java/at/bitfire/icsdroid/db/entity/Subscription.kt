@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.SQLException
 import android.net.Uri
 import androidx.annotation.ColorInt
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -78,6 +79,12 @@ data class Subscription(
                 this.account = account
                 return account
             }
+        }
+
+        /** Updates the account used by the subscriptions. **Must only be used by tests** */
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+        fun setAccount(account: Account) {
+            this.account = account
         }
 
         /**
