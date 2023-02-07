@@ -74,7 +74,7 @@ class CredentialsMigrationTest {
     @Before
     fun prepareSubscription() {
         // Add the sample subscription to the database
-        runBlocking { subscriptionsDao.add(subscription) }
+        subscriptionsDao.add(subscription)
     }
 
     @Before
@@ -120,6 +120,6 @@ class CredentialsMigrationTest {
     @After
     fun removeSubscription() {
         // Remove the created subscription from the database
-        runBlocking { subscriptionsDao.delete(subscription) }
+        subscriptionsDao.delete(subscription)
     }
 }
