@@ -20,7 +20,9 @@ import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.runBlocking
 import org.junit.*
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class CredentialsMigrationTest {
     companion object {
         private lateinit var appContext: Context
@@ -56,14 +58,14 @@ class CredentialsMigrationTest {
     private val databaseAndroidInterface = DatabaseAndroidInterface(appContext, subscription)
 
     @Before
-    fun useTestingAccounts() {
+    fun dUseTestingAccounts() {
         // Set the account for subscriptions to our testing account instead of the default one
         Subscription.setAccount(account)
     }
 
     // Initialize the Room database
     @Before
-    fun prepareDatabase() {
+    fun cPrepareDatabase() {
         // Make sure there's a non-null context initialized
         Assert.assertNotNull(appContext)
 
@@ -79,7 +81,7 @@ class CredentialsMigrationTest {
     }
 
     @Before
-    fun prepareSubscription() {
+    fun bPrepareSubscription() {
         // Add the sample subscription to the database
         subscriptionsDao.add(subscription)
         // And add it to the system's calendar
@@ -87,7 +89,7 @@ class CredentialsMigrationTest {
     }
 
     @Before
-    fun prepareOldCredentials() {
+    fun aPrepareOldCredentials() {
         // Initialize the CalendarCredentials
         calendarCredentials = CalendarCredentials(appContext)
         // Insert some credentials that would have been stored in shared preferences
