@@ -55,11 +55,30 @@ data class Subscription(
         @ColorInt
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
 
+        /** Stores the account to be used by the subscriptions. */
+        private var account: Account? = null
+
         /** Gets the account to be used for the subscriptions. */
-        fun getAccount(context: Context) = Account(
-            context.getString(R.string.account_type),
-            context.getString(R.string.account_name),
-        )
+        fun getAccount(context: Context): Account {
+            // If we already have initialized account, return it
+            if (account != null)
+                return account!!
+
+            // Multiple threads might request the account, so run synchronously
+            synchronized(Companion) {
+                // Another thread might have initialized the account before this one, so check again
+                if (account != null)
+                    return account!!
+
+                // Otherwise, initialize account, and return it
+                val account = Account(
+                    context.getString(R.string.account_type),
+                    context.getString(R.string.account_name),
+                )
+                this.account = account
+                return account
+            }
+        }
 
         /**
          * Creates a [Subscription] from a [LocalCalendar].
