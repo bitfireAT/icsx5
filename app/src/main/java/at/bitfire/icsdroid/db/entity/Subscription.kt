@@ -1,15 +1,12 @@
 package at.bitfire.icsdroid.db.entity
 
-import android.accounts.Account
 import android.content.Context
 import android.database.SQLException
 import android.net.Uri
 import androidx.annotation.ColorInt
-import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
 import java.net.MalformedURLException
@@ -55,37 +52,6 @@ data class Subscription(
          */
         @ColorInt
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
-
-        /** Stores the account to be used by the subscriptions. */
-        private var account: Account? = null
-
-        /** Gets the account to be used for the subscriptions. */
-        fun getAccount(context: Context): Account {
-            // If we already have initialized account, return it
-            if (account != null)
-                return account!!
-
-            // Multiple threads might request the account, so run synchronously
-            synchronized(Companion) {
-                // Another thread might have initialized the account before this one, so check again
-                if (account != null)
-                    return account!!
-
-                // Otherwise, initialize account, and return it
-                val account = Account(
-                    context.getString(R.string.account_type),
-                    context.getString(R.string.account_name),
-                )
-                this.account = account
-                return account
-            }
-        }
-
-        /** Updates the account used by the subscriptions. **Must only be used by tests** */
-        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-        fun setAccount(account: Account) {
-            this.account = account
-        }
 
         /**
          * Creates a [Subscription] from a [LocalCalendar].

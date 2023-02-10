@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid
 
-import android.accounts.Account
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
@@ -33,45 +32,16 @@ class SyncWorker(
         const val FORCE_RESYNC = "forceResync"
 
         /**
-         * Gives the type of the account to synchronized. Must be defined together with
-         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
-         */
-        const val ACCOUNT_TYPE = "accountType"
-
-        /**
-         * Gives the name of the account to synchronized. Must be defined together with
-         * [ACCOUNT_NAME], allows selecting the account to be synchronized.
-         */
-        const val ACCOUNT_NAME = "accountName"
-
-
-        /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
-         * @param account      _Used for testing._ The account to be used with the worker. Defaults
-         * to [AppAccount.get].
          */
-        fun run(
-            context: Context,
-            force: Boolean = false,
-            forceResync: Boolean = false,
-            account: Account? = null,
-        ) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(
-                    workDataOf(
-                        *arrayListOf<Pair<String, Any?>>(FORCE_RESYNC to forceResync).apply {
-                            if (account != null) {
-                                add(ACCOUNT_NAME to account.name)
-                                add(ACCOUNT_TYPE to account.type)
-                            }
-                        }.toTypedArray()
-                    )
-                )
+                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")
@@ -103,26 +73,14 @@ class SyncWorker(
     override suspend fun doWork(): Result {
         val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
 
-        // Get a custom account, or the default one
-        val account = if (
-        // If input data has an account name
-            inputData.hasKeyWithValueOfType<String>(ACCOUNT_NAME) &&
-            // And an account type
-            inputData.hasKeyWithValueOfType<String>(ACCOUNT_TYPE)
-        ) {
-            // Initialize a new account with the given parameters
-            Account(inputData.getString(ACCOUNT_NAME), inputData.getString(ACCOUNT_TYPE))
-        } else {
-            // Otherwise get the AppAccount
-            AppAccount.get(applicationContext)
-        }
-
         return withContext(Dispatchers.Default) {
-            performSync(account, forceResync)
+            performSync(forceResync)
         }
     }
 
-    private suspend fun performSync(account: Account, forceResync: Boolean): Result {
+    private suspend fun performSync(forceResync: Boolean): Result {
+        val account = AppAccount.get(applicationContext)
+
         Log.i(TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
         try {
             val database = AppDatabase.getInstance(applicationContext)

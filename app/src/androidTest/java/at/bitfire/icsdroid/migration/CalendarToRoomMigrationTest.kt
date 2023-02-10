@@ -1,12 +1,10 @@
 package at.bitfire.icsdroid.migration
 
-import android.accounts.Account
 import android.content.ContentProviderClient
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.provider.CalendarContract
-import android.provider.CalendarContract.ACCOUNT_TYPE_LOCAL
 import android.util.Log
 import androidx.core.content.contentValuesOf
 import androidx.room.Room
@@ -16,9 +14,9 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.testing.WorkManagerTestInitHelper
-import androidx.work.workDataOf
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.CalendarFetcherTest
 import at.bitfire.icsdroid.InitCalendarProviderRule
 import at.bitfire.icsdroid.SyncWorker
@@ -81,11 +79,11 @@ class CalendarToRoomMigrationTest {
         AppDatabase.setInstance(database)
     }
 
-    private val account = Account("LocalCalendarTest", ACCOUNT_TYPE_LOCAL)
     private lateinit var calendar: LocalCalendar
 
     @Before
     fun prepareCalendar() {
+        val account = AppAccount.get(appContext)
         val resUri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${CalendarFetcherTest.testContext.packageName}/${R.raw.vienna_evolution}"
         val uri = AndroidCalendar.create(
             account,
@@ -112,12 +110,6 @@ class CalendarToRoomMigrationTest {
     fun testSubscriptionCreated() {
         val worker = TestListenableWorkerBuilder<SyncWorker>(
             context = appContext,
-        ).setInputData(
-            workDataOf(
-                // Choose the correct account type
-                SyncWorker.ACCOUNT_NAME to account.name,
-                SyncWorker.ACCOUNT_TYPE to account.type,
-            ),
         ).build()
 
         runBlocking {

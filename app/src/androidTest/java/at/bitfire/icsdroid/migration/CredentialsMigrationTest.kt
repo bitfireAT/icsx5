@@ -2,15 +2,12 @@
 
 package at.bitfire.icsdroid.migration
 
-import android.accounts.Account
 import android.content.Context
 import android.net.Uri
-import android.provider.CalendarContract
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
-import androidx.work.workDataOf
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -44,9 +41,6 @@ class CredentialsMigrationTest {
     /** Provides access to the old credentials storage class */
     private lateinit var calendarCredentials: CalendarCredentials
 
-    /** The testing account for calendar */
-    private val account = Account("LocalCalendarTest", CalendarContract.ACCOUNT_TYPE_LOCAL)
-
     /** A sample username for the credentials to check for */
     private val username: String = "randomUsername"
     /** A sample password for the credentials to check for */
@@ -56,12 +50,6 @@ class CredentialsMigrationTest {
 
     /** For interfacing between the Android system and Room */
     private val databaseAndroidInterface = DatabaseAndroidInterface(appContext, subscription)
-
-    @Before
-    fun dUseTestingAccounts() {
-        // Set the account for subscriptions to our testing account instead of the default one
-        Subscription.setAccount(account)
-    }
 
     // Initialize the Room database
     @Before
@@ -101,12 +89,6 @@ class CredentialsMigrationTest {
         // Create a testing instance of SyncWorker for running the synchronization
         val worker = TestListenableWorkerBuilder<SyncWorker>(
             context = appContext,
-        ).setInputData(
-            workDataOf(
-                // Choose the correct account type
-                SyncWorker.ACCOUNT_NAME to account.name,
-                SyncWorker.ACCOUNT_TYPE to account.type,
-            ),
         ).build()
 
         runBlocking {

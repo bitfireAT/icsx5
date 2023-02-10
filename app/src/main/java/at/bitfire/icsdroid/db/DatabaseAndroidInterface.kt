@@ -12,6 +12,7 @@ import androidx.core.content.contentValuesOf
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
+import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.db.entity.Subscription
 import java.io.FileNotFoundException
@@ -40,7 +41,7 @@ class DatabaseAndroidInterface(
      * @throws FileNotFoundException If the calendar is not available in the system's database.
      */
     fun getCalendar() = AndroidCalendar.findByID(
-        Subscription.getAccount(context),
+        AppAccount.get(context),
         getProvider(context)!!,
         LocalCalendar.Factory,
         subscription.id,
@@ -58,7 +59,7 @@ class DatabaseAndroidInterface(
             .let { provider ->
                 AndroidCalendar.insertColors(
                     provider,
-                    Subscription.getAccount(context),
+                    AppAccount.get(context),
                 )
             }
 
@@ -76,7 +77,7 @@ class DatabaseAndroidInterface(
             ?: throw IllegalArgumentException("A content provider client could not be obtained from the given context.")
         var deleted = 0
         try {
-            val account = Subscription.getAccount(context)
+            val account = AppAccount.get(context)
             provider.query(
                 CalendarContract.Events.CONTENT_URI.asSyncAdapter(account),
                 arrayOf(
@@ -135,7 +136,7 @@ class DatabaseAndroidInterface(
      * @throws Exception If the calendar could not be created.
      */
     @WorkerThread
-    fun createAndroidCalendar() = Subscription.getAccount(context).let { account ->
+    fun createAndroidCalendar() = AppAccount.get(context).let { account ->
         AndroidCalendar.create(
             account,
             getProvider(context)!!,
@@ -162,7 +163,7 @@ class DatabaseAndroidInterface(
      */
     @WorkerThread
     fun deleteAndroidCalendar() = getProvider(context)?.delete(
-        CalendarContract.Calendars.CONTENT_URI.asSyncAdapter(Subscription.getAccount(context)),
+        CalendarContract.Calendars.CONTENT_URI.asSyncAdapter(AppAccount.get(context)),
         "${CalendarContract.Calendars._ID}=?",
         arrayOf(subscription.id.toString()),
     )
