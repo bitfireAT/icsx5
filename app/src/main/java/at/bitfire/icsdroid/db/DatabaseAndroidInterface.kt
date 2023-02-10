@@ -33,8 +33,11 @@ class DatabaseAndroidInterface(
         /**
          * Gets the calendar provider for a given context.
          * @return The [ContentProviderClient] that provides an interface with the system's calendar.
+         * May return null if there's no [ContentProviderClient] available for the calendar
+         * authority in the system.
+         * @throws SecurityException If permissions for accessing the calendar are not granted.
          */
-        fun getProvider(context: Context) =
+        fun getProvider(context: Context): ContentProviderClient? =
             context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
     }
 
