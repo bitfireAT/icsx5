@@ -4,6 +4,7 @@
 
 package at.bitfire.icsdroid.migration
 
+import android.Manifest
 import android.content.ContentProviderClient
 import android.content.ContentResolver
 import android.content.ContentUris
@@ -13,6 +14,7 @@ import android.util.Log
 import androidx.core.content.contentValuesOf
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import androidx.work.Configuration
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
@@ -22,7 +24,6 @@ import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.CalendarFetcherTest
-import at.bitfire.icsdroid.InitCalendarProviderRule
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
@@ -32,13 +33,15 @@ import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.rules.TestRule
 
 class CalendarToRoomMigrationTest {
     companion object {
         @JvmField
         @ClassRule
-        val initCalendarProviderRule: TestRule = InitCalendarProviderRule.getInstance()
+        val calendarPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.READ_CALENDAR,
+            Manifest.permission.WRITE_CALENDAR,
+        )
 
         private lateinit var appContext: Context
 
