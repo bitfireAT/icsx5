@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.work.*
@@ -15,6 +14,8 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.DatabaseAndroidInterface
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.dao.CredentialsDao
+import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
@@ -27,9 +28,14 @@ class SyncWorker(
 
     companion object {
 
+        /** The name of the worker. Tags the unique work. */
         const val NAME = "SyncWorker"
 
-        const val FORCE_RESYNC = "forceResync"
+        /**
+         * An input data for the Worker that tells whether the synchronization should be performed
+         * without taking into account the current network condition.
+         */
+        private const val FORCE_RESYNC = "forceResync"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -68,82 +74,43 @@ class SyncWorker(
 
     }
 
+    /** Interfaces with the Subscriptions table in the database */
+    private lateinit var subscriptionsDao: SubscriptionsDao
+    /** Interfaces with the Credentials table in the database */
+    private lateinit var credentialsDao: CredentialsDao
 
-    @SuppressLint("Recycle")
+    /** Stores all the loaded subscriptions */
+    private lateinit var subscriptions: MutableList<Subscription>
+
+    private var forceReSync: Boolean = false
+
     override suspend fun doWork(): Result {
-        val forceResync = inputData.getBoolean(FORCE_RESYNC, false)
+        forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
 
-        return withContext(Dispatchers.Default) {
-            performSync(forceResync)
-        }
+        return withContext(Dispatchers.Default) { performSync() }
     }
 
-    private suspend fun performSync(forceResync: Boolean): Result {
-        val account = AppAccount.get(applicationContext)
-
-        Log.i(TAG, "Synchronizing ${account.name} (forceResync=$forceResync)")
+    private suspend fun performSync(): Result {
+        Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
         try {
             val database = AppDatabase.getInstance(applicationContext)
-            // Get the subscriptions dao for interacting with the database.
-            val subscriptionsDao = database.subscriptionsDao()
-            // Get a list of all the subscriptions from the database
-            val subscriptions = subscriptionsDao.getAll().toMutableList()
+            // Get all the DAOs for interacting with the database
+            subscriptionsDao = database.subscriptionsDao()
+            credentialsDao = database.credentialsDao()
 
-            // Get a provider from the application context, or return failure
-            val provider = DatabaseAndroidInterface.getProvider(applicationContext) ?: return Result.failure()
-            // If there's a provider available, get all the calendars available in the system
-            val calendars = AndroidCalendar.find(
-                account,
-                provider,
-                LocalCalendar.Factory,
-                null,
-                null,
-            )
+            // Get a list of all the subscriptions
+            subscriptions = subscriptionsDao.getAll().toMutableList()
 
-            // Check that all the calendars have a matching subscription
-            for (calendar in calendars) {
-                val id = calendar.id
-                val match = subscriptions.find { subscription -> subscription.id == id }
-                // If there's already a calendar matching the subscription, continue
-                if (match != null) continue
-                try {
-                    // Otherwise, create a subscription for the calendar
-                    val newSubscription = Subscription.fromCalendar(calendar)
-                    // Add it to the database
-                    subscriptionsDao.add(newSubscription)
-                    // And add it to `subscriptions` so it gets processed now.
-                    subscriptions.add(newSubscription)
-                    Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Could not create subscription from calendar. Migration failed.", e)
-                    continue
-                }
-            }
+            // Migrate all old calendar-based subscriptions to database
+            if (!migrateLegacyCalendars()) return Result.failure()
 
             // Migrate all credentials to the database
-            val credentialsDao = database.credentialsDao()
-            @Suppress("DEPRECATION") val oldCredentials = CalendarCredentials(applicationContext)
-            for (subscription in subscriptions) {
-                val databaseAndroidInterface = DatabaseAndroidInterface(applicationContext, subscription)
-                val calendar = databaseAndroidInterface.getCalendar()
-                calendar
-                    // Get the credentials that might be stored for the subscription
-                    .let { oldCredentials.get(it) }
-                    // Take only if there's an username and password
-                    .takeIf { (u, p) -> u != null && p != null }
-                    // Convert the username and password into Credential
-                    ?.let { Credential(subscription.id, it.first!!, it.second!!) }
-                    // Store the credential in the database
-                    ?.let { credentialsDao.put(it.subscriptionId, it.username, it.password) }
-                    // Remove the credential from shared preferences
-                    ?.also { oldCredentials.put(calendar, null, null) }
-            }
+            migrateLegacyCredentials()
 
-            // Process each subscription
-            subscriptions
-                .filter { it.isSynced }
-                .forEach { ProcessEventsTask(applicationContext, it, forceResync).sync() }
-
+            // Sync subscriptions to calendars:
+            // - Create/Update/Delete calendars according to the Subscriptions
+            // - Sync each subscription/calendar with server/file.
+            syncCalendars()
         } catch (e: CalendarStorageException) {
             Log.e(TAG, "Calendar storage exception", e)
         } catch (e: InterruptedException) {
@@ -151,6 +118,87 @@ class SyncWorker(
         }
 
         return Result.success()
+    }
+
+    /**
+     * Migrates all the legacy calendar-based subscriptions to the database. Performs these steps:
+     * 1. Searches for all the calendars created
+     * 2. Checks that those calendars have a matching [Subscription] in the database.
+     * 3. If there's no matching [Subscription], create it.
+     * @return `true` if the migration was completed successfully, `false` otherwise (No provider
+     * is available for [getApplicationContext]).
+     */
+    private fun migrateLegacyCalendars(): Boolean {
+        val account = AppAccount.get(applicationContext)
+
+        // Get a provider from the application context, or return failure
+        val provider = DatabaseAndroidInterface.getProvider(applicationContext) ?: return false
+        // If there's a provider available, get all the calendars available in the system
+        val calendars = AndroidCalendar.find(
+            account,
+            provider,
+            LocalCalendar.Factory,
+            null,
+            null,
+        )
+
+        for (calendar in calendars) {
+            val id = calendar.id
+            val match = subscriptions.find { subscription -> subscription.id == id }
+            // If there's already a calendar matching the subscription, continue
+            if (match != null) continue
+            try {
+                // Otherwise, create a subscription for the calendar
+                val newSubscription = Subscription.fromCalendar(calendar)
+                // Add it to the database
+                subscriptionsDao.add(newSubscription)
+                // And add it to `subscriptions` so it gets processed now.
+                subscriptions.add(newSubscription)
+                Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not create subscription from calendar. Migration failed.", e)
+                continue
+            }
+        }
+
+        return true
+    }
+
+    /**
+     * Migrates all the old credentials (from shared preferences) to the database. Steps:
+     * 1. For each subscription, get its matching calendar.
+     * 2. Get the credentials stored in [CalendarCredentials].
+     * 3. If there are credentials stored, add them to the database.
+     * 4. Remove all the stored credentials from [CalendarCredentials].
+     */
+    @Suppress("DEPRECATION")
+    private fun migrateLegacyCredentials() {
+        val oldCredentials = CalendarCredentials(applicationContext)
+        for (subscription in subscriptions) {
+            val databaseAndroidInterface = DatabaseAndroidInterface(applicationContext, subscription)
+            val calendar = databaseAndroidInterface.getCalendar()
+            calendar
+                // Get the credentials that might be stored for the subscription
+                .let { oldCredentials.get(it) }
+                // Take only if there's an username and password
+                .takeIf { (u, p) -> u != null && p != null }
+                // Convert the username and password into Credential
+                ?.let { Credential(subscription.id, it.first!!, it.second!!) }
+                // Store the credential in the database
+                ?.let { credentialsDao.put(it.subscriptionId, it.username, it.password) }
+                // Remove the credential from shared preferences
+                ?.also { oldCredentials.put(calendar, null, null) }
+        }
+    }
+
+    /**
+     * Takes all the [subscriptions], and runs [ProcessEventsTask] with them if [Subscription.isSynced]
+     * is true.
+     */
+    private suspend fun syncCalendars() {
+        subscriptions
+            .filter { it.isSynced }
+            .forEach { ProcessEventsTask(applicationContext, it, forceReSync).sync() }
     }
 
 }
