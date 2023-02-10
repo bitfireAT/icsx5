@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f8ce1d0c55ab5f8ed12f7553d32158ed",
+    "identityHash": "3d3efde41926a4c941fe31fe482723d6",
     "entities": [
       {
         "tableName": "subscriptions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `lastModified` INTEGER, `lastSync` INTEGER, `syncEvents` INTEGER NOT NULL, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER, `isSynced` INTEGER NOT NULL, `isVisible` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `lastModified` INTEGER, `lastSync` INTEGER, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -45,12 +45,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "syncEvents",
-            "columnName": "syncEvents",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "errorMessage",
             "columnName": "errorMessage",
             "affinity": "TEXT",
@@ -73,18 +67,6 @@
             "columnName": "color",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "isSynced",
-            "columnName": "isSynced",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isVisible",
-            "columnName": "isVisible",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -144,7 +126,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8ce1d0c55ab5f8ed12f7553d32158ed')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3d3efde41926a4c941fe31fe482723d6')"
     ]
   }
 }

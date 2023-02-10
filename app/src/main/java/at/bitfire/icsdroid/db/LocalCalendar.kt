@@ -8,22 +8,15 @@ import android.accounts.Account
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.ContentValues
+import android.content.Context
 import android.os.RemoteException
+import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
-import android.util.Log
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
 import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.UriHelper.asSyncAdapter
-import at.bitfire.icsdroid.Constants
-import net.fortuna.ical4j.model.Property
-import net.fortuna.ical4j.model.PropertyList
-import net.fortuna.ical4j.model.component.VAlarm
-import net.fortuna.ical4j.model.property.Action
-import net.fortuna.ical4j.model.property.Description
-import net.fortuna.ical4j.model.property.Trigger
-import java.time.Duration
 
 class LocalCalendar private constructor(
     account: Account,
@@ -42,15 +35,27 @@ class LocalCalendar private constructor(
 
         /**
          * Stores if the calendar's embedded alerts should be ignored.
-         * @since 20221202
          */
         const val COLUMN_IGNORE_EMBEDDED = Calendars.CAL_SYNC8
 
         /**
          * Stores the default alarm to set to all events in the given calendar.
-         * @since 20221202
          */
         const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
+
+        /**
+         * Gets the calendar provider for a given context.
+         * The caller (you) is responsible for closing the client!
+         *
+         * @throws CalendarStorageException if the calendar provider is not available
+         * @throws SecurityException if permissions for accessing the calendar are not granted
+         */
+        fun getCalendarProvider(context: Context): ContentProviderClient =
+            context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY) ?:
+            throw CalendarStorageException("Calendar provider not available")
+
+
+        // CRUD methods
 
         fun findById(account: Account, provider: ContentProviderClient, id: Long) =
             findByID(account, provider, Factory, id)
@@ -93,52 +98,6 @@ class LocalCalendar private constructor(
         info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
     }
 
-    fun updateStatusSuccess(eTag: String?, lastModified: Long) {
-        this.eTag = eTag
-        this.lastModified = lastModified
-        lastSync = System.currentTimeMillis()
-
-        val values = ContentValues(7)
-        values.put(COLUMN_ETAG, eTag)
-        values.put(COLUMN_LAST_MODIFIED, lastModified)
-        values.put(COLUMN_LAST_SYNC, lastSync)
-        values.putNull(COLUMN_ERROR_MESSAGE)
-        values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
-        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
-        update(values)
-    }
-
-    fun updateStatusNotModified() {
-        lastSync = System.currentTimeMillis()
-
-        val values = ContentValues(1)
-        values.put(COLUMN_LAST_SYNC, lastSync)
-        update(values)
-    }
-
-    fun updateStatusError(message: String) {
-        eTag = null
-        lastModified = 0
-        lastSync = System.currentTimeMillis()
-        errorMessage = message
-
-        val values = ContentValues(7)
-        values.putNull(COLUMN_ETAG)
-        values.putNull(COLUMN_LAST_MODIFIED)
-        values.put(COLUMN_LAST_SYNC, lastSync)
-        values.put(COLUMN_ERROR_MESSAGE, message)
-        values.put(COLUMN_DEFAULT_ALARM, defaultAlarmMinutes)
-        values.put(COLUMN_IGNORE_EMBEDDED, ignoreEmbeddedAlerts)
-        update(values)
-    }
-
-    fun updateUrl(url: String) {
-        this.url = url
-
-        val values = ContentValues(1)
-        values.put(Calendars.NAME, url)
-        update(values)
-    }
 
     fun queryByUID(uid: String) =
         queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))

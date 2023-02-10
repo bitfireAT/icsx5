@@ -6,10 +6,10 @@ package at.bitfire.icsdroid.migration
 
 import android.Manifest
 import android.content.ContentProviderClient
-import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
-import android.provider.CalendarContract
+import android.net.Uri
+import android.provider.CalendarContract.Calendars
 import android.util.Log
 import androidx.core.content.contentValuesOf
 import androidx.room.Room
@@ -23,18 +23,19 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.AppAccount
-import at.bitfire.icsdroid.CalendarFetcherTest
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
-import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 
 class CalendarToRoomMigrationTest {
+
     companion object {
         @JvmField
         @ClassRule
@@ -43,15 +44,13 @@ class CalendarToRoomMigrationTest {
             Manifest.permission.WRITE_CALENDAR,
         )
 
-        private lateinit var appContext: Context
-
+        val appContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
         private lateinit var provider: ContentProviderClient
 
         @BeforeClass
         @JvmStatic
         fun setUpProvider() {
-            appContext = InstrumentationRegistry.getInstrumentation().targetContext
-            provider = appContext.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)!!
+            provider = LocalCalendar.getCalendarProvider(appContext)
         }
 
         @AfterClass
@@ -59,11 +58,18 @@ class CalendarToRoomMigrationTest {
         fun closeProvider() {
             provider.closeCompat()
         }
+
+        const val CALENDAR_DISPLAY_NAME = "Some subscription"
+        const val CALENDAR_URL = "https://example.com/test.ics"
+        const val CALENDAR_USERNAME = "someUser"
+        const val CALENDAR_PASSWORD = "somePassword"
+
     }
 
     /** Provides an in-memory interface to the app's database */
-    private lateinit var database: AppDatabase
-    private lateinit var dao: SubscriptionsDao
+    private lateinit var db: AppDatabase
+    private lateinit var credentialsDao: CredentialsDao
+    private lateinit var subscriptionsDao: SubscriptionsDao
 
     // Initialize the test WorkManager for scheduling workers
     @Before
@@ -80,53 +86,64 @@ class CalendarToRoomMigrationTest {
     fun prepareDatabase() {
         assertNotNull(appContext)
 
-        database = Room.inMemoryDatabaseBuilder(appContext, AppDatabase::class.java).build()
-        dao = database.subscriptionsDao()
+        db = Room.inMemoryDatabaseBuilder(appContext, AppDatabase::class.java).build()
+        credentialsDao = db.credentialsDao()
+        subscriptionsDao = db.subscriptionsDao()
 
-        AppDatabase.setInstance(database)
+        AppDatabase.setInstance(db)
     }
 
-    private lateinit var calendar: LocalCalendar
 
-    @Before
-    fun prepareCalendar() {
+    private fun createCalendar(): LocalCalendar {
         val account = AppAccount.get(appContext)
-        val resUri = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${CalendarFetcherTest.testContext.packageName}/${R.raw.vienna_evolution}"
         val uri = AndroidCalendar.create(
             account,
             provider,
             contentValuesOf(
-                CalendarContract.Calendars.NAME to resUri,
-                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME to "LocalCalendarTest",
-            ),
+                Calendars.CALENDAR_DISPLAY_NAME to CALENDAR_DISPLAY_NAME,
+                Calendars.NAME to CALENDAR_URL
+            )
         )
-        calendar = AndroidCalendar.findByID(
+
+        val calendar = AndroidCalendar.findByID(
             account,
             provider,
             LocalCalendar.Factory,
             ContentUris.parseId(uri)
         )
-    }
 
-    @After
-    fun shutdown() {
-        calendar.delete()
+        // associate credentials, too
+        CalendarCredentials(appContext).put(calendar, CALENDAR_USERNAME, CALENDAR_PASSWORD)
+
+        return calendar
     }
 
     @Test
     fun testSubscriptionCreated() {
         val worker = TestListenableWorkerBuilder<SyncWorker>(
-            context = appContext,
+            context = appContext
         ).build()
 
-        runBlocking {
-            val result = worker.doWork()
-            assertEquals(result, Result.success())
+        val calendar = createCalendar()
+        try {
+            runBlocking {
+                val result = worker.doWork()
+                assertEquals(result, Result.success())
 
-            // Get all the subscriptions
-            val subscriptions = dao.getAll()
-            // Check that the created calendar has been added to the subscriptions list
-            assertNotNull(subscriptions.find { it.id == calendar.id })
+                val subscription = subscriptionsDao.getAll().first()
+                // check that the calendar has been added to the subscriptions list
+                assertEquals(calendar.id, subscription.id)
+                assertEquals(CALENDAR_DISPLAY_NAME, subscription.displayName)
+                assertEquals(Uri.parse(CALENDAR_URL), subscription.url)
+
+                // check credentials, too
+                val credentials = credentialsDao.getBySubscriptionId(subscription.id)
+                assertEquals(CALENDAR_USERNAME, credentials?.username)
+                assertEquals(CALENDAR_PASSWORD, credentials?.password)
+            }
+        } finally {
+            calendar.delete()
         }
     }
+
 }

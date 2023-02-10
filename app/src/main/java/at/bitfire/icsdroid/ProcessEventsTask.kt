@@ -14,7 +14,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.DatabaseAndroidInterface
+import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
@@ -46,21 +46,21 @@ import java.time.Duration
 class ProcessEventsTask(
     val context: Context,
     val subscription: Subscription,
+    val calendar: LocalCalendar,
     val forceResync: Boolean
 ) {
-    private val databaseAndroidInterface = DatabaseAndroidInterface(context, subscription)
+
+    private val db = AppDatabase.getInstance(context)
+    private val subscriptionsDao = db.subscriptionsDao()
 
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
-            // provide iCalendar event color values to Android
-            databaseAndroidInterface.insertColors()
-
             processEvents()
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
-            subscription.updateStatusError(context, e.localizedMessage ?: e.toString())
+            subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
@@ -123,11 +123,8 @@ class ProcessEventsTask(
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
-                        Log.i(
-                            Constants.TAG,
-                            "Calendar sync successful, ETag=$eTag, lastModified=$lastModified"
-                        )
-                        subscription.updateStatusSuccess(context, eTag, lastModified ?: 0L)
+                        Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
+                        subscriptionsDao.updateStatusSuccess(subscription.id, eTag, lastModified)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
                         exception = e
@@ -137,19 +134,20 @@ class ProcessEventsTask(
 
             override fun onNotModified() {
                 Log.i(Constants.TAG, "Calendar has not been modified since last sync")
-                subscription.updateStatusNotModified(context)
+                subscriptionsDao.updateStatusNotModified(subscription.id)
             }
 
             override fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
-                subscription.updateUrl(context, target.toString())
+                subscriptionsDao.updateUrl(subscription.id, target)
             }
 
             override fun onError(error: Exception) {
                 Log.w(Constants.TAG, "Sync error", error)
                 exception = error
             }
+
         }
 
         // Get the credentials for the given subscription from the database
@@ -198,7 +196,7 @@ class ProcessEventsTask(
             subscription.color?.let { notification.color = it }
             notificationManager.notify(subscription.id.toString(), 0, notification.build())
 
-            subscription.updateStatusError(context, message)
+            subscriptionsDao.updateStatusError(subscription.id, message)
         }
     }
 
@@ -208,7 +206,6 @@ class ProcessEventsTask(
             "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)"
         )
         val uids = HashSet<String>(events.size)
-        val calendar = databaseAndroidInterface.getCalendar()
 
         for (ev in events) {
             val event = updateAlarms(ev)
@@ -216,11 +213,13 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Found VEVENT: $uid")
             uids += uid
 
-            val localEvent = databaseAndroidInterface.queryAndroidEventByUid(uid)
-            if (localEvent == null) {
+            val localEvents = calendar.queryByUID(uid)
+            if (localEvents.isEmpty()) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
                 LocalEvent(calendar, event).add()
             } else {
+                val localEvent = localEvents.first()
+
                 var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
@@ -246,7 +245,7 @@ class ProcessEventsTask(
         }
 
         Log.i(Constants.TAG, "Deleting old events (retaining ${uids.size} events by UID) …")
-        val deleted = databaseAndroidInterface.androidRetainByUid(uids)
+        val deleted = calendar.retainByUID(uids)
         Log.i(Constants.TAG, "… $deleted events deleted")
     }
 

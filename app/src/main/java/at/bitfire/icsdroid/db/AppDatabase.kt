@@ -54,7 +54,9 @@ abstract class AppDatabase : RoomDatabase() {
                 }
 
                 // create a new instance and save it
-                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5").build()
+                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
+                    .fallbackToDestructiveMigration()
+                    .build()
                 instance = db
                 return db
             }
@@ -62,6 +64,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     abstract fun subscriptionsDao(): SubscriptionsDao
-
     abstract fun credentialsDao(): CredentialsDao
+    
 }
