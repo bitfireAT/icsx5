@@ -65,20 +65,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val permissionsRequestLauncher =
-            PermissionUtils.registerPermissionRequest(this, CalendarModel.REQUIRED_PERMISSIONS, R.string.permissions_required) {
-                // re-initialize model if calendar permissions are granted
-                model.reinit()
-
-                // we have calendar permissions, cancel possible sync notification (see SyncAdapter.onSecurityException askPermissionsIntent)
-                val nm = NotificationManagerCompat.from(this)
-                nm.cancel(NotificationUtils.NOTIFY_PERMISSION)
-            }
-        model.askForPermissions.observe(this) { ask ->
-            if (ask)
-                permissionsRequestLauncher()
-        }
-
         // show whether sync is running
         model.isRefreshing.observe(this) { isRefreshing ->
             binding.refresh.isRefreshing = isRefreshing
