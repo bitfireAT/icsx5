@@ -1,6 +1,11 @@
+/***************************************************************************************************
+ * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
+ **************************************************************************************************/
+
 package at.bitfire.icsdroid.db
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -23,6 +28,15 @@ abstract class AppDatabase : RoomDatabase() {
         private var instance: AppDatabase? = null
 
         /**
+         * This function is only intended to be used by tests, use [getInstance], it initializes
+         * the instance automatically.
+         */
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun setInstance(instance: AppDatabase?) {
+            this.instance = instance
+        }
+
+        /**
          * Gets or instantiates the database singleton. Thread-safe.
          * @param context The application's context, required to create the database.
          */
@@ -40,7 +54,9 @@ abstract class AppDatabase : RoomDatabase() {
                 }
 
                 // create a new instance and save it
-                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5").build()
+                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
+                    .fallbackToDestructiveMigration()
+                    .build()
                 instance = db
                 return db
             }
@@ -48,6 +64,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     abstract fun subscriptionsDao(): SubscriptionsDao
-
     abstract fun credentialsDao(): CredentialsDao
+    
 }
