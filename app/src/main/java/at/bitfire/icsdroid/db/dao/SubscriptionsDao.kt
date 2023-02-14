@@ -3,6 +3,7 @@ package at.bitfire.icsdroid.db.dao
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 
 @Dao
@@ -23,6 +24,9 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getById(id: Long): Subscription?
 
+    @Query("SELECT * FROM subscriptions WHERE id=:id")
+    fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
+
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageLive(id: Long): LiveData<String?>
 
@@ -40,5 +44,15 @@ interface SubscriptionsDao {
 
     @Query("UPDATE subscriptions SET url=:url WHERE id=:id")
     fun updateUrl(id: Long, url: Uri)
+
+
+    data class SubscriptionWithCredential(
+        @Embedded val subscription: Subscription,
+        @Relation(
+            parentColumn = "id",
+            entityColumn = "subscriptionId"
+        )
+        val credential: Credential?
+    )
 
 }

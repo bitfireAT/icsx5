@@ -6,13 +6,11 @@ package at.bitfire.icsdroid.ui
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.Log
 import android.view.*
@@ -65,20 +63,20 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
 
         // calendars
-        val calendarAdapter = CalendarListAdapter(this)
-        calendarAdapter.clickListener = { calendar ->
+        val subscriptionAdapter = SubscriptionListAdapter(this)
+        subscriptionAdapter.clickListener = { calendar ->
             val intent = Intent(this, EditCalendarActivity::class.java)
-            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, calendar.id)
             startActivity(intent)
         }
-        binding.calendarList.adapter = calendarAdapter
+        binding.calendarList.adapter = subscriptionAdapter
 
         binding.fab.setOnClickListener {
             onAddCalendar()
         }
 
         model.subscriptions.observe(this) { subscriptions ->
-            calendarAdapter.submitList(subscriptions)
+            subscriptionAdapter.submitList(subscriptions)
 
             val colors = mutableSetOf<Int>()
             colors += defaultRefreshColor
@@ -177,28 +175,26 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
 
-    class CalendarListAdapter(
-            val context: Context
-    ): ListAdapter<Subscription, CalendarListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<Subscription>() {
+    class SubscriptionListAdapter(
+        val context: Context
+    ): ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<Subscription>() {
 
         override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription) =
-                oldItem.id == newItem.id
+            oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: Subscription, newItem: Subscription) =
-                // compare all displayed fields
-                oldItem.url == newItem.url &&
-                oldItem.displayName == newItem.displayName &&
-                oldItem.lastSync == newItem.lastSync &&
-                oldItem.color == newItem.color &&
-                oldItem.errorMessage == newItem.errorMessage
+            // compare all displayed fields
+            oldItem.url == newItem.url &&
+            oldItem.displayName == newItem.displayName &&
+            oldItem.lastSync == newItem.lastSync &&
+            oldItem.color == newItem.color &&
+            oldItem.errorMessage == newItem.errorMessage
 
     }) {
 
         class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
 
-
         var clickListener: ((Subscription) -> Unit)? = null
-
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             Log.i(Constants.TAG, "Creating view holder")
