@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+apply plugin: 'com.google.devtools.ksp'
 
 android {
     compileSdkVersion 33
@@ -24,6 +25,10 @@ android {
         def locales = getLocales()
         buildConfigField "String[]", "TRANSLATION_ARRAY", "new String[]{\""+locales.join("\",\"")+"\"}"
         resConfigs locales
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
     }
 
     compileOptions {
@@ -179,12 +184,17 @@ dependencies {
     //noinspection GradleDependency
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
+    // Room Database
+    implementation "androidx.room:room-ktx:${versions.room}"
+    ksp "androidx.room:room-compiler:${versions.room}"
+
     // for tests
     androidTestImplementation 'androidx.test:runner:1.5.0'
     androidTestImplementation "androidx.test:rules:1.5.0"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+    androidTestImplementation "androidx.work:work-testing:2.7.1"
 
     testImplementation 'junit:junit:4.13.2'
 }

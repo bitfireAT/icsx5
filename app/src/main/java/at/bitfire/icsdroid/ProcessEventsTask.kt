@@ -12,23 +12,21 @@ import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.Event
-import at.bitfire.icsdroid.db.CalendarCredentials
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.LocalEvent
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
-import net.fortuna.ical4j.model.property.Description
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.MalformedURLException
 import java.time.Duration
 
 /**
@@ -41,45 +39,47 @@ import java.time.Duration
  * - for updating the local events (will only be updated when LAST-MODIFIED is newer).
  *
  * @param context      context to work in
- * @param calendar     represents the subscription to be checked
+ * @param subscription represents the subscription to be checked
  * @param forceResync  enforces that the calendar is fetched and all events are fully processed
  *                     (useful when subscription settings have been changed)
  */
 class ProcessEventsTask(
     val context: Context,
+    val subscription: Subscription,
     val calendar: LocalCalendar,
     val forceResync: Boolean
 ) {
+
+    private val db = AppDatabase.getInstance(context)
+    private val subscriptionsDao = db.subscriptionsDao()
 
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
-            // provide iCalendar event color values to Android
-            AndroidCalendar.insertColors(calendar.provider, calendar.account)
-
             processEvents()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
-            calendar.updateStatusError(e.localizedMessage ?: e.toString())
+            subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
 
     /**
-     * Updates the alarms of the given event according to the [calendar]'s [LocalCalendar.defaultAlarmMinutes] and [LocalCalendar.ignoreEmbeddedAlerts]
+     * Updates the alarms of the given event according to the [subscription]'s
+     * [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
      * parameters.
      * @since 20221208
      * @param event The event to update.
      * @return The given [event], with the alarms updated.
      */
     private fun updateAlarms(event: Event): Event = event.apply {
-        if (calendar.ignoreEmbeddedAlerts == true) {
+        if (subscription.ignoreEmbeddedAlerts) {
             // Remove all alerts
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
         }
-        calendar.defaultAlarmMinutes?.let { minutes ->
+        subscription.defaultAlarmMinutes?.let { minutes ->
             // Check if already added alarm
             val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
             if (alarm != null) return@let
@@ -102,30 +102,29 @@ class ProcessEventsTask(
     }
 
     private suspend fun processEvents() {
-        val uri =
-            try {
-                Uri.parse(calendar.url)
-            } catch(e: MalformedURLException) {
-                Log.e(Constants.TAG, "Invalid calendar URL", e)
-                calendar.updateStatusError(e.localizedMessage ?: e.toString())
-                return
-            }
+        val uri = subscription.url
         Log.i(Constants.TAG, "Synchronizing $uri, forceResync=$forceResync")
 
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
-        notificationManager.cancel(calendar.id.toString(), 0)
+        notificationManager.cancel(subscription.id.toString(), 0)
         var exception: Throwable? = null
 
-        val downloader = object: CalendarFetcher(context, uri) {
-            override fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+        val downloader = object : CalendarFetcher(context, uri) {
+            override fun onSuccess(
+                data: InputStream,
+                contentType: MediaType?,
+                eTag: String?,
+                lastModified: Long?,
+                displayName: String?
+            ) {
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     try {
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                        calendar.updateStatusSuccess(eTag, lastModified ?: 0L)
+                        subscriptionsDao.updateStatusSuccess(subscription.id, eTag, lastModified)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
                         exception = e
@@ -135,30 +134,35 @@ class ProcessEventsTask(
 
             override fun onNotModified() {
                 Log.i(Constants.TAG, "Calendar has not been modified since last sync")
-                calendar.updateStatusNotModified()
+                subscriptionsDao.updateStatusNotModified(subscription.id)
             }
 
             override fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
-                calendar.updateUrl(target.toString())
+                subscriptionsDao.updateUrl(subscription.id, target)
             }
 
             override fun onError(error: Exception) {
                 Log.w(Constants.TAG, "Sync error", error)
                 exception = error
             }
+
         }
 
-        CalendarCredentials(context).get(calendar).let { (username, password) ->
-            downloader.username = username
-            downloader.password = password
-        }
+        // Get the credentials for the given subscription from the database
+        AppDatabase.getInstance(context)
+            .credentialsDao()
+            .getBySubscriptionId(subscription.id)
+            ?.let { (_, username, password) ->
+                downloader.username = username
+                downloader.password = password
+            }
 
-        if (calendar.eTag != null && !forceResync)
-            downloader.ifNoneMatch = calendar.eTag
-        if (calendar.lastModified != 0L && !forceResync)
-            downloader.ifModifiedSince = calendar.lastModified
+        if (subscription.eTag != null && !forceResync)
+            downloader.ifNoneMatch = subscription.eTag
+        if (subscription.lastModified != 0L && !forceResync)
+            downloader.ifModifiedSince = subscription.lastModified
 
         downloader.fetch()
 
@@ -166,30 +170,41 @@ class ProcessEventsTask(
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()
 
             val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            errorIntent.data =
+                ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, subscription.id)
             errorIntent.putExtra(EditCalendarActivity.ERROR_MESSAGE, message)
             errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
 
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
-                    .setSmallIcon(R.drawable.ic_sync_problem_white)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setGroup(context.getString(R.string.app_name))
-                    .setContentTitle(context.getString(R.string.sync_error_title))
-                    .setContentText(message)
-                    .setSubText(calendar.displayName)
-                    .setContentIntent(PendingIntent.getActivity(context, 0, errorIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
-                    .setAutoCancel(true)
-                    .setWhen(System.currentTimeMillis())
-                    .setOnlyAlertOnce(true)
-            calendar.color?.let { notification.color = it }
-            notificationManager.notify(calendar.id.toString(), 0, notification.build())
+                .setSmallIcon(R.drawable.ic_sync_problem_white)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setGroup(context.getString(R.string.app_name))
+                .setContentTitle(context.getString(R.string.sync_error_title))
+                .setContentText(message)
+                .setSubText(subscription.displayName)
+                .setContentIntent(
+                    PendingIntent.getActivity(
+                        context,
+                        0,
+                        errorIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat
+                    )
+                )
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setOnlyAlertOnce(true)
+            subscription.color?.let { notification.color = it }
+            notificationManager.notify(subscription.id.toString(), 0, notification.build())
 
-            calendar.updateStatusError(message)
+            subscriptionsDao.updateStatusError(subscription.id, message)
         }
     }
 
     private fun processEvents(events: List<Event>, ignoreLastModified: Boolean) {
-        Log.i(Constants.TAG, "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)")
+        Log.i(
+            Constants.TAG,
+            "Processing ${events.size} events (ignoreLastModified=$ignoreLastModified)"
+        )
         val uids = HashSet<String>(events.size)
 
         for (ev in events) {
@@ -202,9 +217,9 @@ class ProcessEventsTask(
             if (localEvents.isEmpty()) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
                 LocalEvent(calendar, event).add()
-
             } else {
                 val localEvent = localEvents.first()
+
                 var lastModified = if (ignoreLastModified) null else event.lastModified
                 Log.d(Constants.TAG, "$uid already in local calendar, lastModified = $lastModified")
 
