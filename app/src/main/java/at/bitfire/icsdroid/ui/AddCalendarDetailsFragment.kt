@@ -4,30 +4,31 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.content.ContentProviderClient
-import android.content.ContentUris
-import android.content.ContentValues
+import android.app.Application
+import android.net.Uri
 import android.os.Bundle
-import android.provider.CalendarContract
-import android.provider.CalendarContract.Calendars
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
-import at.bitfire.icsdroid.AppAccount
+import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddCalendarDetailsFragment: Fragment() {
 
     private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+    private val creationModel by activityViewModels<CreateSubscriptionViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,47 +63,70 @@ class AddCalendarDetailsFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) =
             if (item.itemId == R.id.create_calendar) {
-                if (createCalendar())
-                    requireActivity().finish()
+                creationModel.createSubscription(titleColorModel, credentialsModel) {
+                    // Finish the activity to go back to the subscriptions list
+                    activity?.finish()
+                }
                 true
             } else
                 false
 
+    class CreateSubscriptionViewModel(application: Application): AndroidViewModel(application) {
+        private val database = AppDatabase.getInstance(getApplication())
+        private val subscriptionsDao = database.subscriptionsDao()
+        private val credentialsDao = database.credentialsDao()
 
-    private fun createCalendar(): Boolean {
-        val account = AppAccount.get(requireActivity())
+        /**
+         * Creates a new subscription taking the data from the given models.
+         * @param onFinished Gets called when the subscription is created successfully.
+         */
+        fun createSubscription(
+            titleColorModel: TitleColorFragment.TitleColorModel,
+            credentialsModel: CredentialsFragment.CredentialsModel,
+            onFinished: () -> Unit,
+        ) = viewModelScope.launch(Dispatchers.IO) {
+            val application = getApplication<Application>()
 
-        val calInfo = ContentValues(9)
-        calInfo.put(Calendars.ACCOUNT_NAME, account.name)
-        calInfo.put(Calendars.ACCOUNT_TYPE, account.type)
-        calInfo.put(Calendars.NAME, titleColorModel.url.value)
-        calInfo.put(Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
-        calInfo.put(Calendars.CALENDAR_COLOR, titleColorModel.color.value)
-        calInfo.put(Calendars.OWNER_ACCOUNT, account.name)
-        calInfo.put(Calendars.SYNC_EVENTS, 1)
-        calInfo.put(Calendars.VISIBLE, 1)
-        calInfo.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_READ)
-        calInfo.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
-        calInfo.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
+            try {
+                val subscription = Subscription(
+                    displayName = titleColorModel.title.value!!,
+                    url = Uri.parse(titleColorModel.url.value),
+                    color = titleColorModel.color.value,
+                    ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
+                    defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
+                )
+                /** A list of all the ids of the inserted rows, should only contain one value */
+                val ids = subscriptionsDao.add(subscription)
+                /** The id of the newly inserted subscription */
+                val id = ids.first()
 
-        val client: ContentProviderClient? = requireActivity().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-        return try {
-            client?.let {
-                val uri = AndroidCalendar.create(account, it, calInfo)
-                val calendar = LocalCalendar.findById(account, client, ContentUris.parseId(uri))
+                if (credentialsModel.requiresAuth.value == true) {
+                    // If the subscription requires credentials, create them
+                    val credential = Credential(
+                        subscriptionId = id,
+                        username = credentialsModel.username.value!!,
+                        password = credentialsModel.password.value!!
+                    )
+                    credentialsDao.create(credential)
+                }
 
-                if (credentialsModel.requiresAuth.value == true)
-                    CalendarCredentials(requireActivity()).put(calendar, credentialsModel.username.value, credentialsModel.password.value)
+                // Run on the main thread for doing UI updates
+                withContext(Dispatchers.Main) {
+                    // Show a toast informing that the calendar has been created
+                    Toast.makeText(
+                        application,
+                        application.getString(R.string.add_calendar_created),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    // Answer that the subscription creation process has finished
+                    onFinished()
+                }
+            } catch (e: Exception) {
+                Log.e(Constants.TAG, "Couldn't create calendar", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
+                }
             }
-            Toast.makeText(activity, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
-            requireActivity().invalidateOptionsMenu()
-            true
-        } catch(e: Exception) {
-            Log.e(Constants.TAG, "Couldn't create calendar", e)
-            Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
-            false
-        } finally {
-            client?.closeCompat()
         }
     }
 
