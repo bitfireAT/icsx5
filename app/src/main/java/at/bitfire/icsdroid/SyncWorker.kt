@@ -14,11 +14,9 @@ import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import java.util.concurrent.TimeUnit
 
 class SyncWorker(
     context: Context,
@@ -106,6 +104,8 @@ class SyncWorker(
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
 
+        var result: Result = Result.success()
+
         provider = LocalCalendar.getCalendarProvider(applicationContext)
         try {
             // migrate old calendar-based subscriptions to database
@@ -119,21 +119,27 @@ class SyncWorker(
             AndroidCalendar.insertColors(provider, account)
 
             // sync local calendars
-            for (subscription in subscriptionsDao.getAll()) {
-                val calendar = LocalCalendar.findById(account, provider, subscription.id)
-                ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
-            }
+            for (subscription in subscriptionsDao.getAll())
+                try {
+                    val calendar = LocalCalendar.findById(account, provider, subscription.id)
+                    ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
+                } catch (e: Exception) {
+                    // If an error occurs while synchronizing this subscription, retry until
+                    // MAX_ATTEMPTS is reached
+                    // FIXME: Should break the whole synchronization when an error is thrown, or use this method that allows running the rest of subscriptions?
+                    result = if (runAttemptCount >= MAX_ATTEMPTS)
+                        Result.failure()
+                    else
+                        Result.retry()
+                }
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
-            return if (runAttemptCount >= MAX_ATTEMPTS)
-                Result.failure()
-            else
-                Result.retry()
+            return Result.failure()
         } finally {
             provider.closeCompat()
         }
 
-        return Result.success()
+        return result
     }
 
     /**
