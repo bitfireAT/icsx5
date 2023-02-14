@@ -46,7 +46,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     private var snackBar: Snackbar? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.title_activity_calendar_list)
@@ -241,18 +240,18 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     }
 
-    /** Data model for this view. Updates calendar subscriptions in real-time. */
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
+
         /** whether there are running sync workers */
         val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
         }
 
-        private val database = AppDatabase.getInstance(application)
-        private val subscriptionsDao = database.subscriptionsDao()
+        /** LiveData watching the subscriptions */
+        val subscriptions = AppDatabase.getInstance(application)
+            .subscriptionsDao()
+            .getAllLive()
 
-        /** A LiveData that watches the subscriptions. */
-        val subscriptions = subscriptionsDao.getAllLive()
     }
 
 }
