@@ -185,17 +185,17 @@ class SyncWorker(
         for (subscription in subscriptions) {
             val calendar = calendars.remove(subscription.id)
             if (calendar != null) {
-                Log.d(Constants.TAG, "Updating local calendar #${calendar.id} from subscription")
+                Log.d(TAG, "Updating local calendar #${calendar.id} from subscription")
                 calendar.update(subscription.toCalendarProperties())
             } else {
-                Log.d(Constants.TAG, "Creating local calendar from subscription #${subscription.id}")
+                Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
                 AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
             }
         }
 
         // remove remaining calendars
         for (calendar in calendars.values) {
-            Log.d(Constants.TAG, "Removing local calendar #${calendar.id} without subscription")
+            Log.d(TAG, "Removing local calendar #${calendar.id} without subscription")
             calendar.delete()
         }
     }
