@@ -61,6 +61,8 @@ class ProcessEventsTask(
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
             subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
+            // Raise the error for handling in SyncWorker
+            throw e
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
