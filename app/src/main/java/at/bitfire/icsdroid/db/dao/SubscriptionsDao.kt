@@ -9,7 +9,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 interface SubscriptionsDao {
 
     @Insert
-    fun add(vararg subscriptions: Subscription)
+    fun add(vararg subscriptions: Subscription): List<Long>
 
     @Delete
     fun delete(vararg subscriptions: Subscription)
