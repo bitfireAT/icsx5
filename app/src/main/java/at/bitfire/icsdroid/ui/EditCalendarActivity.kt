@@ -5,15 +5,12 @@
 package at.bitfire.icsdroid.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentUris
-import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.net.Uri
+import android.database.SQLException
 import android.os.Build
 import android.os.Bundle
-import android.provider.CalendarContract
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -32,11 +29,16 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.bitfire.ical4android.CalendarStorageException
+import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 
 class EditCalendarActivity: AppCompatActivity() {
@@ -46,7 +48,7 @@ class EditCalendarActivity: AppCompatActivity() {
         const val THROWABLE = "errorThrowable"
     }
 
-    private val model by viewModels<CalendarModel>()
+    private val model by viewModels<SubscriptionModel>()
     private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
     private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
 
@@ -60,13 +62,14 @@ class EditCalendarActivity: AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        model.calendar.observe(this) { calendar ->
+        model.subscriptionData.observe(this) { data ->
+            if (data == null) return@observe
+            val (subscription, credential) = data
             if (!model.loaded) {
-                onCalendarLoaded(calendar)
+                onSubscriptionLoaded(subscription, credential)
                 model.loaded = true
             }
         }
-        model.active.observe(this, invalidate)
 
         titleColorModel.title.observe(this, invalidate)
         titleColorModel.color.observe(this, invalidate)
@@ -86,9 +89,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
                 // permissions OK, load calendar from provider
                 val uri = intent.data ?: throw IllegalArgumentException("Intent data empty (must be calendar URI)")
-                val calendarId = ContentUris.parseId(uri)
+                val subscriptionId = ContentUris.parseId(uri)
                 try {
-                    model.loadCalendar(calendarId)
+                    model.loadSubscription(subscriptionId)
                 } catch (e: FileNotFoundException) {
                     Toast.makeText(this, R.string.could_not_load_calendar, Toast.LENGTH_LONG).show()
                     finish()
@@ -128,9 +131,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 .setVisible(dirty)
 
         // if local file, hide authentication fragment
-        val uri = Uri.parse(model.calendar.value?.url)
+        val uri = model.subscriptionData.value?.first?.url
         binding.credentials.visibility =
-            if (HttpUtils.supportsAuthentication(uri))
+            if (uri != null && HttpUtils.supportsAuthentication(uri))
                 View.VISIBLE
             else
                 View.GONE
@@ -148,35 +151,37 @@ class EditCalendarActivity: AppCompatActivity() {
         return true
     }
 
-    private fun onCalendarLoaded(calendar: LocalCalendar) {
-        titleColorModel.url.value = calendar.url
-        calendar.displayName.let {
+    private fun onSubscriptionLoaded(subscription: Subscription, credential: Credential?) {
+        titleColorModel.url.value = subscription.url.toString()
+        subscription.displayName.let {
             titleColorModel.originalTitle = it
             titleColorModel.title.value = it
         }
-        calendar.color.let {
+        subscription.color.let {
             titleColorModel.originalColor = it
             titleColorModel.color.value = it
         }
-        calendar.ignoreEmbeddedAlerts.let {
+        subscription.ignoreEmbeddedAlerts.let {
             titleColorModel.originalIgnoreAlerts = it
             titleColorModel.ignoreAlerts.postValue(it)
         }
-        calendar.defaultAlarmMinutes.let {
+        subscription.defaultAlarmMinutes.let {
             titleColorModel.originalDefaultAlarmMinutes = it
             titleColorModel.defaultAlarmMinutes.postValue(it)
         }
 
-        model.active.value = calendar.isSynced
-
-        val (username, password) = CalendarCredentials(this).get(calendar)
-        val requiresAuth = username != null && password != null
-        credentialsModel.originalRequiresAuth = requiresAuth
-        credentialsModel.requiresAuth.value = requiresAuth
-        credentialsModel.originalUsername = username
-        credentialsModel.username.value = username
-        credentialsModel.originalPassword = password
-        credentialsModel.password.value = password
+        (credential != null).let { requiresAuth ->
+            credentialsModel.originalRequiresAuth = requiresAuth
+            credentialsModel.requiresAuth.value = requiresAuth
+        }
+        credential?.username.let { username ->
+            credentialsModel.originalUsername = username ?: ""
+            credentialsModel.username.value = username ?: ""
+        }
+        credential?.password.let { password ->
+            credentialsModel.originalPassword = password ?: ""
+            credentialsModel.password.value = password ?: ""
+        }
     }
 
 
@@ -191,33 +196,15 @@ class EditCalendarActivity: AppCompatActivity() {
     }
 
     fun onSave(item: MenuItem?) {
-        var success = false
-        model.calendar.value?.let { calendar ->
-            try {
-                val values = ContentValues(5)
-                values.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, titleColorModel.title.value)
-                values.put(CalendarContract.Calendars.CALENDAR_COLOR, titleColorModel.color.value)
-                values.put(CalendarContract.Calendars.SYNC_EVENTS, if (model.active.value == true) 1 else 0)
-                values.put(LocalCalendar.COLUMN_DEFAULT_ALARM, titleColorModel.defaultAlarmMinutes.value)
-                values.put(LocalCalendar.COLUMN_IGNORE_EMBEDDED, titleColorModel.ignoreAlerts.value)
-                calendar.update(values)
-
-                SyncWorker.run(this, forceResync = true)
-
-                credentialsModel.let { model ->
-                    val credentials = CalendarCredentials(this)
-                    if (model.requiresAuth.value == true)
-                        credentials.put(calendar, model.username.value, model.password.value)
-                    else
-                        credentials.put(calendar, null, null)
-                }
-                success = true
-            } catch(e: CalendarStorageException) {
-                Log.e(Constants.TAG, "Couldn't update calendar", e)
+        model.updateSubscription(titleColorModel, credentialsModel).invokeOnCompletion { error ->
+            if (error == null)
+                Toast.makeText(this, getString(R.string.edit_calendar_saved), Toast.LENGTH_SHORT).show()
+            else {
+                Log.e(Constants.TAG, "Couldn't update calendar", error)
+                Toast.makeText(this, getString(R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
             }
+            finish()
         }
-        Toast.makeText(this, getString(if (success) R.string.edit_calendar_saved else R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
-        finish()
     }
 
     fun onAskDelete(item: MenuItem) {
@@ -228,18 +215,15 @@ class EditCalendarActivity: AppCompatActivity() {
     }
 
     private fun onDelete() {
-        var success = false
-        model.calendar.value?.let {
-            try {
-                it.delete()
-                CalendarCredentials(this).put(it, null, null)
-                success = true
-            } catch(e: CalendarStorageException) {
-                Log.e(Constants.TAG, "Couldn't delete calendar")
+        model.deleteSubscription().invokeOnCompletion { error ->
+            if (error == null)
+                Toast.makeText(this, getString(R.string.edit_calendar_deleted), Toast.LENGTH_SHORT).show()
+            else {
+                Log.e(Constants.TAG, "Couldn't update calendar", error)
+                Toast.makeText(this, getString(R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
             }
+            finish()
         }
-        Toast.makeText(this, getString(if (success) R.string.edit_calendar_deleted else R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
-        finish()
     }
 
     fun onCancel(item: MenuItem?) {
@@ -247,52 +231,96 @@ class EditCalendarActivity: AppCompatActivity() {
     }
 
     fun onShare(item: MenuItem) {
-        model.calendar.value?.let {
+        model.subscriptionData.value?.let { (subscription, _) ->
             ShareCompat.IntentBuilder.from(this)
-                    .setSubject(it.displayName)
-                    .setText(it.url)
+                    .setSubject(subscription.displayName)
+                    .setText(subscription.url.toString())
                     .setType("text/plain")
                     .setChooserTitle(R.string.edit_calendar_send_url)
                     .startChooser()
         }
     }
 
-    private fun dirty(): Boolean {
-        val calendar = model.calendar.value ?: return false
-        return  calendar.isSynced != model.active.value ||
-                titleColorModel.dirty() ||
-                credentialsModel.dirty()
-    }
+    private fun dirty(): Boolean = titleColorModel.dirty() || credentialsModel.dirty()
 
 
     /* view model and data source */
 
-    class CalendarModel(
-            application: Application
-    ): AndroidViewModel(application) {
+    class SubscriptionModel(application: Application): AndroidViewModel(application) {
+        private val database = AppDatabase.getInstance(application)
+        private val subscriptionsDao = database.subscriptionsDao()
+        private val credentialsDao = database.credentialsDao()
 
         var loaded = false
 
-        var calendar = MutableLiveData<LocalCalendar>()
-        val active = MutableLiveData<Boolean>()
+        val subscriptionData = MutableLiveData<Pair<Subscription, Credential?>?>()
 
         /**
-         * Loads the requested calendar from the Calendar Provider.
-         *
-         * @param id    calendar ID
-         *
-         * @throws FileNotFoundException when the calendar doesn't exist (anymore)
+         * Loads a given subscription from the database given its id.
+         * @throws IllegalArgumentException If there's no subscription with the given id.
          */
-        fun loadCalendar(id: Long) {
-            @SuppressLint("Recycle")
-            val provider = getApplication<Application>().contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY) ?: return
-            try {
-                calendar.value = LocalCalendar.findById(AppAccount.get(getApplication()), provider, id)
-            } finally {
-                provider.release()
+        fun loadSubscription(id: Long) = viewModelScope.launch {
+            val data = withContext(Dispatchers.IO) {
+                val subscription = subscriptionsDao.getById(id) ?: throw IllegalArgumentException("There is no subscription stored with id $id")
+                val credential = credentialsDao.getBySubscriptionId(id)
+                subscription to credential
+            }
+            subscriptionData.postValue(data)
+        }
+
+        /**
+         * Updates the loaded subscription from the data provided by the view models.
+         * @throws IllegalStateException If [loadSubscription] has not been loaded, or was not successful.
+         */
+        fun updateSubscription(
+            titleColorModel: TitleColorFragment.TitleColorModel,
+            credentialsModel: CredentialsFragment.CredentialsModel
+        ) = viewModelScope.launch {
+            // Use withContext instead of passing context to launch for having correct thread in invokeOnCompletion
+            withContext(Dispatchers.IO) {
+                val (subscription, credential) = subscriptionData.value ?: throw IllegalStateException("Subscription not loaded")
+
+                val newSubscription = subscription.copy(
+                    displayName = titleColorModel.title.value ?: subscription.displayName,
+                    color = titleColorModel.color.value,
+                    defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+                    ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false
+                )
+                subscriptionsDao.update(newSubscription)
+
+                SyncWorker.run(getApplication(), forceResync = true)
+
+                val newCredential = credentialsModel.let { model ->
+                    // Try to remove the stored credentials if any
+                    try { credentialsDao.remove(subscription.id) } catch (_: SQLException) {}
+
+                    if (model.requiresAuth.value == true) {
+                        val newCredential = Credential(
+                            subscription.id,
+                            model.username.value!!,
+                            model.password.value!!
+                        )
+                        credentialsDao.create(newCredential)
+                        newCredential
+                    } else
+                        credential
+                }
+                subscriptionData.postValue(newSubscription to newCredential)
             }
         }
 
+        /**
+         * Removes the loaded subscription.
+         * @throws IllegalStateException If [loadSubscription] has not been loaded, or was not successful.
+         */
+        fun deleteSubscription() = viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val (subscription, _) = subscriptionData.value ?: throw IllegalStateException("Subscription not loaded")
+                credentialsDao.remove(subscription.id)
+                subscriptionsDao.delete(subscription)
+            }
+            subscriptionData.postValue(null)
+        }
     }
 
 
