@@ -4,6 +4,7 @@ import android.database.SQLException
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 
@@ -32,5 +33,9 @@ interface CredentialsDao {
      */
     @Query("DELETE FROM credentials WHERE subscriptionId=:subscriptionId")
     fun remove(subscriptionId: Long)
+
+    /** Updates a given calendar in the table */
+    @Update
+    fun update(credential: Credential)
 
 }
