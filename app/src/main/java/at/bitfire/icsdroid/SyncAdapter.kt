@@ -10,6 +10,7 @@ import android.content.*
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.work.WorkManager
+import at.bitfire.icsdroid.ui.AddCalendarActivity
 import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 
@@ -30,7 +31,9 @@ class SyncAdapter(
 
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
         val nm = NotificationUtils.createChannels(context)
-        val askPermissionsIntent = Intent(context, CalendarListActivity::class.java)
+        val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
+            putExtra(AddCalendarActivity.EXTRA_PERMISSION, true)
+        }
         val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                 .setSmallIcon(R.drawable.ic_sync_problem_white)
                 .setContentTitle(context.getString(R.string.sync_permission_required))
