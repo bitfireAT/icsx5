@@ -47,7 +47,10 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     private lateinit var binding: CalendarListActivityBinding
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
-    private lateinit var requestPermissions: () -> Unit
+    private lateinit var requestCalendarPermissions: () -> Unit
+
+    /** Stores the post notification permission request for asking for permissions during runtime */
+    private lateinit var requestNotificationPermission: () -> Unit
 
     private var snackBar: Snackbar? = null
 
@@ -56,9 +59,12 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         setTitle(R.string.title_activity_calendar_list)
 
         // Register the calendar permission request
-        requestPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
+        requestCalendarPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
             SyncWorker.run(this)
         }
+
+        // Register the notifications permission request
+        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this)
 
         binding = DataBindingUtil.setContentView(this, R.layout.calendar_list_activity)
         binding.lifecycleOwner = this
@@ -90,7 +96,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         // If EXTRA_PERMISSION is true, request the calendar permissions
         val requestPermissions = intent.getBooleanExtra(EXTRA_PERMISSION, false)
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this)) {
-            requestPermissions()
+            requestCalendarPermissions()
         }
 
         model.subscriptions.observe(this) { subscriptions ->
@@ -139,10 +145,17 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         snackBar = null
 
         when {
+            // notification permissions are granted
+            !PermissionUtils.haveNotificationPermission(this) -> {
+                snackBar = Snackbar.make(binding.coordinator, R.string.notification_permissions_required, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.permissions_grant) { requestNotificationPermission() }
+                    .also { it.show() }
+            }
+
             // calendar permissions are granted
             !PermissionUtils.haveCalendarPermissions(this) -> {
                 snackBar = Snackbar.make(binding.coordinator, R.string.calendar_permissions_required, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.permissions_grant) { requestPermissions() }
+                    .setAction(R.string.permissions_grant) { requestCalendarPermissions() }
                     .also { it.show() }
             }
 
