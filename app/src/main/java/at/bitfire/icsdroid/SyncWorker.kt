@@ -16,6 +16,7 @@ import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.ui.NotificationUtils
 
 class SyncWorker(
     context: Context,
@@ -83,8 +84,9 @@ class SyncWorker(
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
 
-        provider = LocalCalendar.getCalendarProvider(applicationContext)
         try {
+            provider = LocalCalendar.getCalendarProvider(applicationContext)
+
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
 
@@ -100,11 +102,14 @@ class SyncWorker(
                 val calendar = LocalCalendar.findById(account, provider, subscription.id)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
             }
+        } catch (e: SecurityException) {
+            NotificationUtils.showCalendarPermissionNotification(applicationContext)
+            return Result.failure()
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
             return Result.retry()
         } finally {
-            provider.closeCompat()
+            if (this::provider.isInitialized) provider.closeCompat()
         }
 
         return Result.success()
