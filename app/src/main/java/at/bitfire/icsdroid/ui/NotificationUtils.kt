@@ -8,7 +8,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import androidx.core.app.NotificationCompat
 import at.bitfire.icsdroid.R
 
 object NotificationUtils {
@@ -34,6 +36,27 @@ object NotificationUtils {
         }
 
         return nm
+    }
+
+    /**
+     * Shows a notification informing the user that the calendar permission is required but has not
+     * been granted.
+     */
+    fun showCalendarPermissionNotification(context: Context) {
+        val nm = createChannels(context)
+        val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
+            putExtra(CalendarListActivity.EXTRA_PERMISSION, true)
+        }
+        val notification = NotificationCompat.Builder(context, CHANNEL_SYNC)
+            .setSmallIcon(R.drawable.ic_sync_problem_white)
+            .setContentTitle(context.getString(R.string.sync_permission_required))
+            .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
+            .setCategory(NotificationCompat.CATEGORY_ERROR)
+            .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
+            .setAutoCancel(true)
+            .setLocalOnly(true)
+            .build()
+        nm.notify(NOTIFY_PERMISSION, notification)
     }
 
 }
