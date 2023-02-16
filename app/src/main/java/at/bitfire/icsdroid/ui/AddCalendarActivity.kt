@@ -15,8 +15,6 @@ class AddCalendarActivity: AppCompatActivity() {
     companion object {
         const val EXTRA_TITLE = "title"
         const val EXTRA_COLOR = "color"
-
-        const val EXTRA_PERMISSION = "permission"
     }
 
     private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
@@ -26,12 +24,6 @@ class AddCalendarActivity: AppCompatActivity() {
         super.onCreate(inState)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val requestPermissions = intent.getBooleanExtra(EXTRA_PERMISSION, false)
-        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this)) {
-            PermissionUtils
-                .registerCalendarPermissionRequest(this)()
-        }
 
         if (inState == null) {
             supportFragmentManager

@@ -32,7 +32,7 @@ class SyncAdapter(
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
         val nm = NotificationUtils.createChannels(context)
         val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
-            putExtra(AddCalendarActivity.EXTRA_PERMISSION, true)
+            putExtra(CalendarListActivity.EXTRA_PERMISSION, true)
         }
         val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                 .setSmallIcon(R.drawable.ic_sync_problem_white)

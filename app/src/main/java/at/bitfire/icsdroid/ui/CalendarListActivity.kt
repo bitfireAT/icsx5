@@ -39,6 +39,10 @@ import java.util.*
 
 class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
+    companion object {
+        const val EXTRA_PERMISSION = "permission"
+    }
+
     private val model by viewModels<SubscriptionsModel>()
     private lateinit var binding: CalendarListActivityBinding
 
@@ -73,6 +77,15 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
         binding.fab.setOnClickListener {
             onAddCalendar()
+        }
+
+        // If EXTRA_PERMISSION is true, request the calendar permissions
+        val requestPermissions = intent.getBooleanExtra(EXTRA_PERMISSION, false)
+        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this)) {
+            PermissionUtils.registerCalendarPermissionRequest(this) {
+                // If permission was granted, run synchronization
+                SyncWorker.run(this)
+            }()
         }
 
         model.subscriptions.observe(this) { subscriptions ->
