@@ -7,6 +7,7 @@ package at.bitfire.icsdroid
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,18 @@ object PermissionUtils {
     fun haveCalendarPermissions(context: Context) = CALENDAR_PERMISSIONS.all { permission ->
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
+
+    /**
+     * Checks whether the calling app has permission to request notifications. If the device's SDK
+     * level is lower than Tiramisu, always returns `true`.
+     *
+     * @param context  context to check permissions within
+     * @return *true* if notification permissions are granted; *false* otherwise
+     */
+    fun haveNotificationPermission(context: Context) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        else true
 
     /**
      * Registers for the result of the request of some permissions.
@@ -81,5 +94,26 @@ object PermissionUtils {
             R.string.calendar_permissions_required,
             onGranted
         )
+
+    /**
+     * Registers a notification permission request launcher.
+     *
+     * @param activity   activity to register permission request launcher
+     * @param onGranted  called when calendar permissions have been granted
+     *
+     * @return Call the returning function to launch the request
+     */
+    fun registerNotificationPermissionRequest(activity: AppCompatActivity, onGranted: () -> Unit = {}) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            registerPermissionRequest(
+                activity,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                R.string.notification_permissions_required,
+                onGranted
+            )
+        else {
+            // If SDK level is not greater or equal than Tiramisu, do nothing
+            {}
+        }
 
 }
