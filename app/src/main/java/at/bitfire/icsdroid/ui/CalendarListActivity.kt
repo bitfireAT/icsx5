@@ -134,6 +134,17 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         snackBar = null
 
         when {
+            // calendar permissions are granted
+            !PermissionUtils.haveCalendarPermissions(this) -> {
+                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_permissions_required, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.permissions_grant) {
+                        PermissionUtils.registerCalendarPermissionRequest(this) {
+                            SyncWorker.run(this)
+                        }
+                    }
+                    .also { it.show() }
+            }
+
             // periodic sync not enabled
             AppAccount.syncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
                 snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE).also {
