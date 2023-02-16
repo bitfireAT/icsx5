@@ -63,28 +63,27 @@ class AddCalendarDetailsFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) =
             if (item.itemId == R.id.create_calendar) {
-                creationModel.createSubscription(titleColorModel, credentialsModel) {
-                    // Finish the activity to go back to the subscriptions list
-                    activity?.finish()
-                }
+                creationModel.createSubscription(titleColorModel, credentialsModel)
+                    .invokeOnCompletion {
+                        // Finish the activity to go back to the subscriptions list
+                        activity?.finish()
+                    }
                 true
             } else
                 false
 
-    class CreateSubscriptionViewModel(application: Application): AndroidViewModel(application) {
+    class CreateSubscriptionViewModel(application: Application) : AndroidViewModel(application) {
         private val database = AppDatabase.getInstance(getApplication())
         private val subscriptionsDao = database.subscriptionsDao()
         private val credentialsDao = database.credentialsDao()
 
         /**
          * Creates a new subscription taking the data from the given models.
-         * @param onFinished Gets called when the subscription is created successfully.
          */
         fun createSubscription(
             titleColorModel: TitleColorFragment.TitleColorModel,
             credentialsModel: CredentialsFragment.CredentialsModel,
-            onFinished: () -> Unit,
-        ) = viewModelScope.launch(Dispatchers.IO) {
+        ) = viewModelScope.launch {
             val application = getApplication<Application>()
 
             try {
@@ -95,12 +94,15 @@ class AddCalendarDetailsFragment: Fragment() {
                     ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
                     defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
                 )
+
                 /** A list of all the ids of the inserted rows, should only contain one value */
-                val ids = subscriptionsDao.add(subscription)
+                val ids = withContext(Dispatchers.IO) { subscriptionsDao.add(subscription) }
+
                 /** The id of the newly inserted subscription */
                 val id = ids.first()
 
-                if (credentialsModel.requiresAuth.value == true) {
+                // Create the credential in the IO thread
+                if (credentialsModel.requiresAuth.value == true) withContext(Dispatchers.IO) {
                     // If the subscription requires credentials, create them
                     val credential = Credential(
                         subscriptionId = id,
@@ -110,22 +112,15 @@ class AddCalendarDetailsFragment: Fragment() {
                     credentialsDao.create(credential)
                 }
 
-                // Run on the main thread for doing UI updates
-                withContext(Dispatchers.Main) {
-                    // Show a toast informing that the calendar has been created
-                    Toast.makeText(
-                        application,
-                        application.getString(R.string.add_calendar_created),
-                        Toast.LENGTH_LONG
-                    ).show()
-                    // Answer that the subscription creation process has finished
-                    onFinished()
-                }
+                // Show a toast informing that the calendar has been created
+                Toast.makeText(
+                    application,
+                    application.getString(R.string.add_calendar_created),
+                    Toast.LENGTH_LONG
+                ).show()
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
             }
         }
     }
