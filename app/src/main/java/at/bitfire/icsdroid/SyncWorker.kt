@@ -16,6 +16,7 @@ import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.ui.NotificationUtils
 
 class SyncWorker(
     context: Context,
@@ -100,6 +101,9 @@ class SyncWorker(
                 val calendar = LocalCalendar.findById(account, provider, subscription.id)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
             }
+        } catch (e: SecurityException) {
+            NotificationUtils.showCalendarPermissionNotification(applicationContext)
+            return Result.failure()
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
             return Result.retry()

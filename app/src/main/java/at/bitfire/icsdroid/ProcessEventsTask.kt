@@ -5,11 +5,9 @@
 package at.bitfire.icsdroid
 
 import android.app.PendingIntent
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.CalendarContract
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
@@ -170,10 +168,9 @@ class ProcessEventsTask(
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()
 
             val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.data =
-                ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, subscription.id)
-            errorIntent.putExtra(EditCalendarActivity.ERROR_MESSAGE, message)
-            errorIntent.putExtra(EditCalendarActivity.THROWABLE, ex)
+            errorIntent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
+            errorIntent.putExtra(EditCalendarActivity.EXTRA_ERROR_MESSAGE, message)
+            errorIntent.putExtra(EditCalendarActivity.EXTRA_THROWABLE, ex)
 
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                 .setSmallIcon(R.drawable.ic_sync_problem_white)

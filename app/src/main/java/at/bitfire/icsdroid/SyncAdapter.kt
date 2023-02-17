@@ -5,16 +5,13 @@
 package at.bitfire.icsdroid
 
 import android.accounts.Account
-import android.app.PendingIntent
 import android.content.*
 import android.os.Bundle
-import androidx.core.app.NotificationCompat
 import androidx.work.WorkManager
-import at.bitfire.icsdroid.ui.CalendarListActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 
 class SyncAdapter(
-        context: Context
+    context: Context
 ): AbstractThreadedSyncAdapter(context, false) {
 
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
@@ -28,19 +25,11 @@ class SyncAdapter(
         wm.cancelUniqueWork(SyncWorker.NAME)
     }
 
+    /**
+     * Called by the sync framework when we don't have calendar permissions.
+     */
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
-        val nm = NotificationUtils.createChannels(context)
-        val askPermissionsIntent = Intent(context, CalendarListActivity::class.java)
-        val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
-                .setSmallIcon(R.drawable.ic_sync_problem_white)
-                .setContentTitle(context.getString(R.string.sync_permission_required))
-                .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
-                .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
-                .setAutoCancel(true)
-                .setLocalOnly(true)
-                .build()
-        nm.notify(NotificationUtils.NOTIFY_PERMISSION, notification)
+        NotificationUtils.showCalendarPermissionNotification(context)
     }
 
 }
