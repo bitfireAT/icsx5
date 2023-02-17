@@ -21,9 +21,6 @@
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_sync_disabled">Sync. disabled</string>
-    <string name="calendar_list_sync_interval_manually">Automatic sync disabled</string>
-    <string name="calendar_list_master_sync_disabled">System-wide automatic sync is disabled</string>
-    <string name="calendar_list_master_sync_enable">Activate</string>
     <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->

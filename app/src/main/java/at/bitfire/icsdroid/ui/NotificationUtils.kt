@@ -45,7 +45,7 @@ object NotificationUtils {
     fun showCalendarPermissionNotification(context: Context) {
         val nm = createChannels(context)
         val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
-            putExtra(CalendarListActivity.EXTRA_PERMISSION, true)
+            putExtra(CalendarListActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
         }
         val notification = NotificationCompat.Builder(context, CHANNEL_SYNC)
             .setSmallIcon(R.drawable.ic_sync_problem_white)

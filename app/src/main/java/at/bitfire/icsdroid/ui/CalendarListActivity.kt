@@ -40,7 +40,10 @@ import java.util.*
 class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
-        const val EXTRA_PERMISSION = "permission"
+        /**
+         * Set this extra to request calendar permission when the activity starts.
+         */
+        const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
     }
 
     private val model by viewModels<SubscriptionsModel>()
@@ -94,10 +97,9 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
 
         // If EXTRA_PERMISSION is true, request the calendar permissions
-        val requestPermissions = intent.getBooleanExtra(EXTRA_PERMISSION, false)
-        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this)) {
+        val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
+        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
-        }
 
         model.subscriptions.observe(this) { subscriptions ->
             subscriptionAdapter.submitList(subscriptions)
@@ -157,13 +159,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                 snackBar = Snackbar.make(binding.coordinator, R.string.calendar_permissions_required, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.permissions_grant) { requestCalendarPermissions() }
                     .also { it.show() }
-            }
-
-            // periodic sync not enabled
-            AppAccount.syncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE).also {
-                    it.show()
-                }
             }
 
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
