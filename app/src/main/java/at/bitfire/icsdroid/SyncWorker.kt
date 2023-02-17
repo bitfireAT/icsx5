@@ -84,9 +84,8 @@ class SyncWorker(
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
 
+        provider = LocalCalendar.getCalendarProvider(applicationContext)
         try {
-            provider = LocalCalendar.getCalendarProvider(applicationContext)
-
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
 
@@ -109,7 +108,7 @@ class SyncWorker(
             Log.e(TAG, "Thread interrupted", e)
             return Result.retry()
         } finally {
-            if (this::provider.isInitialized) provider.closeCompat()
+            provider.closeCompat()
         }
 
         return Result.success()

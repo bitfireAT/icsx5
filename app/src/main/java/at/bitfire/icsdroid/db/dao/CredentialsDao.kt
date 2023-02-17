@@ -18,7 +18,6 @@ interface CredentialsDao {
     @Query("DELETE FROM credentials WHERE subscriptionId=:subscriptionId")
     fun removeBySubscriptionId(subscriptionId: Long)
 
-    /** Updates a given calendar in the table */
     @Update
     fun update(credential: Credential)
 

@@ -7,7 +7,6 @@ package at.bitfire.icsdroid.ui
 import android.app.Application
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -22,21 +21,20 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
-import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -65,28 +63,39 @@ class EditCalendarActivity: AppCompatActivity() {
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
 
+        model.subscriptionWithCredential.observe(this) { data ->
+            if (data != null)
+                onSubscriptionLoaded(data)
+        }
+
         val invalidate = Observer<Any> {
             invalidateOptionsMenu()
         }
-
-        model.subscriptionWithCredential.observe(this) { data ->
-            if (data == null) return@observe
-            onSubscriptionLoaded(data.subscription, data.credential)
+        arrayOf(
+            titleColorModel.title,
+            titleColorModel.color,
+            titleColorModel.ignoreAlerts,
+            titleColorModel.defaultAlarmMinutes,
+            credentialsModel.requiresAuth,
+            credentialsModel.username,
+            credentialsModel.password
+        ).forEach { element ->
+            element.observe(this, invalidate)
         }
-
-        titleColorModel.title.observe(this, invalidate)
-        titleColorModel.color.observe(this, invalidate)
-        titleColorModel.ignoreAlerts.observe(this, invalidate)
-        titleColorModel.defaultAlarmMinutes.observe(this, invalidate)
-
-        credentialsModel.requiresAuth.observe(this, invalidate)
-        credentialsModel.username.observe(this, invalidate)
-        credentialsModel.password.observe(this, invalidate)
 
         binding = DataBindingUtil.setContentView(this, R.layout.edit_calendar)
         binding.lifecycleOwner = this
         binding.model = model
 
+        // handle status changes
+        model.successMessage.observe(this) { message ->
+            if (message != null) {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+
+        // show error message from calling intent, if available
         if (inState == null)
             intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
                 AlertFragment.create(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable)
@@ -138,7 +147,9 @@ class EditCalendarActivity: AppCompatActivity() {
         return true
     }
 
-    private fun onSubscriptionLoaded(subscription: Subscription, credential: Credential?) {
+    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
+        val subscription = subscriptionWithCredential.subscription
+
         titleColorModel.url.value = subscription.url.toString()
         subscription.displayName.let {
             titleColorModel.originalTitle = it
@@ -157,17 +168,20 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.defaultAlarmMinutes.postValue(it)
         }
 
-        (credential != null).let { requiresAuth ->
-            credentialsModel.originalRequiresAuth = requiresAuth
-            credentialsModel.requiresAuth.value = requiresAuth
-        }
-        credential?.username.let { username ->
-            credentialsModel.originalUsername = username ?: ""
-            credentialsModel.username.value = username ?: ""
-        }
-        credential?.password.let { password ->
-            credentialsModel.originalPassword = password ?: ""
-            credentialsModel.password.value = password ?: ""
+        val credential = subscriptionWithCredential.credential
+        val requiresAuth = credential != null
+        credentialsModel.originalRequiresAuth = requiresAuth
+        credentialsModel.requiresAuth.value = requiresAuth
+
+        if (credential != null) {
+            credential.username.let { username ->
+                credentialsModel.originalUsername = username
+                credentialsModel.username.value = username
+            }
+            credential.password.let { password ->
+                credentialsModel.originalPassword = password
+                credentialsModel.password.value = password
+            }
         }
     }
 
@@ -177,40 +191,24 @@ class EditCalendarActivity: AppCompatActivity() {
     private fun handleOnBackPressed() {
         if (dirty())
             supportFragmentManager.beginTransaction()
-                    .add(SaveDismissDialogFragment(), null)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit()
-    }
-
-    fun onSave(item: MenuItem?) {
-        model.updateSubscription(titleColorModel, credentialsModel).invokeOnCompletion { error ->
-            if (error == null)
-                Toast.makeText(this, getString(R.string.edit_calendar_saved), Toast.LENGTH_SHORT).show()
-            else {
-                Log.e(Constants.TAG, "Couldn't update calendar", error)
-                Toast.makeText(this, getString(R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
-            }
-            finish()
-        }
-    }
-
-    fun onAskDelete(item: MenuItem) {
-        supportFragmentManager.beginTransaction()
-                .add(DeleteDialogFragment(), null)
+                .add(SaveDismissDialogFragment(), null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit()
     }
 
+    fun onSave(item: MenuItem?) {
+        model.updateSubscription(titleColorModel, credentialsModel)
+    }
+
+    fun onAskDelete(item: MenuItem) {
+        supportFragmentManager.beginTransaction()
+            .add(DeleteDialogFragment(), null)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .commit()
+    }
+
     private fun onDelete() {
-        model.deleteSubscription().invokeOnCompletion { error ->
-            if (error == null)
-                Toast.makeText(this, getString(R.string.edit_calendar_deleted), Toast.LENGTH_SHORT).show()
-            else {
-                Log.e(Constants.TAG, "Couldn't update calendar", error)
-                Toast.makeText(this, getString(R.string.edit_calendar_failed), Toast.LENGTH_SHORT).show()
-            }
-            finish()
-        }
+        model.removeSubscription()
     }
 
     fun onCancel(item: MenuItem?) {
@@ -242,58 +240,82 @@ class EditCalendarActivity: AppCompatActivity() {
         private val credentialsDao = db.credentialsDao()
         private val subscriptionsDao = db.subscriptionsDao()
 
+        val successMessage = MutableLiveData<String>()
+        val errorMessage = MutableLiveData<String>()
+
         val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
 
         /**
          * Updates the loaded subscription from the data provided by the view models.
-         * @throws IllegalStateException If [loadSubscription] has not been loaded, or was not successful.
          */
         fun updateSubscription(
             titleColorModel: TitleColorFragment.TitleColorModel,
             credentialsModel: CredentialsFragment.CredentialsModel
-        ) = viewModelScope.launch {
-            // Use withContext instead of passing context to launch for having correct thread in invokeOnCompletion
-            withContext(Dispatchers.IO) {
-                val subscriptionWithCredentials = subscriptionWithCredential.value ?: throw IllegalStateException("Subscription not loaded")
-                val subscription = subscriptionWithCredentials.subscription
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
+                    val subscription = subscriptionWithCredentials.subscription
 
-                val newSubscription = subscription.copy(
-                    displayName = titleColorModel.title.value ?: subscription.displayName,
-                    color = titleColorModel.color.value,
-                    defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
-                    ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false
-                )
-                subscriptionsDao.update(newSubscription)
+                    val newSubscription = subscription.copy(
+                        displayName = titleColorModel.title.value ?: subscription.displayName,
+                        color = titleColorModel.color.value,
+                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+                        ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false
+                    )
+                    subscriptionsDao.update(newSubscription)
 
-                if (credentialsModel.requiresAuth.value == true) {
-                    val username = credentialsModel.username.value
-                    val password = credentialsModel.password.value
-                    if (username != null && password != null)
-                        credentialsDao.upsert(Credential(subscriptionId, username, password))
-                } else
-                    credentialsDao.removeBySubscriptionId(subscriptionId)
+                    if (credentialsModel.requiresAuth.value == true) {
+                        val username = credentialsModel.username.value
+                        val password = credentialsModel.password.value
+                        if (username != null && password != null)
+                            credentialsDao.upsert(Credential(subscriptionId, username, password))
+                    } else
+                        credentialsDao.removeBySubscriptionId(subscriptionId)
 
-                // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication(), forceResync = true)
+                    // notify UI about success
+                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_saved))
+
+                    // sync the subscription to reflect the changes in the calendar provider
+                    SyncWorker.run(getApplication(), forceResync = true)
+                }
             }
         }
 
         /**
          * Removes the loaded subscription.
-         * @throws IllegalStateException If [loadSubscription] has not been loaded, or was not successful.
          */
-        fun deleteSubscription() = viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val subscriptionWithCredential = subscriptionWithCredential.value ?: throw IllegalStateException("Subscription not loaded")
-                subscriptionsDao.delete(subscriptionWithCredential.subscription)
+        fun removeSubscription() {
+            viewModelScope.launch(Dispatchers.IO) {
+                subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
+                    subscriptionsDao.delete(subscriptionWithCredentials.subscription)
+
+                    // notify UI about success
+                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_deleted))
+                }
             }
         }
 
     }
 
 
-    /* "Save or dismiss" dialog */
+    /** "Really delete?" dialog */
+    class DeleteDialogFragment: DialogFragment() {
 
+        override fun onCreateDialog(savedInstanceState: Bundle?) =
+            AlertDialog.Builder(requireActivity())
+                .setMessage(R.string.edit_calendar_really_delete)
+                .setPositiveButton(R.string.edit_calendar_delete) { dialog, _ ->
+                    dialog.dismiss()
+                    (activity as EditCalendarActivity?)?.onDelete()
+                }
+                .setNegativeButton(R.string.edit_calendar_cancel) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
+    }
+
+    /** "Save or dismiss" dialog */
     class SaveDismissDialogFragment: DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?) =
@@ -306,25 +328,6 @@ class EditCalendarActivity: AppCompatActivity() {
                 .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
                     dialog.dismiss()
                     (activity as? EditCalendarActivity)?.onCancel(null)
-                }
-                .create()
-
-    }
-
-
-    /* "Really delete?" dialog */
-
-    class DeleteDialogFragment: DialogFragment() {
-
-        override fun onCreateDialog(savedInstanceState: Bundle?) =
-            AlertDialog.Builder(requireActivity())
-                .setMessage(R.string.edit_calendar_really_delete)
-                .setPositiveButton(R.string.edit_calendar_delete) { dialog, _ ->
-                    dialog.dismiss()
-                    (activity as EditCalendarActivity?)?.onDelete()
-                }
-                .setNegativeButton(R.string.edit_calendar_cancel) { dialog, _ ->
-                    dialog.dismiss()
                 }
                 .create()
 

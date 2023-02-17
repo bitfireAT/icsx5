@@ -11,7 +11,7 @@ import androidx.work.WorkManager
 import at.bitfire.icsdroid.ui.NotificationUtils
 
 class SyncAdapter(
-        context: Context
+    context: Context
 ): AbstractThreadedSyncAdapter(context, false) {
 
     override fun onPerformSync(account: Account, extras: Bundle, authority: String, provider: ContentProviderClient, syncResult: SyncResult) {
@@ -25,6 +25,9 @@ class SyncAdapter(
         wm.cancelUniqueWork(SyncWorker.NAME)
     }
 
+    /**
+     * Called by the sync framework when we don't have calendar permissions.
+     */
     override fun onSecurityException(account: Account?, extras: Bundle?, authority: String?, syncResult: SyncResult?) {
         NotificationUtils.showCalendarPermissionNotification(context)
     }
