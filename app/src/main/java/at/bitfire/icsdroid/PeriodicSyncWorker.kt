@@ -15,7 +15,7 @@ class PeriodicSyncWorker(
 ): Worker(context, workerParams) {
 
     companion object {
-        const val NAME = "PeriodicSync"
+        private const val NAME = "PeriodicSync"
 
         fun setInterval(context: Context, seconds: Long?) {
             val wm = WorkManager.getInstance(context)

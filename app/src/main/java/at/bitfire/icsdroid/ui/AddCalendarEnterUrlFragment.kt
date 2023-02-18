@@ -27,7 +27,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
 
-    val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    private val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri != null) {
             // keep the picked file accessible after the first sync and reboots
             requireActivity().contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
