@@ -31,7 +31,6 @@ import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
-import at.bitfire.icsdroid.getSerializableExtraCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -97,7 +96,7 @@ class EditCalendarActivity: AppCompatActivity() {
         // show error message from calling intent, if available
         if (inState == null)
             intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                AlertFragment.create(error, intent.getSerializableExtraCompat(EXTRA_THROWABLE))
+                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable)
                     .show(supportFragmentManager, null)
             }
 

@@ -9,7 +9,6 @@ import android.os.Bundle
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.DialogFragment
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.getSerializableCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -42,7 +41,7 @@ class AlertFragment: DialogFragment() {
                     val details = StringWriter()
                     details.append(message)
 
-                    (args.getSerializableCompat<Throwable>(ARG_THROWABLE))?.let { ex ->
+                    (args.getSerializable(ARG_THROWABLE) as? Throwable)?.let { ex ->
                         details.append("\n\n")
                         ex.printStackTrace(PrintWriter(details))
                     }
