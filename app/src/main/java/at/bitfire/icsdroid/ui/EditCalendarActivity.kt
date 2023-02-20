@@ -5,13 +5,11 @@
 package at.bitfire.icsdroid.ui
 
 import android.app.Application
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -102,13 +100,17 @@ class EditCalendarActivity: AppCompatActivity() {
                     .show(supportFragmentManager, null)
             }
 
-        // FIXME crashes on back button. To reproduce: open subscription list / edit subscription / <back>
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-            ) { handleOnBackPressed() }
-        else
-            onBackPressedDispatcher.addCallback { handleOnBackPressed() }
+        onBackPressedDispatcher.addCallback {
+            if (dirty()) {
+                // If the form is dirty, warn the user about losing changes
+                supportFragmentManager.beginTransaction()
+                    .add(SaveDismissDialogFragment(), null)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit()
+            } else
+                // Otherwise, simply finish the activity
+                finish()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -187,14 +189,6 @@ class EditCalendarActivity: AppCompatActivity() {
 
 
     /* user actions */
-
-    private fun handleOnBackPressed() {
-        if (dirty())
-            supportFragmentManager.beginTransaction()
-                .add(SaveDismissDialogFragment(), null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit()
-    }
 
     fun onSave(item: MenuItem?) {
         model.updateSubscription(titleColorModel, credentialsModel)
