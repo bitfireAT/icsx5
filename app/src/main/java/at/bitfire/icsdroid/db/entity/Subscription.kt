@@ -18,7 +18,7 @@ import at.bitfire.icsdroid.db.LocalCalendar
 @Entity(tableName = "subscriptions")
 data class Subscription(
     /** The id of the subscription in the database. */
-    @PrimaryKey val id: Long = 0L,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     /** URL of iCalendar file */
     val url: Uri,
     /** ETag at last successful sync */
