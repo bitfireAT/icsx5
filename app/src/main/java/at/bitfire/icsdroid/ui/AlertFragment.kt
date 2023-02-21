@@ -46,7 +46,7 @@ class AlertFragment: DialogFragment() {
                         ex.printStackTrace(PrintWriter(details))
                     }
 
-                    val share = ShareCompat.IntentBuilder.from(requireActivity())
+                    val share = ShareCompat.IntentBuilder(requireActivity())
                             .setType("text/plain")
                             .setText(details.toString())
                             .createChooserIntent()

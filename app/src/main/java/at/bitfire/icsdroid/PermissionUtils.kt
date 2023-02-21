@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat
 
 object PermissionUtils {
 
-    val CALENDAR_PERMISSIONS = arrayOf(
+    private val CALENDAR_PERMISSIONS = arrayOf(
         Manifest.permission.READ_CALENDAR,
         Manifest.permission.WRITE_CALENDAR
     )
@@ -59,7 +59,7 @@ object PermissionUtils {
      *
      * @return The request launcher for launching the request.
      */
-    fun registerPermissionRequest(
+    private fun registerPermissionRequest(
         activity: AppCompatActivity,
         permissions: Array<String>,
         @StringRes toastMessage: Int,

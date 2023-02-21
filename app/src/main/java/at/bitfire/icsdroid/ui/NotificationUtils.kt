@@ -52,7 +52,7 @@ object NotificationUtils {
             .setContentTitle(context.getString(R.string.sync_permission_required))
             .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
             .setCategory(NotificationCompat.CATEGORY_ERROR)
-            .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat))
+            .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + flagImmutableCompat))
             .setAutoCancel(true)
             .setLocalOnly(true)
             .build()

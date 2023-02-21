@@ -75,7 +75,7 @@ class SyncWorker(
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
 
-    val account = AppAccount.get(applicationContext)
+    private val account = AppAccount.get(applicationContext)
     lateinit var provider: ContentProviderClient
 
     private var forceReSync: Boolean = false
@@ -121,6 +121,7 @@ class SyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
+    @Suppress("DEPRECATION")
     private fun migrateLegacyCalendars() {
         val legacyCredentials = CalendarCredentials(applicationContext)
 
@@ -157,17 +158,17 @@ class SyncWorker(
         for (subscription in subscriptions) {
             val calendar = calendars.remove(subscription.id)
             if (calendar != null) {
-                Log.d(Constants.TAG, "Updating local calendar #${calendar.id} from subscription")
+                Log.d(TAG, "Updating local calendar #${calendar.id} from subscription")
                 calendar.update(subscription.toCalendarProperties())
             } else {
-                Log.d(Constants.TAG, "Creating local calendar from subscription #${subscription.id}")
+                Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
                 AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
             }
         }
 
         // remove remaining calendars
         for (calendar in calendars.values) {
-            Log.d(Constants.TAG, "Removing local calendar #${calendar.id} without subscription")
+            Log.d(TAG, "Removing local calendar #${calendar.id} without subscription")
             calendar.delete()
         }
     }
