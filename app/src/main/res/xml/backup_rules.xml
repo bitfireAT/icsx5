@@ -2,10 +2,5 @@
 <!-- Backup Rules only apply for Android 11 and lower -->
 <full-backup-content>
     <!-- Include the database -->
-    <!--
-    FIXME: We should put credentials on a different database, so they can be tagged with requireFlags="clientSideEncryption"
-    -->
-    <include
-        domain="database"
-        path="icsx5" />
+    <include domain="database" path="icsx5" />
 </full-backup-content>
