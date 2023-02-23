@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="database" path="icsx5" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="icsx5" />
+    </device-transfer>
+</data-extraction-rules>
