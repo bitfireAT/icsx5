@@ -35,16 +35,28 @@ class SyncWorker(
         private const val FORCE_RESYNC = "forceResync"
 
         /**
+         * An input data for the Worker that tells if only migration should be performed, without
+         * fetching data.
+         */
+        private const val ONLY_MIGRATE = "onlyMigration"
+
+        /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
+         * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
-        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false, onlyMigrate: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
+                .setInputData(
+                    workDataOf(
+                        FORCE_RESYNC to forceResync,
+                        ONLY_MIGRATE to onlyMigrate,
+                    )
+                )
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")
@@ -82,12 +94,16 @@ class SyncWorker(
 
     override suspend fun doWork(): Result {
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
-        Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
+        val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
+        Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
         provider = LocalCalendar.getCalendarProvider(applicationContext)
         try {
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
+
+            // Do not synchronize if onlyMigrate is true
+            if (onlyMigrate) return Result.success()
 
             // update local calendars according to the subscriptions
             updateLocalCalendars()

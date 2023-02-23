@@ -10,6 +10,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase.Companion.getInstance
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
@@ -56,6 +58,12 @@ abstract class AppDatabase : RoomDatabase() {
                 // create a new instance and save it
                 val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
                     .fallbackToDestructiveMigration()
+                    .addCallback(object : Callback() {
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+                            SyncWorker.run(context, onlyMigrate = true)
+                        }
+                    })
                     .build()
                 instance = db
                 return db
@@ -65,5 +73,5 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun subscriptionsDao(): SubscriptionsDao
     abstract fun credentialsDao(): CredentialsDao
-    
+
 }
