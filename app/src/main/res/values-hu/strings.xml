@@ -4,18 +4,14 @@
   <!--common strings-->
   <string name="action_next">Következő</string>
   <string name="calendar_permissions_required">Naptár engedélyre van szükség</string>
-  <string name="notification_channel_sync_problem">Szinkronizációs problémák</string>
   <string name="could_not_load_calendar">A naptár betöltése nem sikerült</string>
+  <string name="notification_channel_sync_problem">Szinkronizációs problémák</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Feliratkozások</string>
   <string name="calendar_list_empty_info">Webcal folyamra a + gomb használatával vagy a Webcal URL megnyitásával iratkozhat fel.</string>
   <string name="calendar_list_info">Az ICSx⁵ névjegye</string>
   <string name="calendar_list_not_synced_yet">még nincs szinkronizálva</string>
   <string name="calendar_list_set_sync_interval">Szinkronizáció sűrűségének megadása</string>
-  <string name="calendar_list_sync_disabled">Szinkronizáció tiltva</string>
-  <string name="calendar_list_sync_interval_manually">Az automatikus szinkronizáció tiltva</string>
-  <string name="calendar_list_master_sync_disabled">Az automatikus szinkronizálás rendszerszinten tiltva</string>
-  <string name="calendar_list_master_sync_enable">Aktiválás</string>
   <string name="calendar_list_battery_whitelist">Akkumulátor: a gyakori szinkronizációhoz helyezze az ICSx⁵ alkalmazást engedélylistára</string>
   <string name="calendar_list_battery_whitelist_settings">Beállítások</string>
   <!--settings, currently in CalendarListActivity-->

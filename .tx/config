@@ -1,12 +1,10 @@
 [main]
 host = https://www.transifex.com
+lang_map = pt_BR: pt-rBR, pt_PT: pt-rPT, ru_UA: ru-rUA, uk_UA: uk-rUA
 
-[icsx5.icsx5]
-file_filter = app/src/main/res/values-<lang>/strings.xml
+[o:bitfireAT:p:icsx5:r:icsx5]
+file_filter  = app/src/main/res/values-<lang>/strings.xml
+source_file  = app/src/main/res/values/strings.xml
+source_lang  = en
+type         = ANDROID
 minimum_perc = 0
-source_file = app/src/main/res/values/strings.xml
-source_lang = en
-trans.pt_PT = app/src/main/res/values-pt/strings.xml
-trans.pt_BR = app/src/main/res/values-pt-rBR/strings.xml
-type = ANDROID
-

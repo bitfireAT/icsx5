@@ -4,18 +4,17 @@
   <!--common strings-->
   <string name="action_next">Далее</string>
   <string name="calendar_permissions_required">Необходимы разрешения для работы с календарем</string>
-  <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
+  <string name="notification_permissions_required">Требуются разрешения на отправку уведомлений</string>
   <string name="could_not_load_calendar">Не удалось загрузить календарь</string>
+  <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
+  <string name="permissions_required">Требуются разрешения</string>
+  <string name="permissions_grant">Предоставить</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
   <string name="calendar_list_empty_info">Для подписки на ленту Webcal используйте кнопку + или откройте веб-адрес Webcal.</string>
   <string name="calendar_list_info">О ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">еще не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
-  <string name="calendar_list_sync_disabled">Синхронизация отключена</string>
-  <string name="calendar_list_sync_interval_manually">Автоматическая синхронизация отключена</string>
-  <string name="calendar_list_master_sync_disabled">Автоматическая синхронизация отключена на уровне системы</string>
-  <string name="calendar_list_master_sync_enable">Активировать</string>
   <string name="calendar_list_battery_whitelist">Батарея: внесите ICSx⁵ в белый список для использования небольших интервалов синхронизации</string>
   <string name="calendar_list_battery_whitelist_settings">Настройки</string>
   <!--settings, currently in CalendarListActivity-->
@@ -36,6 +35,16 @@
   <string name="add_calendar_pick_file">Выбрать файл</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
   <string name="add_calendar_validating">Проверка доступности календаря...</string>
+  <string name="add_calendar_alarms_title">Оповещения</string>
+  <string name="add_calendar_alarms_ignore_title">Игнорировать оповещения, встроенные в календарь</string>
+  <string name="add_calendar_alarms_ignore_description">Если включено, все входящие оповещения с сервера будут отклонены.</string>
+  <string name="add_calendar_alarms_default_title">Добавить оповещение по умолчанию для всех событий</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">Оповещения, установленные до <b>%s</b></string>
+  <string name="default_alarm_dialog_title">Добавить оповещение по умолчанию</string>
+  <string name="default_alarm_dialog_message">Это добавит оповещение для всех событий</string>
+  <string name="default_alarm_dialog_hint">За несколько минут до события</string>
+  <string name="default_alarm_dialog_set">Установить</string>
+  <string name="default_alarm_dialog_error">Введите действительное число</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Поделиться информацией</string>
   <!--EditCalendarActivity-->

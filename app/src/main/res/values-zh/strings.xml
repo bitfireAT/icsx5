@@ -4,18 +4,17 @@
   <!--common strings-->
   <string name="action_next">继续</string>
   <string name="calendar_permissions_required">请授予访问日历的权限</string>
-  <string name="notification_channel_sync_problem">同步问题</string>
+  <string name="notification_permissions_required">需要通知权限</string>
   <string name="could_not_load_calendar">无法加载日历</string>
+  <string name="notification_channel_sync_problem">同步问题</string>
+  <string name="permissions_required">需要权限</string>
+  <string name="permissions_grant">授予</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">我的订阅</string>
   <string name="calendar_list_empty_info">如需订阅Webcal源，请点击 + 按钮或打开Webcal的URL地址</string>
   <string name="calendar_list_info">关于ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">尚未同步</string>
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
-  <string name="calendar_list_sync_disabled">未启用同步</string>
-  <string name="calendar_list_sync_interval_manually">自动同步已关闭</string>
-  <string name="calendar_list_master_sync_disabled">系统层面的自动同步已关闭</string>
-  <string name="calendar_list_master_sync_enable">启用</string>
   <string name="calendar_list_battery_whitelist">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
   <string name="calendar_list_battery_whitelist_settings">设置</string>
   <!--settings, currently in CalendarListActivity-->
@@ -36,6 +35,16 @@
   <string name="add_calendar_pick_file">选择文件</string>
   <string name="add_calendar_user_name">用户名</string>
   <string name="add_calendar_validating">正在验证日历…</string>
+  <string name="add_calendar_alarms_title">闹铃</string>
+  <string name="add_calendar_alarms_ignore_title">忽略嵌入在日历中的警报</string>
+  <string name="add_calendar_alarms_ignore_description">一旦启用，所有之后来自该服务器的闹铃都将被无视。</string>
+  <string name="add_calendar_alarms_default_title">为所有事件添加默认闹铃</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">闹铃设为事件发生前 <b>%s</b></string>
+  <string name="default_alarm_dialog_title">添加默认闹铃</string>
+  <string name="default_alarm_dialog_message">这会为所有事件添加一个闹铃</string>
+  <string name="default_alarm_dialog_hint">事件开始多少分钟</string>
+  <string name="default_alarm_dialog_set">设置</string>
+  <string name="default_alarm_dialog_error">输入的数字无效</string>
   <!--AlertFragment-->
   <string name="alert_share_details">分享详情</string>
   <!--EditCalendarActivity-->

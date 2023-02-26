@@ -11,10 +11,6 @@
   <string name="calendar_list_info">Acerca de ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">aún no se ha sincronizado</string>
   <string name="calendar_list_set_sync_interval">Marcar intervalo de sincronización</string>
-  <string name="calendar_list_sync_disabled">Sincronización desactivada</string>
-  <string name="calendar_list_sync_interval_manually">Sincronización automática desactivada</string>
-  <string name="calendar_list_master_sync_disabled">La sincronización automática está desactivada en todo el sistema</string>
-  <string name="calendar_list_master_sync_enable">Activar</string>
   <string name="calendar_list_battery_whitelist">Batería: Meter ICSx⁵ en lista blanca para intervalos de sinc. cortos</string>
   <string name="calendar_list_battery_whitelist_settings">Configuración</string>
   <!--settings, currently in CalendarListActivity-->

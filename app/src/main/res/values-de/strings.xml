@@ -4,18 +4,14 @@
   <!--common strings-->
   <string name="action_next">Weiter</string>
   <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
-  <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <string name="could_not_load_calendar">Kalender konnte nicht geladen werden</string>
+  <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
-  <string name="calendar_list_sync_disabled">Automatische Aktualisierung deaktiviert</string>
-  <string name="calendar_list_sync_interval_manually">Automatische Synchronisierung deaktiviert</string>
-  <string name="calendar_list_master_sync_disabled">Automatische Synchronisierung systemweit deaktiviert</string>
-  <string name="calendar_list_master_sync_enable">Aktivieren</string>
   <string name="calendar_list_battery_whitelist">Für kurze Intervalle: Akku-Optimierung für
 ICSx⁵ deaktivieren</string>
   <string name="calendar_list_battery_whitelist_settings">Einstellungen</string>

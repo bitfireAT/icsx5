@@ -5,8 +5,6 @@
   <!--CalendarListActivity-->
   <string name="calendar_list_info">O aplikaci ICSx⁵</string>
   <string name="calendar_list_set_sync_interval">Nastavit interval synchronizace</string>
-  <string name="calendar_list_sync_disabled">Synchronizace vypnuta</string>
-  <string name="calendar_list_sync_interval_manually">Automatická synchronizace vypnuta</string>
   <string name="calendar_list_battery_whitelist_settings">Nastavení</string>
   <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->

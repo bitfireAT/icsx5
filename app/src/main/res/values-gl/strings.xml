@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">Subscricións a calendarios</string>
+  <!--common strings-->
+  <string name="action_next">Seguinte</string>
+  <string name="calendar_permissions_required">Precísase permiso para o calendario</string>
+  <string name="notification_channel_sync_problem">Problemas de Sincr</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Subscricións</string>
+  <string name="calendar_list_empty_info">Para subscribirte a unha fonte Webcal, utiliza o botón + ou abre un URL Webcal.</string>
+  <string name="calendar_list_info">Acerca de ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">aínda non sincronizaches</string>
+  <string name="calendar_list_set_sync_interval">Establece intervalo de sincr.</string>
+  <string name="calendar_list_battery_whitelist">Batería: Permitelle a ICSx⁵ intervalos curtos de sincr</string>
+  <string name="calendar_list_battery_whitelist_settings">Axustes</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Forzar decorado escuro</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Subscribir a calendario</string>
+  <string name="add_calendar_need_valid_uri">Require URI válido</string>
+  <string name="add_calendar_authentication_without_https_warning">Terceiras partes poden interceptar facilmente as túas credenciais. Usa HTTPS para autenticación segura.</string>
+  <string name="add_calendar_create">Subscríbete agora</string>
+  <string name="add_calendar_created">Subscrición correcta</string>
+  <string name="add_calendar_password">Contrasinal</string>
+  <string name="add_calendar_requires_authentication">Require autenticación</string>
+  <string name="add_calendar_title">Título e Cor</string>
+  <string name="add_calendar_title_hint">Nome do calendario</string>
+  <string name="add_calendar_user_name">Nome de usuaria</string>
+  <string name="add_calendar_validating">Validando fonte do calendario...</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Comparte detalles</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Editar subscrición</string>
+  <string name="edit_calendar_cancel">Cancelar</string>
+  <string name="edit_calendar_delete">Retirar subscrición</string>
+  <string name="edit_calendar_deleted">Retirada correctamente</string>
+  <string name="edit_calendar_dismiss">Desbotar</string>
+  <string name="edit_calendar_failed">Fallou a operación</string>
+  <string name="edit_calendar_really_delete">Tes a certeza de que queres retirar a subscrición a este calendario?</string>
+  <string name="edit_calendar_save">Gardar</string>
+  <string name="edit_calendar_saved">Cambios gardados</string>
+  <string name="edit_calendar_send_url">Enviar URL</string>
+  <string name="edit_calendar_sync_this_calendar">Sincronizar este calendario</string>
+  <string name="edit_calendar_unsaved_changes">Hai cambios sen gardar.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Erro de sincronización</string>
+  <string name="set_sync_interval_save">Gardar</string>
+  <string name="set_sync_interval_title">Establece intervalo de sincr.:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Só manual </item>
+    <item>Cada 15 minutos</item>
+    <item>Cada hora</item>
+    <item>Cada 2 horas</item>
+    <item>Cada 4 horas</item>
+    <item>Unha vez ao día</item>
+    <item>Unha vez á semana</item>
+  </string-array>
+  <string name="sync_permission_required">Permiso requerido</string>
+  <string name="sync_permission_required_sync_calendar">Precísase permiso para sincronizar o calendario</string>
+  <!--InfoActivity-->
+  <string name="activity_app_info">Info da app</string>
+  <string name="app_info_version">Versión %1$s - %2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Este programa é software libre: podes distribuílo e/ou modificalo
+seguindo os termos de GNU General Public License tal como a publica a Free Software Foundation na versión 3 da Licenza ou
+(se o prefires) unha versión posterior
+
+Este programa distribúese coa esperanza de que sexa útil,
+mais SEN NINGUNHA GARANTÍA; incluso sen a garantía implícita de
+COMERCIABILIDADE ou ser APROPIADO PARA UN PROPÓSITO CONCRETO.  Le a
+GNU General Public License para máis información.
+
+Deberías ter recibido unha copia da GNU General Public License
+xunto a este programa.  Se non fose así, mira en <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    ]]></string>
+  <string name="app_info_donate">Doar</string>
+  <string name="app_info_description">Subscríbete a fontes Webcal</string>
+  <string name="app_info_twitter">Novas e actualizacións</string>
+  <string name="app_info_web_site">Sitio web</string>
+  <string name="donate_title">Información Código-Aberto</string>
+  <string name="donate_message">Alégranos que utilices ICSx⁵, que é software de código aberto (GPLv3). Manter e desenvolver ICSx⁵ require moito traballo, e como queda moito por facer, considera facer unha doazón.</string>
+  <string name="donate_now">Ir á páxina de doazóns</string>
+  <string name="donate_later">Máis tarde</string>
+</resources>

@@ -10,10 +10,6 @@
   <string name="calendar_list_info">Про ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ще не синхронізовано</string>
   <string name="calendar_list_set_sync_interval">Встановити інтервал синхронізації</string>
-  <string name="calendar_list_sync_disabled">Синхронізацію вимкнено</string>
-  <string name="calendar_list_sync_interval_manually">Автоматичну синхронізацію вимкнено</string>
-  <string name="calendar_list_master_sync_disabled">На пристрої вимкнено усю автоматичну синхронізацію</string>
-  <string name="calendar_list_master_sync_enable">Активувати</string>
   <string name="calendar_list_battery_whitelist">Батарея: вимкніть обмеження для ICSx⁵ для частішої синхронізації</string>
   <string name="calendar_list_battery_whitelist_settings">Налаштування</string>
   <!--settings, currently in CalendarListActivity-->
@@ -60,6 +56,7 @@
   <string name="sync_permission_required_sync_calendar">Потрібен дозвіл для синхронізації вашого календаря</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Інформація про додаток</string>
+  <string name="app_info_donate">Пожертва</string>
   <string name="app_info_twitter">Новини &amp; оновлення</string>
   <string name="app_info_web_site">Веб-сторінка</string>
   <string name="donate_title">Інформація про відкритий код</string>
