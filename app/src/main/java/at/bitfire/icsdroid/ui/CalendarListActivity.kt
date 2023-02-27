@@ -187,10 +187,6 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         SyncWorker.run(this, true)
     }
 
-    fun onRefreshRequested(item: MenuItem) {
-        onRefresh()
-    }
-
     fun onShowInfo(item: MenuItem) {
         startActivity(Intent(this, InfoActivity::class.java))
     }

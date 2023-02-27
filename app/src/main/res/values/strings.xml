@@ -20,7 +20,6 @@
     <string name="calendar_list_info">About ICSx⁵</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
-    <string name="calendar_list_synchronize">Synchronize now</string>
     <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
