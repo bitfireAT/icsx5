@@ -97,8 +97,9 @@ class SyncWorker(
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
-        provider = LocalCalendar.getCalendarProvider(applicationContext)
         try {
+            provider = LocalCalendar.getCalendarProvider(applicationContext)
+
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
 
@@ -124,7 +125,8 @@ class SyncWorker(
             Log.e(TAG, "Thread interrupted", e)
             return Result.retry()
         } finally {
-            provider.closeCompat()
+            if (this::provider.isInitialized)
+                provider.closeCompat()
         }
 
         return Result.success()
