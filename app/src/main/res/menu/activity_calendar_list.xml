@@ -7,7 +7,7 @@
           android:onClick="onSetSyncInterval"
           app:showAsAction="never"/>
 
-    <item android:title="@string/calendar_list_refresh"
+    <item android:title="@string/calendar_list_synchronize"
           android:onClick="onRefreshRequested"
           app:showAsAction="never"/>
 
