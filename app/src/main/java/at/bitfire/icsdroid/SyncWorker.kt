@@ -5,7 +5,9 @@
 package at.bitfire.icsdroid
 
 import android.content.ContentProviderClient
+import android.content.ContentUris
 import android.content.Context
+import android.provider.CalendarContract
 import android.util.Log
 import androidx.work.*
 import at.bitfire.ical4android.AndroidCalendar
@@ -178,7 +180,21 @@ class SyncWorker(
                 calendar.update(subscription.toCalendarProperties())
             } else {
                 Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
-                AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
+                val props = subscription.toCalendarProperties()
+                // Remove the ID, for generating one automatically
+                props.remove(CalendarContract.Calendars._ID)
+                // Create the calendar, taking the returned URI
+                val uri = AndroidCalendar.create(account, provider, props)
+                // Get the uri of the new calendar
+                val id = ContentUris.parseId(uri)
+                if (subscription.id != id) {
+                    // A new ID has been assigned, remove the existing subscription
+                    subscriptionsDao.delete(subscription)
+                    // Insert a new one with the correct id
+                    subscriptionsDao.add(
+                        subscription.copy(id = id)
+                    )
+                }
             }
         }
 
