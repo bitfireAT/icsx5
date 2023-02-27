@@ -7,6 +7,10 @@
           android:onClick="onSetSyncInterval"
           app:showAsAction="never"/>
 
+    <item android:title="@string/calendar_list_refresh"
+          android:onClick="onRefreshRequested"
+          app:showAsAction="never"/>
+
     <item android:id="@+id/force_dark_mode"
           android:title="@string/settings_force_dark_theme"
           android:checkable="true"
