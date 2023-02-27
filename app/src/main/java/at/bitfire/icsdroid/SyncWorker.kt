@@ -69,7 +69,7 @@ class SyncWorker(
                 .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
-                    OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+                    WorkRequest.MIN_BACKOFF_MILLIS,
                     TimeUnit.MILLISECONDS,
                 )
                 .setInputData(
