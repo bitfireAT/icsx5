@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid
 
 import android.content.ContentProviderClient
+import android.content.ContentUris
 import android.content.Context
 import android.util.Log
 import androidx.work.*
@@ -173,12 +174,16 @@ class SyncWorker(
 
         for (subscription in subscriptions) {
             val calendar = calendars.remove(subscription.id)
-            if (calendar != null) {
+            if (calendar != null && subscription.calendarId != null) {
                 Log.d(TAG, "Updating local calendar #${calendar.id} from subscription")
                 calendar.update(subscription.toCalendarProperties())
             } else {
                 Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
-                AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
+                val uri = AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
+                val calendarId = ContentUris.parseId(uri)
+                subscriptionsDao.update(
+                    subscription.copy(calendarId = calendarId)
+                )
             }
         }
 

@@ -19,6 +19,8 @@ import at.bitfire.icsdroid.db.LocalCalendar
 data class Subscription(
     /** The id of the subscription in the database. */
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+    /** The id of the subscription in the system's database */
+    val calendarId: Long? = null,
     /** URL of iCalendar file */
     val url: Uri,
     /** ETag at last successful sync */
@@ -59,6 +61,7 @@ data class Subscription(
         fun fromLegacyCalendar(calendar: LocalCalendar) =
             Subscription(
                 id = calendar.id,
+                calendarId = calendar.id,
                 url = Uri.parse(calendar.url ?: "https://invalid-url"),
                 eTag = calendar.eTag,
                 displayName = calendar.displayName ?: calendar.id.toString(),
@@ -77,7 +80,7 @@ data class Subscription(
      * passed to the calendar provider in order to create/update the local calendar.
      */
     fun toCalendarProperties() = contentValuesOf(
-        Calendars._ID to id,
+        Calendars._ID to calendarId,
         Calendars.CALENDAR_DISPLAY_NAME to displayName,
         Calendars.CALENDAR_COLOR to color,
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
