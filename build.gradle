@@ -13,14 +13,13 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
         mavenCentral()
-        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:${versions.aboutLibs}"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:${versions.kotlin}-${versions.ksp}"
-        classpath 'com.github.ArnyminerZ:Locator:441e0c1c'
+        classpath "com.arnyminerz.locator:Locator:1.0.2"
     }
 }
 
