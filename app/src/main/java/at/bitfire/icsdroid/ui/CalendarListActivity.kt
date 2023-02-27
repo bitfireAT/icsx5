@@ -4,57 +4,70 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.database.ContentObserver
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.Log
 import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
-import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
 import at.bitfire.icsdroid.databinding.CalendarListItemBinding
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.entity.Subscription
 import com.google.android.material.snackbar.Snackbar
 import java.text.DateFormat
 import java.util.*
 
 class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
-    private val model by viewModels<CalendarModel>()
+    companion object {
+        /**
+         * Set this extra to request calendar permission when the activity starts.
+         */
+        const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
+    }
+
+    private val model by viewModels<SubscriptionsModel>()
     private lateinit var binding: CalendarListActivityBinding
 
-    private var snackBar: Snackbar? = null
+    /** Stores the calendar permission request for asking for calendar permissions during runtime */
+    private lateinit var requestCalendarPermissions: () -> Unit
 
+    /** Stores the post notification permission request for asking for permissions during runtime */
+    private lateinit var requestNotificationPermission: () -> Unit
+
+    private var snackBar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.title_activity_calendar_list)
+
+        // Register the calendar permission request
+        requestCalendarPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
+            SyncWorker.run(this)
+        }
+
+        // Register the notifications permission request
+        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this)
 
         binding = DataBindingUtil.setContentView(this, R.layout.calendar_list_activity)
         binding.lifecycleOwner = this
@@ -65,47 +78,37 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         binding.refresh.setOnRefreshListener(this)
         binding.refresh.setSize(SwipeRefreshLayout.LARGE)
 
-        val permissionsRequestLauncher =
-            PermissionUtils.registerPermissionRequest(this, CalendarModel.REQUIRED_PERMISSIONS, R.string.permissions_required) {
-                // re-initialize model if calendar permissions are granted
-                model.reinit()
-
-                // we have calendar permissions, cancel possible sync notification (see SyncAdapter.onSecurityException askPermissionsIntent)
-                val nm = NotificationManagerCompat.from(this)
-                nm.cancel(NotificationUtils.NOTIFY_PERMISSION)
-            }
-        model.askForPermissions.observe(this) { ask ->
-            if (ask)
-                permissionsRequestLauncher()
-        }
-
         // show whether sync is running
         model.isRefreshing.observe(this) { isRefreshing ->
             binding.refresh.isRefreshing = isRefreshing
         }
 
         // calendars
-        val calendarAdapter = CalendarListAdapter(this)
-        calendarAdapter.clickListener = { calendar ->
+        val subscriptionAdapter = SubscriptionListAdapter(this)
+        subscriptionAdapter.clickListener = { calendar ->
             val intent = Intent(this, EditCalendarActivity::class.java)
-            intent.data = ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendar.id)
+            intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, calendar.id)
             startActivity(intent)
         }
-        binding.calendarList.adapter = calendarAdapter
+        binding.calendarList.adapter = subscriptionAdapter
 
         binding.fab.setOnClickListener {
             onAddCalendar()
         }
 
-        model.calendars.observe(this) { calendars ->
-            calendarAdapter.submitList(calendars)
+        // If EXTRA_PERMISSION is true, request the calendar permissions
+        val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
+        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
+            requestCalendarPermissions()
+
+        model.subscriptions.observe(this) { subscriptions ->
+            subscriptionAdapter.submitList(subscriptions)
 
             val colors = mutableSetOf<Int>()
             colors += defaultRefreshColor
-            colors.addAll(calendars.mapNotNull { it.color })
+            colors.addAll(subscriptions.mapNotNull { it.color })
             binding.refresh.setColorSchemeColors(*colors.toIntArray())
         }
-        model.reinit()
 
         // startup fragments
         if (savedInstanceState == null)
@@ -144,11 +147,18 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         snackBar = null
 
         when {
-            // periodic sync not enabled
-            AppAccount.syncInterval(this) == AppAccount.SYNC_INTERVAL_MANUALLY -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_sync_interval_manually, Snackbar.LENGTH_INDEFINITE).also {
-                    it.show()
-                }
+            // notification permissions are granted
+            !PermissionUtils.haveNotificationPermission(this) -> {
+                snackBar = Snackbar.make(binding.coordinator, R.string.notification_permissions_required, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.permissions_grant) { requestNotificationPermission() }
+                    .also { it.show() }
+            }
+
+            // calendar permissions are granted
+            !PermissionUtils.haveCalendarPermissions(this) -> {
+                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_permissions_required, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.permissions_grant) { requestCalendarPermissions() }
+                    .also { it.show() }
             }
 
             // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
@@ -198,29 +208,26 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
 
-    class CalendarListAdapter(
-            val context: Context
-    ): ListAdapter<LocalCalendar, CalendarListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<LocalCalendar>() {
+    class SubscriptionListAdapter(
+        val context: Context
+    ): ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<Subscription>() {
 
-        override fun areItemsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-                oldItem.id == newItem.id
+        override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription) =
+            oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: LocalCalendar, newItem: LocalCalendar) =
-                // compare all displayed fields
-                oldItem.url == newItem.url &&
-                oldItem.displayName == newItem.displayName &&
-                oldItem.isSynced == newItem.isSynced &&
-                oldItem.lastSync == newItem.lastSync &&
-                oldItem.color == newItem.color &&
-                oldItem.errorMessage == newItem.errorMessage
+        override fun areContentsTheSame(oldItem: Subscription, newItem: Subscription) =
+            // compare all displayed fields
+            oldItem.url == newItem.url &&
+            oldItem.displayName == newItem.displayName &&
+            oldItem.lastSync == newItem.lastSync &&
+            oldItem.color == newItem.color &&
+            oldItem.errorMessage == newItem.errorMessage
 
     }) {
 
         class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
 
-
-        var clickListener: ((LocalCalendar) -> Unit)? = null
-
+        var clickListener: ((Subscription) -> Unit)? = null
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             Log.i(Constants.TAG, "Creating view holder")
@@ -229,35 +236,29 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val calendar = currentList[position]
+            val subscription = currentList[position]
 
             holder.binding.root.setOnClickListener {
                 clickListener?.let { listener ->
-                    listener(calendar)
+                    listener(subscription)
                 }
             }
 
             holder.binding.apply {
-                url.text = calendar.url
-                title.text = calendar.displayName
+                url.text = subscription.url.toString()
+                title.text = subscription.displayName
 
-                syncStatus.text =
-                    if (!calendar.isSynced)
-                        context.getString(R.string.calendar_list_sync_disabled)
-                    else {
-                        if (calendar.lastSync == 0L)
-                            context.getString(R.string.calendar_list_not_synced_yet)
-                        else
-                            DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
-                                .format(Date(calendar.lastSync))
-                    }
+                syncStatus.text = subscription.lastSync?.let { lastSync ->
+                    DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
+                        .format(Date(lastSync))
+                } ?: context.getString(R.string.calendar_list_not_synced_yet)
 
-                calendar.color?.let {
+                subscription.color?.let {
                     color.setColor(it)
                 }
             }
 
-            val errorMessage = calendar.errorMessage
+            val errorMessage = subscription.errorMessage
             if (errorMessage == null)
                 holder.binding.errorMessage.visibility = View.GONE
             else {
@@ -268,95 +269,17 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     }
 
-
-    /**
-     * Data model for this view. Updates calendar subscriptions in real-time.
-     *
-     * Must be initialized with [reinit] after it's created.
-     *
-     * Requires calendar permissions. If it doesn't have calendar permissions, it does nothing.
-     * As soon as calendar permissions are granted, you have to call [reinit] again.
-     */
-    class CalendarModel(
-        application: Application
-    ): AndroidViewModel(application) {
-
-        companion object {
-            val REQUIRED_PERMISSIONS =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    PermissionUtils.CALENDAR_PERMISSIONS + Manifest.permission.POST_NOTIFICATIONS
-                else
-                    PermissionUtils.CALENDAR_PERMISSIONS
-        }
-
-        private val resolver = application.contentResolver
-
-        val askForPermissions = MutableLiveData(false)
+    class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
         /** whether there are running sync workers */
         val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
         }
 
-        val calendars = MutableLiveData<List<LocalCalendar>>()
-        private var observer: ContentObserver? = null
-
-
-        fun reinit() {
-            val haveCalendarPermissions = PermissionUtils.haveCalendarPermissions(getApplication())
-            val haveNotificationPermissions =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-                else
-                    true
-            askForPermissions.value = !haveCalendarPermissions || !haveNotificationPermissions
-
-            if (observer == null) {
-                // we're not watching the calendars yet
-                if (haveCalendarPermissions) {
-                    Log.d(Constants.TAG, "Watching calendars")
-                    startWatchingCalendars()
-                } else
-                    Log.w(Constants.TAG,"Can't watch calendars (permission denied)")
-            }
-        }
-
-        override fun onCleared() {
-            stopWatchingCalendars()
-        }
-
-
-        private fun startWatchingCalendars() {
-            val newObserver = object: ContentObserver(null) {
-                override fun onChange(selfChange: Boolean) {
-                    loadCalendars()
-                }
-            }
-            resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI, false, newObserver)
-            observer = newObserver
-
-            loadCalendars()
-        }
-
-        private fun stopWatchingCalendars() {
-            observer?.let {
-                resolver.unregisterContentObserver(it)
-                observer = null
-            }
-        }
-
-        private fun loadCalendars() {
-            val provider = resolver.acquireContentProviderClient(CalendarContract.AUTHORITY)
-            if (provider != null)
-                try {
-                    val result = LocalCalendar.findAll(AppAccount.get(getApplication()), provider)
-                    calendars.postValue(result)
-                } catch(e: CalendarStorageException) {
-                    Log.e(Constants.TAG, "Couldn't load calendar list", e)
-                } finally {
-                    provider.release()
-                }
-        }
+        /** LiveData watching the subscriptions */
+        val subscriptions = AppDatabase.getInstance(application)
+            .subscriptionsDao()
+            .getAllLive()
 
     }
 

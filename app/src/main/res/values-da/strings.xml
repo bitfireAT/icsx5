@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">Kalender abonnementer</string>
+  <!--common strings-->
+  <string name="action_next">Næste</string>
+  <string name="calendar_permissions_required">Kalenderrettigher er nødvendige</string>
+  <string name="notification_channel_sync_problem">Synkroniseringsfejl</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Mine abonnementer</string>
+  <string name="calendar_list_empty_info">For at abonnere en Webcal feed, brug + knappen eller åben en Webcal URL.</string>
+  <string name="calendar_list_info">Om ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">ikke synkroniseret endnu</string>
+  <string name="calendar_list_set_sync_interval">Sæt interval til synkronisering</string>
+  <string name="calendar_list_battery_whitelist">Batteri: Whitelist ICSx⁵ for korte sync intervaller</string>
+  <string name="calendar_list_battery_whitelist_settings">Indstillinger</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="settings_force_dark_theme">Anvend mørk tema</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Abonner kalender</string>
+  <string name="add_calendar_need_valid_uri">Korrekt URI nødvendig</string>
+  <string name="add_calendar_authentication_without_https_warning">Tredjeparts personer kan nemt læse dine adgangsindstillinger. Brug HTTPS for sikker  autentificering.</string>
+  <string name="add_calendar_create">Abonner nu</string>
+  <string name="add_calendar_created">Succesfuld abonneret</string>
+  <string name="add_calendar_password">Kodeord</string>
+  <string name="add_calendar_requires_authentication">Kræver autentificering</string>
+  <string name="add_calendar_title">Titel &amp; Farve</string>
+  <string name="add_calendar_title_hint">Kalendernavn</string>
+  <string name="add_calendar_url_text">Angiv Webcal adresse</string>
+  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
+  <string name="add_calendar_pick_file_text">Eller, vælg fil fra lokal lagerplads.</string>
+  <string name="add_calendar_pick_file">Vælg fil</string>
+  <string name="add_calendar_user_name">Brugernavn</string>
+  <string name="add_calendar_validating">Validerer kalenderkilden ...</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Del detaljer</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Rediger abonnement</string>
+  <string name="edit_calendar_cancel">Annuller</string>
+  <string name="edit_calendar_delete">Afbestil</string>
+  <string name="edit_calendar_deleted">Afmelding succesfuld</string>
+  <string name="edit_calendar_dismiss">Ryd</string>
+  <string name="edit_calendar_failed">Operationen fejlede</string>
+  <string name="edit_calendar_really_delete">Vil du virkelig stoppe abonnementet af denne kalender?</string>
+  <string name="edit_calendar_save">Gem</string>
+  <string name="edit_calendar_saved">Ændringer blev gemt</string>
+  <string name="edit_calendar_send_url">Send URL</string>
+  <string name="edit_calendar_sync_this_calendar">Synkroniser denne kalender</string>
+  <string name="edit_calendar_unsaved_changes">Der er ikke gemte ændringer</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Fejl ved synkronisering</string>
+  <string name="set_sync_interval_save">Gem</string>
+  <string name="set_sync_interval_title">Sæt interval for synkronisering</string>
+  <string-array name="set_sync_interval_names">
+    <item>Kun manuelt</item>
+    <item>Hvert 15. minut</item>
+    <item>Hver time</item>
+    <item>Hver 2. time</item>
+    <item>Hver 4 timer</item>
+    <item>Engang om dagen</item>
+    <item>Engang om ugen</item>
+  </string-array>
+  <string name="sync_permission_required">Kræver tilladelse</string>
+  <string name="sync_permission_required_sync_calendar">Har brug for tilladelse til at synkronisere kalender</string>
+  <!--InfoActivity-->
+  <string name="activity_app_info">App information</string>
+  <string name="app_info_version">Version %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Dette program er fri software. Du har ret til at videredistribuere og/eller 
+ændre det i henhold til betingelserne i GNU General Public License som 
+offentliggjort af Free Software Foundation, enten version 3 af licensen 
+eller (efter dit eget valg) eventuelle senere versioner.
+
+Dette program distribueres i håb om, at det vil være nyttigt, men UDEN 
+GARANTI, og også uden underforstået garanti for SALGBARHED eller 
+EGNETHED TIL ET BESTEMT FORMÅL. Se GNU General Public Licens, 
+hvis du ønsker yderligere oplysninger.
+
+Du skulle have modtaget en kopi af GNU General Public License sammen 
+med dette program. Hvis ikke, se her <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>
+]]></string>
+  <string name="app_info_donate">Donér</string>
+  <string name="app_info_description">Abonner Webcal feeds</string>
+  <string name="app_info_twitter">Nyheder &amp; opdateringer</string>
+  <string name="app_info_web_site">Hjemmeside</string>
+  <string name="donate_title">Open-Source information</string>
+  <string name="donate_message">Vi er glæde, at du bruger ICSx⁵, som er open-source software (GPLv3). Fordi det var og stadig er meget arbejde at udvikle og vedligeholde ICSx⁵, venligst overvej en donation.</string>
+  <string name="donate_now">Vis donationsside</string>
+  <string name="donate_later">Senere måske</string>
+</resources>

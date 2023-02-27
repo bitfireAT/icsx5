@@ -8,9 +8,11 @@
     <!-- common strings -->
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
+    <string name="notification_permissions_required">Notification permissions required</string>
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="permissions_required">Permissions required</string>
+    <string name="permissions_grant">Grant</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -18,10 +20,6 @@
     <string name="calendar_list_info">About ICSx⁵</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
-    <string name="calendar_list_sync_disabled">Sync. disabled</string>
-    <string name="calendar_list_sync_interval_manually">Automatic sync disabled</string>
-    <string name="calendar_list_master_sync_disabled">System-wide automatic sync is disabled</string>
-    <string name="calendar_list_master_sync_enable">Activate</string>
     <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
@@ -38,7 +36,7 @@
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
     <string name="add_calendar_url_text">Enter a Webcal address:</string>
-    <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
+    <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
     <string name="add_calendar_pick_file_text">Alternatively, select a file from local storage.</string>
     <string name="add_calendar_pick_file">Pick file</string>
     <string name="add_calendar_user_name">User name</string>

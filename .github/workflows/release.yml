@@ -32,10 +32,11 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
 
       - name: Create Github release (from standard flavor)
-        uses: softprops/action-gh-release@v0.1.14
+        uses: softprops/action-gh-release@v1
         with:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
           files: app/build/outputs/apk/standard/release/*.apk
+          generate_release_notes: true
           fail_on_unmatched_files: true
 
       - name: Upload to Google Play (gplay flavor)
@@ -47,4 +48,3 @@ jobs:
           mappingFile: app/build/outputs/mapping/gplayRelease/mapping.txt
           track: internal
           status: draft
-

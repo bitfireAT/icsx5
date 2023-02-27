@@ -25,11 +25,6 @@ class AddCalendarActivity: AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (!PermissionUtils.haveCalendarPermissions(this)) {
-            PermissionUtils
-                .registerCalendarPermissionRequest(this)()
-        }
-
         if (inState == null) {
             supportFragmentManager
                     .beginTransaction()

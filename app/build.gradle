@@ -15,8 +15,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
 
-        versionCode 67
-        versionName "2.1-beta.1"
+        versionCode 70
+        versionName "2.1"
 
         setProperty "archivesBaseName", "icsx5-" + getVersionCode() + "-" + getVersionName()
 
@@ -156,20 +156,20 @@ gradle.projectsEvaluated {
 
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 
     implementation project(':cert4android')
     implementation project(':ical4android')
 
-    implementation 'androidx.appcompat:appcompat:1.6.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.4'
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.work:work-runtime-ktx:2.8.0'
+    implementation 'com.google.android.material:material:1.8.0'
 
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation "com.mikepenz:aboutlibraries:${versions.aboutLibs}"
@@ -189,12 +189,12 @@ dependencies {
     ksp "androidx.room:room-compiler:${versions.room}"
 
     // for tests
-    androidTestImplementation 'androidx.test:runner:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation "androidx.test:rules:1.5.0"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
-    androidTestImplementation "androidx.work:work-testing:2.7.1"
+    androidTestImplementation "androidx.work:work-testing:2.8.0"
 
     testImplementation 'junit:junit:4.13.2'
 }

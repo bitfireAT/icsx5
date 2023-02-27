@@ -17,6 +17,7 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import java.util.concurrent.TimeUnit
+import at.bitfire.icsdroid.ui.NotificationUtils
 
 class SyncWorker(
     context: Context,
@@ -48,14 +49,21 @@ class SyncWorker(
 
 
         /**
+         * An input data for the Worker that tells if only migration should be performed, without
+         * fetching data.
+         */
+        private const val ONLY_MIGRATE = "onlyMigration"
+
+        /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
          * the "requires network connection" constraint won't be set.
          *
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
+         * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
-        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false) {
+        fun run(context: Context, force: Boolean = false, forceResync: Boolean = false, onlyMigrate: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 // Add an initial delay of 20 seconds to allow the network connection to boot up
                 .setInitialDelay(INITIAL_DELAY, TimeUnit.SECONDS)
@@ -64,7 +72,12 @@ class SyncWorker(
                     OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
                     TimeUnit.MILLISECONDS,
                 )
-                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
+                .setInputData(
+                    workDataOf(
+                        FORCE_RESYNC to forceResync,
+                        ONLY_MIGRATE to onlyMigrate,
+                    )
+                )
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")
@@ -95,14 +108,15 @@ class SyncWorker(
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
 
-    val account = AppAccount.get(applicationContext)
+    private val account = AppAccount.get(applicationContext)
     lateinit var provider: ContentProviderClient
 
     private var forceReSync: Boolean = false
 
     override suspend fun doWork(): Result {
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
-        Log.i(TAG, "Synchronizing (forceReSync=$forceReSync)")
+        val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
+        Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
         var result: Result = Result.success()
 
@@ -110,6 +124,9 @@ class SyncWorker(
         try {
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
+
+            // Do not synchronize if onlyMigrate is true
+            if (onlyMigrate) return Result.success()
 
             // update local calendars according to the subscriptions
             updateLocalCalendars()
@@ -132,6 +149,9 @@ class SyncWorker(
                     else
                         Result.retry()
                 }
+        } catch (e: SecurityException) {
+            NotificationUtils.showCalendarPermissionNotification(applicationContext)
+            return Result.failure()
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
             return Result.failure()
@@ -149,6 +169,7 @@ class SyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
+    @Suppress("DEPRECATION")
     private fun migrateLegacyCalendars() {
         val legacyCredentials = CalendarCredentials(applicationContext)
 

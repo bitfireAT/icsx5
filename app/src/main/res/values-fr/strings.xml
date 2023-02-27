@@ -4,6 +4,7 @@
   <!--common strings-->
   <string name="action_next">Suivant</string>
   <string name="calendar_permissions_required">Permissions du calendrier requises</string>
+  <string name="could_not_load_calendar">Impossible de charger le calendrier</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mes abonnements</string>
@@ -11,10 +12,6 @@
   <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Intervalle de synchro.</string>
-  <string name="calendar_list_sync_disabled">Synchro. désactivée</string>
-  <string name="calendar_list_sync_interval_manually">Synchro. automatique désactivée</string>
-  <string name="calendar_list_master_sync_disabled">La synchro. globale automatique est désactivée</string>
-  <string name="calendar_list_master_sync_enable">Activer</string>
   <string name="calendar_list_battery_whitelist">Batterie : Ajoutez ICSx⁵ aux exceptions pour des intervalles de synchronisation courts</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <!--settings, currently in CalendarListActivity-->
@@ -30,6 +27,7 @@
   <string name="add_calendar_title">Intitulé &amp; couleur</string>
   <string name="add_calendar_title_hint">Nom du calendrier</string>
   <string name="add_calendar_url_text">Entrez une adresse Webcal : </string>
+  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">Ou sinon, sélectionnez un fichier du stockage local. </string>
   <string name="add_calendar_pick_file">Choisir un fichier</string>
   <string name="add_calendar_user_name">Nom d\'utilisateur</string>
@@ -64,6 +62,7 @@
   </string-array>
   <string name="sync_permission_required">Autorisation requise</string>
   <string name="sync_permission_required_sync_calendar">Autorisation nécessaire pour la synchro. de votre calendrier</string>
+  <string name="could_not_open_storage_file">Impossible d’ouvrir le fichier à partir de l’espace de stockage</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_version">Version %1$s-%2$s</string>

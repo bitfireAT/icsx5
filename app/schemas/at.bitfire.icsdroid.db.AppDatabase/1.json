@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3d3efde41926a4c941fe31fe482723d6",
+    "identityHash": "aa152cc4e5846c386d67f531d02ab2fe",
     "entities": [
       {
         "tableName": "subscriptions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `lastModified` INTEGER, `lastSync` INTEGER, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `eTag` TEXT, `displayName` TEXT NOT NULL, `lastModified` INTEGER, `lastSync` INTEGER, `errorMessage` TEXT, `ignoreEmbeddedAlerts` INTEGER NOT NULL, `defaultAlarmMinutes` INTEGER, `color` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -70,10 +70,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": false
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -102,10 +102,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": false,
           "columnNames": [
             "subscriptionId"
-          ],
-          "autoGenerate": false
+          ]
         },
         "indices": [],
         "foreignKeys": [
@@ -126,7 +126,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3d3efde41926a4c941fe31fe482723d6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aa152cc4e5846c386d67f531d02ab2fe')"
     ]
   }
 }

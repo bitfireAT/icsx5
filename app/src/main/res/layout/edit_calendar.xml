@@ -1,6 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
-        <variable name="model" type="at.bitfire.icsdroid.ui.EditCalendarActivity.CalendarModel"/>
+        <variable name="model" type="at.bitfire.icsdroid.ui.EditCalendarActivity.SubscriptionModel"/>
     </data>
 
     <ScrollView
@@ -18,13 +18,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:name="at.bitfire.icsdroid.ui.TitleColorFragment"/>
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:checked="@={model.active}"
-                android:text="@string/edit_calendar_sync_this_calendar" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@id/credentials"
