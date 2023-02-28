@@ -23,7 +23,6 @@ import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AddCalendarDetailsFragment: Fragment() {
 
@@ -113,11 +112,8 @@ class AddCalendarDetailsFragment: Fragment() {
                         defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
                     )
 
-                    /** A list of all the ids of the inserted rows, should only contain one value */
-                    val ids = withContext(Dispatchers.IO) { subscriptionsDao.add(subscription) }
-
-                    /** The id of the newly inserted subscription */
-                    val id = ids.first()
+                    /** A list of all the ids of the inserted rows */
+                    val id = subscriptionsDao.add(subscription)
 
                     // Create the credential in the IO thread
                     if (credentialsModel.requiresAuth.value == true) {
