@@ -140,8 +140,8 @@ class SyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
-    @Suppress("DEPRECATION")
     private fun migrateLegacyCalendars() {
+        @Suppress("DEPRECATION")
         val legacyCredentials = CalendarCredentials(applicationContext)
 
         // if there's a provider available, get all the calendars available in the system

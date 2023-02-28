@@ -52,7 +52,7 @@ class LocalCalendar private constructor(
         /**
          * Whether this calendar is managed by the [at.bitfire.icsdroid.db.entity.Subscription] table.
          * All calendars should be set to `1` except legacy calendars from the time before we had a database.
-         * Any value that is not `1` should be considered as _this calendar has not been migrated to the database yet_.
+         * A `null` value should be considered as _this calendar has not been migrated to the database yet_.
          */
         const val COLUMN_MANAGED_BY_DB = Calendars.CAL_SYNC9
 
@@ -74,10 +74,10 @@ class LocalCalendar private constructor(
             findByID(account, provider, Factory, id)
 
         fun findManaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB = 1", null)
+            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NOT NULL", null)
 
         fun findUnmanaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "($COLUMN_MANAGED_BY_DB IS NULL) OR ($COLUMN_MANAGED_BY_DB != -1)", null)
+            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NULL", null)
 
     }
 

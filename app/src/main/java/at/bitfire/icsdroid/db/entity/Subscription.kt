@@ -46,12 +46,6 @@ data class Subscription(
 ) {
     companion object {
         /**
-         * The default color to use in all subscriptions.
-         */
-        @ColorInt
-        const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
-
-        /**
          * Converts a [LocalCalendar] to a [Subscription] data object.
          * Must only be used for migrating legacy calendars.
          *
