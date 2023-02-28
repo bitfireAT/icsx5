@@ -30,9 +30,13 @@ import at.bitfire.icsdroid.db.LocalCalendar
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import kotlinx.coroutines.runBlocking
-import org.junit.*
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.ClassRule
+import org.junit.Test
 
 class CalendarToRoomMigrationTest {
 
@@ -132,7 +136,7 @@ class CalendarToRoomMigrationTest {
 
                 val subscription = subscriptionsDao.getAll().first()
                 // check that the calendar has been added to the subscriptions list
-                assertEquals(calendar.id, subscription.id)
+                assertEquals(calendar.id, subscription.calendarId)
                 assertEquals(CALENDAR_DISPLAY_NAME, subscription.displayName)
                 assertEquals(Uri.parse(CALENDAR_URL), subscription.url)
 
