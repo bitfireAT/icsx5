@@ -98,7 +98,14 @@ class SyncWorker(
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
-        provider = LocalCalendar.getCalendarProvider(applicationContext)
+        provider =
+            try {
+                LocalCalendar.getCalendarProvider(applicationContext)
+            } catch (e: SecurityException) {
+                NotificationUtils.showCalendarPermissionNotification(applicationContext)
+                return Result.failure()
+            }
+
         try {
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
@@ -120,9 +127,6 @@ class SyncWorker(
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
             }
-        } catch (e: SecurityException) {
-            NotificationUtils.showCalendarPermissionNotification(applicationContext)
-            return Result.failure()
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
             return Result.retry()
