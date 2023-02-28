@@ -173,8 +173,8 @@ class SyncWorker(
         val calendars = LocalCalendar.findAll(account, provider).associateBy { it.id }.toMutableMap()
 
         for (subscription in subscriptions) {
-            val calendar = calendars.remove(subscription.id)
-            if (calendar != null && subscription.calendarId != null) {
+            val calendar = subscription.calendarId?.let { calendars.remove(it) }
+            if (calendar != null) {
                 Log.d(TAG, "Updating local calendar #${calendar.id} from subscription")
                 calendar.update(subscription.toCalendarProperties())
             } else {
