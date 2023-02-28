@@ -60,7 +60,6 @@ data class Subscription(
          */
         fun fromLegacyCalendar(calendar: LocalCalendar) =
             Subscription(
-                id = calendar.id,
                 calendarId = calendar.id,
                 url = Uri.parse(calendar.url ?: "https://invalid-url"),
                 eTag = calendar.eTag,
@@ -81,6 +80,7 @@ data class Subscription(
      */
     fun toCalendarProperties() = contentValuesOf(
         Calendars._ID to calendarId,
+        Calendars.NAME to url.toString(),
         Calendars.CALENDAR_DISPLAY_NAME to displayName,
         Calendars.CALENDAR_COLOR to color,
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
