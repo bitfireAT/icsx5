@@ -149,18 +149,15 @@ class SyncWorker(
             Log.i(TAG, "Found unmanaged (legacy) calendar ${calendar.id}, migrating")
 
             val newSubscription = Subscription.fromLegacyCalendar(calendar)
-            subscriptionsDao.add(newSubscription)
+            val subscriptionId = subscriptionsDao.add(newSubscription)
 
             // set MANAGED_BY_DB=1 so that the calendar won't be migrated anymore
             calendar.isNowManaged()
 
             // migrate credentials, too (if available)
             val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
-            if (legacyUsername != null && legacyPassword != null) {
-                // subscription ID has been assigned automatically, so fetch it
-                val subscriptionId = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
+            if (legacyUsername != null && legacyPassword != null)
                 credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
-            }
         }
     }
 

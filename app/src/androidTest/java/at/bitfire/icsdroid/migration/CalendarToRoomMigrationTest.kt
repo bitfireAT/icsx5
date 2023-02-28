@@ -23,6 +23,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.AppAccount
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -108,12 +109,14 @@ class CalendarToRoomMigrationTest {
                 Calendars.NAME to CALENDAR_URL
             )
         )
+        val calendarId = ContentUris.parseId(uri)
+        Log.i(TAG, "Created test calendar $calendarId")
 
         val calendar = AndroidCalendar.findByID(
             account,
             provider,
             LocalCalendar.Factory,
-            ContentUris.parseId(uri)
+            calendarId
         )
 
         // associate credentials, too
@@ -134,7 +137,7 @@ class CalendarToRoomMigrationTest {
                 val result = worker.doWork()
                 assertEquals(result, Result.success())
 
-                val subscription = subscriptionsDao.getAll().first()
+                val subscription = subscriptionsDao.getByCalendarId(calendar.id)!!
                 // check that the calendar has been added to the subscriptions list
                 assertEquals(calendar.id, subscription.calendarId)
                 assertEquals(CALENDAR_DISPLAY_NAME, subscription.displayName)

@@ -77,7 +77,7 @@ class LocalCalendar private constructor(
             find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB = 1", null)
 
         fun findUnmanaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB != 1", null)
+            find(account, provider, Factory, "($COLUMN_MANAGED_BY_DB IS NULL) OR ($COLUMN_MANAGED_BY_DB != -1)", null)
 
     }
 
