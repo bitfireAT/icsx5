@@ -16,6 +16,7 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.work.Configuration
+import androidx.work.Data
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
@@ -130,8 +131,12 @@ class CalendarToRoomMigrationTest {
         try {
             runBlocking {
                 // run worker
-                val result = TestListenableWorkerBuilder<SyncWorker>(appContext).build().doWork()
-                assertEquals(result, Result.success())
+                val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
+                    .setInputData(Data.Builder()
+                        .putBoolean(SyncWorker.ONLY_MIGRATE, true)
+                        .build())
+                    .build().doWork()
+                assertEquals(Result.success(), result)
 
                 // check that calendar is marked as "managed by DB" so that it won't be migrated again
                 assertTrue(calendar.isManagedByDB())
@@ -164,8 +169,12 @@ class CalendarToRoomMigrationTest {
         try {
             runBlocking {
                 // run worker
-                val result = TestListenableWorkerBuilder<SyncWorker>(appContext).build().doWork()
-                assertEquals(result, Result.success())
+                val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
+                    .setInputData(Data.Builder()
+                        .putBoolean(SyncWorker.ONLY_MIGRATE, true)
+                        .build())
+                    .build().doWork()
+                assertEquals(Result.success(), result)
 
                 // check that calendar is marked as "managed by DB" so that it won't be migrated again
                 assertTrue(calendar.isManagedByDB())

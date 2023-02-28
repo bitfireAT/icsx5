@@ -30,16 +30,16 @@ class SyncWorker(
         const val NAME = "SyncWorker"
 
         /**
-         * An input data for the Worker that tells whether the synchronization should be performed
+         * An input data (Boolean) for the Worker that tells whether the synchronization should be performed
          * without taking into account the current network condition.
          */
-        private const val FORCE_RESYNC = "forceResync"
+        const val FORCE_RESYNC = "forceResync"
 
         /**
-         * An input data for the Worker that tells if only migration should be performed, without
+         * An input data (Boolean) for the Worker that tells if only migration should be performed, without
          * fetching data.
          */
-        private const val ONLY_MIGRATE = "onlyMigration"
+        const val ONLY_MIGRATE = "onlyMigration"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
