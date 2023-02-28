@@ -144,7 +144,7 @@ class SyncWorker(
 
         // if there's a provider available, get all the calendars available in the system
         for (calendar in LocalCalendar.findAll(account, provider)) {
-            val match = subscriptionsDao.getById(calendar.id)
+            val match = subscriptionsDao.getByCalendarId(calendar.id)
             if (match == null) {
                 // still no subscription for this calendar ID, create one (= migration)
                 val newSubscription = Subscription.fromLegacyCalendar(calendar)

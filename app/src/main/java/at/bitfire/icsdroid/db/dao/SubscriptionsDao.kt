@@ -24,6 +24,9 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getById(id: Long): Subscription?
 
+    @Query("SELECT * FROM subscriptions WHERE calendarId=:calendarId")
+    fun getByCalendarId(calendarId: Long?): Subscription?
+
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
 
