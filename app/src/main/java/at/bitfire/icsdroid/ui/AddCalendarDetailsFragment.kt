@@ -18,6 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
@@ -129,6 +130,9 @@ class AddCalendarDetailsFragment: Fragment() {
                             credentialsDao.create(credential)
                         }
                     }
+
+                    // sync the subscription to reflect the changes in the calendar provider
+                    SyncWorker.run(getApplication())
 
                     success.postValue(true)
                 } catch (e: Exception) {
