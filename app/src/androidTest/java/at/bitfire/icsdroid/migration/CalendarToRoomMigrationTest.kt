@@ -26,7 +26,7 @@ import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import kotlinx.coroutines.runBlocking

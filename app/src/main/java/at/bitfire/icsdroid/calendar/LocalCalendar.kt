@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid.db
+package at.bitfire.icsdroid.calendar
 
 import android.accounts.Account
 import android.content.ContentProviderClient

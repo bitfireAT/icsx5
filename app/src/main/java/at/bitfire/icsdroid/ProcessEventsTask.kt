@@ -12,8 +12,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.LocalCalendar
-import at.bitfire.icsdroid.db.LocalEvent
+import at.bitfire.icsdroid.calendar.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils

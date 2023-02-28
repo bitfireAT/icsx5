@@ -14,7 +14,7 @@ import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeC
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
@@ -150,17 +150,15 @@ class SyncWorker(
             if (match == null) {
                 // still no subscription for this calendar ID, create one (= migration)
                 val newSubscription = Subscription.fromLegacyCalendar(calendar)
+                Log.i(TAG, "MIGRATION: creating subscription for calendar #${calendar.id}")
                 subscriptionsDao.add(newSubscription)
-                Log.i(TAG, "The calendar #${calendar.id} didn't have a matching subscription. Just created it.")
 
                 // migrate credentials, too (if available)
                 val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
                 if (legacyUsername != null && legacyPassword != null) {
-                    // Subscription ID has been assigned automatically, so fetch it
-                    val id = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
-                    credentialsDao.create(Credential(
-                        id, legacyUsername, legacyPassword
-                    ))
+                    // subscription ID has been assigned automatically, so fetch it
+                    val subscriptionId = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
+                    credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
                 }
             }
         }

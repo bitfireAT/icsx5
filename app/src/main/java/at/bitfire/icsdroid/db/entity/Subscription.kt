@@ -10,7 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.core.content.contentValuesOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 
 /**
  * Represents the storage of a subscription the user has made.
