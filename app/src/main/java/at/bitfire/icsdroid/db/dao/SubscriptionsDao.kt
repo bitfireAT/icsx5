@@ -27,6 +27,9 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE calendarId=:calendarId")
     fun getByCalendarId(calendarId: Long?): Subscription?
 
+    @Query("SELECT COUNT(*) FROM subscriptions WHERE url=:url")
+    fun countByUrl(url: String): Int
+
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
 

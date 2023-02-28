@@ -146,18 +146,23 @@ class SyncWorker(
 
         // if there's a provider available, get all the calendars available in the system
         for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
-            Log.i(TAG, "Found unmanaged (legacy) calendar ${calendar.id}, migrating")
+            Log.i(TAG, "Found unmanaged (<= v2.0.3) calendar ${calendar.id}, migrating")
 
             val newSubscription = Subscription.fromLegacyCalendar(calendar)
-            val subscriptionId = subscriptionsDao.add(newSubscription)
+
+            // special case v2.1: it created subscriptions but did not set the COLUMN_MANAGED_BY_DB flag
+            if (subscriptionsDao.countByUrl(newSubscription.url.toString()) == 0) {
+                // only if there's no subscription with the same URL
+                val subscriptionId = subscriptionsDao.add(newSubscription)
+
+                // migrate credentials, too (if available)
+                val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
+                if (legacyUsername != null && legacyPassword != null)
+                    credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
+            }
 
             // set MANAGED_BY_DB=1 so that the calendar won't be migrated anymore
             calendar.isNowManaged()
-
-            // migrate credentials, too (if available)
-            val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
-            if (legacyUsername != null && legacyPassword != null)
-                credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
         }
     }
 
