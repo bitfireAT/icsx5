@@ -115,7 +115,9 @@ class SyncWorker(
 
             // sync local calendars
             for (subscription in subscriptionsDao.getAll()) {
-                val calendar = LocalCalendar.findById(account, provider, subscription.id)
+                // Make sure the subscription has a matching calendar
+                subscription.calendarId ?: continue
+                val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
             }
         } catch (e: SecurityException) {
