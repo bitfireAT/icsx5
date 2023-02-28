@@ -181,9 +181,7 @@ class SyncWorker(
                 Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
                 val uri = AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
                 val calendarId = ContentUris.parseId(uri)
-                subscriptionsDao.update(
-                    subscription.copy(calendarId = calendarId)
-                )
+                subscriptionsDao.updateCalendarId(subscription.id, calendarId)
             }
         }
 

@@ -33,6 +33,9 @@ interface SubscriptionsDao {
     @Update
     fun update(vararg subscriptions: Subscription)
 
+    @Query("UPDATE subscriptions SET calendarId=:calendarId WHERE id=:id")
+    fun updateCalendarId(id: Long, calendarId: Long?)
+
     @Query("UPDATE subscriptions SET lastSync=:lastSync WHERE id=:id")
     fun updateStatusNotModified(id: Long, lastSync: Long = System.currentTimeMillis())
 
