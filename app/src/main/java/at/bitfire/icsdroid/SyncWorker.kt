@@ -153,11 +153,13 @@ class SyncWorker(
             val subscription = subscriptionsDao.getByUrl(url)
             if (subscription != null) {
                 // So we already have a subscription and only net to set its calendar_id.
+                Log.i(TAG, "Migrating from v2.1: updating subscription ${subscription.id} with calendar ID")
                 subscriptionsDao.updateCalendarId(subscription.id, calendar.id)
 
             } else {
                 // before v2.1: if there's no subscription with the same URL
                 val newSubscription = Subscription.fromLegacyCalendar(calendar)
+                Log.i(TAG, "Migrating from < v2.1: creating subscription $newSubscription")
                 val subscriptionId = subscriptionsDao.add(newSubscription)
 
                 // migrate credentials, too (if available)
