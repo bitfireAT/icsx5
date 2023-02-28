@@ -12,9 +12,9 @@ import androidx.work.*
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
 import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
@@ -145,21 +145,21 @@ class SyncWorker(
         val legacyCredentials = CalendarCredentials(applicationContext)
 
         // if there's a provider available, get all the calendars available in the system
-        for (calendar in LocalCalendar.findAll(account, provider)) {
-            val match = subscriptionsDao.getByCalendarId(calendar.id)
-            if (match == null) {
-                // still no subscription for this calendar ID, create one (= migration)
-                val newSubscription = Subscription.fromLegacyCalendar(calendar)
-                Log.i(TAG, "MIGRATION: creating subscription for calendar #${calendar.id}")
-                subscriptionsDao.add(newSubscription)
+        for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
+            Log.i(TAG, "Found unmanaged (legacy) calendar ${calendar.id}, migrating")
 
-                // migrate credentials, too (if available)
-                val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
-                if (legacyUsername != null && legacyPassword != null) {
-                    // subscription ID has been assigned automatically, so fetch it
-                    val subscriptionId = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
-                    credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
-                }
+            val newSubscription = Subscription.fromLegacyCalendar(calendar)
+            subscriptionsDao.add(newSubscription)
+
+            // set MANAGED_BY_DB=1 so that the calendar won't be migrated anymore
+            calendar.isNowManaged()
+
+            // migrate credentials, too (if available)
+            val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
+            if (legacyUsername != null && legacyPassword != null) {
+                // subscription ID has been assigned automatically, so fetch it
+                val subscriptionId = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
+                credentialsDao.create(Credential(subscriptionId, legacyUsername, legacyPassword))
             }
         }
     }
@@ -172,19 +172,32 @@ class SyncWorker(
      * - deleted if there's no [Subscription] for this calendar.
      */
     private fun updateLocalCalendars() {
+        // subscriptions from DB
         val subscriptions = subscriptionsDao.getAll()
-        val calendars = LocalCalendar.findAll(account, provider).associateBy { it.id }.toMutableMap()
 
+        // local calendars from provider as Map: <Calendar ID, LocalCalendar>
+        val calendars = LocalCalendar.findManaged(account, provider).associateBy { it.id }.toMutableMap()
+
+        // synchronize them
         for (subscription in subscriptions) {
-            val calendar = subscription.calendarId?.let { calendars.remove(it) }
-            if (calendar != null) {
-                Log.d(TAG, "Updating local calendar #${calendar.id} from subscription")
-                calendar.update(subscription.toCalendarProperties())
-            } else {
+            val calendarId = subscription.calendarId
+            val calendar = calendars.remove(calendarId)
+            // note that calendar might still be null even if calendarId is not null,
+            // for instance when the calendar has been removed from the system
+
+            if (calendar == null) {
+                // no local calendar yet, create it
                 Log.d(TAG, "Creating local calendar from subscription #${subscription.id}")
+                // create local calendar
                 val uri = AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
-                val calendarId = ContentUris.parseId(uri)
-                subscriptionsDao.updateCalendarId(subscription.id, calendarId)
+                // update calendar ID in DB
+                val newCalendarId = ContentUris.parseId(uri)
+                subscriptionsDao.updateCalendarId(subscription.id, newCalendarId)
+
+            } else {
+                // local calendar already existing, update accordingly
+                Log.d(TAG, "Updating local calendar #$calendarId from subscription")
+                calendar.update(subscription.toCalendarProperties())
             }
         }
 

@@ -79,12 +79,12 @@ data class Subscription(
      * passed to the calendar provider in order to create/update the local calendar.
      */
     fun toCalendarProperties() = contentValuesOf(
-        Calendars._ID to calendarId,
         Calendars.NAME to url.toString(),
         Calendars.CALENDAR_DISPLAY_NAME to displayName,
         Calendars.CALENDAR_COLOR to color,
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
-        Calendars.SYNC_EVENTS to 1
+        Calendars.SYNC_EVENTS to 1,
+        LocalCalendar.COLUMN_MANAGED_BY_DB to 1
     )
 
 }
