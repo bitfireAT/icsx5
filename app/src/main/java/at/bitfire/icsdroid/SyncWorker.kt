@@ -155,10 +155,13 @@ class SyncWorker(
 
                 // migrate credentials, too (if available)
                 val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
-                if (legacyUsername != null && legacyPassword != null)
+                if (legacyUsername != null && legacyPassword != null) {
+                    // Subscription ID has been assigned automatically, so fetch it
+                    val id = subscriptionsDao.getByCalendarId(calendar.id)?.id ?: continue
                     credentialsDao.create(Credential(
-                        newSubscription.id, legacyUsername, legacyPassword
+                        id, legacyUsername, legacyPassword
                     ))
+                }
             }
         }
     }
