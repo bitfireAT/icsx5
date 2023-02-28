@@ -27,8 +27,8 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE calendarId=:calendarId")
     fun getByCalendarId(calendarId: Long?): Subscription?
 
-    @Query("SELECT COUNT(*) FROM subscriptions WHERE url=:url")
-    fun countByUrl(url: String): Int
+    @Query("SELECT * FROM subscriptions WHERE url=:url")
+    fun getByUrl(url: String): Subscription?
 
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
@@ -37,7 +37,7 @@ interface SubscriptionsDao {
     fun getErrorMessageLive(id: Long): LiveData<String?>
 
     @Update
-    fun update(vararg subscriptions: Subscription)
+    fun update(subscription: Subscription)
 
     @Query("UPDATE subscriptions SET calendarId=:calendarId WHERE id=:id")
     fun updateCalendarId(id: Long, calendarId: Long?)

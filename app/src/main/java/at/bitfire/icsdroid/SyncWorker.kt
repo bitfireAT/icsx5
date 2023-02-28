@@ -142,17 +142,22 @@ class SyncWorker(
      */
     private fun migrateLegacyCalendars() {
         @Suppress("DEPRECATION")
-        val legacyCredentials = CalendarCredentials(applicationContext)
+        val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
 
         // if there's a provider available, get all the calendars available in the system
         for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
-            Log.i(TAG, "Found unmanaged (<= v2.0.3) calendar ${calendar.id}, migrating")
+            Log.i(TAG, "Found unmanaged (<= v2.1.1) calendar ${calendar.id}, migrating")
+            val url = calendar.url ?: continue
 
-            val newSubscription = Subscription.fromLegacyCalendar(calendar)
+            // Special case v2.1: it created subscriptions, but did not set the COLUMN_MANAGED_BY_DB flag.
+            val subscription = subscriptionsDao.getByUrl(url)
+            if (subscription != null) {
+                // So we already have a subscription and only net to set its calendar_id.
+                subscriptionsDao.updateCalendarId(subscription.id, calendar.id)
 
-            // special case v2.1: it created subscriptions but did not set the COLUMN_MANAGED_BY_DB flag
-            if (subscriptionsDao.countByUrl(newSubscription.url.toString()) == 0) {
-                // only if there's no subscription with the same URL
+            } else {
+                // before v2.1: if there's no subscription with the same URL
+                val newSubscription = Subscription.fromLegacyCalendar(calendar)
                 val subscriptionId = subscriptionsDao.add(newSubscription)
 
                 // migrate credentials, too (if available)
@@ -162,7 +167,7 @@ class SyncWorker(
             }
 
             // set MANAGED_BY_DB=1 so that the calendar won't be migrated anymore
-            calendar.isNowManaged()
+            calendar.setManagedByDB()
         }
     }
 

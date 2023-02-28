@@ -150,11 +150,21 @@ class LocalCalendar private constructor(
         }
     }
 
+    fun isManagedByDB(): Boolean {
+        provider.query(calendarSyncURI(), arrayOf(COLUMN_MANAGED_BY_DB), null, null, null)?.use { cursor ->
+            if (cursor.moveToNext())
+                return !cursor.isNull(0)
+        }
+
+        // row doesn't exist, assume default value
+        return true
+    }
+
     /**
      * Updates the entry in the provider to set [COLUMN_MANAGED_BY_DB] to 1.
      * The calendar is then marked as _managed by the database_ and won't be migrated anymore, for instance.
      */
-    fun isNowManaged() {
+    fun setManagedByDB() {
         val values = ContentValues(1)
         values.put(COLUMN_MANAGED_BY_DB, 1)
         provider.update(calendarSyncURI(), values, null, null)
