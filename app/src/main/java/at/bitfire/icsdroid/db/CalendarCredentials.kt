@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.db
 
 import android.content.Context
+import at.bitfire.icsdroid.calendar.LocalCalendar
 
 @Deprecated(
     "Use Room's Credentials from database.",

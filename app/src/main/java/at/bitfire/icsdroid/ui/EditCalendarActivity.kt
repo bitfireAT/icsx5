@@ -282,6 +282,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
                     subscriptionsDao.delete(subscriptionWithCredentials.subscription)
 
+                    // sync the subscription to reflect the changes in the calendar provider
+                    SyncWorker.run(getApplication())
+
                     // notify UI about success
                     successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_deleted))
                 }

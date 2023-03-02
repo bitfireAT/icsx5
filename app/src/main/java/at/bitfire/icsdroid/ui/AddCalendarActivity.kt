@@ -7,8 +7,7 @@ package at.bitfire.icsdroid.ui
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import at.bitfire.icsdroid.PermissionUtils
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 
 class AddCalendarActivity: AppCompatActivity() {
 

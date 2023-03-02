@@ -18,12 +18,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AddCalendarDetailsFragment: Fragment() {
 
@@ -113,11 +113,8 @@ class AddCalendarDetailsFragment: Fragment() {
                         defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
                     )
 
-                    /** A list of all the ids of the inserted rows, should only contain one value */
-                    val ids = withContext(Dispatchers.IO) { subscriptionsDao.add(subscription) }
-
-                    /** The id of the newly inserted subscription */
-                    val id = ids.first()
+                    /** A list of all the ids of the inserted rows */
+                    val id = subscriptionsDao.add(subscription)
 
                     // Create the credential in the IO thread
                     if (credentialsModel.requiresAuth.value == true) {
@@ -133,6 +130,9 @@ class AddCalendarDetailsFragment: Fragment() {
                             credentialsDao.create(credential)
                         }
                     }
+
+                    // sync the subscription to reflect the changes in the calendar provider
+                    SyncWorker.run(getApplication())
 
                     success.postValue(true)
                 } catch (e: Exception) {
