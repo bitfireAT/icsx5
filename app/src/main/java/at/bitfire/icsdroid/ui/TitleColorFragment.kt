@@ -5,9 +5,11 @@
 package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
@@ -35,6 +37,10 @@ class TitleColorFragment : Fragment() {
 
         val editText = EditText(requireContext()).apply {
             setHint(R.string.default_alarm_dialog_hint)
+            isSingleLine = true
+            maxLines = 1
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            inputType = InputType.TYPE_CLASS_NUMBER
 
             addTextChangedListener { txt ->
                 val text = txt?.toString()
