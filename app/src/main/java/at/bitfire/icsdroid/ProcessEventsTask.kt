@@ -11,21 +11,21 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
-import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.calendar.LocalEvent
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.time.Duration
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.time.Duration
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
@@ -65,7 +65,8 @@ class ProcessEventsTask(
 
     /**
      * Updates the alarms of the given event according to the [subscription]'s
-     * [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
+     * [Subscription.defaultAlarmMinutes], [Subscription.defaultAllDayAlarmMinutes] and
+     * [Subscription.ignoreEmbeddedAlerts]
      * parameters.
      * @since 20221208
      * @param event The event to update.
@@ -77,7 +78,9 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
         }
-        subscription.defaultAlarmMinutes?.let { minutes ->
+        val allDay = net.fortuna.ical4j.model.property.Duration(Duration.ofHours(24))
+        val isAllDay = event.duration == allDay
+        (if (isAllDay) subscription.defaultAllDayAlarmMinutes else subscription.defaultAlarmMinutes)?.let { minutes ->
             // Check if already added alarm
             val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
             if (alarm != null) return@let
@@ -121,7 +124,10 @@ class ProcessEventsTask(
                         val events = Event.eventsFromReader(reader)
                         processEvents(events, forceResync)
 
-                        Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
+                        Log.i(
+                            Constants.TAG,
+                            "Calendar sync successful, ETag=$eTag, lastModified=$lastModified"
+                        )
                         subscriptionsDao.updateStatusSuccess(subscription.id, eTag, lastModified)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)

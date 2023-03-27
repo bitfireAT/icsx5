@@ -8,7 +8,12 @@ import android.app.Application
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -110,7 +115,8 @@ class AddCalendarDetailsFragment: Fragment() {
                         url = Uri.parse(titleColorModel.url.value),
                         color = titleColorModel.color.value,
                         ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
-                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
+                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+                        defaultAllDayAlarmMinutes = titleColorModel.defaultAllDayAlarmMinutes.value,
                     )
 
                     /** A list of all the ids of the inserted rows */

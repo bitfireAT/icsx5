@@ -169,6 +169,10 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.originalDefaultAlarmMinutes = it
             titleColorModel.defaultAlarmMinutes.postValue(it)
         }
+        subscription.defaultAllDayAlarmMinutes.let {
+            titleColorModel.originalDefaultAllDayAlarmMinutes = it
+            titleColorModel.defaultAllDayAlarmMinutes.postValue(it)
+        }
 
         val credential = subscriptionWithCredential.credential
         val requiresAuth = credential != null
@@ -253,6 +257,7 @@ class EditCalendarActivity: AppCompatActivity() {
                         displayName = titleColorModel.title.value ?: subscription.displayName,
                         color = titleColorModel.color.value,
                         defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
+                        defaultAllDayAlarmMinutes = titleColorModel.defaultAllDayAlarmMinutes.value,
                         ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false
                     )
                     subscriptionsDao.update(newSubscription)

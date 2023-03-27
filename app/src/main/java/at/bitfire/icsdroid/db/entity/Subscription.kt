@@ -6,7 +6,6 @@ package at.bitfire.icsdroid.db.entity
 
 import android.net.Uri
 import android.provider.CalendarContract.Calendars
-import androidx.annotation.ColorInt
 import androidx.core.content.contentValuesOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -40,6 +39,8 @@ data class Subscription(
     val ignoreEmbeddedAlerts: Boolean = false,
     /** setting: Shall a default alarm be added to every event in the calendar? If yes, this field contains the minutes before the event. If no, it is `null`. */
     val defaultAlarmMinutes: Long? = null,
+    /** setting: Shall a default alarm be added to every all-day event in the calendar? If yes, this field contains the minutes before the event. If no, it is `null`. */
+    val defaultAllDayAlarmMinutes: Long? = null,
 
     /** The color that represents the subscription. */
     val color: Int? = null
