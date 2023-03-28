@@ -101,7 +101,7 @@ fun AppTheme(
  * Runs [setContent] with the [AppTheme].
  * @param content The content to display.
  */
-fun ComponentActivity.setContentThemed(useDarkTheme: Boolean, content: @Composable () -> Unit) {
+fun ComponentActivity.setContentThemed(useDarkTheme: Boolean?, content: @Composable () -> Unit) {
     setContent {
         AppTheme(useDarkTheme = useDarkTheme ?: isSystemInDarkTheme(), content = content)
     }
