@@ -11,6 +11,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
+import at.bitfire.ical4android.util.DateUtils
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.AppDatabase
@@ -78,12 +79,16 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
         }
-        val allDay = net.fortuna.ical4j.model.property.Duration(Duration.ofHours(24))
-        val isAllDay = event.duration == allDay
-        (if (isAllDay) subscription.defaultAllDayAlarmMinutes else subscription.defaultAlarmMinutes)?.let { minutes ->
+        val isAllDay = DateUtils.isDate(dtStart)
+        val alarmMinutes = if (isAllDay)
+            subscription.defaultAllDayAlarmMinutes
+        else
+            subscription.defaultAlarmMinutes
+        if (alarmMinutes != null) {
             // Check if already added alarm
             val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
-            if (alarm != null) return@let
+            if (alarm != null) return@apply
+
             // Add the default alarm to the event
             Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
             alarms.add(
@@ -94,7 +99,7 @@ class ProcessEventsTask(
                         // Set action to DISPLAY
                         add(Action.DISPLAY)
                         // Add the trigger x minutes before
-                        val duration = Duration.ofMinutes(-minutes)
+                        val duration = Duration.ofMinutes(-alarmMinutes)
                         add(Trigger(duration))
                     }
                 )
