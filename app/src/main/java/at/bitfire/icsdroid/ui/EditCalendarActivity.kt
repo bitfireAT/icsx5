@@ -42,7 +42,7 @@ class EditCalendarActivity: AppCompatActivity() {
         const val EXTRA_THROWABLE = "errorThrowable"
     }
 
-    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+    private val titleColorModel by viewModels<SubscriptionSettingsFragment.TitleColorModel>()
     private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
 
     private val model by viewModels<SubscriptionModel> {
@@ -246,7 +246,7 @@ class EditCalendarActivity: AppCompatActivity() {
          * Updates the loaded subscription from the data provided by the view models.
          */
         fun updateSubscription(
-            titleColorModel: TitleColorFragment.TitleColorModel,
+            titleColorModel: SubscriptionSettingsFragment.TitleColorModel,
             credentialsModel: CredentialsFragment.CredentialsModel
         ) {
             viewModelScope.launch(Dispatchers.IO) {

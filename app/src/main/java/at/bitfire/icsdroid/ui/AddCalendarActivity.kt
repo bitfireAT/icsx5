@@ -16,7 +16,7 @@ class AddCalendarActivity: AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
-    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+    private val titleColorModel by viewModels<SubscriptionSettingsFragment.TitleColorModel>()
 
 
     override fun onCreate(inState: Bundle?) {

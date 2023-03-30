@@ -20,17 +20,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.databinding.TitleColorBinding
+import at.bitfire.icsdroid.databinding.SubscriptionSettingsBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.joda.time.Minutes
 import org.joda.time.format.PeriodFormat
 
-class TitleColorFragment : Fragment() {
+class SubscriptionSettingsFragment : Fragment() {
 
     private val model by activityViewModels<TitleColorModel>()
 
-    private lateinit var binding: TitleColorBinding
+    private lateinit var binding: SubscriptionSettingsBinding
 
     /**
      * Provides an observer for the default alarm fields.
@@ -83,7 +83,7 @@ class TitleColorFragment : Fragment() {
                 .show()
         }
 
-        return Observer<Long> { min: Long? ->
+        return Observer { min: Long? ->
             switch.isChecked = min != null
             // We add the listener once the switch has an initial value
             switch.setOnCheckedChangeListener(checkboxCheckedChanged)
@@ -99,7 +99,7 @@ class TitleColorFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        binding = TitleColorBinding.inflate(inflater, container, false)
+        binding = SubscriptionSettingsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.model = model
 

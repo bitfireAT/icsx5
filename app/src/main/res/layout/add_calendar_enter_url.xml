@@ -1,7 +1,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="model" type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel"/>
+        <variable name="model" type="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment.TitleColorModel"/>
     </data>
 
     <ScrollView

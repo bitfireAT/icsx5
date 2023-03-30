@@ -8,7 +8,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,13 +22,13 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class AddCalendarEnterUrlFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val titleColorModel by activityViewModels<SubscriptionSettingsFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
 

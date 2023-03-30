@@ -23,16 +23,16 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import java.io.InputStream
+import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
-import java.io.InputStream
-import java.io.InputStreamReader
 
 class AddCalendarValidationFragment: DialogFragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val titleColorModel by activityViewModels<SubscriptionSettingsFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
 
     private val validationModel by viewModels<ValidationModel> {

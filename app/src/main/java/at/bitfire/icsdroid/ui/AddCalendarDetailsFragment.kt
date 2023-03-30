@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val titleColorModel by activityViewModels<SubscriptionSettingsFragment.TitleColorModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private val model by activityViewModels<SubscriptionModel>()
 
@@ -105,7 +105,7 @@ class AddCalendarDetailsFragment: Fragment() {
          * Creates a new subscription taking the data from the given models.
          */
         fun create(
-            titleColorModel: TitleColorFragment.TitleColorModel,
+            titleColorModel: SubscriptionSettingsFragment.TitleColorModel,
             credentialsModel: CredentialsFragment.CredentialsModel,
         ) {
             viewModelScope.launch(Dispatchers.IO) {
