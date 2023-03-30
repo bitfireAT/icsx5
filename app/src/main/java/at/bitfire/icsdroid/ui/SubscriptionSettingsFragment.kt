@@ -32,72 +32,6 @@ class SubscriptionSettingsFragment : Fragment() {
 
     private lateinit var binding: SubscriptionSettingsBinding
 
-    /**
-     * Provides an observer for the default alarm fields.
-     * @param switch The switch view that updates the currently stored minutes.
-     * @param textView The viewer for the current value of the stored minutes.
-     * @param onValueChanged Gets called when the value of the stored minutes must be updated.
-     * Usually contains a call to a ViewModel to update the stored state.
-     */
-    private fun defaultAlarmObserver(
-        switch: SwitchMaterial,
-        textView: TextView,
-        onValueChanged: (Long?) -> Unit,
-    ): Observer<Long> {
-        val checkboxCheckedChanged = OnCheckedChangeListener { _, checked ->
-            if (!checked) {
-                onValueChanged(null)
-                return@OnCheckedChangeListener
-            }
-
-            val editText = EditText(requireContext()).apply {
-                setHint(R.string.default_alarm_dialog_hint)
-                isSingleLine = true
-                maxLines = 1
-                imeOptions = EditorInfo.IME_ACTION_DONE
-                inputType = InputType.TYPE_CLASS_NUMBER
-
-                addTextChangedListener { txt ->
-                    val text = txt?.toString()
-                    val num = text?.toLongOrNull()
-                    error = if (text == null || text.isBlank() || num == null)
-                        getString(R.string.default_alarm_dialog_error)
-                    else
-                        null
-                }
-            }
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.default_alarm_dialog_title)
-                .setMessage(R.string.default_alarm_dialog_message)
-                .setView(editText)
-                .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
-                    if (editText.error == null) {
-                        onValueChanged(editText.text?.toString()?.toLongOrNull())
-                        dialog.dismiss()
-                    }
-                }
-                .setOnCancelListener {
-                    switch.isChecked = false
-                }
-                .create()
-                .show()
-        }
-
-        return Observer { min: Long? ->
-            switch.isChecked = min != null
-            // We add the listener once the switch has an initial value
-            switch.setOnCheckedChangeListener(checkboxCheckedChanged)
-
-            if (min == null) {
-                textView.visibility = View.GONE
-            } else {
-                val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(min.toInt()))
-                textView.text = getString(R.string.add_calendar_alarms_default_description, alarmPeriodText)
-                textView.visibility = View.VISIBLE
-            }
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         binding = SubscriptionSettingsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
@@ -105,15 +39,19 @@ class SubscriptionSettingsFragment : Fragment() {
 
         model.defaultAlarmMinutes.observe(
             viewLifecycleOwner,
-            defaultAlarmObserver(binding.defaultAlarmSwitch, binding.defaultAlarmText) {
-                model.defaultAlarmMinutes.postValue(it)
-            }
+            defaultAlarmObserver(
+                binding.defaultAlarmSwitch,
+                binding.defaultAlarmText,
+                model.defaultAlarmMinutes
+            )
         )
         model.defaultAllDayAlarmMinutes.observe(
             viewLifecycleOwner,
-            defaultAlarmObserver(binding.defaultAlarmAllDaySwitch, binding.defaultAlarmAllDayText) {
-                model.defaultAllDayAlarmMinutes.postValue(it)
-            }
+            defaultAlarmObserver(
+                binding.defaultAlarmAllDaySwitch,
+                binding.defaultAlarmAllDayText,
+                model.defaultAllDayAlarmMinutes
+            )
         )
 
         val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
@@ -124,6 +62,79 @@ class SubscriptionSettingsFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    /**
+     * Provides an [OnCheckedChangeListener] for watching the checked changes of a switch that
+     * provides the alarm time in minutes for a given parameter. Also holds the alert dialog that
+     * asks the user the amount of time to set.
+     * @param switch The switch that is going to update the selection of minutes.
+     * @param observable The state holder of the amount of minutes selected.
+     */
+    private fun getOnCheckedChangeListener(
+        switch: SwitchMaterial,
+        observable: MutableLiveData<Long>
+    ) = OnCheckedChangeListener { _, checked ->
+        if (!checked) {
+            observable.postValue(null)
+            return@OnCheckedChangeListener
+        }
+
+        val editText = EditText(requireContext()).apply {
+            setHint(R.string.default_alarm_dialog_hint)
+            isSingleLine = true
+            maxLines = 1
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            inputType = InputType.TYPE_CLASS_NUMBER
+
+            addTextChangedListener { txt ->
+                val text = txt?.toString()
+                val num = text?.toLongOrNull()
+                error = if (text == null || text.isBlank() || num == null)
+                    getString(R.string.default_alarm_dialog_error)
+                else
+                    null
+            }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.default_alarm_dialog_title)
+            .setMessage(R.string.default_alarm_dialog_message)
+            .setView(editText)
+            .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
+                if (editText.error == null) {
+                    observable.postValue(editText.text?.toString()?.toLongOrNull())
+                    dialog.dismiss()
+                }
+            }
+            .setOnCancelListener {
+                switch.isChecked = false
+            }
+            .create()
+            .show()
+    }
+
+    /**
+     * Provides an observer for the default alarm fields.
+     * @param switch The switch view that updates the currently stored minutes.
+     * @param textView The viewer for the current value of the stored minutes.
+     * @param observable The LiveData instance that holds the currently selected amount of minutes.
+     */
+    private fun defaultAlarmObserver(
+        switch: SwitchMaterial,
+        textView: TextView,
+        observable: MutableLiveData<Long>
+    ) = Observer { min: Long? ->
+        switch.isChecked = min != null
+        // We add the listener once the switch has an initial value
+        switch.setOnCheckedChangeListener(getOnCheckedChangeListener(switch, observable))
+
+        if (min == null) {
+            textView.visibility = View.GONE
+        } else {
+            val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(min.toInt()))
+            textView.text = getString(R.string.add_calendar_alarms_default_description, alarmPeriodText)
+            textView.visibility = View.VISIBLE
+        }
     }
 
     class TitleColorModel : ViewModel() {
