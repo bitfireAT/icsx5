@@ -12,8 +12,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
-          cache: 'gradle'
-      - uses: gradle/wrapper-validation-action@v1
+      - uses: gradle/gradle-build-action@v2
 
       - name: Check
         run: ./gradlew --no-daemon app:lintStandardDebug app:testStandardDebugUnitTest
@@ -84,4 +83,3 @@ jobs:
           name: test-results
           path: |
             app/build/reports
-
