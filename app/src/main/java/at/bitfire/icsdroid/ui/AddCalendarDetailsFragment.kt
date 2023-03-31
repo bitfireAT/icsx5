@@ -46,9 +46,11 @@ class AddCalendarDetailsFragment: Fragment() {
         titleColorModel.color.observe(this, invalidateOptionsMenu)
         titleColorModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
         titleColorModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
+        titleColorModel.defaultAllDayAlarmMinutes.observe(this, invalidateOptionsMenu)
 
         // Set the default value to null so that the visibility of the summary is updated
         titleColorModel.defaultAlarmMinutes.postValue(null)
+        titleColorModel.defaultAllDayAlarmMinutes.postValue(null)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {

@@ -74,6 +74,7 @@ class EditCalendarActivity: AppCompatActivity() {
             titleColorModel.color,
             titleColorModel.ignoreAlerts,
             titleColorModel.defaultAlarmMinutes,
+            titleColorModel.defaultAllDayAlarmMinutes,
             credentialsModel.requiresAuth,
             credentialsModel.username,
             credentialsModel.password
