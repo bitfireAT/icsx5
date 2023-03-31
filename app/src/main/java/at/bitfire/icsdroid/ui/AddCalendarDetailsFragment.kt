@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<SubscriptionSettingsFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private val model by activityViewModels<SubscriptionModel>()
 
@@ -42,15 +42,15 @@ class AddCalendarDetailsFragment: Fragment() {
         val invalidateOptionsMenu = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
         }
-        titleColorModel.title.observe(this, invalidateOptionsMenu)
-        titleColorModel.color.observe(this, invalidateOptionsMenu)
-        titleColorModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
-        titleColorModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
-        titleColorModel.defaultAllDayAlarmMinutes.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.title.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.color.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.defaultAllDayAlarmMinutes.observe(this, invalidateOptionsMenu)
 
         // Set the default value to null so that the visibility of the summary is updated
-        titleColorModel.defaultAlarmMinutes.postValue(null)
-        titleColorModel.defaultAllDayAlarmMinutes.postValue(null)
+        subscriptionSettingsModel.defaultAlarmMinutes.postValue(null)
+        subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(null)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -83,12 +83,12 @@ class AddCalendarDetailsFragment: Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val itemGo = menu.findItem(R.id.create_calendar)
-        itemGo.isEnabled = !titleColorModel.title.value.isNullOrBlank()
+        itemGo.isEnabled = !subscriptionSettingsModel.title.value.isNullOrBlank()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
         if (item.itemId == R.id.create_calendar) {
-            model.create(titleColorModel, credentialsModel)
+            model.create(subscriptionSettingsModel, credentialsModel)
             true
         } else
             false
@@ -107,18 +107,18 @@ class AddCalendarDetailsFragment: Fragment() {
          * Creates a new subscription taking the data from the given models.
          */
         fun create(
-            titleColorModel: SubscriptionSettingsFragment.TitleColorModel,
+            subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
             credentialsModel: CredentialsFragment.CredentialsModel,
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val subscription = Subscription(
-                        displayName = titleColorModel.title.value!!,
-                        url = Uri.parse(titleColorModel.url.value),
-                        color = titleColorModel.color.value,
-                        ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
-                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
-                        defaultAllDayAlarmMinutes = titleColorModel.defaultAllDayAlarmMinutes.value,
+                        displayName = subscriptionSettingsModel.title.value!!,
+                        url = Uri.parse(subscriptionSettingsModel.url.value),
+                        color = subscriptionSettingsModel.color.value,
+                        ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
+                        defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
+                        defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
                     )
 
                     /** A list of all the ids of the inserted rows */

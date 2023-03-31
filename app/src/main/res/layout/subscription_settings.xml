@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment.TitleColorModel" />
+            type="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment.SubscriptionSettingsModel" />
     </data>
 
     <LinearLayout

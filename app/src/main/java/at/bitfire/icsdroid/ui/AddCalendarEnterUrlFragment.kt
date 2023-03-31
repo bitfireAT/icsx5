@@ -28,7 +28,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class AddCalendarEnterUrlFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<SubscriptionSettingsFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
 
@@ -46,7 +46,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
             requireActivity().invalidateOptionsMenu()
         }
         arrayOf(
-                titleColorModel.url,
+                subscriptionSettingsModel.url,
                 credentialsModel.requiresAuth,
                 credentialsModel.username,
                 credentialsModel.password
@@ -56,7 +56,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
         binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.model = titleColorModel
+        binding.model = subscriptionSettingsModel
 
         setHasOptionsMenu(true)
         return binding.root
@@ -96,7 +96,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
         var uri: Uri
         try {
             try {
-                uri = Uri.parse(titleColorModel.url.value ?: return null)
+                uri = Uri.parse(subscriptionSettingsModel.url.value ?: return null)
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
@@ -107,11 +107,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
             if (uri.scheme.equals("webcal", true)) {
                 uri = uri.buildUpon().scheme("http").build()
-                titleColorModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.value = uri.toString()
                 return null
             } else if (uri.scheme.equals("webcals", true)) {
                 uri = uri.buildUpon().scheme("https").build()
-                titleColorModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.value = uri.toString()
                 return null
             }
 
@@ -139,7 +139,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
                         val urlWithoutPassword = URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null)
-                        titleColorModel.url.value = urlWithoutPassword.toString()
+                        subscriptionSettingsModel.url.value = urlWithoutPassword.toString()
                         return null
                     }
                 }

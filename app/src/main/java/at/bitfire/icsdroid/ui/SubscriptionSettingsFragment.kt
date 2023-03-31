@@ -28,7 +28,7 @@ import org.joda.time.format.PeriodFormat
 
 class SubscriptionSettingsFragment : Fragment() {
 
-    private val model by activityViewModels<TitleColorModel>()
+    private val model by activityViewModels<SubscriptionSettingsModel>()
 
     private lateinit var binding: SubscriptionSettingsBinding
 
@@ -137,7 +137,7 @@ class SubscriptionSettingsFragment : Fragment() {
         }
     }
 
-    class TitleColorModel : ViewModel() {
+    class SubscriptionSettingsModel : ViewModel() {
         var url = MutableLiveData<String>()
 
         var originalTitle: String? = null
