@@ -79,12 +79,11 @@ class SubscriptionSettingsFragment : Fragment() {
         // We add the listener once the switch has an initial value
         switch.setOnCheckedChangeListener(getOnCheckedChangeListener(switch, selectedMinutes))
 
-        if (min == null) {
-            textView.visibility = View.GONE
-        } else {
+        if (min == null)
+            textView.text = getString(R.string.add_calendar_alarms_default_none)
+        else {
             val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(min.toInt()))
             textView.text = getString(R.string.add_calendar_alarms_default_description, alarmPeriodText)
-            textView.visibility = View.VISIBLE
         }
     }
 
