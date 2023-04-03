@@ -85,10 +85,6 @@ class ProcessEventsTask(
         else
             subscription.defaultAlarmMinutes
         if (alarmMinutes != null) {
-            // Check if already added alarm
-            val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
-            if (alarm != null) return@apply
-
             // Add the default alarm to the event
             Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
             alarms.add(
