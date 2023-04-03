@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="at.bitfire.icsdroid.ui.TitleColorFragment.TitleColorModel" />
+            type="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment.SubscriptionSettingsModel" />
     </data>
 
     <LinearLayout
@@ -99,6 +99,20 @@
 
         <TextView
             android:id="@+id/default_alarm_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:text="@string/add_calendar_alarms_default_description" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/default_alarm_all_day_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_calendar_alarms_default_all_day_title" />
+
+        <TextView
+            android:id="@+id/default_alarm_all_day_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/TextAppearance.MaterialComponents.Caption"
