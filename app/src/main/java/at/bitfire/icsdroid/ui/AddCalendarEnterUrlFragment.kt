@@ -46,10 +46,10 @@ class AddCalendarEnterUrlFragment: Fragment() {
             requireActivity().invalidateOptionsMenu()
         }
         arrayOf(
-                subscriptionSettingsModel.url,
-                credentialsModel.requiresAuth,
-                credentialsModel.username,
-                credentialsModel.password
+            subscriptionSettingsModel.url,
+            credentialsModel.requiresAuth,
+            credentialsModel.username,
+            credentialsModel.password
         ).forEach {
             it.observe(viewLifecycleOwner, invalidate)
         }

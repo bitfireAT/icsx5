@@ -8,12 +8,7 @@ import android.app.Application
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -49,8 +44,8 @@ class AddCalendarDetailsFragment: Fragment() {
         subscriptionSettingsModel.defaultAllDayAlarmMinutes.observe(this, invalidateOptionsMenu)
 
         // Set the default value to null so that the visibility of the summary is updated
-        subscriptionSettingsModel.defaultAlarmMinutes.postValue(null)
-        subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(null)
+        subscriptionSettingsModel.defaultAlarmMinutes.value = null
+        subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = null
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -61,11 +56,7 @@ class AddCalendarDetailsFragment: Fragment() {
         model.success.observe(viewLifecycleOwner) { success ->
             if (success) {
                 // success, show notification and close activity
-                Toast.makeText(
-                    requireActivity(),
-                    requireActivity().getString(R.string.add_calendar_created),
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireActivity(), requireActivity().getString(R.string.add_calendar_created),Toast.LENGTH_LONG).show()
 
                 requireActivity().finish()
             }

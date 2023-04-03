@@ -55,7 +55,7 @@ class SubscriptionSettingsFragment : Fragment() {
         )
 
         val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
-            model.color.postValue(color)
+            model.color.value = color
         }
         binding.color.setOnClickListener {
             colorPickerContract.launch(model.color.value)
@@ -100,7 +100,7 @@ class SubscriptionSettingsFragment : Fragment() {
         observable: MutableLiveData<Long>
     ) = OnCheckedChangeListener { _, checked ->
         if (!checked) {
-            observable.postValue(null)
+            observable.value = null
             return@OnCheckedChangeListener
         }
 
@@ -126,7 +126,7 @@ class SubscriptionSettingsFragment : Fragment() {
             .setView(editText)
             .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
                 if (editText.error == null) {
-                    observable.postValue(editText.text?.toString()?.toLongOrNull())
+                    observable.value = editText.text?.toString()?.toLongOrNull()
                     dialog.dismiss()
                 }
             }
