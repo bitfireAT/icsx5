@@ -8,21 +8,27 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import android.view.*
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,16 +40,32 @@ import at.bitfire.icsdroid.databinding.CalendarListItemBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import com.google.android.material.snackbar.Snackbar
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.DateFormat
 import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
+class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         /**
          * Set this extra to request calendar permission when the activity starts.
          */
         const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
+
+        /**
+         * Set this extra to `true` to show the snackbar that informs that a backup has been
+         * exported. Also [Intent.setData] must be called to set the uri of the file selected.
+         */
+        const val EXTRA_SHOW_EXPORT_SNACK = "show-export"
+
+        const val MIME_SQLITE = "application/vnd.sqlite3"
+
+        val MIME_SQLITE_TYPES = arrayOf("*/*")
     }
 
     private val model by viewModels<SubscriptionsModel>()
@@ -56,6 +78,68 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     private lateinit var requestNotificationPermission: () -> Unit
 
     private var snackBar: Snackbar? = null
+
+    private val saveRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument(MIME_SQLITE)
+    ) { uri ->
+        if (uri == null) {
+            Log.d(Constants.TAG, "Uri is null, export request cancelled.")
+            return@registerForActivityResult
+        }
+
+        Log.d(Constants.TAG, "Exporting backup...")
+        model.createBackup(uri).invokeOnCompletion { error ->
+            if (error != null) {
+                // If there was an error, show toast
+                Toast.makeText(
+                    this,
+                    getString(R.string.backup_export_error),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // Restart the application
+                val intent = Intent(this, CalendarListActivity::class.java).apply {
+                    addFlags(FLAG_ACTIVITY_NEW_TASK)
+                    putExtra(EXTRA_SHOW_EXPORT_SNACK, true)
+                    data = uri
+                }
+                startActivity(intent)
+                finish()
+                Runtime.getRuntime().exit(0)
+            }
+        }
+    }
+
+    private val openRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) {
+            Log.d(Constants.TAG, "Uri is null, import request cancelled.")
+            return@registerForActivityResult
+        }
+
+        Log.d(Constants.TAG, "Importing backup...")
+        model.importBackup(uri).invokeOnCompletion { error ->
+            // Show a toast that tells the user the backup was imported
+            Toast.makeText(
+                this,
+                getString(
+                    if (error != null)
+                        R.string.backup_import_error
+                    else
+                        R.string.backup_import_correct
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+            // Restart the application
+            val intent = Intent(this, CalendarListActivity::class.java).apply {
+                addFlags(FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+            finish()
+            Runtime.getRuntime().exit(0)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +184,31 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
+
+        // If EXTRA_SHOW_EXPORT_SNACK is true, show snackbar
+        val showExportSnack = intent.getBooleanExtra(EXTRA_SHOW_EXPORT_SNACK, false)
+        if (showExportSnack)
+            Snackbar
+                .make(
+                    findViewById<CoordinatorLayout>(R.id.coordinator),
+                    R.string.backup_export_correct,
+                    Snackbar.LENGTH_SHORT
+                )
+                .apply {
+                    val data = intent.data
+                    if (data != null)
+                        setAction(R.string.backup_share) {
+                            val shareIntent = Intent.createChooser(
+                                Intent(Intent.ACTION_SEND).apply {
+                                    setDataAndType(data, MIME_SQLITE)
+                                    putExtra(Intent.EXTRA_STREAM, data)
+                                },
+                                getString(R.string.backup_share_title)
+                            )
+                            startActivity(shareIntent)
+                        }
+                }
+                .show()
 
         model.subscriptions.observe(this) { subscriptions ->
             subscriptionAdapter.submitList(subscriptions)
@@ -199,6 +308,13 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
     }
 
+    fun onBackupOptions(item: MenuItem) {
+        BackupOptionsDialogFragment(
+            onExportRequested = { saveRequestLauncher.launch("icsx5.sqlite") },
+            onImportRequested = { openRequestLauncher.launch(MIME_SQLITE_TYPES) }
+        ).show(supportFragmentManager, "backup_options")
+    }
+
     fun onToggleDarkMode(item: MenuItem) {
         val settings = Settings(this)
         val newMode = !settings.forceDarkMode()
@@ -284,6 +400,81 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
             .getAllLive()
+
+        /** Stores the contents of the Room's database into [uri]. */
+        fun createBackup(uri: Uri) = viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    // Show a toast to tell the user that the export has been started
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            getApplication(),
+                            getApplication<Application>().getString(R.string.backup_export_progress),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    // Read all the contents for the file
+                    val databaseData = AppDatabase.readAllData(getApplication())
+                    // Obtain the FileOutputStream for the selected uri using the system's ContentResolver
+                    getApplication<Application>()
+                        .contentResolver
+                        .openFileDescriptor(uri, "w")!!
+                        .use { parcel ->
+                            FileOutputStream(parcel.fileDescriptor).use { stream ->
+                                // Write all the read bytes to the selected file
+                                stream.write(databaseData)
+                            }
+                        }
+
+                    // Show a Snackbar to tell the user that the export is completed and offer to
+                    // share the backup
+                    Log.d(Constants.TAG, "Backup exported successfully.")
+                } catch (e: IOException) {
+                    Log.e(Constants.TAG, "Could not export database.", e)
+                    throw e
+                } catch (e: NullPointerException) {
+                    Log.e(Constants.TAG, "Could not export database. Could not get file.", e)
+                    throw e
+                }
+            }
+        }
+
+        /** Loads the backup at [uri]. */
+        fun importBackup(uri: Uri) = viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    // Show a toast to tell the user that the import has been started
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            getApplication(),
+                            getApplication<Application>().getString(R.string.backup_import_progress),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    // Read the contents of the file selected
+                    val backupBytes = getApplication<Application>()
+                        .contentResolver
+                        .openFileDescriptor(uri, "r")!!
+                        .use { parcel ->
+                            FileInputStream(parcel.fileDescriptor).use { stream ->
+                                // Read the contents of the input stream
+                                stream.readBytes()
+                            }
+                        }
+
+                    // Recreate the database from the given file
+                    AppDatabase.recreateFromFile(getApplication()) { backupBytes.inputStream() }
+
+                } catch (e: IOException) {
+                    Log.e(Constants.TAG, "Could not export database.", e)
+                    throw e
+                } catch (e: NullPointerException) {
+                    Log.e(Constants.TAG, "Could not export database. Could not get file.", e)
+                    throw e
+                }
+            }
+        }
 
     }
 

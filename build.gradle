@@ -4,7 +4,8 @@ buildscript {
         kotlin: '1.8.0',
         okhttp: '5.0.0-alpha.11',
         ksp: '1.0.9',
-        room: '2.5.0'
+        room: '2.5.0',
+        mockk: '1.13.4'
     ]
 
     repositories {
