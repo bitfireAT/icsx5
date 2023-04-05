@@ -100,7 +100,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         /** Reads all the data stored in the database */
         suspend fun readAllData(context: Context): ByteArray {
-            // Wait until transaction is finished
+            // Wait until current transaction is finished
             if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
             // Close access to the database so no writes are performed
             instance?.close()
@@ -121,7 +121,9 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /** Clears the current database, and creates a new one from [stream] */
-        fun recreateFromFile(context: Context, stream: Callable<InputStream>) {
+        suspend fun recreateFromFile(context: Context, stream: Callable<InputStream>) {
+            // Wait until current transaction is finished
+            if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
             // Clear all the data existing if any
             Log.d(Constants.TAG, "Clearing all tables in the database...")
             instance?.clearAllTables()
