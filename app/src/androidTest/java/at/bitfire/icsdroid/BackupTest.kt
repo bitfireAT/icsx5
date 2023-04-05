@@ -61,7 +61,7 @@ class BackupTest {
         AppDatabase.getInstance(appContext).clearAllTables()
 
         // Import the data
-        AppDatabase.recreateFromFile(appContext) { data.inputStream() }
+        runBlocking { AppDatabase.recreateFromFile(appContext) { data.inputStream() } }
 
         // Assert
         val subscriptionsDao = AppDatabase.getInstance(appContext).subscriptionsDao()
