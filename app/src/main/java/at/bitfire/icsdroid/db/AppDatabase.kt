@@ -48,6 +48,9 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var instance: AppDatabase? = null
 
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        val databaseName: String = "icsx5"
+
         /**
          * This function is only intended to be used by tests, use [getInstance], it initializes
          * the instance automatically.
@@ -56,6 +59,20 @@ abstract class AppDatabase : RoomDatabase() {
         fun setInstance(instance: AppDatabase?) {
             this.instance = instance
         }
+
+        /**
+         * Creates a new builder for the database. This is used by tests to mock the function, and
+         * create in-memory databases.
+         */
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun databaseBuilder(context: Context): Builder<AppDatabase> =
+            Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, databaseName)
+                .fallbackToDestructiveMigration()
+                .addCallback(object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        SyncWorker.run(context, onlyMigrate = true)
+                    }
+                })
 
         /**
          * Gets or instantiates the database singleton. Thread-safe.
@@ -75,14 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
                 }
 
                 // create a new instance and save it
-                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
-                    .fallbackToDestructiveMigration()
-                    .addCallback(object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            SyncWorker.run(context, onlyMigrate = true)
-                        }
-                    })
-                    .build()
+                val db = databaseBuilder(context).build()
                 instance = db
                 return db
             }
@@ -96,7 +106,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance?.close()
 
             // Get access to the database file
-            val file = context.getDatabasePath("icsx5")
+            val file = context.getDatabasePath(databaseName)
             // Read the contents
             val bytes = file.readBytes()
 
@@ -120,13 +130,8 @@ abstract class AppDatabase : RoomDatabase() {
             if (file.exists()) file.delete()
 
             Log.d(Constants.TAG, "Creating a new database from the data imported...")
-            val newDatabase = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
+            val newDatabase = databaseBuilder(context)
                 .createFromInputStream(stream)
-                .addCallback(object : Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        SyncWorker.run(context, onlyMigrate = true)
-                    }
-                })
                 .build()
 
             val subscriptions = newDatabase.subscriptionsDao().getAll()
