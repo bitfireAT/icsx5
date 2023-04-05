@@ -121,7 +121,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /** Clears the current database, and creates a new one from [stream] */
-        suspend fun recreateFromFile(context: Context, stream: Callable<InputStream>) {
+        suspend fun recreateFromFile(context: Context, stream: Callable<InputStream>): AppDatabase {
             // Wait until current transaction is finished
             if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
             // Clear all the data existing if any
@@ -131,7 +131,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance = null
 
             Log.d(Constants.TAG, "Removing database file...")
-            val file = context.getDatabasePath("icsx5")
+            val file = context.getDatabasePath(databaseName)
             if (file.exists()) file.delete()
 
             Log.d(Constants.TAG, "Creating a new database from the data imported...")
@@ -142,7 +142,7 @@ abstract class AppDatabase : RoomDatabase() {
             val subscriptions = newDatabase.subscriptionsDao().getAll()
             Log.i(Constants.TAG, "Successfully imported ${subscriptions.size} subscriptions.")
 
-            instance = newDatabase
+            return newDatabase.also { instance = it }
         }
     }
 
