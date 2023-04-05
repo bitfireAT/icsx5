@@ -115,6 +115,10 @@ abstract class AppDatabase : RoomDatabase() {
             instance?.close()
             instance = null
 
+            Log.d(Constants.TAG, "Removing database file...")
+            val file = context.getDatabasePath("icsx5")
+            if (file.exists()) file.delete()
+
             Log.d(Constants.TAG, "Creating a new database from the data imported...")
             val newDatabase = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
                 .createFromInputStream(stream)
