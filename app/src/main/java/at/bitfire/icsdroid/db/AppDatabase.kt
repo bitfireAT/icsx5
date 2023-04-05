@@ -110,6 +110,9 @@ abstract class AppDatabase : RoomDatabase() {
             // Read the contents
             val bytes = file.readBytes()
 
+            // Dispose the instance
+            instance = null
+
             // Open the database again
             getInstance(context)
 
