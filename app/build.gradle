@@ -121,6 +121,8 @@ dependencies {
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
     androidTestImplementation "androidx.work:work-testing:2.8.0"
+    androidTestImplementation "io.mockk:mockk-android:${versions.mockk}"
+    androidTestImplementation "io.mockk:mockk-agent:${versions.mockk}"
 
     testImplementation 'junit:junit:4.13.2'
 }
