@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.db
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.room.AutoMigration
 import androidx.room.Database
@@ -12,12 +13,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase.Companion.getInstance
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import java.io.InputStream
+import java.util.concurrent.Callable
+import kotlinx.coroutines.delay
 
 /**
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
@@ -81,6 +86,49 @@ abstract class AppDatabase : RoomDatabase() {
                 instance = db
                 return db
             }
+        }
+
+        /** Reads all the data stored in the database */
+        suspend fun readAllData(context: Context): ByteArray {
+            // Wait until transaction is finished
+            if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
+            // Close access to the database so no writes are performed
+            instance?.close()
+
+            // Get access to the database file
+            val file = context.getDatabasePath("icsx5")
+            // Read the contents
+            val bytes = file.readBytes()
+
+            // Open the database again
+            getInstance(context)
+
+            // Return the read bytes
+            return bytes
+        }
+
+        /** Clears the current database, and creates a new one from [stream] */
+        fun recreateFromFile(context: Context, stream: Callable<InputStream>) {
+            // Clear all the data existing if any
+            Log.d(Constants.TAG, "Clearing all tables in the database...")
+            instance?.clearAllTables()
+            instance?.close()
+            instance = null
+
+            Log.d(Constants.TAG, "Creating a new database from the data imported...")
+            val newDatabase = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
+                .createFromInputStream(stream)
+                .addCallback(object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        SyncWorker.run(context, onlyMigrate = true)
+                    }
+                })
+                .build()
+
+            val subscriptions = newDatabase.subscriptionsDao().getAll()
+            Log.i(Constants.TAG, "Successfully imported ${subscriptions.size} subscriptions.")
+
+            instance = newDatabase
         }
     }
 

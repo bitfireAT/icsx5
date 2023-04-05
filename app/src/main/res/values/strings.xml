@@ -21,6 +21,7 @@
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_synchronize">Synchronize now</string>
+    <string name="calendar_list_backup">Backup</string>
     <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
@@ -57,6 +58,20 @@
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>
+
+    <!-- BackupOptionsDialogFragment -->
+    <string name="backup_options_title">Backup options</string>
+    <string name="backup_options_alert">Attention! Backups are not encrypted. Make sure to keep them on a safe place, or encrypt them by yourself. Take into account that importing a backup will overwrite any stored subscriptions.</string>
+    <string name="backup_options_export">Export Backup</string>
+    <string name="backup_options_import">Import Backup</string>
+    <string name="backup_export_progress">Exporting backup…</string>
+    <string name="backup_import_progress">Importing backup…</string>
+    <string name="backup_export_error">Could not export backup</string>
+    <string name="backup_import_error">Could not import backup</string>
+    <string name="backup_export_correct">Backup exported!</string>
+    <string name="backup_import_correct">Backup imported!</string>
+    <string name="backup_share">Share</string>
+    <string name="backup_share_title">Share Backup</string>
 
     <!-- EditCalendarActivity -->
     <string name="activity_edit_calendar">Edit subscription</string>
