@@ -6,6 +6,7 @@ package at.bitfire.icsdroid.db
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -22,7 +23,20 @@ import at.bitfire.icsdroid.db.entity.Subscription
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
  */
 @TypeConverters(Converters::class)
-@Database(entities = [Subscription::class, Credential::class], version = 1)
+@Database(
+    entities = [Subscription::class, Credential::class],
+    version = 3,
+    autoMigrations = [
+        AutoMigration (
+            from = 1,
+            to = 2
+        ),
+        AutoMigration (
+            from = 2,
+            to = 3
+        )
+    ]
+)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
@@ -60,7 +74,6 @@ abstract class AppDatabase : RoomDatabase() {
                     .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
                             SyncWorker.run(context, onlyMigrate = true)
                         }
                     })

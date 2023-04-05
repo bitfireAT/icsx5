@@ -5,7 +5,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/title_color"
-        android:name="at.bitfire.icsdroid.ui.TitleColorFragment"
+        android:name="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

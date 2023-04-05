@@ -8,7 +8,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,13 +22,13 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class AddCalendarEnterUrlFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
 
@@ -41,17 +46,17 @@ class AddCalendarEnterUrlFragment: Fragment() {
             requireActivity().invalidateOptionsMenu()
         }
         arrayOf(
-                titleColorModel.url,
-                credentialsModel.requiresAuth,
-                credentialsModel.username,
-                credentialsModel.password
+            subscriptionSettingsModel.url,
+            credentialsModel.requiresAuth,
+            credentialsModel.username,
+            credentialsModel.password
         ).forEach {
             it.observe(viewLifecycleOwner, invalidate)
         }
 
         binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.model = titleColorModel
+        binding.model = subscriptionSettingsModel
 
         setHasOptionsMenu(true)
         return binding.root
@@ -91,7 +96,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
         var uri: Uri
         try {
             try {
-                uri = Uri.parse(titleColorModel.url.value ?: return null)
+                uri = Uri.parse(subscriptionSettingsModel.url.value ?: return null)
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
@@ -102,11 +107,11 @@ class AddCalendarEnterUrlFragment: Fragment() {
 
             if (uri.scheme.equals("webcal", true)) {
                 uri = uri.buildUpon().scheme("http").build()
-                titleColorModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.value = uri.toString()
                 return null
             } else if (uri.scheme.equals("webcals", true)) {
                 uri = uri.buildUpon().scheme("https").build()
-                titleColorModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.value = uri.toString()
                 return null
             }
 
@@ -134,7 +139,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
                         credentialsModel.password.value = credentials.elementAtOrNull(1)
 
                         val urlWithoutPassword = URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, null)
-                        titleColorModel.url.value = urlWithoutPassword.toString()
+                        subscriptionSettingsModel.url.value = urlWithoutPassword.toString()
                         return null
                     }
                 }

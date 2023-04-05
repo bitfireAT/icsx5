@@ -6,11 +6,10 @@ package at.bitfire.icsdroid.db.entity
 
 import android.net.Uri
 import android.provider.CalendarContract.Calendars
-import androidx.annotation.ColorInt
 import androidx.core.content.contentValuesOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -19,6 +18,8 @@ import at.bitfire.icsdroid.db.LocalCalendar
 data class Subscription(
     /** The id of the subscription in the database. */
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+    /** The id of the subscription in the system's database */
+    val calendarId: Long? = null,
     /** URL of iCalendar file */
     val url: Uri,
     /** ETag at last successful sync */
@@ -38,17 +39,13 @@ data class Subscription(
     val ignoreEmbeddedAlerts: Boolean = false,
     /** setting: Shall a default alarm be added to every event in the calendar? If yes, this field contains the minutes before the event. If no, it is `null`. */
     val defaultAlarmMinutes: Long? = null,
+    /** setting: Shall a default alarm be added to every all-day event in the calendar? If yes, this field contains the minutes before the event. If no, it is `null`. */
+    val defaultAllDayAlarmMinutes: Long? = null,
 
     /** The color that represents the subscription. */
     val color: Int? = null
 ) {
     companion object {
-        /**
-         * The default color to use in all subscriptions.
-         */
-        @ColorInt
-        const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
-
         /**
          * Converts a [LocalCalendar] to a [Subscription] data object.
          * Must only be used for migrating legacy calendars.
@@ -58,7 +55,7 @@ data class Subscription(
          */
         fun fromLegacyCalendar(calendar: LocalCalendar) =
             Subscription(
-                id = calendar.id,
+                calendarId = calendar.id,
                 url = Uri.parse(calendar.url ?: "https://invalid-url"),
                 eTag = calendar.eTag,
                 displayName = calendar.displayName ?: calendar.id.toString(),
@@ -77,11 +74,12 @@ data class Subscription(
      * passed to the calendar provider in order to create/update the local calendar.
      */
     fun toCalendarProperties() = contentValuesOf(
-        Calendars._ID to id,
+        Calendars.NAME to url.toString(),
         Calendars.CALENDAR_DISPLAY_NAME to displayName,
         Calendars.CALENDAR_COLOR to color,
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
-        Calendars.SYNC_EVENTS to 1
+        Calendars.SYNC_EVENTS to 1,
+        LocalCalendar.COLUMN_MANAGED_BY_DB to 1
     )
 
 }

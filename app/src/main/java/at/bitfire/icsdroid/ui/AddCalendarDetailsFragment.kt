@@ -18,16 +18,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AddCalendarDetailsFragment: Fragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
     private val model by activityViewModels<SubscriptionModel>()
 
@@ -37,13 +37,15 @@ class AddCalendarDetailsFragment: Fragment() {
         val invalidateOptionsMenu = Observer<Any> {
             requireActivity().invalidateOptionsMenu()
         }
-        titleColorModel.title.observe(this, invalidateOptionsMenu)
-        titleColorModel.color.observe(this, invalidateOptionsMenu)
-        titleColorModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
-        titleColorModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.title.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.color.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.ignoreAlerts.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.defaultAlarmMinutes.observe(this, invalidateOptionsMenu)
+        subscriptionSettingsModel.defaultAllDayAlarmMinutes.observe(this, invalidateOptionsMenu)
 
         // Set the default value to null so that the visibility of the summary is updated
-        titleColorModel.defaultAlarmMinutes.postValue(null)
+        subscriptionSettingsModel.defaultAlarmMinutes.value = null
+        subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = null
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
@@ -54,11 +56,7 @@ class AddCalendarDetailsFragment: Fragment() {
         model.success.observe(viewLifecycleOwner) { success ->
             if (success) {
                 // success, show notification and close activity
-                Toast.makeText(
-                    requireActivity(),
-                    requireActivity().getString(R.string.add_calendar_created),
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireActivity(), requireActivity().getString(R.string.add_calendar_created),Toast.LENGTH_LONG).show()
 
                 requireActivity().finish()
             }
@@ -76,12 +74,12 @@ class AddCalendarDetailsFragment: Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val itemGo = menu.findItem(R.id.create_calendar)
-        itemGo.isEnabled = !titleColorModel.title.value.isNullOrBlank()
+        itemGo.isEnabled = !subscriptionSettingsModel.title.value.isNullOrBlank()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
         if (item.itemId == R.id.create_calendar) {
-            model.create(titleColorModel, credentialsModel)
+            model.create(subscriptionSettingsModel, credentialsModel)
             true
         } else
             false
@@ -100,24 +98,22 @@ class AddCalendarDetailsFragment: Fragment() {
          * Creates a new subscription taking the data from the given models.
          */
         fun create(
-            titleColorModel: TitleColorFragment.TitleColorModel,
+            subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
             credentialsModel: CredentialsFragment.CredentialsModel,
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val subscription = Subscription(
-                        displayName = titleColorModel.title.value!!,
-                        url = Uri.parse(titleColorModel.url.value),
-                        color = titleColorModel.color.value,
-                        ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false,
-                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value
+                        displayName = subscriptionSettingsModel.title.value!!,
+                        url = Uri.parse(subscriptionSettingsModel.url.value),
+                        color = subscriptionSettingsModel.color.value,
+                        ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
+                        defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
+                        defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
                     )
 
-                    /** A list of all the ids of the inserted rows, should only contain one value */
-                    val ids = withContext(Dispatchers.IO) { subscriptionsDao.add(subscription) }
-
-                    /** The id of the newly inserted subscription */
-                    val id = ids.first()
+                    /** A list of all the ids of the inserted rows */
+                    val id = subscriptionsDao.add(subscription)
 
                     // Create the credential in the IO thread
                     if (credentialsModel.requiresAuth.value == true) {
@@ -133,6 +129,9 @@ class AddCalendarDetailsFragment: Fragment() {
                             credentialsDao.create(credential)
                         }
                     }
+
+                    // sync the subscription to reflect the changes in the calendar provider
+                    SyncWorker.run(getApplication())
 
                     success.postValue(true)
                 } catch (e: Exception) {

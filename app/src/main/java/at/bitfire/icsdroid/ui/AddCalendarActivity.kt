@@ -7,8 +7,7 @@ package at.bitfire.icsdroid.ui
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import at.bitfire.icsdroid.PermissionUtils
-import at.bitfire.icsdroid.db.LocalCalendar
+import at.bitfire.icsdroid.calendar.LocalCalendar
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -17,7 +16,7 @@ class AddCalendarActivity: AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
-    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
 
 
     override fun onCreate(inState: Bundle?) {
@@ -33,13 +32,13 @@ class AddCalendarActivity: AppCompatActivity() {
 
             intent?.apply {
                 data?.let { uri ->
-                    titleColorModel.url.value = uri.toString()
+                    subscriptionSettingsModel.url.value = uri.toString()
                 }
                 getStringExtra(EXTRA_TITLE)?.let {
-                    titleColorModel.title.value = it
+                    subscriptionSettingsModel.title.value = it
                 }
                 if (hasExtra(EXTRA_COLOR))
-                    titleColorModel.color.value = getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                    subscriptionSettingsModel.color.value = getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
             }
         }
     }
