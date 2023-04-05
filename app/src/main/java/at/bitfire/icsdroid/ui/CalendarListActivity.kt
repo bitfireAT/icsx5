@@ -57,12 +57,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
          */
         const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
 
-        /**
-         * Set this extra to `true` to show the snackbar that informs that a backup has been
-         * exported. Also [Intent.setData] must be called to set the uri of the file selected.
-         */
-        const val EXTRA_SHOW_EXPORT_SNACK = "show-export"
-
         const val MIME_SQLITE = "application/vnd.sqlite3"
 
         val MIME_SQLITE_TYPES = arrayOf("*/*")
@@ -97,15 +91,24 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                // Restart the application
-                val intent = Intent(this, CalendarListActivity::class.java).apply {
-                    addFlags(FLAG_ACTIVITY_NEW_TASK)
-                    putExtra(EXTRA_SHOW_EXPORT_SNACK, true)
-                    data = uri
-                }
-                startActivity(intent)
-                finish()
-                Runtime.getRuntime().exit(0)
+                // Show a success snackbar
+                Snackbar
+                    .make(
+                        findViewById<CoordinatorLayout>(R.id.coordinator),
+                        R.string.backup_export_correct,
+                        Snackbar.LENGTH_SHORT
+                    )
+                    .setAction(R.string.backup_share) {
+                        val shareIntent = Intent.createChooser(
+                            Intent(Intent.ACTION_SEND).apply {
+                                setDataAndType(data, MIME_SQLITE)
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                            },
+                            getString(R.string.backup_share_title)
+                        )
+                        startActivity(shareIntent)
+                    }
+                    .show()
             }
         }
     }
@@ -184,31 +187,6 @@ class CalendarListActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshLi
         val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
-
-        // If EXTRA_SHOW_EXPORT_SNACK is true, show snackbar
-        val showExportSnack = intent.getBooleanExtra(EXTRA_SHOW_EXPORT_SNACK, false)
-        if (showExportSnack)
-            Snackbar
-                .make(
-                    findViewById<CoordinatorLayout>(R.id.coordinator),
-                    R.string.backup_export_correct,
-                    Snackbar.LENGTH_SHORT
-                )
-                .apply {
-                    val data = intent.data
-                    if (data != null)
-                        setAction(R.string.backup_share) {
-                            val shareIntent = Intent.createChooser(
-                                Intent(Intent.ACTION_SEND).apply {
-                                    setDataAndType(data, MIME_SQLITE)
-                                    putExtra(Intent.EXTRA_STREAM, data)
-                                },
-                                getString(R.string.backup_share_title)
-                            )
-                            startActivity(shareIntent)
-                        }
-                }
-                .show()
 
         model.subscriptions.observe(this) { subscriptions ->
             subscriptionAdapter.submitList(subscriptions)
