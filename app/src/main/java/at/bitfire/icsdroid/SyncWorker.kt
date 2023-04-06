@@ -17,8 +17,8 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import java.util.concurrent.TimeUnit
 import at.bitfire.icsdroid.ui.NotificationUtils
+import java.util.concurrent.TimeUnit
 
 class SyncWorker(
     context: Context,
@@ -117,6 +117,8 @@ class SyncWorker(
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
+
+        var result: Result = Result.success()
 
         provider =
             try {
