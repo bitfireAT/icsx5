@@ -212,7 +212,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         )
     }
 
-    fun onPrivacyPolicyRequested(item: MenuItem) {
+    fun onShowPrivacyPolicy(item: MenuItem) {
         startActivity(
             Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse("https://icsx5.bitfire.at/privacy/")
