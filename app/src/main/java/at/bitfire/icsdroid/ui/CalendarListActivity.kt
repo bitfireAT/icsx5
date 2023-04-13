@@ -8,6 +8,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -208,6 +209,14 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
                     AppCompatDelegate.MODE_NIGHT_YES
                 else
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
+    }
+
+    fun onPrivacyPolicyRequested(item: MenuItem) {
+        startActivity(
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://icsx5.bitfire.at/privacy/")
+            }
         )
     }
 
