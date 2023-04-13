@@ -215,9 +215,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
     fun onShowPrivacyPolicy(item: MenuItem) {
-        startActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
-        )
+        UriUtils.launchUri(this, Uri.parse(PRIVACY_POLICY_URL))
     }
 
 
