@@ -45,6 +45,8 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
          * Set this extra to request calendar permission when the activity starts.
          */
         const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
+
+        const val PRIVACY_POLICY_URL = "https://icsx5.bitfire.at/privacy/"
     }
 
     private val model by viewModels<SubscriptionsModel>()
@@ -214,9 +216,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     fun onShowPrivacyPolicy(item: MenuItem) {
         startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://icsx5.bitfire.at/privacy/")
-            }
+            Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
         )
     }
 
