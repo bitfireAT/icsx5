@@ -13,6 +13,7 @@
     <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_grant">Grant</string>
+    <string name="install_browser">Please install a Web browser</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -25,6 +26,7 @@
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="settings_force_dark_theme">Force dark theme</string>
+    <string name="calendar_list_privacy_policy">Privacy policy</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
