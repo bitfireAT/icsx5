@@ -25,7 +25,7 @@
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="settings_force_dark_theme">Force dark theme</string>
-    <string name="calendar_list_privacy_policy">Privacy Policy</string>
+    <string name="calendar_list_privacy_policy">Privacy policy</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
