@@ -9,14 +9,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import at.bitfire.icsdroid.BuildConfig
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
-import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.LibsBuilder
+import com.google.accompanist.themeadapter.material.MdcTheme
+import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 
 class InfoActivity: AppCompatActivity() {
 
@@ -24,28 +30,8 @@ class InfoActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            val builder = LibsBuilder()
-                .withAboutIconShown(true)
-                .withAboutAppName(getString(R.string.app_name))
-                .withAboutDescription(getString(R.string.app_info_description))
-                .withAboutVersionShownName(true)
-                .withAboutVersionString(getString(R.string.app_info_version, BuildConfig.VERSION_NAME, BuildConfig.FLAVOR))
-                .withAboutSpecial1(getString(R.string.app_info_gplv3))
-                .withAboutSpecial1Description(getString(R.string.app_info_gplv3_note))
-                .withLicenseShown(true)
-
-                .withFields(R.string::class.java.fields)
-                .withLibraryModification("org_brotli__dec", Libs.LibraryFields.LIBRARY_NAME, "Brotli")
-                .withLibraryModification("org_brotli__dec", Libs.LibraryFields.AUTHOR_NAME, "Google")
-
-            if (BuildConfig.FLAVOR != "gplay") {
-                builder
-                    .withAboutSpecial2(getString(R.string.app_info_donate))
-                    .withAboutSpecial2Description(getString(R.string.donate_message))
-            }
-
             supportFragmentManager.beginTransaction()
-                .replace(android.R.id.content, builder.supportFragment())
+                .replace(android.R.id.content, LibsFragment())
                 .commit()
         }
     }
@@ -72,4 +58,19 @@ class InfoActivity: AppCompatActivity() {
         }
     }
 
+    class LibsFragment: Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View = ComposeView(requireContext()).apply {
+            setContent {
+                MdcTheme {
+                    LibrariesContainer(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
 }
