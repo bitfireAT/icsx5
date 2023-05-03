@@ -23,7 +23,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -283,7 +283,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
         /** whether there are running sync workers */
-        val isRefreshing = Transformations.map(SyncWorker.liveStatus(application)) { workInfos ->
+        val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
         }
 

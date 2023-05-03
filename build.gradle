@@ -1,10 +1,10 @@
 buildscript {
     ext.versions = [
         aboutLibs: '8.9.4',
-        kotlin: '1.8.0',
+        kotlin: '1.8.20',
         okhttp: '5.0.0-alpha.11',
-        ksp: '1.0.9',
-        room: '2.5.0'
+        ksp: '1.0.10',
+        room: '2.5.1'
     ]
 
     repositories {
@@ -15,7 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:${versions.aboutLibs}"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:${versions.kotlin}-${versions.ksp}"
