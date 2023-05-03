@@ -18,6 +18,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -102,91 +103,95 @@ class InfoActivity: AppCompatActivity() {
             )
         }
 
+        @Composable
+        fun InfoHeader() {
+            val context = LocalContext.current
+
+            var showingLicenseDialog by remember { mutableStateOf(false) }
+            if (showingLicenseDialog)
+                TextDialog(R.string.app_info_gplv3_note) { showingLicenseDialog = false }
+
+            var showingDonateDialog by remember { mutableStateOf(false) }
+            if (showingDonateDialog)
+                TextDialog(R.string.donate_message) { showingDonateDialog = false }
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        bitmap = context.applicationInfo
+                            .loadIcon(context.packageManager)
+                            .toBitmap()
+                            .asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.size(72.dp)
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.h5,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = stringResource(
+                        R.string.app_info_version,
+                        BuildConfig.VERSION_NAME,
+                        BuildConfig.FLAVOR
+                    ),
+                    style = MaterialTheme.typography.subtitle1,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.onBackground.copy(
+                        alpha = ContentAlpha.medium
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row {
+                    OutlinedButton(
+                        onClick = { showingLicenseDialog = true },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp)
+                    ) { Text(stringResource(R.string.app_info_gplv3)) }
+
+                    if (BuildConfig.FLAVOR != "gplay")
+                        OutlinedButton(
+                            onClick = { showingDonateDialog = true },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 4.dp)
+                        ) { Text(stringResource(R.string.app_info_donate)) }
+                }
+
+                Text(
+                    text = stringResource(R.string.app_info_description),
+                    style = MaterialTheme.typography.subtitle2,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.onBackground.copy(
+                        alpha = ContentAlpha.medium
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View = ComposeView(requireContext()).apply {
             setContent {
-                val context = LocalContext.current
-
                 MdcTheme {
-                    var showingLicenseDialog by remember { mutableStateOf(false) }
-                    if (showingLicenseDialog)
-                        TextDialog(R.string.app_info_gplv3_note) { showingLicenseDialog = false }
-
-                    var showingDonateDialog by remember { mutableStateOf(false) }
-                    if (showingDonateDialog)
-                        TextDialog(R.string.donate_message) { showingDonateDialog = false }
-                    
                     LibrariesContainer(
                         modifier = Modifier.fillMaxSize(),
                         header = {
-                            // Main Header
-                            item {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 12.dp),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Image(
-                                        bitmap = context.applicationInfo
-                                            .loadIcon(context.packageManager)
-                                            .toBitmap()
-                                            .asImageBitmap(),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(72.dp)
-                                    )
-                                }
-                                Text(
-                                    text = stringResource(R.string.app_name),
-                                    style = MaterialTheme.typography.h5,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colors.onBackground,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Text(
-                                    text = stringResource(
-                                        R.string.app_info_version,
-                                        BuildConfig.VERSION_NAME,
-                                        BuildConfig.FLAVOR
-                                    ),
-                                    style = MaterialTheme.typography.subtitle1,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colors.onBackground.copy(
-                                        alpha = ContentAlpha.medium
-                                    ),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            // Buttons
-                            item {
-                                Row {
-                                    OutlinedButton(
-                                        onClick = { showingLicenseDialog = true },
-                                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
-                                    ) { Text(stringResource(R.string.app_info_gplv3)) }
-
-                                    if (BuildConfig.FLAVOR != "gplay")
-                                        OutlinedButton(
-                                            onClick = { showingDonateDialog = true },
-                                            modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
-                                        ) { Text(stringResource(R.string.app_info_donate)) }
-                                }
-                            }
-                            // Description
-                            item {
-                                Text(
-                                    text = stringResource(R.string.app_info_description),
-                                    style = MaterialTheme.typography.subtitle2,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colors.onBackground.copy(
-                                        alpha = ContentAlpha.medium
-                                    ),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                            item { InfoHeader() }
                         }
                     )
                 }
