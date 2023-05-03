@@ -42,7 +42,7 @@ class EditCalendarActivity: AppCompatActivity() {
         const val EXTRA_THROWABLE = "errorThrowable"
     }
 
-    private val titleColorModel by viewModels<TitleColorFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
 
     private val model by viewModels<SubscriptionModel> {
@@ -70,10 +70,11 @@ class EditCalendarActivity: AppCompatActivity() {
             invalidateOptionsMenu()
         }
         arrayOf(
-            titleColorModel.title,
-            titleColorModel.color,
-            titleColorModel.ignoreAlerts,
-            titleColorModel.defaultAlarmMinutes,
+            subscriptionSettingsModel.title,
+            subscriptionSettingsModel.color,
+            subscriptionSettingsModel.ignoreAlerts,
+            subscriptionSettingsModel.defaultAlarmMinutes,
+            subscriptionSettingsModel.defaultAllDayAlarmMinutes,
             credentialsModel.requiresAuth,
             credentialsModel.username,
             credentialsModel.password
@@ -136,7 +137,7 @@ class EditCalendarActivity: AppCompatActivity() {
             else
                 View.GONE
 
-        val titleOK = !titleColorModel.title.value.isNullOrBlank()
+        val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
         val authOK = credentialsModel.run {
             if (requiresAuth.value == true)
                 username.value != null && password.value != null
@@ -152,22 +153,26 @@ class EditCalendarActivity: AppCompatActivity() {
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
         val subscription = subscriptionWithCredential.subscription
 
-        titleColorModel.url.value = subscription.url.toString()
+        subscriptionSettingsModel.url.value = subscription.url.toString()
         subscription.displayName.let {
-            titleColorModel.originalTitle = it
-            titleColorModel.title.value = it
+            subscriptionSettingsModel.originalTitle = it
+            subscriptionSettingsModel.title.value = it
         }
         subscription.color.let {
-            titleColorModel.originalColor = it
-            titleColorModel.color.value = it
+            subscriptionSettingsModel.originalColor = it
+            subscriptionSettingsModel.color.value = it
         }
         subscription.ignoreEmbeddedAlerts.let {
-            titleColorModel.originalIgnoreAlerts = it
-            titleColorModel.ignoreAlerts.postValue(it)
+            subscriptionSettingsModel.originalIgnoreAlerts = it
+            subscriptionSettingsModel.ignoreAlerts.postValue(it)
         }
         subscription.defaultAlarmMinutes.let {
-            titleColorModel.originalDefaultAlarmMinutes = it
-            titleColorModel.defaultAlarmMinutes.postValue(it)
+            subscriptionSettingsModel.originalDefaultAlarmMinutes = it
+            subscriptionSettingsModel.defaultAlarmMinutes.postValue(it)
+        }
+        subscription.defaultAllDayAlarmMinutes.let {
+            subscriptionSettingsModel.originalDefaultAllDayAlarmMinutes = it
+            subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(it)
         }
 
         val credential = subscriptionWithCredential.credential
@@ -191,7 +196,7 @@ class EditCalendarActivity: AppCompatActivity() {
     /* user actions */
 
     fun onSave(item: MenuItem?) {
-        model.updateSubscription(titleColorModel, credentialsModel)
+        model.updateSubscription(subscriptionSettingsModel, credentialsModel)
     }
 
     fun onAskDelete(item: MenuItem) {
@@ -220,7 +225,7 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
-    private fun dirty(): Boolean = titleColorModel.dirty() || credentialsModel.dirty()
+    private fun dirty(): Boolean = subscriptionSettingsModel.dirty() || credentialsModel.dirty()
 
 
     /* view model and data source */
@@ -242,7 +247,7 @@ class EditCalendarActivity: AppCompatActivity() {
          * Updates the loaded subscription from the data provided by the view models.
          */
         fun updateSubscription(
-            titleColorModel: TitleColorFragment.TitleColorModel,
+            subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
             credentialsModel: CredentialsFragment.CredentialsModel
         ) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -250,10 +255,11 @@ class EditCalendarActivity: AppCompatActivity() {
                     val subscription = subscriptionWithCredentials.subscription
 
                     val newSubscription = subscription.copy(
-                        displayName = titleColorModel.title.value ?: subscription.displayName,
-                        color = titleColorModel.color.value,
-                        defaultAlarmMinutes = titleColorModel.defaultAlarmMinutes.value,
-                        ignoreEmbeddedAlerts = titleColorModel.ignoreAlerts.value ?: false
+                        displayName = subscriptionSettingsModel.title.value ?: subscription.displayName,
+                        color = subscriptionSettingsModel.color.value,
+                        defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
+                        defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
+                        ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false
                     )
                     subscriptionsDao.update(newSubscription)
 

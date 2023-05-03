@@ -17,6 +17,11 @@
           android:onClick="onToggleDarkMode"
           app:showAsAction="never" />
 
+    <item android:id="@+id/privacy_policy"
+          android:title="@string/calendar_list_privacy_policy"
+          android:onClick="onShowPrivacyPolicy"
+          app:showAsAction="never"/>
+
     <item android:title="@string/calendar_list_info"
           android:onClick="onShowInfo"
           app:showAsAction="never"/>

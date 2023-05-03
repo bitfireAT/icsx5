@@ -11,9 +11,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
-import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.ical4android.util.DateUtils
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.calendar.LocalEvent
+import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
@@ -65,7 +66,8 @@ class ProcessEventsTask(
 
     /**
      * Updates the alarms of the given event according to the [subscription]'s
-     * [Subscription.defaultAlarmMinutes] and [Subscription.ignoreEmbeddedAlerts]
+     * [Subscription.defaultAlarmMinutes], [Subscription.defaultAllDayAlarmMinutes] and
+     * [Subscription.ignoreEmbeddedAlerts]
      * parameters.
      * @since 20221208
      * @param event The event to update.
@@ -77,10 +79,12 @@ class ProcessEventsTask(
             Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
             alarms.clear()
         }
-        subscription.defaultAlarmMinutes?.let { minutes ->
-            // Check if already added alarm
-            val alarm = alarms.find { it.description.value.contains("*added by ICSx5") }
-            if (alarm != null) return@let
+        val isAllDay = DateUtils.isDate(dtStart)
+        val alarmMinutes = if (isAllDay)
+            subscription.defaultAllDayAlarmMinutes
+        else
+            subscription.defaultAlarmMinutes
+        if (alarmMinutes != null) {
             // Add the default alarm to the event
             Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
             alarms.add(
@@ -91,7 +95,7 @@ class ProcessEventsTask(
                         // Set action to DISPLAY
                         add(Action.DISPLAY)
                         // Add the trigger x minutes before
-                        val duration = Duration.ofMinutes(-minutes)
+                        val duration = Duration.ofMinutes(-alarmMinutes)
                         add(Trigger(duration))
                     }
                 )

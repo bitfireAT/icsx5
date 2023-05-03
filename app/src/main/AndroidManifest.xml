@@ -120,7 +120,7 @@
             android:name=".ui.EditCalendarActivity"
             android:label="@string/activity_edit_calendar"
             android:parentActivityName=".ui.CalendarListActivity"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".ui.ColorPickerActivity" />
         <activity
             android:name=".ui.InfoActivity"

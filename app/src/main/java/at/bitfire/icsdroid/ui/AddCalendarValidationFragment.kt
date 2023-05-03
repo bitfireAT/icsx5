@@ -23,23 +23,23 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import java.io.InputStream
+import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
-import java.io.InputStream
-import java.io.InputStreamReader
 
 class AddCalendarValidationFragment: DialogFragment() {
 
-    private val titleColorModel by activityViewModels<TitleColorFragment.TitleColorModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
 
     private val validationModel by viewModels<ValidationModel> {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val uri = Uri.parse(titleColorModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
+                val uri = Uri.parse(subscriptionSettingsModel.url.value ?: throw IllegalArgumentException("No URL given"))!!
                 val authenticate = credentialsModel.requiresAuth.value ?: false
                 return ValidationModel(
                     requireActivity().application,
@@ -60,13 +60,13 @@ class AddCalendarValidationFragment: DialogFragment() {
 
             val exception = info.exception
             if (exception == null) {
-                titleColorModel.url.value = info.uri.toString()
+                subscriptionSettingsModel.url.value = info.uri.toString()
 
-                if (titleColorModel.color.value == null)
-                    titleColorModel.color.value = info.calendarColor ?: resources.getColor(R.color.lightblue)
+                if (subscriptionSettingsModel.color.value == null)
+                    subscriptionSettingsModel.color.value = info.calendarColor ?: resources.getColor(R.color.lightblue)
 
-                if (titleColorModel.title.value.isNullOrBlank())
-                    titleColorModel.title.value = info.calendarName ?: info.uri.toString()
+                if (subscriptionSettingsModel.title.value.isNullOrBlank())
+                    subscriptionSettingsModel.title.value = info.calendarName ?: info.uri.toString()
 
                 parentFragmentManager
                     .beginTransaction()

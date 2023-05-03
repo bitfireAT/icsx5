@@ -13,6 +13,7 @@
     <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_grant">Grant</string>
+    <string name="install_browser">Please install a Web browser</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
@@ -25,6 +26,7 @@
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="settings_force_dark_theme">Force dark theme</string>
+    <string name="calendar_list_privacy_policy">Privacy policy</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
@@ -46,7 +48,9 @@
     <string name="add_calendar_alarms_ignore_title">Ignore alerts embed in the calendar</string>
     <string name="add_calendar_alarms_ignore_description">If enabled, all the incoming alarms from the server will be dismissed.</string>
     <string name="add_calendar_alarms_default_title">Add a default alarm for all events</string>
-    <string name="add_calendar_alarms_default_description" formatted="true">Alarms set to <b>%s</b> before</string>
+    <string name="add_calendar_alarms_default_all_day_title">Add a default alarm for all-day events</string>
+    <string name="add_calendar_alarms_default_description" formatted="true">Alarm <b>%s</b> before start</string>
+    <string name="add_calendar_alarms_default_none">No default alarm</string>
     <string name="default_alarm_dialog_title">Add default alarm</string>
     <string name="default_alarm_dialog_message">This will add an alarm for all events</string>
     <string name="default_alarm_dialog_hint">Minutes before event</string>
