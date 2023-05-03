@@ -30,6 +30,7 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE url=:url")
     fun getByUrl(url: String): Subscription?
 
+    @Transaction
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
 
