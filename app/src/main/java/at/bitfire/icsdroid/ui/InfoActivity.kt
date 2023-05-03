@@ -126,7 +126,9 @@ class InfoActivity: AppCompatActivity() {
                         .toBitmap()
                         .asImageBitmap(),
                     contentDescription = null,
-                    modifier = Modifier.size(72.dp)
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .size(72.dp)
                 )
                 Text(
                     text = stringResource(R.string.app_name),
