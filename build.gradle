@@ -5,7 +5,7 @@ buildscript {
         okhttp: '5.0.0-alpha.11',
         ksp: '1.0.10',
         room: '2.5.1',
-        compose: '1.4.4',
+        compose: '1.4.6',
         composeBom: '2023.01.00'
     ]
 
