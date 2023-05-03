@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
@@ -115,28 +116,22 @@ class InfoActivity: AppCompatActivity() {
             if (showingDonateDialog)
                 TextDialog(R.string.donate_message) { showingDonateDialog = false }
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        bitmap = context.applicationInfo
-                            .loadIcon(context.packageManager)
-                            .toBitmap()
-                            .asImageBitmap(),
-                        contentDescription = null,
-                        modifier = Modifier.size(72.dp)
-                    )
-                }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    bitmap = context.applicationInfo
+                        .loadIcon(context.packageManager)
+                        .toBitmap()
+                        .asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier.size(72.dp)
+                )
                 Text(
                     text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.h5,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.fillMaxWidth()
+                    color = MaterialTheme.colors.onBackground
                 )
                 Text(
                     text = stringResource(
@@ -145,14 +140,12 @@ class InfoActivity: AppCompatActivity() {
                         BuildConfig.FLAVOR
                     ),
                     style = MaterialTheme.typography.subtitle1,
-                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.onBackground.copy(
                         alpha = ContentAlpha.medium
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    )
                 )
 
-                Row {
+                Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = { showingLicenseDialog = true },
                         modifier = Modifier
@@ -172,11 +165,9 @@ class InfoActivity: AppCompatActivity() {
                 Text(
                     text = stringResource(R.string.app_info_description),
                     style = MaterialTheme.typography.subtitle2,
-                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.onBackground.copy(
                         alpha = ContentAlpha.medium
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    )
                 )
             }
         }
