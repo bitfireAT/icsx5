@@ -1,10 +1,12 @@
 buildscript {
     ext.versions = [
-        aboutLibs: '8.9.4',
+        aboutLibs: '10.6.2',
         kotlin: '1.8.20',
         okhttp: '5.0.0-alpha.11',
-        ksp: '1.0.10',
-        room: '2.5.1'
+        ksp: '1.0.11',
+        room: '2.5.1',
+        compose: '1.4.6',
+        composeBom: '2023.04.01'        // https://developer.android.com/jetpack/compose/bom
     ]
 
     repositories {
