@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'com.arnyminerz.locator'
 
 android {
     compileSdkVersion 33
