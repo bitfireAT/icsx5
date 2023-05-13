@@ -6,7 +6,7 @@ apply plugin: 'com.google.devtools.ksp'
 
 android {
     compileSdkVersion 33
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '33.0.2'
 
     namespace 'at.bitfire.icsdroid'
 
@@ -36,15 +36,14 @@ android {
 
     buildFeatures {
         buildConfig = true
-        viewBinding = true
-        dataBinding = true
         compose = true
+        dataBinding = true
+        viewBinding = true
     }
 
     composeOptions {
-        // Keep this in sync with Kotlin version:
-        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "${versions.compose}"
+        // Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = '1.4.7'
     }
 
     flavorDimensions "distribution"
@@ -85,7 +84,7 @@ android {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
     implementation project(':cert4android')

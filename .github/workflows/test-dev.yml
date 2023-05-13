@@ -5,18 +5,20 @@ jobs:
     name: Tests without emulator
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
       - uses: gradle/gradle-build-action@v2
 
       - name: Check
-        run: ./gradlew --no-daemon app:lintStandardDebug app:testStandardDebugUnitTest
+        run: ./gradlew app:lintStandardDebug app:testStandardDebugUnitTest
+
       - name: Archive results
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: test-results
@@ -31,10 +33,10 @@ jobs:
       matrix:
         api-level: [31]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
@@ -74,7 +76,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew --no-daemon app:connectedStandardDebugAndroidTest
+          script: ./gradlew app:connectedStandardDebugAndroidTest
 
       - name: Archive results
         if: always()
