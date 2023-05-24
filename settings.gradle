@@ -4,4 +4,4 @@ pluginManagement {
     }
 }
 
-include ':app', ':cert4android', ':ical4android'
+include ':app', ':ical4android'

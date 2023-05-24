@@ -7,20 +7,23 @@
 
 -dontobfuscate
 
--optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
--optimizationpasses 5
--allowaccessmodification
--dontpreverify
+# ical4j: keep all iCalendar properties/parameters (used via reflection)
+-keep class net.fortuna.ical4j.** { *; }
 
-# ical4j: ignore unused dynamic libraries
--dontwarn aQute.**
--dontwarn groovy.**                       # Groovy-based ContentBuilder not used
--dontwarn javax.cache.**                  # no JCache support in Android
--dontwarn net.fortuna.ical4j.model.**
--dontwarn org.codehaus.groovy.**
--dontwarn org.apache.log4j.**             # ignore warnings from log4j dependency
--keep class net.fortuna.ical4j.** { *; }  # keep all model classes (properties/factories, created at runtime)
--keep class org.threeten.bp.** { *; }     # keep ThreeTen (for time zone processing)
+# we use enum classes (https://www.guardsquare.com/en/products/proguard/manual/examples#enumerations)
+-keepclassmembers,allowoptimization enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
 
 # keep ICSx⁵ and ical4android
 -keep class at.bitfire.** { *; }	# all ICSx⁵ code is required
+
+# Additional rules which are now required since missing classes can't be ignored in R8 anymore.
+# [https://developer.android.com/build/releases/past-releases/agp-7-0-0-release-notes#r8-missing-class-warning]
+-dontwarn groovy.**
+-dontwarn java.beans.Transient
+-dontwarn org.codehaus.groovy.**
+-dontwarn org.joda.**
+-dontwarn org.json.*
+-dontwarn org.xmlpull.**
