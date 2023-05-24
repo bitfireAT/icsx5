@@ -34,7 +34,7 @@ class AddCalendarDetailsFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val invalidateOptionsMenu = Observer<Any> {
+        val invalidateOptionsMenu = Observer<Any?> {
             requireActivity().invalidateOptionsMenu()
         }
         subscriptionSettingsModel.title.observe(this, invalidateOptionsMenu)

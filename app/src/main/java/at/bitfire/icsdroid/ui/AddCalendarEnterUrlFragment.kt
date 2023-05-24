@@ -42,7 +42,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val invalidate = Observer<Any> {
+        val invalidate = Observer<Any?> {
             requireActivity().invalidateOptionsMenu()
         }
         arrayOf(
