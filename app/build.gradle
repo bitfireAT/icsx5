@@ -87,13 +87,13 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
-    implementation project(':cert4android')
+    implementation 'com.github.bitfireAT:cert4android:3817e62d9f173d8f8b800d24769f42cb205f560e'
     implementation project(':ical4android')
 
     implementation 'androidx.activity:activity-compose:1.7.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
@@ -115,7 +115,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
     implementation "com.squareup.okhttp3:okhttp-brotli:${versions.okhttp}"
     implementation "com.squareup.okhttp3:okhttp-coroutines:${versions.okhttp}"
-    implementation "joda-time:joda-time:2.12.1"
+    implementation "joda-time:joda-time:2.12.5"
 
     // latest commons that don't require Java 8
     //noinspection GradleDependency
