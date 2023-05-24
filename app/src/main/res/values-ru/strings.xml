@@ -6,19 +6,23 @@
   <string name="calendar_permissions_required">Необходимы разрешения для работы с календарем</string>
   <string name="notification_permissions_required">Требуются разрешения на отправку уведомлений</string>
   <string name="could_not_load_calendar">Не удалось загрузить календарь</string>
+  <string name="no_browser">Браузер не установлен</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <string name="permissions_required">Требуются разрешения</string>
   <string name="permissions_grant">Предоставить</string>
+  <string name="install_browser">Пожалуйста, установите браузер</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
   <string name="calendar_list_empty_info">Для подписки на ленту Webcal используйте кнопку + или откройте веб-адрес Webcal.</string>
   <string name="calendar_list_info">О ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">еще не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
+  <string name="calendar_list_synchronize">Синхронизировать сейчас</string>
   <string name="calendar_list_battery_whitelist">Батарея: внесите ICSx⁵ в белый список для использования небольших интервалов синхронизации</string>
   <string name="calendar_list_battery_whitelist_settings">Настройки</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Темная тема</string>
+  <string name="calendar_list_privacy_policy">Политика конфиденциальности</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Подписаться на календарь</string>
   <string name="add_calendar_need_valid_uri">Требуется корректный URI</string>
@@ -30,7 +34,6 @@
   <string name="add_calendar_title">Название и цвет</string>
   <string name="add_calendar_title_hint">Название календаря</string>
   <string name="add_calendar_url_text">Введите адрес Webcal:</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">Или выберите файл из локального хранилища.</string>
   <string name="add_calendar_pick_file">Выбрать файл</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
@@ -39,7 +42,9 @@
   <string name="add_calendar_alarms_ignore_title">Игнорировать оповещения, встроенные в календарь</string>
   <string name="add_calendar_alarms_ignore_description">Если включено, все входящие оповещения с сервера будут отклонены.</string>
   <string name="add_calendar_alarms_default_title">Добавить оповещение по умолчанию для всех событий</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">Оповещения, установленные до <b>%s</b></string>
+  <string name="add_calendar_alarms_default_all_day_title">Добавьте оповещение по умолчанию для событий на весь день</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">Оповещение за <b>%s</b> до начала</string>
+  <string name="add_calendar_alarms_default_none">Нет оповещений по умолчанию</string>
   <string name="default_alarm_dialog_title">Добавить оповещение по умолчанию</string>
   <string name="default_alarm_dialog_message">Это добавит оповещение для всех событий</string>
   <string name="default_alarm_dialog_hint">За несколько минут до события</string>
@@ -79,17 +84,13 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_version">Версия %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-Эта программа является свободным программным обеспечением:
-вы можете распространять ее и/или изменять в соответствии с условиями лицензии GNU General Public License, опубликованной Фондом свободного программного обеспечения,
-либо версии 3 Лицензии, либо (по вашему выбору) любой более поздней версии.
-Эта программа распространяется в надежде, что она окажется полезной,
-но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии товарного качества 
-или пригодности для конкретной цели.
-См. GNU General Public License для более подробной информации.
-Вы должны были получить копию Стандартной общественной лицензии GNU вместе с этой программой.
-Если это не так, см. <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
-    ]]></string>
+  <string name="app_info_gplv3_note"><![CDATA[\"
+Эта программа является свободным программным обеспечением: вы можете распространять ее и/или изменять в соответствии с условиями General Public License GNU, опубликованной Фондом свободного программного обеспечения, либо версии 3 Лицензии, либо (по вашему выбору) любой более поздней версии.
+
+Эта программа распространяется в надежде, что она окажется полезной, но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии товарного качества или пригодности для конкретной цели. См. General Public License GNU для более подробной информации.
+
+Вы должны были получить копию General Public License GNU вместе с этой программой. Если этого не произошло, см. <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    \"]]></string>
   <string name="app_info_donate">Пожертвовать</string>
   <string name="app_info_description">Подписаться на календари Webcal</string>
   <string name="app_info_twitter">Новости и обновления</string>

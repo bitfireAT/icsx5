@@ -28,7 +28,6 @@
   <string name="add_calendar_title">Titel &amp; Kleur</string>
   <string name="add_calendar_title_hint">Kalendernaam</string>
   <string name="add_calendar_url_text">Webcal-adres invoeren:</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">Of een bestand uit de lokale opslag kiezen.</string>
   <string name="add_calendar_pick_file">Bestand kiezen</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
@@ -37,7 +36,6 @@
   <string name="add_calendar_alarms_ignore_title">Negeer ingebouwde kalender-herinneringen</string>
   <string name="add_calendar_alarms_ignore_description">Bij inschakelen worden alle inkomende herinneringen van de server genegeerd.</string>
   <string name="add_calendar_alarms_default_title">Voeg een standaard herinnering toe voor elke gebeurtenis</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">Herinnering instellen op <b>%s</b> voor</string>
   <string name="default_alarm_dialog_title">Standaard herinnering toevoegen</string>
   <string name="default_alarm_dialog_message">Dit voegt een herinnering voor alle gebeurtenissen toe</string>
   <string name="default_alarm_dialog_hint">Minuten voor gebeurtenis</string>
@@ -77,20 +75,6 @@
   <!--InfoActivity-->
   <string name="activity_app_info">App-info</string>
   <string name="app_info_version">Versie %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-Dit programma is vrije software: u kunt het opnieuw distribueren en/of 
-wijzigen conform de voorwaarden van de GNU General Public License 
-zoals gepubliceerd door de Free Software Foundation, ofwel versie 3 
-van de licentie, of (naar keuze) een latere versie
-
-Dit programma wordt verspreid in de hoop dat het nuttig is, maar
-ZONDER ENIGE GARANTIE; zelfs zonder de impliciete garanties van
-VERKOOPBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL.
-Zie de GNU General Public License voor meer details.
-
-U moet een kopie hebben gekregen van de GNU General Public License
-bij dit programma. Zo niet, zie <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
-    ]]></string>
   <string name="app_info_donate">Doneren</string>
   <string name="app_info_description">Op Webcal feeds abonneren</string>
   <string name="app_info_twitter">Nieuws &amp; updates</string>

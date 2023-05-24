@@ -6,19 +6,23 @@
   <string name="calendar_permissions_required">请授予访问日历的权限</string>
   <string name="notification_permissions_required">需要通知权限</string>
   <string name="could_not_load_calendar">无法加载日历</string>
+  <string name="no_browser">未安装浏览器</string>
   <string name="notification_channel_sync_problem">同步问题</string>
   <string name="permissions_required">需要权限</string>
   <string name="permissions_grant">授予</string>
+  <string name="install_browser">请安装网络浏览器</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">我的订阅</string>
   <string name="calendar_list_empty_info">如需订阅Webcal源，请点击 + 按钮或打开Webcal的URL地址</string>
   <string name="calendar_list_info">关于ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">尚未同步</string>
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
+  <string name="calendar_list_synchronize">立即同步</string>
   <string name="calendar_list_battery_whitelist">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
   <string name="calendar_list_battery_whitelist_settings">设置</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">强制深色主题</string>
+  <string name="calendar_list_privacy_policy">隐私政策</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">订阅至日历</string>
   <string name="add_calendar_need_valid_uri">URI无效</string>
@@ -30,7 +34,6 @@
   <string name="add_calendar_title">标题 &amp; 颜色</string>
   <string name="add_calendar_title_hint">日历名称</string>
   <string name="add_calendar_url_text">输入 Webcal 地址</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">或者从本地存储选择一个文件 </string>
   <string name="add_calendar_pick_file">选择文件</string>
   <string name="add_calendar_user_name">用户名</string>
@@ -39,7 +42,9 @@
   <string name="add_calendar_alarms_ignore_title">忽略嵌入在日历中的警报</string>
   <string name="add_calendar_alarms_ignore_description">一旦启用，所有之后来自该服务器的闹铃都将被无视。</string>
   <string name="add_calendar_alarms_default_title">为所有事件添加默认闹铃</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">闹铃设为事件发生前 <b>%s</b></string>
+  <string name="add_calendar_alarms_default_all_day_title">为全天事件添加默认闹铃</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">开始前 <b>%s</b>响铃</string>
+  <string name="add_calendar_alarms_default_none">无默认闹铃</string>
   <string name="default_alarm_dialog_title">添加默认闹铃</string>
   <string name="default_alarm_dialog_message">这会为所有事件添加一个闹铃</string>
   <string name="default_alarm_dialog_hint">事件开始多少分钟</string>
@@ -79,20 +84,20 @@
   <!--InfoActivity-->
   <string name="activity_app_info">应用信息</string>
   <string name="app_info_version">版本 %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-这是一个免费应用，您可以按照Free Software Foundation的
-GNU General Public License 3
-( 或您偏好的更高版本 )
-进行发行及修改。
+  <string name="app_info_gplv3_note"><![CDATA[\"
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-此应用的发行旨在提供帮助，
-但并不因此产生任何担保责任，包括
-适销性或任何特殊用途，
-更多信息请参阅GNU General Public License。
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-您应该在下载应用的同时收到一份
-GNU General Public License，如果没有，请参阅 <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
-    ]]></string>
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    \"]]></string>
   <string name="app_info_donate">捐赠</string>
   <string name="app_info_description">订阅Webcal源</string>
   <string name="app_info_twitter">新闻 &amp; 更新</string>

@@ -58,12 +58,6 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Info de la app</string>
   <string name="app_info_version">%2$sVersión %1$s-</string>
-  <string name="app_info_gplv3_note">&lt;![CDATA[
-Este programa es software libre: puedes redistribuirlo o modificarlo bajo los términos de la Licencia Pública General de GNU publicada por la Free Software Foundation, en la versión 3 de la Licencia o (a tu elección) cualquier versión posterior.
-
-Est programa se distribuye con la esperanza de que sea útil, pero SIN GARANTÍA; sin ni siquiera la garantía implícita de COMERCIABILIDAD o ADECUACIÓN A UN PROPÓSITO PARTICULAR. Véase  la Licencia Pública General de GN para más detalles.
-
-eberías haber recibido una copia de la Licencia Pública General de GNU junto con este programa. Si no es así, ver &lt;a href="https://www.gnu.org/licenses/"&gt;https://www.gnu.org/licenses/&lt;/a&gt;.</string>
   <string name="app_info_donate">Donar</string>
   <string name="app_info_description">Suscribirse a fuentes Webcal</string>
   <string name="app_info_twitter">Noticias y actualizaciones</string>

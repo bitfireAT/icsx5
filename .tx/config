@@ -1,6 +1,6 @@
 [main]
 host = https://www.transifex.com
-lang_map = pt_BR: pt-rBR, pt_PT: pt-rPT, ru_UA: ru-rUA, uk_UA: uk-rUA
+lang_map = pl_PL: pl-rPL, pt_BR: pt-rBR, pt_PT: pt-rPT, ru_UA: ru-rUA, uk_UA: uk-rUA
 
 [o:bitfireAT:p:icsx5:r:icsx5]
 file_filter  = app/src/main/res/values-<lang>/strings.xml

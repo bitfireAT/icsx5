@@ -4,15 +4,18 @@
   <!--common strings-->
   <string name="action_next">Següent</string>
   <string name="calendar_permissions_required">Cal permís d\'accés al calendari</string>
+  <string name="notification_permissions_required">Cal el permís de notificacions</string>
   <string name="could_not_load_calendar">No s\'ha pogut carregar el calendari</string>
   <string name="notification_channel_sync_problem">Problemes de sincronització</string>
   <string name="permissions_required">Permisos necessaris</string>
+  <string name="permissions_grant">Concedir</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Les meues subscripcions</string>
   <string name="calendar_list_empty_info">Per a subscriure\'t a un fil Webcal, prem el botó +, o obre una URL Webcal.</string>
   <string name="calendar_list_info">Sobre ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">encara no sincronitzat</string>
   <string name="calendar_list_set_sync_interval">Període de sincronització</string>
+  <string name="calendar_list_synchronize">Sincronitza ara</string>
   <string name="calendar_list_battery_whitelist">Bateria: afegeix ICSx⁵ a la llista blanca per a intervals curts</string>
   <string name="calendar_list_battery_whitelist_settings">Configuració</string>
   <!--settings, currently in CalendarListActivity-->
@@ -28,7 +31,6 @@
   <string name="add_calendar_title">Títol i Color</string>
   <string name="add_calendar_title_hint">Nom del calendari</string>
   <string name="add_calendar_url_text">Introdueix una direcció Webcal:</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">També pots seleccionar un fitxer de l\'emmagatzematge local.</string>
   <string name="add_calendar_pick_file">Tria un fitxer</string>
   <string name="add_calendar_user_name">Nom d\'usuari</string>
@@ -37,7 +39,9 @@
   <string name="add_calendar_alarms_ignore_title">Ignora les alertes incloses al calendari</string>
   <string name="add_calendar_alarms_ignore_description">Si està habilitat, totes les alarmes que vinguen del servidor seran eliminades.</string>
   <string name="add_calendar_alarms_default_title">Afegeix una alarma per defecte per als esdeveniments</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">Alarmes establertes per a <b>%s</b> abans</string>
+  <string name="add_calendar_alarms_default_all_day_title">Afegeix una alarma per defecte per als esdeveniments de tot el dia</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">Alarma <b>%s</b> abans de començar</string>
+  <string name="add_calendar_alarms_default_none">Cap alarma per defecte</string>
   <string name="default_alarm_dialog_title">Afegir alarma per defecte</string>
   <string name="default_alarm_dialog_message">Açò afegirà una alarma per a tots els esdeveniments</string>
   <string name="default_alarm_dialog_hint">Minuts abans de l\'esdeveniment</string>
@@ -77,19 +81,6 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Informació de l\'app</string>
   <string name="app_info_version">Versió %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-Aquest programa és gratuït: els pots redistribuir i/o modificar
-baix els termes de la GPU General Public License publicada per
-la Free Software Foundation, ja siga la versió 3, o qualsevol posterior.
-
-Aquest programa es distribuix amb l\'esperança que siga útil,
-però SENSE CAP GARANTIA; incloent la garantia implícita de
-COMERCIALITZACIÓ o d\'APTITUD PER A UN PROPÒSIT PARTICULAR.
-Pots veure la GNU General Public License per a més detalls.
-
-Hauries d\'haver rebut una còpia de la GNU General Public License
-amb aquest programa. Si no, pots veure <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
- ]]></string>
   <string name="app_info_donate">Donar</string>
   <string name="app_info_description">Subscriu-te a fils Webcal</string>
   <string name="app_info_twitter">Notícies i Novetats</string>

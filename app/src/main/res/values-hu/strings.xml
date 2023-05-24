@@ -27,7 +27,6 @@
   <string name="add_calendar_title">Cím és szín</string>
   <string name="add_calendar_title_hint">Naptár neve</string>
   <string name="add_calendar_url_text">Addja meg a Webcal címet:</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">Alternatívaként adjon meg egy az eszközön tárolt fájlt.</string>
   <string name="add_calendar_pick_file">Fájl kiválasztása</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
@@ -66,20 +65,6 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Alkalmazásinformáció</string>
   <string name="app_info_version">Verziószám: %1$s-%2$s </string>
-  <string name="app_info_gplv3_note"><![CDATA[
-Ez a program szabad szoftver; terjeszthető illetve módosítható
-a Free Software Foundation által kiadott GNU General Public License
-dokumentumában leírtak; akár a licenc 3-as, akár (tetszőleges) későbbi
-változata szerint. 
-
-Ez a program abban a reményben kerül közreadásra, hogy hasznos lesz, de 
-MINDEN EGYÉB GARANCIA NÉLKÜL, az eladhatóságra vagy valamely célra 
-való alkalmazhatóságra való származtatott garanciát is beleértve. További
-részleteket a GNU General Public License tartalmaz.
-
-E programmal együtt meg kellett kapnia  GNU General Public License egy példányát.
-Ha nem, megtalálja a <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a> címen.
-    ]]></string>
   <string name="app_info_donate">Támogatás</string>
   <string name="app_info_description">Feliratkozás egy Webcal folyamra</string>
   <string name="app_info_twitter">Hírek és frissítések</string>

@@ -3,15 +3,19 @@
   <string name="account_name">Abonnements à des calendriers</string>
   <!--common strings-->
   <string name="action_next">Suivant</string>
-  <string name="calendar_permissions_required">Permissions du calendrier requises</string>
+  <string name="calendar_permissions_required">Autorisations d\'agenda requises</string>
+  <string name="notification_permissions_required">Autorisations de notification requises</string>
   <string name="could_not_load_calendar">Impossible de charger le calendrier</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
+  <string name="permissions_required">Autorisations requises</string>
+  <string name="permissions_grant">Accorder</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mes abonnements</string>
   <string name="calendar_list_empty_info">Pour s\'abonner à un flux Webcal, utilisez le bouton + ou ouvrez une URL Webcal</string>
   <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Intervalle de synchro.</string>
+  <string name="calendar_list_synchronize">Synchroniser maintenant</string>
   <string name="calendar_list_battery_whitelist">Batterie : Ajoutez ICSx⁵ aux exceptions pour des intervalles de synchronisation courts</string>
   <string name="calendar_list_battery_whitelist_settings">Paramètres</string>
   <!--settings, currently in CalendarListActivity-->
@@ -27,11 +31,22 @@
   <string name="add_calendar_title">Intitulé &amp; couleur</string>
   <string name="add_calendar_title_hint">Nom du calendrier</string>
   <string name="add_calendar_url_text">Entrez une adresse Webcal : </string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
-  <string name="add_calendar_pick_file_text">Ou sinon, sélectionnez un fichier du stockage local. </string>
+  <string name="add_calendar_pick_file_text">Ou sélectionnez un fichier du stockage local. </string>
   <string name="add_calendar_pick_file">Choisir un fichier</string>
   <string name="add_calendar_user_name">Nom d\'utilisateur</string>
   <string name="add_calendar_validating">Validation du calendrier…</string>
+  <string name="add_calendar_alarms_title">Alarmes</string>
+  <string name="add_calendar_alarms_ignore_title">Ignorer les alertes inclues dans le calendrier</string>
+  <string name="add_calendar_alarms_ignore_description">Si activé, toutes les alarmes venant du serveur seront ignorées. </string>
+  <string name="add_calendar_alarms_default_title">Ajouter une alarme par défaut à tous les événements</string>
+  <string name="add_calendar_alarms_default_all_day_title">Ajouter une alarme par défaut pour les événements durant toute la journée</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">Alarme <b>%s</b> avant le début</string>
+  <string name="add_calendar_alarms_default_none">Pas d\'alarme par défaut</string>
+  <string name="default_alarm_dialog_title">Ajouter une alarme par défaut</string>
+  <string name="default_alarm_dialog_message">Ceci ajoutera une alarme à tous les événements</string>
+  <string name="default_alarm_dialog_hint">Minutes avant l\'événement</string>
+  <string name="default_alarm_dialog_set">Définir</string>
+  <string name="default_alarm_dialog_error">Ajouter un nombre valide</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Partager les détails</string>
   <!--EditCalendarActivity-->

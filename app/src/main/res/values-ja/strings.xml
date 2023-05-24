@@ -6,19 +6,23 @@
   <string name="calendar_permissions_required">カレンダーへのアクセスを許可してください</string>
   <string name="notification_permissions_required">通知を許可してください</string>
   <string name="could_not_load_calendar">カレンダーを読み込めませんでした</string>
+  <string name="no_browser">ブラウザーがインストールされていません</string>
   <string name="notification_channel_sync_problem">同期に問題が発生しました</string>
   <string name="permissions_required">権限を許可してください</string>
   <string name="permissions_grant">許可</string>
+  <string name="install_browser">ウェブブラウザーをインストールしてください</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">購読中のカレンダー</string>
   <string name="calendar_list_empty_info">+ ボタンから登録するか Webcal URL を開いて Webcal フィードを購読できます</string>
   <string name="calendar_list_info">ICSx⁵ について</string>
   <string name="calendar_list_not_synced_yet">まだ同期されていません</string>
   <string name="calendar_list_set_sync_interval">同期間隔を設定</string>
+  <string name="calendar_list_synchronize">今すぐ同期</string>
   <string name="calendar_list_battery_whitelist">バッテリー: 一定間隔で同期を実行するため ICSx⁵ をホワイトリストに追加してください</string>
   <string name="calendar_list_battery_whitelist_settings">設定</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">ダークテーマを使用</string>
+  <string name="calendar_list_privacy_policy">プライバシーポリシー</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">カレンダーを購読</string>
   <string name="add_calendar_need_valid_uri">有効な URI が必要です</string>
@@ -30,7 +34,6 @@
   <string name="add_calendar_title">件名と色</string>
   <string name="add_calendar_title_hint">カレンダーの名前</string>
   <string name="add_calendar_url_text">Webcal アドレスを入力:</string>
-  <string name="add_calendar_url_sample">https://example.com/webcal.ics</string>
   <string name="add_calendar_pick_file_text">ローカルストレージからファイルを選択することもできます</string>
   <string name="add_calendar_pick_file">ファイルを選択</string>
   <string name="add_calendar_user_name">ユーザー名</string>
@@ -38,11 +41,13 @@
   <string name="add_calendar_alarms_title">アラーム</string>
   <string name="add_calendar_alarms_ignore_title">カレンダーに埋め込まれた通知を無視</string>
   <string name="add_calendar_alarms_ignore_description">有効にすると、そのサーバーから送信されるすべてのアラームが無視されます</string>
-  <string name="add_calendar_alarms_default_title">すべてのイベントにデフォルトのアラームを追加</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">アラームは <b>%s</b>前に設定されます</string>
+  <string name="add_calendar_alarms_default_title">すべての予定にデフォルトのアラームを追加</string>
+  <string name="add_calendar_alarms_default_all_day_title">終日の予定にデフォルトのアラームを追加</string>
+  <string name="add_calendar_alarms_default_description" formatted="true">開始 <b>%s</b>前にアラーム</string>
+  <string name="add_calendar_alarms_default_none">デフォルトのアラームはありません</string>
   <string name="default_alarm_dialog_title">デフォルトのアラームを追加</string>
-  <string name="default_alarm_dialog_message">設定すると、すべてのイベントにアラームを追加します</string>
-  <string name="default_alarm_dialog_hint">イベントの...分前</string>
+  <string name="default_alarm_dialog_message">設定すると、すべての予定にアラームを追加します</string>
+  <string name="default_alarm_dialog_hint">予定の...分前</string>
   <string name="default_alarm_dialog_set">設定</string>
   <string name="default_alarm_dialog_error">有効な数字を入力してください</string>
   <!--AlertFragment-->
@@ -79,13 +84,14 @@
   <!--InfoActivity-->
   <string name="activity_app_info">アプリ情報</string>
   <string name="app_info_version">バージョン %1$s-%2$s</string>
-  <string name="app_info_gplv3_note"><![CDATA[
-このプログラムは自由ソフトウェアです: Free Software Foundation が定義する GNU General Public License の バージョン 3 以降の任意のバージョンの下で変更・再頒布できます
+  <string name="app_info_gplv3_note"><![CDATA[\"
+このプログラムはフリーソフトウェアです。あなたはこれを、フリーソフトウェア財団によって発行された GNU 一般公衆利用許諾書 (バージョン 3 か、それ以降のバージョンのうちどれか) が定める条件の下で再頒布または改変することができます。
 
-このプログラムは、あなたの役に立つことを期待して配布されていますが、いかなる保証もありません。商品適格性または特定目的適合性の暗黙の保証もありません。詳細については、GNU General Public License を参照してください。
+このプログラムは有用であることを願って頒布されますが、*全くの無保証* です。商業可能性の保証や特定目的への適合性は、言外に示されたものも含め、全く存在しません。詳しくは GNU 一般公衆利用許諾書をご覧ください。
 
-このプログラムと同時に GNU General Public License のコピーを受け取っているはずです。もし確認できない場合は <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a> を参照してください。
-    ]]></string>
+あなたはこのプログラムと共に、GNU 一般公衆利用許諾書のコピーを一部受け取っ
+ているはずです。もし受け取っていなければ、<a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a> をご覧ください。
+    \"]]></string>
   <string name="app_info_donate">寄付</string>
   <string name="app_info_description">Webcal フィードを購読</string>
   <string name="app_info_twitter">ニュース &amp; アップデート</string>
@@ -93,5 +99,5 @@
   <string name="donate_title">オープンソース情報</string>
   <string name="donate_message">オープンソースソフトウェア (GPLv3) として ICSx⁵ をお届けできることをとても嬉しく思っています。ICSx⁵ の開発と維持を支える寄付をご検討ください。</string>
   <string name="donate_now">寄付ページを表示</string>
-  <string name="donate_later">後で</string>
+  <string name="donate_later">あとで</string>
 </resources>
