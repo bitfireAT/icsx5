@@ -13,7 +13,7 @@ time tables of your school/university or event files of your sports team).
 
 Please see the [ICSx⁵ Web site](https://icsx5.bitfire.at) for comprehensive information about ICSx⁵.
 
-News and updates: [@icsx5app](https://twitter.com/icsx5app)
+News and updates: [@davx5app@fosstodon.org](https://fosstodon.org/@davx5app)
 
 Help, discussion, ideas, bug reports: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
 
