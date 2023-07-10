@@ -129,10 +129,4 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     <string name="donate_now">Show donation page</string>
     <string name="donate_later">Maybe later</string>
 
-    <!-- ColorPickerDialog -->
-    <string name="color_picker_title">Pick a Color</string>
-    <string name="color_picker_field">Color Hex</string>
-    <string name="color_picker_confirm">Confirm</string>
-    <string name="color_picker_dismiss">Dismiss</string>
-
 </resources>
