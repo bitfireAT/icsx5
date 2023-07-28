@@ -44,7 +44,7 @@ fun SyncIntervalDialog(
         title = {
             Text(
                 text = stringResource(R.string.set_sync_interval_title),
-                style = MaterialTheme.typography.subtitle1,
+                style = MaterialTheme.typography.subtitle1
             )
         },
         text = {
