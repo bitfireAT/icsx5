@@ -65,6 +65,7 @@ import androidx.lifecycle.map
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.CalendarListItem
 import com.google.accompanist.themeadapter.material.MdcTheme
 import kotlinx.coroutines.CoroutineScope
@@ -224,15 +225,23 @@ class CalendarListActivity: AppCompatActivity() {
             Icon(Icons.Rounded.MoreVert, null)
         }
 
+        var showingSyncIntervalDialog by remember { mutableStateOf(false) }
+        if (showingSyncIntervalDialog)
+            SyncIntervalDialog(
+                onSetSyncInterval = {
+                    AppAccount.syncInterval(this, it)
+                    showingSyncIntervalDialog = false
+
+                    CoroutineScope(Dispatchers.IO).launch { checkSyncSettings() }
+                }
+            ) { showingSyncIntervalDialog = false }
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                onClick = {
-                    // TODO - migrate to Jetpack Compose
-                    SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
-                }
+                onClick = { showingSyncIntervalDialog = true }
             ) {
                 Text(stringResource(R.string.calendar_list_set_sync_interval))
             }

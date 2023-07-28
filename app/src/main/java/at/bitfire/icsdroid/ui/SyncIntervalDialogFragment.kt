@@ -13,6 +13,7 @@ import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.SetSyncIntervalBinding
 
+@Deprecated("Migrate to Jetpack Compose")
 class SyncIntervalDialogFragment: DialogFragment() {
 
     @SuppressLint("InflateParams")
