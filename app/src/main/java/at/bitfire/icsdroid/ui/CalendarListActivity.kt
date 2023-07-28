@@ -151,16 +151,6 @@ class CalendarListActivity: AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_calendar_list, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.force_dark_mode).isChecked = Settings(this).forceDarkMode()
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     override fun onResume() {
         super.onResume()
 
