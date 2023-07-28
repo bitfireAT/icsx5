@@ -322,11 +322,11 @@ class CalendarListActivity: AppCompatActivity() {
 
     /* actions */
 
-    fun onRefreshRequested() {
+    private fun onRefreshRequested() {
         SyncWorker.run(this, true)
     }
 
-    fun onToggleDarkMode() {
+    private fun onToggleDarkMode() {
         val settings = Settings(this)
         val newMode = !settings.forceDarkMode()
         settings.forceDarkMode(newMode)
