@@ -66,7 +66,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 onSubscriptionLoaded(data)
         }
 
-        val invalidate = Observer<Any> {
+        val invalidate = Observer<Any?> {
             invalidateOptionsMenu()
         }
         arrayOf(
