@@ -221,8 +221,7 @@ class CalendarListActivity: AppCompatActivity() {
         var expanded by remember { mutableStateOf(false) }
 
         IconButton(onClick = { expanded = true }) {
-            // FIXME - Complete content description
-            Icon(Icons.Rounded.MoreVert, null)
+            Icon(Icons.Rounded.MoreVert, stringResource(R.string.action_more))
         }
 
         var showingSyncIntervalDialog by remember { mutableStateOf(false) }

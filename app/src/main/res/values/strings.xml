@@ -15,6 +15,7 @@
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_grant">Grant</string>
     <string name="install_browser">Please install a Web browser</string>
+    <string name="action_more">More</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
