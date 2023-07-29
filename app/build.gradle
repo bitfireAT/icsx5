@@ -81,6 +81,10 @@ android {
             excludes += ['META-INF/*.md']
         }
     }
+
+    androidResources {
+        generateLocaleConfig true
+    }
 }
 
 configurations {
