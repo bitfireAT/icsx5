@@ -203,23 +203,24 @@ class CalendarListActivity: AppCompatActivity() {
             Icon(Icons.Rounded.MoreVert, stringResource(R.string.action_more))
         }
 
-        var showingSyncIntervalDialog by remember { mutableStateOf(false) }
-        if (showingSyncIntervalDialog)
+        var showSyncIntervalDialog by remember { mutableStateOf(false) }
+        if (showSyncIntervalDialog)
             SyncIntervalDialog(
-                onSetSyncInterval = {
-                    AppAccount.syncInterval(this, it)
-                    showingSyncIntervalDialog = false
+                currentInterval = AppAccount.syncInterval(this),
+                onSetSyncInterval = { seconds ->
+                    AppAccount.syncInterval(this, seconds)
+                    showSyncIntervalDialog = false
 
                     CoroutineScope(Dispatchers.IO).launch { checkSyncSettings() }
                 }
-            ) { showingSyncIntervalDialog = false }
+            ) { showSyncIntervalDialog = false }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                onClick = { showingSyncIntervalDialog = true }
+                onClick = { showSyncIntervalDialog = true }
             ) {
                 Text(stringResource(R.string.calendar_list_set_sync_interval))
             }
