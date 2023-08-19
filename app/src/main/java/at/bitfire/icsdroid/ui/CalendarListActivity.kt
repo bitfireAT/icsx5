@@ -31,6 +31,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
@@ -63,14 +65,13 @@ class CalendarListActivity: AppCompatActivity() {
     }
 
     private val model by viewModels<SubscriptionsModel>()
+    val settings by lazy { Settings(this) }
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
     private lateinit var requestCalendarPermissions: () -> Unit
 
     /** Stores the post notification permission request for asking for permissions during runtime */
     private lateinit var requestNotificationPermission: () -> Unit
-
-    private val snackBarHostState: SnackbarHostState by lazy { SnackbarHostState() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,10 +98,7 @@ class CalendarListActivity: AppCompatActivity() {
 
         setContent {
             MdcTheme {
-                val snackbarHostState = remember { snackBarHostState }
-
                 Scaffold(
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
@@ -120,7 +118,7 @@ class CalendarListActivity: AppCompatActivity() {
                                 Text(stringResource(R.string.title_activity_calendar_list))
                             },
                             actions = {
-                                TopBarDropdown()
+                                ActionOverflowMenu()
                             }
                         )
                     }
@@ -134,9 +132,7 @@ class CalendarListActivity: AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            checkSyncSettings()
-        }
+        // model.reload()     // TODO only call if model can't observe state dynamically itself
     }
 
     /* UI components */
@@ -194,16 +190,16 @@ class CalendarListActivity: AppCompatActivity() {
     }
 
     @Composable
-    fun TopBarDropdown() {
+    fun ActionOverflowMenu() {
         val context = LocalContext.current
-        val settings = remember { Settings(context) }
-        var expanded by remember { mutableStateOf(false) }
 
-        IconButton(onClick = { expanded = true }) {
+        var showMenu by remember { mutableStateOf(false) }
+
+        IconButton(onClick = { showMenu = true }) {
             Icon(Icons.Rounded.MoreVert, stringResource(R.string.action_more))
         }
 
-        var showSyncIntervalDialog by remember { mutableStateOf(false) }
+        var showSyncIntervalDialog by rememberSaveable { mutableStateOf(false) }
         if (showSyncIntervalDialog)
             SyncIntervalDialog(
                 currentInterval = AppAccount.syncInterval(this),
@@ -211,26 +207,37 @@ class CalendarListActivity: AppCompatActivity() {
                     AppAccount.syncInterval(this, seconds)
                     showSyncIntervalDialog = false
 
-                    CoroutineScope(Dispatchers.IO).launch { checkSyncSettings() }
-                }
-            ) { showSyncIntervalDialog = false }
+                    // TODO logic should not be in UI, but in model
+                    // CoroutineScope(Dispatchers.IO).launch { checkSyncSettings() }
+                },
+                onDismiss = { showSyncIntervalDialog = false }
+            )
 
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false }
         ) {
             DropdownMenuItem(
-                onClick = { showSyncIntervalDialog = true }
+                onClick = {
+                    showMenu = false
+                    showSyncIntervalDialog = true
+                }
             ) {
                 Text(stringResource(R.string.calendar_list_set_sync_interval))
             }
             DropdownMenuItem(
-                onClick = ::onRefreshRequested
+                onClick = {
+                    showMenu = false
+                    onRefreshRequested()
+                }
             ) {
                 Text(stringResource(R.string.calendar_list_synchronize))
             }
             DropdownMenuItem(
-                onClick = ::onToggleDarkMode
+                onClick =  {
+                    showMenu = false
+                    onToggleDarkMode()
+                }
             ) {
                 val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
 
@@ -242,6 +249,7 @@ class CalendarListActivity: AppCompatActivity() {
             }
             DropdownMenuItem(
                 onClick = {
+                    showMenu = false
                     UriUtils.launchUri(context, Uri.parse(PRIVACY_POLICY_URL))
                 }
             ) {
@@ -249,6 +257,7 @@ class CalendarListActivity: AppCompatActivity() {
             }
             DropdownMenuItem(
                 onClick = {
+                    showMenu = false
                     startActivity(Intent(context, InfoActivity::class.java))
                 }
             ) {
@@ -265,8 +274,9 @@ class CalendarListActivity: AppCompatActivity() {
      * Blocks the current thread until the Snackbar is hidden, or the action to be performed is
      * completed.
      */
+    @Deprecated("TODO Logic like permissions should be moved to Model; permanent warnings should be shown as regular box above the subscriptions instead of a Snackbar")
     private suspend fun checkSyncSettings() {
-        when {
+        /*when {
             // notification permissions are granted
             !PermissionUtils.haveNotificationPermission(this) -> {
                 val response = snackBarHostState.showSnackbar(
@@ -303,7 +313,7 @@ class CalendarListActivity: AppCompatActivity() {
                     startActivity(intent)
                 }
             }
-        }
+        }*/
     }
 
 
@@ -322,6 +332,14 @@ class CalendarListActivity: AppCompatActivity() {
 
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
+
+        // TODO
+        val askForCalendarPermission = MutableLiveData(false)
+        val askForNotificationPermission = MutableLiveData(false)
+
+        // TODO
+        val askForWhitelisting = MutableLiveData(false)
+        
 
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->

@@ -6,6 +6,7 @@
     <string name="account_type" translatable="false">at.bitfire.icsdroid</string>
 
     <!-- common strings -->
+    <string name="action_more">More</string>
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
     <string name="notification_permissions_required">Notification permissions required</string>
@@ -15,7 +16,6 @@
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_grant">Grant</string>
     <string name="install_browser">Please install a Web browser</string>
-    <string name="action_more">More</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
