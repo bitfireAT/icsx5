@@ -16,44 +16,21 @@ import android.view.*
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Checkbox
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.SnackbarResult
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -64,6 +41,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
+import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.CalendarListItem
@@ -93,6 +71,7 @@ class CalendarListActivity: AppCompatActivity() {
     private lateinit var requestNotificationPermission: () -> Unit
 
     private val snackBarHostState: SnackbarHostState by lazy { SnackbarHostState() }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -182,11 +161,11 @@ class CalendarListActivity: AppCompatActivity() {
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(subscriptions ?: emptyList()) { subscription ->
-                    CalendarListItem(subscription = subscription) {
+                    CalendarListItem(subscription = subscription, onClick = {
                         val intent = Intent(context, EditCalendarActivity::class.java)
                         intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
                         startActivity(intent)
-                    }
+                    })
                 }
             }
 
@@ -252,8 +231,7 @@ class CalendarListActivity: AppCompatActivity() {
             DropdownMenuItem(
                 onClick = ::onToggleDarkMode
             ) {
-                var forceDarkMode by remember { mutableStateOf(false) }
-                settings.ForceDarkModeSync { forceDarkMode = it }
+                val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
 
                 Text(stringResource(R.string.settings_force_dark_theme))
                 Checkbox(
@@ -280,7 +258,7 @@ class CalendarListActivity: AppCompatActivity() {
 
 
     /**
-     * Checks the current settings and permissions state, and shows an Snackbar using
+     * Checks the current settings and permissions state, and shows a Snackbar using
      * [snackBarHostState] if any action is necessary.
      *
      * Blocks the current thread until the Snackbar is hidden, or the action to be performed is
@@ -337,13 +315,8 @@ class CalendarListActivity: AppCompatActivity() {
     private fun onToggleDarkMode() {
         val settings = Settings(this)
         val newMode = !settings.forceDarkMode()
+
         settings.forceDarkMode(newMode)
-        AppCompatDelegate.setDefaultNightMode(
-            if (newMode)
-                AppCompatDelegate.MODE_NIGHT_YES
-            else
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        )
     }
 
 
