@@ -127,6 +127,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     <string name="app_info_description">Subscribe to Webcal feeds</string>
     <string name="app_info_twitter">News &amp; updates</string>
     <string name="app_info_web_site">Web site</string>
+    <string name="app_info_mastodon" translatable="false">Mastodon</string>
 
     <string name="donate_title">Open-Source Information</string>
     <string name="donate_message">We\'re happy that you use ICSx⁵, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSx⁵, please consider a donation.</string>
