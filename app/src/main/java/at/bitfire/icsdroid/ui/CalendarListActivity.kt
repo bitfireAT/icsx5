@@ -5,13 +5,11 @@
 package at.bitfire.icsdroid.ui
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.provider.Settings
 import android.view.*
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -38,9 +36,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
 import at.bitfire.icsdroid.R
@@ -48,7 +48,6 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.CalendarListItem
 import com.google.accompanist.themeadapter.material.MdcTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
@@ -207,8 +206,7 @@ class CalendarListActivity: AppCompatActivity() {
                     AppAccount.syncInterval(this, seconds)
                     showSyncIntervalDialog = false
 
-                    // TODO logic should not be in UI, but in model
-                    // CoroutineScope(Dispatchers.IO).launch { checkSyncSettings() }
+                    model.checkSyncSettings()
                 },
                 onDismiss = { showSyncIntervalDialog = false }
             )
@@ -350,6 +348,38 @@ class CalendarListActivity: AppCompatActivity() {
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
             .getAllLive()
+
+        init {
+            // When initialized, update the ask* fields
+            checkSyncSettings()
+        }
+
+        /**
+         * Performs all the checks necessary, and updates [askForCalendarPermission],
+         * [askForNotificationPermission] and [askForWhitelisting] which should be shown to the
+         * user through a Snackbar.
+         */
+        fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
+            val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
+            askForCalendarPermission.postValue(!haveNotificationPermission)
+
+            val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
+            askForNotificationPermission.postValue(!haveCalendarPermission)
+
+            val shouldWhitelistApp = if (Build.VERSION.SDK_INT >= 23) {
+                val powerManager = getApplication<Application>().getSystemService<PowerManager>()
+                val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
+
+                val syncInterval = AppAccount.syncInterval(getApplication())
+
+                // If not ignoring battery optimizations, and sync interval is less than a day
+                isIgnoringBatteryOptimizations == false && syncInterval < 86400
+            } else {
+                // If using Android < 6, this is not necessary
+                false
+            }
+            askForWhitelisting.postValue(shouldWhitelistApp)
+        }
 
     }
 
