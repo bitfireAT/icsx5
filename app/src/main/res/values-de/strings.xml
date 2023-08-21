@@ -12,7 +12,7 @@
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
-  <string name="calendar_list_battery_whitelist">Für kurze Intervalle: Akku-Optimierung für
+  <string name="calendar_list_battery_whitelist_title">Für kurze Intervalle: Akku-Optimierung für
 ICSx⁵ deaktivieren</string>
   <string name="calendar_list_battery_whitelist_settings">Einstellungen</string>
   <!--settings, currently in CalendarListActivity-->

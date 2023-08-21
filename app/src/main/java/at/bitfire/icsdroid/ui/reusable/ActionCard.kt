@@ -40,14 +40,16 @@ fun ActionCard(
             )
             Text(
                 text = message,
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.body2
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                style = MaterialTheme.typography.body1
             )
             TextButton(
                 onClick = onAction,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text(text = actionText)
+                Text(text = actionText.uppercase())
             }
         }
     }

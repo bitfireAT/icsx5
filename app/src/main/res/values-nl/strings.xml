@@ -13,7 +13,7 @@
   <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
   <string name="calendar_list_set_sync_interval">Sync-interval instellen</string>
-  <string name="calendar_list_battery_whitelist">Onbeperkt batterijgebruik voor korte sync-intervallen</string>
+  <string name="calendar_list_battery_whitelist_title">Onbeperkt batterijgebruik voor korte sync-intervallen</string>
   <string name="calendar_list_battery_whitelist_settings">Instellingen</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Donker thema forceren</string>

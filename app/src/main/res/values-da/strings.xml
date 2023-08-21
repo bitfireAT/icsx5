@@ -11,7 +11,7 @@
   <string name="calendar_list_info">Om ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ikke synkroniseret endnu</string>
   <string name="calendar_list_set_sync_interval">Sæt interval til synkronisering</string>
-  <string name="calendar_list_battery_whitelist">Batteri: Whitelist ICSx⁵ for korte sync intervaller</string>
+  <string name="calendar_list_battery_whitelist_title">Batteri: Whitelist ICSx⁵ for korte sync intervaller</string>
   <string name="calendar_list_battery_whitelist_settings">Indstillinger</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Anvend mørk tema</string>

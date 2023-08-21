@@ -11,7 +11,7 @@
   <string name="calendar_list_info">Об ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ещё не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
-  <string name="calendar_list_battery_whitelist">Батарея: добавьте ICSx⁵ в исключения для частой синхронизации</string>
+  <string name="calendar_list_battery_whitelist_title">Батарея: добавьте ICSx⁵ в исключения для частой синхронизации</string>
   <string name="calendar_list_battery_whitelist_settings">Настройки</string>
   <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->

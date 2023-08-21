@@ -16,7 +16,7 @@
   <string name="calendar_list_not_synced_yet">encara no sincronitzat</string>
   <string name="calendar_list_set_sync_interval">Període de sincronització</string>
   <string name="calendar_list_synchronize">Sincronitza ara</string>
-  <string name="calendar_list_battery_whitelist">Bateria: afegeix ICSx⁵ a la llista blanca per a intervals curts</string>
+  <string name="calendar_list_battery_whitelist_title">Bateria: afegeix ICSx⁵ a la llista blanca per a intervals curts</string>
   <string name="calendar_list_battery_whitelist_settings">Configuració</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Força el tema obscur</string>

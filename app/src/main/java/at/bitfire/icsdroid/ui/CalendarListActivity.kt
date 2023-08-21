@@ -201,17 +201,15 @@ class CalendarListActivity: AppCompatActivity() {
                 if (askForWhitelisting && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     item(key = "battery-whitelisting") {
                         ActionCard(
-                            title = stringResource(R.string.calendar_list_battery_whitelist),
-                            message = stringResource(R.string.calendar_list_battery_whitelist_text),
-                            actionText = stringResource(R.string.permissions_grant),
+                            title = stringResource(R.string.calendar_list_battery_whitelist_title),
+                            message = stringResource(R.string.calendar_list_battery_whitelist_text, stringResource(R.string.app_name)),
+                            actionText = stringResource(R.string.calendar_list_battery_whitelist_open_settings),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
                                 .animateItemPlacement()
                         ) {
-                            val intent = Intent(
-                                android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-                            )
+                            val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             startActivity(intent)
                         }
                     }
@@ -225,7 +223,7 @@ class CalendarListActivity: AppCompatActivity() {
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 12.dp)
+                                .padding(8.dp, 16.dp, 8.dp, 8.dp)
                                 .animateItemPlacement()
                         )
                     }
@@ -381,7 +379,7 @@ class CalendarListActivity: AppCompatActivity() {
                 val syncInterval = AppAccount.syncInterval(getApplication())
 
                 // If not ignoring battery optimizations, and sync interval is less than a day
-                isIgnoringBatteryOptimizations == false && syncInterval < 86400
+                isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
             } else {
                 // If using Android < 6, this is not necessary
                 false
