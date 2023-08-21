@@ -176,7 +176,7 @@ class ProcessEventsTask(
             errorIntent.putExtra(EditCalendarActivity.EXTRA_ERROR_MESSAGE, message)
             errorIntent.putExtra(EditCalendarActivity.EXTRA_THROWABLE, ex)
 
-            val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
+            val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC_PROBLEMS)
                 .setSmallIcon(R.drawable.ic_sync_problem_white)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .setGroup(context.getString(R.string.app_name))
