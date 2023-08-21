@@ -14,9 +14,7 @@ import android.view.*
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,11 +45,13 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.CalendarListItem
+import at.bitfire.icsdroid.ui.reusable.ActionCard
 import com.google.accompanist.themeadapter.material.MdcTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
+@OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
 
     companion object {
@@ -153,12 +153,84 @@ class CalendarListActivity: AppCompatActivity() {
 
         val subscriptions by model.subscriptions.observeAsState()
 
+        val askForCalendarPermission by model.askForCalendarPermission.observeAsState(false)
+        val askForNotificationPermission by model.askForNotificationPermission.observeAsState(false)
+        val askForWhitelisting by model.askForWhitelisting.observeAsState(false)
+
         Box(
             modifier = Modifier
                 .padding(paddingValues)
                 .pullRefresh(pullRefreshState)
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
+                // Calendar permission card
+                if (askForCalendarPermission) {
+                    item(key = "calendar-perm") {
+                        ActionCard(
+                            title = stringResource(R.string.calendar_permissions_required),
+                            message = stringResource(R.string.calendar_permissions_required_text),
+                            actionText = stringResource(R.string.permissions_grant),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            requestCalendarPermissions()
+                        }
+                    }
+                }
+
+                // Notification permission card
+                if (askForNotificationPermission) {
+                    item(key = "notification-perm") {
+                        ActionCard(
+                            title = stringResource(R.string.notification_permissions_required),
+                            message = stringResource(R.string.notification_permissions_required_text),
+                            actionText = stringResource(R.string.permissions_grant),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            requestNotificationPermission()
+                        }
+                    }
+                }
+
+                // Whitelisting card
+                if (askForWhitelisting && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    item(key = "battery-whitelisting") {
+                        ActionCard(
+                            title = stringResource(R.string.calendar_list_battery_whitelist),
+                            message = stringResource(R.string.calendar_list_battery_whitelist_text),
+                            actionText = stringResource(R.string.permissions_grant),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            val intent = Intent(
+                                android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                            )
+                            startActivity(intent)
+                        }
+                    }
+                }
+
+                if (subscriptions?.isEmpty() == true) {
+                    item(key = "empty") {
+                        Text(
+                            text = stringResource(R.string.calendar_list_empty_info),
+                            style = MaterialTheme.typography.body1,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp)
+                                .animateItemPlacement()
+                        )
+                    }
+                }
+
                 items(subscriptions ?: emptyList()) { subscription ->
                     CalendarListItem(subscription = subscription, onClick = {
                         val intent = Intent(context, EditCalendarActivity::class.java)
@@ -166,22 +238,6 @@ class CalendarListActivity: AppCompatActivity() {
                         startActivity(intent)
                     })
                 }
-            }
-
-            AnimatedVisibility(
-                visible = subscriptions?.isEmpty() == true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.calendar_list_empty_info),
-                    style = MaterialTheme.typography.body1,
-                    textAlign = TextAlign.Center
-                )
             }
 
             PullRefreshIndicator(
@@ -269,56 +325,6 @@ class CalendarListActivity: AppCompatActivity() {
     }
 
 
-    /**
-     * Checks the current settings and permissions state, and shows a Snackbar using
-     * [snackBarHostState] if any action is necessary.
-     *
-     * Blocks the current thread until the Snackbar is hidden, or the action to be performed is
-     * completed.
-     */
-    @Deprecated("TODO Logic like permissions should be moved to Model; permanent warnings should be shown as regular box above the subscriptions instead of a Snackbar")
-    private suspend fun checkSyncSettings() {
-        /*when {
-            // notification permissions are granted
-            !PermissionUtils.haveNotificationPermission(this) -> {
-                val response = snackBarHostState.showSnackbar(
-                    message = getString(R.string.notification_permissions_required),
-                    actionLabel = getString(R.string.permissions_grant),
-                    duration = SnackbarDuration.Indefinite
-                )
-                if (response == SnackbarResult.ActionPerformed)
-                    requestNotificationPermission()
-            }
-
-            // calendar permissions are granted
-            !PermissionUtils.haveCalendarPermissions(this) -> {
-                val response = snackBarHostState.showSnackbar(
-                    message = getString(R.string.calendar_permissions_required),
-                    actionLabel = getString(R.string.permissions_grant),
-                    duration = SnackbarDuration.Indefinite
-                )
-                if (response == SnackbarResult.ActionPerformed)
-                    requestCalendarPermissions()
-            }
-
-            // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
-            Build.VERSION.SDK_INT >= 23 &&
-                    !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
-                    AppAccount.syncInterval(this) < 86400 -> {
-                val response = snackBarHostState.showSnackbar(
-                    message = getString(R.string.calendar_list_battery_whitelist),
-                    actionLabel = getString(R.string.permissions_grant),
-                    duration = SnackbarDuration.Indefinite
-                )
-                if (response == SnackbarResult.ActionPerformed) {
-                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                    startActivity(intent)
-                }
-            }
-        }*/
-    }
-
-
     /* actions */
 
     private fun onRefreshRequested() {
@@ -335,13 +341,11 @@ class CalendarListActivity: AppCompatActivity() {
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
-        // TODO
         val askForCalendarPermission = MutableLiveData(false)
         val askForNotificationPermission = MutableLiveData(false)
 
-        // TODO
         val askForWhitelisting = MutableLiveData(false)
-        
+
 
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
