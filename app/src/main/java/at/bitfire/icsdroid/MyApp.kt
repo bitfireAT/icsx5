@@ -6,16 +6,28 @@ package at.bitfire.icsdroid
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import at.bitfire.icsdroid.ui.Settings
 
 class MyApp: Application() {
+
+    companion object {
+
+        fun setNightMode(forceDarkMode: Boolean) {
+            AppCompatDelegate.setDefaultNightMode(
+                if (forceDarkMode)
+                    AppCompatDelegate.MODE_NIGHT_YES
+                else
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            )
+        }
+
+    }
+
 
     override fun onCreate() {
         super.onCreate()
 
         // dark mode is not persisted over app restarts
-        if (Settings(this).forceDarkMode())
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        setNightMode(Settings(this).forceDarkMode())
     }
 
 }

@@ -11,7 +11,7 @@
   <string name="calendar_list_info">Acerca ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ainda não sincronizado</string>
   <string name="calendar_list_set_sync_interval">Definir intervalo de sincronização</string>
-  <string name="calendar_list_battery_whitelist">Bateria: Autorizar ICSx⁵ para permitir intervalos de sincronização curtos</string>
+  <string name="calendar_list_battery_whitelist_title">Bateria: Autorizar ICSx⁵ para permitir intervalos de sincronização curtos</string>
   <string name="calendar_list_battery_whitelist_settings">Definições</string>
   <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->

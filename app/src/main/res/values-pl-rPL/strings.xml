@@ -17,7 +17,7 @@
   <string name="calendar_list_not_synced_yet">jeszcze nie zsynchronizowane</string>
   <string name="calendar_list_set_sync_interval">Ustaw interwał synchronizacji</string>
   <string name="calendar_list_synchronize">Zsynchronizuj teraz</string>
-  <string name="calendar_list_battery_whitelist">Bateria: Biała lista ICSx⁵ dla krótkich interwałów synchronizacji</string>
+  <string name="calendar_list_battery_whitelist_title">Bateria: Biała lista ICSx⁵ dla krótkich interwałów synchronizacji</string>
   <string name="calendar_list_battery_whitelist_settings">Ustawienia</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Wymuś ciemny motyw</string>

@@ -4,41 +4,55 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.provider.Settings
-import android.util.Log
 import android.view.*
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.*
-import at.bitfire.icsdroid.databinding.CalendarListActivityBinding
-import at.bitfire.icsdroid.databinding.CalendarListItemBinding
+import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.entity.Subscription
-import com.google.android.material.snackbar.Snackbar
-import java.text.DateFormat
+import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
+import at.bitfire.icsdroid.ui.list.CalendarListItem
+import at.bitfire.icsdroid.ui.reusable.ActionCard
+import com.google.accompanist.themeadapter.material.MdcTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
-class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
+@OptIn(ExperimentalFoundationApi::class)
+class CalendarListActivity: AppCompatActivity() {
 
     companion object {
         /**
@@ -50,7 +64,7 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     }
 
     private val model by viewModels<SubscriptionsModel>()
-    private lateinit var binding: CalendarListActivityBinding
+    val settings by lazy { Settings(this) }
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
     private lateinit var requestCalendarPermissions: () -> Unit
@@ -58,45 +72,20 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
     /** Stores the post notification permission request for asking for permissions during runtime */
     private lateinit var requestNotificationPermission: () -> Unit
 
-    private var snackBar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTitle(R.string.title_activity_calendar_list)
 
         // Register the calendar permission request
         requestCalendarPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
+            model.checkSyncSettings()
+
             SyncWorker.run(this)
         }
 
         // Register the notifications permission request
-        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this)
-
-        binding = DataBindingUtil.setContentView(this, R.layout.calendar_list_activity)
-        binding.lifecycleOwner = this
-        binding.model = model
-
-        val defaultRefreshColor = ContextCompat.getColor(this, R.color.lightblue)
-        binding.refresh.setColorSchemeColors(defaultRefreshColor)
-        binding.refresh.setOnRefreshListener(this)
-        binding.refresh.setSize(SwipeRefreshLayout.LARGE)
-
-        // show whether sync is running
-        model.isRefreshing.observe(this) { isRefreshing ->
-            binding.refresh.isRefreshing = isRefreshing
-        }
-
-        // calendars
-        val subscriptionAdapter = SubscriptionListAdapter(this)
-        subscriptionAdapter.clickListener = { calendar ->
-            val intent = Intent(this, EditCalendarActivity::class.java)
-            intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, calendar.id)
-            startActivity(intent)
-        }
-        binding.calendarList.adapter = subscriptionAdapter
-
-        binding.fab.setOnClickListener {
-            onAddCalendar()
+        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this) {
+            model.checkSyncSettings()
         }
 
         // If EXTRA_PERMISSION is true, request the calendar permissions
@@ -104,77 +93,231 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
 
-        model.subscriptions.observe(this) { subscriptions ->
-            subscriptionAdapter.submitList(subscriptions)
-
-            val colors = mutableSetOf<Int>()
-            colors += defaultRefreshColor
-            colors.addAll(subscriptions.mapNotNull { it.color })
-            binding.refresh.setColorSchemeColors(*colors.toIntArray())
-        }
-
         // startup fragments
         if (savedInstanceState == null)
             ServiceLoader
                 .load(StartupFragment::class.java)
                 .forEach { it.initialize(this) }
 
-        // check sync settings when sync interval has been edited
-        supportFragmentManager.registerFragmentLifecycleCallbacks(object: FragmentManager.FragmentLifecycleCallbacks() {
-            override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
-                if (f is SyncIntervalDialogFragment)
-                    checkSyncSettings()
+        setContent {
+            MdcTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {
+                                // Launch the Subscription add Activity
+                                startActivity(Intent(this, AddCalendarActivity::class.java))
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = stringResource(R.string.activity_add_calendar)
+                            )
+                        }
+                    },
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(stringResource(R.string.title_activity_calendar_list))
+                            },
+                            actions = {
+                                ActionOverflowMenu()
+                            }
+                        )
+                    }
+                ) { paddingValues ->
+                    ActivityContent(paddingValues)
+                }
             }
-        }, false)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_calendar_list, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.force_dark_mode).isChecked = Settings(this).forceDarkMode()
-        return super.onPrepareOptionsMenu(menu)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        checkSyncSettings()
+
+        model.checkSyncSettings()
     }
 
+    /* UI components */
 
-    @SuppressLint("ShowToast")
-    private fun checkSyncSettings() {
-        snackBar?.dismiss()
-        snackBar = null
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun ActivityContent(paddingValues: PaddingValues) {
+        val context = LocalContext.current
 
-        when {
-            // notification permissions are granted
-            !PermissionUtils.haveNotificationPermission(this) -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.notification_permissions_required, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.permissions_grant) { requestNotificationPermission() }
-                    .also { it.show() }
-            }
+        val isRefreshing by model.isRefreshing.observeAsState(initial = true)
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = isRefreshing,
+            onRefresh = ::onRefreshRequested
+        )
 
-            // calendar permissions are granted
-            !PermissionUtils.haveCalendarPermissions(this) -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_permissions_required, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.permissions_grant) { requestCalendarPermissions() }
-                    .also { it.show() }
-            }
+        val subscriptions by model.subscriptions.observeAsState()
 
-            // periodic sync enabled AND Android >= 6 AND not whitelisted from battery saving AND sync interval < 1 day
-            Build.VERSION.SDK_INT >= 23 &&
-                    !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID) &&
-                    AppAccount.syncInterval(this) < 86400 -> {
-                snackBar = Snackbar.make(binding.coordinator, R.string.calendar_list_battery_whitelist, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.calendar_list_battery_whitelist_settings) {
-                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                            startActivity(intent)
-                        }.also {
-                            it.show()
+        val askForCalendarPermission by model.askForCalendarPermission.observeAsState(false)
+        val askForNotificationPermission by model.askForNotificationPermission.observeAsState(false)
+        val askForWhitelisting by model.askForWhitelisting.observeAsState(false)
+
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .pullRefresh(pullRefreshState)
+        ) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                // Calendar permission card
+                if (askForCalendarPermission) {
+                    item(key = "calendar-perm") {
+                        ActionCard(
+                            title = stringResource(R.string.calendar_permissions_required),
+                            message = stringResource(R.string.calendar_permissions_required_text),
+                            actionText = stringResource(R.string.permissions_grant),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            requestCalendarPermissions()
                         }
+                    }
+                }
+
+                // Notification permission card
+                if (askForNotificationPermission) {
+                    item(key = "notification-perm") {
+                        ActionCard(
+                            title = stringResource(R.string.notification_permissions_required),
+                            message = stringResource(R.string.notification_permissions_required_text),
+                            actionText = stringResource(R.string.permissions_grant),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            requestNotificationPermission()
+                        }
+                    }
+                }
+
+                // Whitelisting card
+                if (askForWhitelisting && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    item(key = "battery-whitelisting") {
+                        ActionCard(
+                            title = stringResource(R.string.calendar_list_battery_whitelist_title),
+                            message = stringResource(R.string.calendar_list_battery_whitelist_text, stringResource(R.string.app_name)),
+                            actionText = stringResource(R.string.calendar_list_battery_whitelist_open_settings),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                            startActivity(intent)
+                        }
+                    }
+                }
+
+                if (subscriptions?.isEmpty() == true) {
+                    item(key = "empty") {
+                        Text(
+                            text = stringResource(R.string.calendar_list_empty_info),
+                            style = MaterialTheme.typography.body1,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp, 16.dp, 8.dp, 8.dp)
+                                .animateItemPlacement()
+                        )
+                    }
+                }
+
+                items(subscriptions ?: emptyList()) { subscription ->
+                    CalendarListItem(subscription = subscription, onClick = {
+                        val intent = Intent(context, EditCalendarActivity::class.java)
+                        intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
+                        startActivity(intent)
+                    })
+                }
+            }
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
+    }
+
+    @Composable
+    fun ActionOverflowMenu() {
+        val context = LocalContext.current
+
+        var showMenu by remember { mutableStateOf(false) }
+
+        IconButton(onClick = { showMenu = true }) {
+            Icon(Icons.Rounded.MoreVert, stringResource(R.string.action_more))
+        }
+
+        var showSyncIntervalDialog by rememberSaveable { mutableStateOf(false) }
+        if (showSyncIntervalDialog)
+            SyncIntervalDialog(
+                currentInterval = AppAccount.syncInterval(this),
+                onSetSyncInterval = { seconds ->
+                    AppAccount.syncInterval(this, seconds)
+                    showSyncIntervalDialog = false
+
+                    model.checkSyncSettings()
+                },
+                onDismiss = { showSyncIntervalDialog = false }
+            )
+
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    showMenu = false
+                    showSyncIntervalDialog = true
+                }
+            ) {
+                Text(stringResource(R.string.calendar_list_set_sync_interval))
+            }
+            DropdownMenuItem(
+                onClick = {
+                    showMenu = false
+                    onRefreshRequested()
+                }
+            ) {
+                Text(stringResource(R.string.calendar_list_synchronize))
+            }
+            DropdownMenuItem(
+                onClick =  {
+                    showMenu = false
+                    onToggleDarkMode()
+                }
+            ) {
+                val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
+
+                Text(stringResource(R.string.settings_force_dark_theme))
+                Checkbox(
+                    checked = forceDarkMode,
+                    onCheckedChange = { onToggleDarkMode() }
+                )
+            }
+            DropdownMenuItem(
+                onClick = {
+                    showMenu = false
+                    UriUtils.launchUri(context, Uri.parse(PRIVACY_POLICY_URL))
+                }
+            ) {
+                Text(stringResource(R.string.calendar_list_privacy_policy))
+            }
+            DropdownMenuItem(
+                onClick = {
+                    showMenu = false
+                    startActivity(Intent(context, InfoActivity::class.java))
+                }
+            ) {
+                Text(stringResource(R.string.calendar_list_info))
             }
         }
     }
@@ -182,105 +325,25 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
 
     /* actions */
 
-    fun onAddCalendar() {
-        startActivity(Intent(this, AddCalendarActivity::class.java))
-    }
-
-    override fun onRefresh() {
+    private fun onRefreshRequested() {
         SyncWorker.run(this, true)
     }
 
-    fun onRefreshRequested(item: MenuItem) {
-        onRefresh()
-    }
-
-    fun onShowInfo(item: MenuItem) {
-        startActivity(Intent(this, InfoActivity::class.java))
-    }
-
-    fun onSetSyncInterval(item: MenuItem) {
-        SyncIntervalDialogFragment().show(supportFragmentManager, "sync_interval")
-    }
-
-    fun onToggleDarkMode(item: MenuItem) {
+    private fun onToggleDarkMode() {
         val settings = Settings(this)
         val newMode = !settings.forceDarkMode()
+
         settings.forceDarkMode(newMode)
-        AppCompatDelegate.setDefaultNightMode(
-                if (newMode)
-                    AppCompatDelegate.MODE_NIGHT_YES
-                else
-                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        )
     }
 
-    fun onShowPrivacyPolicy(item: MenuItem) {
-        UriUtils.launchUri(this, Uri.parse(PRIVACY_POLICY_URL))
-    }
-
-
-    class SubscriptionListAdapter(
-        val context: Context
-    ): ListAdapter<Subscription, SubscriptionListAdapter.ViewHolder>(object: DiffUtil.ItemCallback<Subscription>() {
-
-        override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription) =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: Subscription, newItem: Subscription) =
-            // compare all displayed fields
-            oldItem.url == newItem.url &&
-            oldItem.displayName == newItem.displayName &&
-            oldItem.lastSync == newItem.lastSync &&
-            oldItem.color == newItem.color &&
-            oldItem.errorMessage == newItem.errorMessage
-
-    }) {
-
-        class ViewHolder(val binding: CalendarListItemBinding): RecyclerView.ViewHolder(binding.root)
-
-        var clickListener: ((Subscription) -> Unit)? = null
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            Log.i(Constants.TAG, "Creating view holder")
-            val binding = CalendarListItemBinding.inflate(LayoutInflater.from(context), parent, false)
-            return ViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val subscription = currentList[position]
-
-            holder.binding.root.setOnClickListener {
-                clickListener?.let { listener ->
-                    listener(subscription)
-                }
-            }
-
-            holder.binding.apply {
-                url.text = subscription.url.toString()
-                title.text = subscription.displayName
-
-                syncStatus.text = subscription.lastSync?.let { lastSync ->
-                    DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
-                        .format(Date(lastSync))
-                } ?: context.getString(R.string.calendar_list_not_synced_yet)
-
-                subscription.color?.let {
-                    color.setColor(it)
-                }
-            }
-
-            val errorMessage = subscription.errorMessage
-            if (errorMessage == null)
-                holder.binding.errorMessage.visibility = View.GONE
-            else {
-                holder.binding.errorMessage.text = errorMessage
-                holder.binding.errorMessage.visibility = View.VISIBLE
-            }
-        }
-
-    }
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
+
+        val askForCalendarPermission = MutableLiveData(false)
+        val askForNotificationPermission = MutableLiveData(false)
+
+        val askForWhitelisting = MutableLiveData(false)
+
 
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
@@ -291,6 +354,38 @@ class CalendarListActivity: AppCompatActivity(), SwipeRefreshLayout.OnRefreshLis
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
             .getAllLive()
+
+        init {
+            // When initialized, update the ask* fields
+            checkSyncSettings()
+        }
+
+        /**
+         * Performs all the checks necessary, and updates [askForCalendarPermission],
+         * [askForNotificationPermission] and [askForWhitelisting] which should be shown to the
+         * user through a Snackbar.
+         */
+        fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
+            val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
+            askForNotificationPermission.postValue(!haveNotificationPermission)
+
+            val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
+            askForCalendarPermission.postValue(!haveCalendarPermission)
+
+            val shouldWhitelistApp = if (Build.VERSION.SDK_INT >= 23) {
+                val powerManager = getApplication<Application>().getSystemService<PowerManager>()
+                val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
+
+                val syncInterval = AppAccount.syncInterval(getApplication())
+
+                // If not ignoring battery optimizations, and sync interval is less than a day
+                isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
+            } else {
+                // If using Android < 6, this is not necessary
+                false
+            }
+            askForWhitelisting.postValue(shouldWhitelistApp)
+        }
 
     }
 
