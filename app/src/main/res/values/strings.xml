@@ -19,7 +19,11 @@
     <string name="permissions_grant">Grant</string>
     <string name="install_browser">Please install a Web browser</string>
     <string name="notification_sync_title">Running synchronization</string>
-    <string name="notification_sync_message">Synchronizing subscriptions from server…</string>
+    <string name="notification_sync_start">Starting synchronization…</string>
+    <string name="notification_sync_migration">Running migrations…</string>
+    <string name="notification_sync_subscriptions">Fetching subscriptions…</string>
+    <string name="notification_sync_calendar">Updating local calendar…</string>
+    <string name="sync_cancel">Cancel</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>

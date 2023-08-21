@@ -126,6 +126,12 @@
             android:label="@string/activity_app_info"
             android:parentActivityName=".ui.CalendarListActivity" />
 
+        <!-- Set foreground service type for WorkManager -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
     </application>
 
 </manifest>

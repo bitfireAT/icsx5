@@ -7,7 +7,11 @@ package at.bitfire.icsdroid
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.util.Log
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
 import androidx.work.*
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
@@ -40,6 +44,10 @@ class SyncWorker(
          * fetching data.
          */
         const val ONLY_MIGRATE = "onlyMigration"
+
+        const val PROGRESS_MAX = "max"
+        const val PROGRESS_CURRENT = "current"
+        const val PROGRESS_INDETERMINATE = "indeterminate"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -98,6 +106,8 @@ class SyncWorker(
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
+        setForeground(createForegroundInfo(SyncSteps.Start))
+
         provider =
             try {
                 LocalCalendar.getCalendarProvider(applicationContext)
@@ -121,9 +131,13 @@ class SyncWorker(
             AndroidCalendar.insertColors(provider, account)
 
             // sync local calendars
-            for (subscription in subscriptionsDao.getAll()) {
+            val subscriptions = subscriptionsDao.getAll()
+            for ((i, subscription) in subscriptions.withIndex()) {
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
+
+                setForeground(createForegroundInfo(SyncSteps.Subscriptions(subscriptions.size, i)))
+
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
             }
@@ -144,13 +158,16 @@ class SyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
-    private fun migrateLegacyCalendars() {
+    private suspend fun migrateLegacyCalendars() {
+        setForeground(createForegroundInfo(SyncSteps.Migration))
+
         @Suppress("DEPRECATION")
         val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
 
         // if there's a provider available, get all the calendars available in the system
         for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
             Log.i(TAG, "Found unmanaged (<= v2.1.1) calendar ${calendar.id}, migrating")
+            @Suppress("DEPRECATION")
             val url = calendar.url ?: continue
 
             // Special case v2.1: it created subscriptions, but did not set the COLUMN_MANAGED_BY_DB flag.
@@ -184,7 +201,7 @@ class SyncWorker(
      * - updated (e.g. display name) if there's a [Subscription] for this calendar,
      * - deleted if there's no [Subscription] for this calendar.
      */
-    private fun updateLocalCalendars() {
+    private suspend fun updateLocalCalendars() {
         // subscriptions from DB
         val subscriptions = subscriptionsDao.getAll()
 
@@ -192,7 +209,9 @@ class SyncWorker(
         val calendars = LocalCalendar.findManaged(account, provider).associateBy { it.id }.toMutableMap()
 
         // synchronize them
-        for (subscription in subscriptions) {
+        for ((i, subscription) in subscriptions.withIndex()) {
+            setForeground(createForegroundInfo(SyncSteps.Subscriptions(subscriptions.size, i)))
+
             val calendarId = subscription.calendarId
             val calendar = calendars.remove(calendarId)
             // note that calendar might still be null even if calendarId is not null,
@@ -218,6 +237,85 @@ class SyncWorker(
         for (calendar in calendars.values) {
             Log.d(TAG, "Removing local calendar #${calendar.id} without subscription")
             calendar.delete()
+        }
+    }
+
+    private suspend fun createForegroundInfo(step: SyncSteps): ForegroundInfo {
+        NotificationUtils.createChannels(applicationContext)
+
+        val notificationId = id.toString().hashCode()
+
+        val cancelIntent = WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
+
+        val title = applicationContext.getString(R.string.notification_sync_title)
+        val message = applicationContext.getString(step.name)
+        val cancel = applicationContext.getString(R.string.sync_cancel)
+
+        val notification = NotificationCompat.Builder(applicationContext, NotificationUtils.CHANNEL_SYNC_PROGRESS)
+            .setTicker(title)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.sync_white)
+            .setOngoing(true)
+            .setProgress(step.max, step.progress, step.indeterminate)
+            .addAction(android.R.drawable.ic_delete, cancel, cancelIntent)
+            .build()
+
+        setProgress(
+            step.workData()
+        )
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(notificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(notificationId, notification)
+        }
+    }
+
+    abstract class ProgressInfo {
+        abstract val max: Int
+        abstract val progress: Int
+        abstract val indeterminate: Boolean
+
+        fun workData(): Data = workDataOf(
+            PROGRESS_CURRENT to progress,
+            PROGRESS_MAX to max,
+            PROGRESS_INDETERMINATE to indeterminate
+        )
+    }
+
+    sealed class SyncSteps: ProgressInfo() {
+
+        /** The step name, will be shown in the notification's text */
+        @get:StringRes
+        abstract val name: Int
+
+        object Start: SyncSteps() {
+            override val max: Int = -1
+            override val progress: Int = -1
+            override val indeterminate: Boolean = true
+
+            override val name: Int = R.string.notification_sync_start
+        }
+
+        object Migration: SyncSteps() {
+            override val max: Int = -1
+            override val progress: Int = -1
+            override val indeterminate: Boolean = true
+
+            override val name: Int = R.string.notification_sync_migration
+        }
+
+        class Subscriptions(override val max: Int, override val progress: Int): SyncSteps() {
+            override val indeterminate: Boolean = false
+
+            override val name: Int = R.string.notification_sync_calendar
+        }
+
+        class Calendar(override val max: Int, override val progress: Int): SyncSteps() {
+            override val indeterminate: Boolean = false
+
+            override val name: Int = R.string.notification_sync_calendar
         }
     }
 
