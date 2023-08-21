@@ -136,7 +136,7 @@ class SyncWorker(
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
 
-                setForeground(createForegroundInfo(SyncSteps.Subscriptions(subscriptions.size, i)))
+                setForeground(createForegroundInfo(SyncSteps.Calendar(subscriptions.size, i)))
 
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
                 ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
@@ -306,13 +306,19 @@ class SyncWorker(
             override val name: Int = R.string.notification_sync_migration
         }
 
-        class Subscriptions(override val max: Int, override val progress: Int): SyncSteps() {
+        class Subscriptions(
+            override val max: Int,
+            override val progress: Int
+        ): SyncSteps() {
             override val indeterminate: Boolean = false
 
             override val name: Int = R.string.notification_sync_calendar
         }
 
-        class Calendar(override val max: Int, override val progress: Int): SyncSteps() {
+        class Calendar(
+            override val max: Int,
+            override val progress: Int
+        ): SyncSteps() {
             override val indeterminate: Boolean = false
 
             override val name: Int = R.string.notification_sync_calendar
