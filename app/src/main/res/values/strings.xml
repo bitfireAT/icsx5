@@ -9,7 +9,9 @@
     <string name="action_more">More</string>
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
+    <string name="calendar_permissions_required_text">We need permission to access your calendar storage so that downloaded events can be stored locally.</string>
     <string name="notification_permissions_required">Notification permissions required</string>
+    <string name="notification_permissions_required_text">We show notifications for supervising the synchronization progress.</string>
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
     <string name="no_browser">No browser installed</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
@@ -25,6 +27,7 @@
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_synchronize">Synchronize now</string>
     <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
+    <string name="calendar_list_battery_whitelist_text">You should whitelist ICSx⁵ from battery optimizations when using sync intervals lower than a day. Otherwise system may block synchronization, and it can become unreliable.</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="calendar_list_privacy_policy">Privacy policy</string>
