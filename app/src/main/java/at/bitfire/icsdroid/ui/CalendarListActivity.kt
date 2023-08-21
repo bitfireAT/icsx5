@@ -369,10 +369,10 @@ class CalendarListActivity: AppCompatActivity() {
          */
         fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
             val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
-            askForCalendarPermission.postValue(!haveNotificationPermission)
+            askForNotificationPermission.postValue(!haveNotificationPermission)
 
             val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
-            askForNotificationPermission.postValue(!haveCalendarPermission)
+            askForCalendarPermission.postValue(!haveCalendarPermission)
 
             val shouldWhitelistApp = if (Build.VERSION.SDK_INT >= 23) {
                 val powerManager = getApplication<Application>().getSystemService<PowerManager>()
