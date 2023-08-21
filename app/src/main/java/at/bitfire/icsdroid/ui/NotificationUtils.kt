@@ -15,7 +15,7 @@ import at.bitfire.icsdroid.R
 
 object NotificationUtils {
 
-    const val CHANNEL_SYNC = "sync"
+    const val CHANNEL_SYNC_PROBLEMS = "sync"
 
     const val NOTIFY_PERMISSION = 0
 
@@ -31,7 +31,7 @@ object NotificationUtils {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= 26) {
-            nm.createNotificationChannel(NotificationChannel(CHANNEL_SYNC,
+            nm.createNotificationChannel(NotificationChannel(CHANNEL_SYNC_PROBLEMS,
                     context.getString(R.string.notification_channel_sync_problem), NotificationManager.IMPORTANCE_LOW))
         }
 
@@ -47,7 +47,7 @@ object NotificationUtils {
         val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
             putExtra(CalendarListActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
         }
-        val notification = NotificationCompat.Builder(context, CHANNEL_SYNC)
+        val notification = NotificationCompat.Builder(context, CHANNEL_SYNC_PROBLEMS)
             .setSmallIcon(R.drawable.ic_sync_problem_white)
             .setContentTitle(context.getString(R.string.sync_permission_required))
             .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
