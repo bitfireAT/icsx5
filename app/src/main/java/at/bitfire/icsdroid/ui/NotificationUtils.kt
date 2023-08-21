@@ -17,6 +17,8 @@ object NotificationUtils {
 
     const val CHANNEL_SYNC_PROBLEMS = "sync"
 
+    const val CHANNEL_SYNC_PROGRESS = "sync-progress"
+
     const val NOTIFY_PERMISSION = 0
 
 
@@ -31,8 +33,24 @@ object NotificationUtils {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= 26) {
-            nm.createNotificationChannel(NotificationChannel(CHANNEL_SYNC_PROBLEMS,
-                    context.getString(R.string.notification_channel_sync_problem), NotificationManager.IMPORTANCE_LOW))
+            nm.createNotificationChannels(
+                listOf(
+                    NotificationChannel(
+                        CHANNEL_SYNC_PROBLEMS,
+                        context.getString(R.string.notification_channel_sync_problem),
+                        NotificationManager.IMPORTANCE_LOW
+                    ).apply {
+                        description = context.getString(R.string.notification_channel_sync_problem_desc)
+                    },
+                    NotificationChannel(
+                        CHANNEL_SYNC_PROGRESS,
+                        context.getString(R.string.notification_channel_sync_progress),
+                        NotificationManager.IMPORTANCE_LOW
+                    ).apply {
+                        description = context.getString(R.string.notification_channel_sync_progress_desc)
+                    }
+                )
+            )
         }
 
         return nm

@@ -12,9 +12,14 @@
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
     <string name="no_browser">No browser installed</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
+    <string name="notification_channel_sync_problem_desc">Notifies about any issues in the synchronization process.</string>
+    <string name="notification_channel_sync_progress">Sync progress</string>
+    <string name="notification_channel_sync_progress_desc">Notifies about the progress of the synchronization process.</string>
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_grant">Grant</string>
     <string name="install_browser">Please install a Web browser</string>
+    <string name="notification_sync_title">Running synchronization</string>
+    <string name="notification_sync_message">Synchronizing subscriptions from server…</string>
 
     <!-- CalendarListActivity -->
     <string name="title_activity_calendar_list">My subscriptions</string>
