@@ -78,11 +78,15 @@ class CalendarListActivity: AppCompatActivity() {
 
         // Register the calendar permission request
         requestCalendarPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
+            model.checkSyncSettings()
+
             SyncWorker.run(this)
         }
 
         // Register the notifications permission request
-        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this)
+        requestNotificationPermission = PermissionUtils.registerNotificationPermissionRequest(this) {
+            model.checkSyncSettings()
+        }
 
         // If EXTRA_PERMISSION is true, request the calendar permissions
         val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
@@ -131,7 +135,7 @@ class CalendarListActivity: AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        // model.reload()     // TODO only call if model can't observe state dynamically itself
+        model.checkSyncSettings()
     }
 
     /* UI components */
