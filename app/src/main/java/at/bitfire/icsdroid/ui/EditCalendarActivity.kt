@@ -4,37 +4,61 @@
 
 package at.bitfire.icsdroid.ui
 
+import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import androidx.activity.addCallback
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Share
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
-import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.ui.logic.BackHandlerCompat
+import at.bitfire.icsdroid.ui.reusable.AppBarIcon
+import at.bitfire.icsdroid.ui.reusable.AppBarMenu
+import at.bitfire.icsdroid.ui.subscription.SubscriptionCredentialsModel
+import at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel
+import com.google.accompanist.themeadapter.material.MdcTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class EditCalendarActivity: AppCompatActivity() {
+class EditCalendarActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
@@ -42,8 +66,8 @@ class EditCalendarActivity: AppCompatActivity() {
         const val EXTRA_THROWABLE = "errorThrowable"
     }
 
-    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
-    private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
+    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
+    private val credentialsModel by viewModels<SubscriptionCredentialsModel>()
 
     private val model by viewModels<SubscriptionModel> {
         object: ViewModelProvider.Factory {
@@ -55,8 +79,36 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
-    lateinit var binding: EditCalendarBinding
+    private val isDirty by lazy {
+        MediatorLiveData<Boolean>().apply {
+            addSource(subscriptionSettingsModel.isDirty) {
+                value = subscriptionSettingsModel.isDirty.value == true ||
+                    credentialsModel.isDirty.value == true
+            }
+            addSource(credentialsModel.isDirty) {
+                value = subscriptionSettingsModel.isDirty.value == true ||
+                    credentialsModel.isDirty.value == true
+            }
+        }
+    }
 
+    private val isOK by lazy {
+        MediatorLiveData<Boolean>().apply {
+            fun update() {
+                val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
+                val authOK = if (credentialsModel.requiresAuth.value == true)
+                    credentialsModel.username.value != null && credentialsModel.password.value != null
+                else
+                    true
+                value = titleOK && authOK
+            }
+
+            addSource(subscriptionSettingsModel.title) { update() }
+            addSource(credentialsModel.requiresAuth) { update() }
+            addSource(credentialsModel.username) { update() }
+            addSource(credentialsModel.password) { update() }
+        }
+    }
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
@@ -82,10 +134,6 @@ class EditCalendarActivity: AppCompatActivity() {
             element.observe(this, invalidate)
         }
 
-        binding = DataBindingUtil.setContentView(this, R.layout.edit_calendar)
-        binding.lifecycleOwner = this
-        binding.model = model
-
         // handle status changes
         model.successMessage.observe(this) { message ->
             if (message != null) {
@@ -101,34 +149,32 @@ class EditCalendarActivity: AppCompatActivity() {
                     .show(supportFragmentManager, null)
             }
 
-        onBackPressedDispatcher.addCallback {
-            if (dirty()) {
-                // If the form is dirty, warn the user about losing changes
-                supportFragmentManager.beginTransaction()
-                    .add(SaveDismissDialogFragment(), null)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit()
-            } else
-                // Otherwise, simply finish the activity
-                finish()
+        setContent {
+            MdcTheme {
+                val isDirty by isDirty.observeAsState(initial = false)
+
+                BackHandlerCompat { onBack(isDirty) }
+
+                Scaffold(
+                    topBar = { TopBar(isDirty) }
+                ) { paddingValues ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(8.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Content()
+                    }
+                }
+            }
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.edit_calendar_activity, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val dirty = dirty()
-        menu.findItem(R.id.delete)
-                .setEnabled(!dirty)
-                .setVisible(!dirty)
-
-        menu.findItem(R.id.cancel)
-                .setEnabled(dirty)
-                .setVisible(dirty)
-
+    @Composable
+    fun ColumnScope.Content() {
+        /*
         // if local file, hide authentication fragment
         val uri = model.subscriptionWithCredential.value?.subscription?.url
         binding.credentials.visibility =
@@ -136,18 +182,51 @@ class EditCalendarActivity: AppCompatActivity() {
                 View.VISIBLE
             else
                 View.GONE
+         */
 
-        val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
-        val authOK = credentialsModel.run {
-            if (requiresAuth.value == true)
-                username.value != null && password.value != null
-            else
-                true
-        }
-        menu.findItem(R.id.save)
-                .setEnabled(dirty && titleOK && authOK)
-                .setVisible(dirty && titleOK && authOK)
-        return true
+        SubscriptionSettings(subscriptionSettingsModel)
+    }
+
+    @Composable
+    fun TopBar(isDirty: Boolean) {
+        val isOK by isOK.observeAsState(true)
+
+        TopAppBar(
+            title = { Text(stringResource(R.string.activity_edit_calendar)) },
+            navigationIcon = {
+                IconButton(onClick = { onBack(isDirty) }) {
+                    Icon(Icons.Rounded.ArrowBack, stringResource(R.string.action_back))
+                }
+            },
+            actions = {
+                AppBarMenu(
+                    icons = listOf(
+                        // FIXME - I think this is redundant since there's already a back arrow
+                        /*AppBarIcon(
+                            Icons.Rounded.Close,
+                            stringResource(R.string.edit_calendar_cancel),
+                            ::onCancel
+                        ),*/
+                        AppBarIcon(
+                            Icons.Rounded.Delete,
+                            stringResource(R.string.edit_calendar_delete),
+                            ::onAskDelete
+                        ) { (isDirty, _) -> !isDirty },
+                        AppBarIcon(
+                            Icons.Rounded.Check,
+                            stringResource(R.string.edit_calendar_save),
+                            ::onSave
+                        ) { (isDirty, isOK) -> isDirty && isOK },
+                        AppBarIcon(
+                            Icons.Rounded.Share,
+                            stringResource(R.string.edit_calendar_send_url),
+                            ::onShare
+                        )
+                    ),
+                    value = isDirty to isOK
+                )
+            }
+        )
     }
 
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
@@ -195,11 +274,25 @@ class EditCalendarActivity: AppCompatActivity() {
 
     /* user actions */
 
-    fun onSave(item: MenuItem?) {
+    private fun onBack(isDirty: Boolean) {
+        if (isDirty) {
+            // If the form is dirty, warn the user about losing changes
+            supportFragmentManager.beginTransaction()
+                .add(SaveDismissDialogFragment(), null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit()
+        } else {
+            // Otherwise, simply finish the activity
+            setResult(Activity.RESULT_CANCELED)
+            finish()
+        }
+    }
+
+    fun onSave() {
         model.updateSubscription(subscriptionSettingsModel, credentialsModel)
     }
 
-    fun onAskDelete(item: MenuItem) {
+    fun onAskDelete() {
         supportFragmentManager.beginTransaction()
             .add(DeleteDialogFragment(), null)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -210,11 +303,11 @@ class EditCalendarActivity: AppCompatActivity() {
         model.removeSubscription()
     }
 
-    fun onCancel(item: MenuItem?) {
+    fun onCancel() {
         finish()
     }
 
-    fun onShare(item: MenuItem) {
+    fun onShare() {
         model.subscriptionWithCredential.value?.let { (subscription, _) ->
             ShareCompat.IntentBuilder(this)
                     .setSubject(subscription.displayName)
@@ -224,8 +317,6 @@ class EditCalendarActivity: AppCompatActivity() {
                     .startChooser()
         }
     }
-
-    private fun dirty(): Boolean = subscriptionSettingsModel.dirty() || credentialsModel.dirty()
 
 
     /* view model and data source */
@@ -247,8 +338,8 @@ class EditCalendarActivity: AppCompatActivity() {
          * Updates the loaded subscription from the data provided by the view models.
          */
         fun updateSubscription(
-            subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
-            credentialsModel: CredentialsFragment.CredentialsModel
+            subscriptionSettingsModel: SubscriptionSettingsModel,
+            credentialsModel: SubscriptionCredentialsModel
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
@@ -325,11 +416,11 @@ class EditCalendarActivity: AppCompatActivity() {
                 .setTitle(R.string.edit_calendar_unsaved_changes)
                 .setPositiveButton(R.string.edit_calendar_save) { dialog, _ ->
                     dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.onSave(null)
+                    (activity as? EditCalendarActivity)?.onSave()
                 }
                 .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
                     dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.onCancel(null)
+                    (activity as? EditCalendarActivity)?.onCancel()
                 }
                 .create()
 

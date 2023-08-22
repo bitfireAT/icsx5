@@ -7,6 +7,8 @@
 
     <!-- common strings -->
     <string name="action_more">More</string>
+    <string name="action_back">Back</string>
+    <string name="action_close">Close</string>
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
     <string name="calendar_permissions_required_text">Required for storing downloaded events locally.</string>
