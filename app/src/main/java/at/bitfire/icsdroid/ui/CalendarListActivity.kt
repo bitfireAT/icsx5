@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.view.*
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,11 @@ class CalendarListActivity: AppCompatActivity() {
 
     /** Stores the post notification permission request for asking for permissions during runtime */
     private lateinit var requestNotificationPermission: () -> Unit
+
+    /** Used for launching EditCalendarActivity and editing a subscription */
+    private val editSubscriptionLauncher = registerForActivityResult(EditCalendarActivity.Contract) { result ->
+        result.message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,8 +149,6 @@ class CalendarListActivity: AppCompatActivity() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ActivityContent(paddingValues: PaddingValues) {
-        val context = LocalContext.current
-
         val isRefreshing by model.isRefreshing.observeAsState(initial = true)
         val pullRefreshState = rememberPullRefreshState(
             refreshing = isRefreshing,
@@ -231,9 +235,9 @@ class CalendarListActivity: AppCompatActivity() {
 
                 items(subscriptions ?: emptyList()) { subscription ->
                     CalendarListItem(subscription = subscription, onClick = {
-                        val intent = Intent(context, EditCalendarActivity::class.java)
-                        intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
-                        startActivity(intent)
+                        editSubscriptionLauncher.launch(
+                            EditCalendarActivity.Data(subscription)
+                        )
                     })
                 }
             }

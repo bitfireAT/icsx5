@@ -64,16 +64,9 @@ import kotlinx.coroutines.launch
 class EditCalendarActivity : AppCompatActivity() {
 
     companion object {
-        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
-        const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
-        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
-        const val EXTRA_ERROR_MESSAGE = "errorMessage"
-        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
-        const val EXTRA_THROWABLE = "errorThrowable"
-
-        private const val EXTRA_SUBSCRIPTION = "subscriptionId"
-        private const val EXTRA_ERROR = "errorMessage"
-        private const val EXTRA_EXCEPTION = "errorThrowable"
+        private const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
+        private const val EXTRA_ERROR_MESSAGE = "errorMessage"
+        private const val EXTRA_THROWABLE = "errorThrowable"
 
         private const val RESULT_CREATED = 2
         private const val RESULT_DELETED = 3
@@ -90,16 +83,16 @@ class EditCalendarActivity : AppCompatActivity() {
 
     data class Data(
         val subscription: Subscription,
-        val errorMessage: String?,
-        val errorThrowable: Throwable?
+        val errorMessage: String? = null,
+        val errorThrowable: Throwable? = null
     )
 
     object Contract : ActivityResultContract<Data, Result>() {
         override fun createIntent(context: Context, input: Data): Intent =
             Intent(context, EditCalendarActivity::class.java).apply {
-                putExtra(EXTRA_SUBSCRIPTION, input.subscription.id)
-                putExtra(EXTRA_ERROR, input.errorMessage)
-                putExtra(EXTRA_EXCEPTION, input.errorThrowable)
+                putExtra(EXTRA_SUBSCRIPTION_ID, input.subscription.id)
+                putExtra(EXTRA_ERROR_MESSAGE, input.errorMessage)
+                putExtra(EXTRA_THROWABLE, input.errorThrowable)
             }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Result = when (resultCode) {
@@ -117,7 +110,7 @@ class EditCalendarActivity : AppCompatActivity() {
         object: ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION, -1)
+                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1)
                 return SubscriptionModel(application, subscriptionId) as T
             }
         }
@@ -172,8 +165,8 @@ class EditCalendarActivity : AppCompatActivity() {
 
         // show error message from calling intent, if available
         if (inState == null)
-            intent.getStringExtra(EXTRA_ERROR)?.let { error ->
-                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_EXCEPTION) as? Throwable)
+            intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
+                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable)
                     .show(supportFragmentManager, null)
             }
 
