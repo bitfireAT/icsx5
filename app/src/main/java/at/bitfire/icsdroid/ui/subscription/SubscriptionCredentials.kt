@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.subscription
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,13 +29,12 @@ import at.bitfire.icsdroid.ui.reusable.SwitchRow
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-@Suppress("UnusedReceiverParameter")
 fun ColumnScope.SubscriptionCredentials(model: SubscriptionCredentialsModel = viewModel()) {
     val softwareKeyboard = LocalSoftwareKeyboardController.current
 
     val requiresAuth by model.requiresAuth.observeAsState(initial = false)
-    val username by model.username.observeAsState()
-    val password by model.password.observeAsState()
+    val username by model.username.observeAsState("")
+    val password by model.password.observeAsState("")
 
     SwitchRow(
         checked = requiresAuth,
@@ -44,42 +44,42 @@ fun ColumnScope.SubscriptionCredentials(model: SubscriptionCredentialsModel = vi
 
     val passwordFieldFocusRequester = remember { FocusRequester() }
 
-    TextField(
-        value = username.takeIf { requiresAuth } ?: "",
-        onValueChange = { model.username.value = it },
-        enabled = requiresAuth,
-        label = { Text(stringResource(R.string.add_calendar_user_name)) },
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrect = true,
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Next
-        ),
-        keyboardActions = KeyboardActions { passwordFieldFocusRequester.requestFocus() },
-        singleLine = true,
-        maxLines = 1,
-        modifier = Modifier
-            .fillMaxWidth()
-            .autofill(listOf(AutofillType.Username)) { model.username.value = it }
-    )
-    TextField(
-        value = password.takeIf { requiresAuth } ?: "",
-        onValueChange = { model.password.value = it },
-        enabled = requiresAuth,
-        label = { Text(stringResource(R.string.add_calendar_password)) },
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrect = true,
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions { softwareKeyboard?.hide() },
-        singleLine = true,
-        maxLines = 1,
-        modifier = Modifier
-            .fillMaxWidth()
-            .autofill(listOf(AutofillType.Password)) { model.password.value = it }
-    )
+    AnimatedVisibility(visible = requiresAuth) {
+        TextField(
+            value = username,
+            onValueChange = { model.username.value = it },
+            label = { Text(stringResource(R.string.add_calendar_user_name)) },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrect = true,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions { passwordFieldFocusRequester.requestFocus() },
+            singleLine = true,
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .autofill(listOf(AutofillType.Username)) { model.username.value = it }
+        )
+        TextField(
+            value = password,
+            onValueChange = { model.password.value = it },
+            label = { Text(stringResource(R.string.add_calendar_password)) },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrect = true,
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions { softwareKeyboard?.hide() },
+            singleLine = true,
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .autofill(listOf(AutofillType.Password)) { model.password.value = it }
+        )
+    }
 }
 
 
