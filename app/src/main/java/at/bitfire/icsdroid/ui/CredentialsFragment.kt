@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.databinding.CredentialsBinding
 
+@Deprecated("Migrate to Jetpack Compose", replaceWith = ReplaceWith("SubscriptionCredentials"))
 class CredentialsFragment: Fragment() {
 
     val model by activityViewModels<CredentialsModel>()
@@ -30,6 +31,12 @@ class CredentialsFragment: Fragment() {
         return binding.root
     }
 
+    @Deprecated(
+        "Moved ViewModel",
+        replaceWith = ReplaceWith(
+            "at.bitfire.icsdroid.ui.subscription.SubscriptionCredentialsModel"
+        )
+    )
     class CredentialsModel : ViewModel() {
         var originalRequiresAuth: Boolean? = null
         var originalUsername: String? = null
