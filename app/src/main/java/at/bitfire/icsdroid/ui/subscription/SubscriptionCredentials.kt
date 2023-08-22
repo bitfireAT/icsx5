@@ -62,6 +62,8 @@ fun ColumnScope.SubscriptionCredentials(model: SubscriptionCredentialsModel = vi
                 .fillMaxWidth()
                 .autofill(listOf(AutofillType.Username)) { model.username.value = it }
         )
+    }
+    AnimatedVisibility(visible = requiresAuth) {
         TextField(
             value = password,
             onValueChange = { model.password.value = it },
