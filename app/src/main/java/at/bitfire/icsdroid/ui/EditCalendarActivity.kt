@@ -6,10 +6,13 @@ package at.bitfire.icsdroid.ui
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
@@ -40,7 +43,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -49,6 +51,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.logic.BackHandlerCompat
 import at.bitfire.icsdroid.ui.reusable.AppBarIcon
 import at.bitfire.icsdroid.ui.reusable.AppBarMenu
@@ -61,9 +64,50 @@ import kotlinx.coroutines.launch
 class EditCalendarActivity : AppCompatActivity() {
 
     companion object {
+        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
         const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
+        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
         const val EXTRA_ERROR_MESSAGE = "errorMessage"
+        @Deprecated("Do not launch EditCalendarActivity manually. Use EditCalendarActivity.Contract")
         const val EXTRA_THROWABLE = "errorThrowable"
+
+        private const val EXTRA_SUBSCRIPTION = "subscriptionId"
+        private const val EXTRA_ERROR = "errorMessage"
+        private const val EXTRA_EXCEPTION = "errorThrowable"
+
+        private const val RESULT_CREATED = 2
+        private const val RESULT_DELETED = 3
+    }
+
+    enum class Result(
+        val code: Int,
+        @StringRes val message: Int?
+    ) {
+        CREATED(RESULT_CREATED, R.string.edit_calendar_saved),
+        DELETED(RESULT_DELETED, R.string.edit_calendar_deleted),
+        CANCELLED(Activity.RESULT_CANCELED, null)
+    }
+
+    data class Data(
+        val subscription: Subscription,
+        val errorMessage: String?,
+        val errorThrowable: Throwable?
+    )
+
+    object Contract : ActivityResultContract<Data, Result>() {
+        override fun createIntent(context: Context, input: Data): Intent =
+            Intent(context, EditCalendarActivity::class.java).apply {
+                putExtra(EXTRA_SUBSCRIPTION, input.subscription.id)
+                putExtra(EXTRA_ERROR, input.errorMessage)
+                putExtra(EXTRA_EXCEPTION, input.errorThrowable)
+            }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Result = when (resultCode) {
+            Activity.RESULT_CANCELED -> Result.CANCELLED
+            RESULT_CREATED -> Result.CREATED
+            RESULT_DELETED -> Result.DELETED
+            else -> throw IllegalStateException("Activity returned an invalid result")
+        }
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
@@ -73,7 +117,7 @@ class EditCalendarActivity : AppCompatActivity() {
         object: ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1)
+                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION, -1)
                 return SubscriptionModel(application, subscriptionId) as T
             }
         }
@@ -118,34 +162,18 @@ class EditCalendarActivity : AppCompatActivity() {
                 onSubscriptionLoaded(data)
         }
 
-        val invalidate = Observer<Any?> {
-            invalidateOptionsMenu()
-        }
-        arrayOf(
-            subscriptionSettingsModel.title,
-            subscriptionSettingsModel.color,
-            subscriptionSettingsModel.ignoreAlerts,
-            subscriptionSettingsModel.defaultAlarmMinutes,
-            subscriptionSettingsModel.defaultAllDayAlarmMinutes,
-            credentialsModel.requiresAuth,
-            credentialsModel.username,
-            credentialsModel.password
-        ).forEach { element ->
-            element.observe(this, invalidate)
-        }
-
         // handle status changes
-        model.successMessage.observe(this) { message ->
-            if (message != null) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        model.result.observe(this) { result ->
+            if (result != null) {
+                setResult(result.code)
                 finish()
             }
         }
 
         // show error message from calling intent, if available
         if (inState == null)
-            intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable)
+            intent.getStringExtra(EXTRA_ERROR)?.let { error ->
+                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_EXCEPTION) as? Throwable)
                     .show(supportFragmentManager, null)
             }
 
@@ -292,6 +320,10 @@ class EditCalendarActivity : AppCompatActivity() {
         model.updateSubscription(subscriptionSettingsModel, credentialsModel)
     }
 
+    fun onCancel() {
+        model.result.postValue(Result.CANCELLED)
+    }
+
     private fun onAskDelete() {
         supportFragmentManager.beginTransaction()
             .add(DeleteDialogFragment(), null)
@@ -326,7 +358,7 @@ class EditCalendarActivity : AppCompatActivity() {
         private val credentialsDao = db.credentialsDao()
         private val subscriptionsDao = db.subscriptionsDao()
 
-        val successMessage = MutableLiveData<String>()
+        val result = MutableLiveData<Result>()
 
         val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
 
@@ -359,7 +391,7 @@ class EditCalendarActivity : AppCompatActivity() {
                         credentialsDao.removeBySubscriptionId(subscriptionId)
 
                     // notify UI about success
-                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_saved))
+                    result.postValue(Result.CREATED)
 
                     // sync the subscription to reflect the changes in the calendar provider
                     SyncWorker.run(getApplication(), forceResync = true)
@@ -379,7 +411,7 @@ class EditCalendarActivity : AppCompatActivity() {
                     SyncWorker.run(getApplication())
 
                     // notify UI about success
-                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_deleted))
+                    result.postValue(Result.DELETED)
                 }
             }
         }
@@ -416,7 +448,7 @@ class EditCalendarActivity : AppCompatActivity() {
                 }
                 .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
                     dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.finish()
+                    (activity as? EditCalendarActivity)?.onCancel()
                 }
                 .create()
 
