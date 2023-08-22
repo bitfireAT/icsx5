@@ -201,7 +201,8 @@ class EditCalendarActivity : AppCompatActivity() {
         SubscriptionSettings(subscriptionSettingsModel)
 
         // if local file, hide authentication
-        val uri = model.subscriptionWithCredential.value?.subscription?.url
+        val subscription by model.subscriptionWithCredential.observeAsState()
+        val uri = subscription?.subscription?.url
         if (uri != null && HttpUtils.supportsAuthentication(uri)) {
             SubscriptionCredentials(credentialsModel)
         }
