@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui
+package at.bitfire.icsdroid.ui.subscription
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -38,7 +38,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.reusable.ColorCircle
 import at.bitfire.icsdroid.ui.reusable.SwitchRow
-import at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.color.ColorPalette
 import com.vanpra.composematerialdialogs.color.colorChooser

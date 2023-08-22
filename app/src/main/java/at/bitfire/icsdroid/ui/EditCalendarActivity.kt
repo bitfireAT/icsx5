@@ -56,6 +56,7 @@ import at.bitfire.icsdroid.ui.logic.BackHandlerCompat
 import at.bitfire.icsdroid.ui.reusable.AppBarIcon
 import at.bitfire.icsdroid.ui.reusable.AppBarMenu
 import at.bitfire.icsdroid.ui.subscription.SubscriptionCredentialsModel
+import at.bitfire.icsdroid.ui.subscription.SubscriptionSettings
 import at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel
 import com.google.accompanist.themeadapter.material.MdcTheme
 import kotlinx.coroutines.Dispatchers
