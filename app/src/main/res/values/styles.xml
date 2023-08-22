@@ -13,4 +13,11 @@
         <item name="colorOnSecondary">@android:color/white</item>
     </style>
 
+    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lightblue</item>
+        <item name="colorPrimaryDark">@color/darkblue</item>
+        <item name="colorSecondary">@color/redorange</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+    </style>
+
 </resources>

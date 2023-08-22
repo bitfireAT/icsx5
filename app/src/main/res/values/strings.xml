@@ -6,9 +6,12 @@
     <string name="account_type" translatable="false">at.bitfire.icsdroid</string>
 
     <!-- common strings -->
+    <string name="action_more">More</string>
     <string name="action_next">Next</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
+    <string name="calendar_permissions_required_text">Required for storing downloaded events locally.</string>
     <string name="notification_permissions_required">Notification permissions required</string>
+    <string name="notification_permissions_required_text">To show notifications in case of sync conditions like errors.</string>
     <string name="could_not_load_calendar">Couldn\'t load calendar</string>
     <string name="no_browser">No browser installed</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
@@ -32,11 +35,32 @@
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_synchronize">Synchronize now</string>
-    <string name="calendar_list_battery_whitelist">Battery: Whitelist ICSx⁵ for short sync intervals</string>
+    <string name="calendar_list_battery_whitelist_title">Battery optimization</string>
+    <string name="calendar_list_battery_whitelist_text">Battery optimizations may prevent sync intervals shorter than a day. Set %s to \"Not optimized\".</string>
+    <string name="calendar_list_battery_whitelist_open_settings">Open settings</string>
     <string name="calendar_list_battery_whitelist_settings">Settings</string>
     <!-- settings, currently in CalendarListActivity -->
-    <string name="settings_force_dark_theme">Force dark theme</string>
     <string name="calendar_list_privacy_policy">Privacy policy</string>
+    <string name="set_sync_interval_title">Set sync. interval:</string>
+    <string-array name="set_sync_interval_seconds" translatable="false">
+        <item>-1</item>
+        <item>900</item>
+        <item>3600</item>
+        <item>7200</item>
+        <item>14400</item>
+        <item>86400</item>
+        <item>604800</item>
+    </string-array>
+    <string-array name="set_sync_interval_names">
+        <item>Only manually</item>
+        <item>Every 15 minutes</item>
+        <item>Every hour</item>
+        <item>Every 2 hours</item>
+        <item>Every 4 hours</item>
+        <item>Once a day</item>
+        <item>Once a week</item>
+    </string-array>
+    <string name="settings_force_dark_theme">Force dark theme</string>
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
@@ -86,26 +110,6 @@
 
     <!-- synchronization -->
     <string name="sync_error_title">Synchronization error</string>
-    <string name="set_sync_interval_save">Save</string>
-    <string name="set_sync_interval_title">Set sync. interval:</string>
-    <string-array name="set_sync_interval_seconds" translatable="false">
-        <item>-1</item>
-        <item>900</item>
-        <item>3600</item>
-        <item>7200</item>
-        <item>14400</item>
-        <item>86400</item>
-        <item>604800</item>
-    </string-array>
-    <string-array name="set_sync_interval_names">
-        <item>Only manually</item>
-        <item>Every 15 minutes</item>
-        <item>Every hour</item>
-        <item>Every 2 hours</item>
-        <item>Every 4 hours</item>
-        <item>Once a day</item>
-        <item>Once a week</item>
-    </string-array>
     <string name="sync_permission_required">Permission required</string>
     <string name="sync_permission_required_sync_calendar">Needing permission to sync your calendar</string>
     <string name="could_not_open_storage_file">Couldn\'t open file from storage</string>
@@ -132,6 +136,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     <string name="app_info_description">Subscribe to Webcal feeds</string>
     <string name="app_info_twitter">News &amp; updates</string>
     <string name="app_info_web_site">Web site</string>
+    <string name="app_info_mastodon" translatable="false">Mastodon</string>
 
     <string name="donate_title">Open-Source Information</string>
     <string name="donate_message">We\'re happy that you use ICSx⁵, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSx⁵, please consider a donation.</string>

@@ -69,8 +69,8 @@ class InfoActivity: ComponentActivity() {
         launchUri(Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity"))
     }
 
-    fun showTwitter() {
-        launchUri(Uri.parse("https://twitter.com/icsx5app"))
+    fun showMastodon() {
+        launchUri(Uri.parse("https://fosstodon.org/@davx5app"))
     }
 
     private fun launchUri(uri: Uri) {
@@ -111,10 +111,10 @@ class InfoActivity: ComponentActivity() {
                                     contentDescription = stringResource(R.string.app_info_web_site)
                                 )
                             }
-                            IconButton({ showTwitter() }) {
+                            IconButton({ showMastodon() }) {
                                 Icon(
-                                    painter = painterResource(R.drawable.twitter_white),
-                                    contentDescription = stringResource(R.string.app_info_web_site)
+                                    painter = painterResource(R.drawable.mastodon_white),
+                                    contentDescription = stringResource(R.string.app_info_mastodon)
                                 )
                             }
                         }

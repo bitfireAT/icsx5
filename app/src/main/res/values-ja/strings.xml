@@ -18,7 +18,7 @@
   <string name="calendar_list_not_synced_yet">まだ同期されていません</string>
   <string name="calendar_list_set_sync_interval">同期間隔を設定</string>
   <string name="calendar_list_synchronize">今すぐ同期</string>
-  <string name="calendar_list_battery_whitelist">バッテリー: 一定間隔で同期を実行するため ICSx⁵ をホワイトリストに追加してください</string>
+  <string name="calendar_list_battery_whitelist_title">バッテリー: 一定間隔で同期を実行するため ICSx⁵ をホワイトリストに追加してください</string>
   <string name="calendar_list_battery_whitelist_settings">設定</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">ダークテーマを使用</string>

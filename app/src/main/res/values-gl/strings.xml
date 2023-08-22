@@ -11,7 +11,7 @@
   <string name="calendar_list_info">Acerca de ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">aínda non sincronizaches</string>
   <string name="calendar_list_set_sync_interval">Establece intervalo de sincr.</string>
-  <string name="calendar_list_battery_whitelist">Batería: Permitelle a ICSx⁵ intervalos curtos de sincr</string>
+  <string name="calendar_list_battery_whitelist_title">Batería: Permitelle a ICSx⁵ intervalos curtos de sincr</string>
   <string name="calendar_list_battery_whitelist_settings">Axustes</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Forzar decorado escuro</string>

@@ -18,7 +18,7 @@
   <string name="calendar_list_not_synced_yet">尚未同步</string>
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
   <string name="calendar_list_synchronize">立即同步</string>
-  <string name="calendar_list_battery_whitelist">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
+  <string name="calendar_list_battery_whitelist_title">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
   <string name="calendar_list_battery_whitelist_settings">设置</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">强制深色主题</string>
