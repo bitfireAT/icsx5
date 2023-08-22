@@ -288,11 +288,11 @@ class EditCalendarActivity : AppCompatActivity() {
         }
     }
 
-    fun onSave() {
+    private fun onSave() {
         model.updateSubscription(subscriptionSettingsModel, credentialsModel)
     }
 
-    fun onAskDelete() {
+    private fun onAskDelete() {
         supportFragmentManager.beginTransaction()
             .add(DeleteDialogFragment(), null)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -303,11 +303,7 @@ class EditCalendarActivity : AppCompatActivity() {
         model.removeSubscription()
     }
 
-    fun onCancel() {
-        finish()
-    }
-
-    fun onShare() {
+    private fun onShare() {
         model.subscriptionWithCredential.value?.let { (subscription, _) ->
             ShareCompat.IntentBuilder(this)
                     .setSubject(subscription.displayName)
@@ -420,7 +416,7 @@ class EditCalendarActivity : AppCompatActivity() {
                 }
                 .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
                     dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.onCancel()
+                    (activity as? EditCalendarActivity)?.finish()
                 }
                 .create()
 
