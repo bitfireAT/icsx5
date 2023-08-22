@@ -48,7 +48,7 @@ import org.joda.time.format.PeriodFormat
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 fun SubscriptionSettings_TitleAndColor(
-    subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
+    model: SubscriptionSettingsModel = viewModel()
 ) {
     val softwareKeyboard = LocalSoftwareKeyboardController.current
 
@@ -57,9 +57,9 @@ fun SubscriptionSettings_TitleAndColor(
         style = MaterialTheme.typography.h5
     )
 
-    val url by subscriptionSettingsModel.url.observeAsState("")
-    val title by subscriptionSettingsModel.title.observeAsState("")
-    val color by subscriptionSettingsModel.color.map { Color(it) }.observeAsState(Color.Black)
+    val url by model.url.observeAsState("")
+    val title by model.title.observeAsState("")
+    val color by model.color.map { Color(it) }.observeAsState(Color.Black)
 
     Card(elevation = 1.dp) {
         Row(
@@ -79,7 +79,7 @@ fun SubscriptionSettings_TitleAndColor(
                 }
                 TextField(
                     value = title,
-                    onValueChange = { subscriptionSettingsModel.title.value = it },
+                    onValueChange = { model.title.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.add_calendar_title_hint)) },
                     keyboardOptions = KeyboardOptions(
@@ -121,7 +121,7 @@ fun SubscriptionSettings_TitleAndColor(
                         .takeIf { it >= 0 }
                         ?: (colorPalette.size - 1)
                 ) {
-                    subscriptionSettingsModel.color.value = it.toArgb()
+                    model.color.value = it.toArgb()
                 }
             }
 
@@ -189,10 +189,10 @@ fun SubscriptionSettings_AlertDialog(liveData: MutableLiveData<Long>, onDismissR
 
 @Composable
 fun SubscriptionSettings_Alarms(
-    subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
+    model: SubscriptionSettingsModel = viewModel()
 ) {
     /**
-     * Must be set to a LiveData from [subscriptionSettingsModel]. Dialog will show, and the value
+     * Must be set to a LiveData from [model]. Dialog will show, and the value
      * introduced by the user will be passed to this LiveData. When dialog is dismissed this is
      * updated to null.
      */
@@ -215,21 +215,21 @@ fun SubscriptionSettings_Alarms(
         modifier = Modifier.padding(top = 16.dp)
     )
 
-    val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState()
-    val defaultAlarm by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState()
-    val defaultAllDayAlarm by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState()
+    val ignoreAlerts by model.ignoreAlerts.observeAsState()
+    val defaultAlarm by model.defaultAlarmMinutes.observeAsState()
+    val defaultAllDayAlarm by model.defaultAllDayAlarmMinutes.observeAsState()
 
     SwitchRow(
         checked = ignoreAlerts ?: false,
         enabled = ignoreAlerts != null,
-        onCheckedChange = { subscriptionSettingsModel.ignoreAlerts.value = it },
+        onCheckedChange = { model.ignoreAlerts.value = it },
         text = stringResource(R.string.add_calendar_alarms_ignore_title),
         summary = stringResource(R.string.add_calendar_alarms_ignore_description)
     )
 
     SwitchRow(
         checked = defaultAlarm != null,
-        onCheckedChange = { onCheckedChange(it, subscriptionSettingsModel.defaultAlarmMinutes) },
+        onCheckedChange = { onCheckedChange(it, model.defaultAlarmMinutes) },
         text = stringResource(R.string.add_calendar_alarms_default_title),
         summary = defaultAlarm?.let {
             val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(it.toInt()))
@@ -239,7 +239,7 @@ fun SubscriptionSettings_Alarms(
 
     SwitchRow(
         checked = defaultAllDayAlarm != null,
-        onCheckedChange = { onCheckedChange(it, subscriptionSettingsModel.defaultAllDayAlarmMinutes) },
+        onCheckedChange = { onCheckedChange(it, model.defaultAllDayAlarmMinutes) },
         text = stringResource(R.string.add_calendar_alarms_default_all_day_title),
         summary = defaultAllDayAlarm?.let {
             val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(it.toInt()))
@@ -251,11 +251,11 @@ fun SubscriptionSettings_Alarms(
 @Suppress("UnusedReceiverParameter")
 @Composable
 fun ColumnScope.SubscriptionSettings(
-    subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
+    model: SubscriptionSettingsModel = viewModel()
 ) {
-    SubscriptionSettings_TitleAndColor(subscriptionSettingsModel)
+    SubscriptionSettings_TitleAndColor(model)
 
-    SubscriptionSettings_Alarms(subscriptionSettingsModel)
+    SubscriptionSettings_Alarms(model)
 }
 
 @Preview(showSystemUi = true, showBackground = true)
