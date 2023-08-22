@@ -26,6 +26,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import org.joda.time.Minutes
 import org.joda.time.format.PeriodFormat
 
+@Deprecated("Migrate to Jetpack Compose", replaceWith = ReplaceWith("SubscriptionSettings"))
 class SubscriptionSettingsFragment : Fragment() {
 
     private val model by activityViewModels<SubscriptionSettingsModel>()
@@ -136,6 +137,12 @@ class SubscriptionSettingsFragment : Fragment() {
             .show()
     }
 
+    @Deprecated(
+        "Moved ViewModel",
+        replaceWith = ReplaceWith(
+            "at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel"
+        )
+    )
     class SubscriptionSettingsModel : ViewModel() {
         var url = MutableLiveData<String>()
 
