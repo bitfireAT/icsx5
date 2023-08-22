@@ -1,7 +1,10 @@
 package at.bitfire.icsdroid.ui.reusable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -11,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SwitchRow(
@@ -18,6 +22,7 @@ fun SwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     text: String,
     modifier: Modifier = Modifier,
+    summary: String? = null,
     enabled: Boolean = true
 ) {
     Row(
@@ -29,13 +34,25 @@ fun SwitchRow(
             onCheckedChange = onCheckedChange,
             enabled = enabled
         )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.caption,
+        Column(
             modifier = Modifier
                 .weight(1f)
+                .padding(start = 4.dp)
                 .clickable(enabled) { onCheckedChange(!checked) }
-        )
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.subtitle2,
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (summary != null) {
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
     }
 }
 
