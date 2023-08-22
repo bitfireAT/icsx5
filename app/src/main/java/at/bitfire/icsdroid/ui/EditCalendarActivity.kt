@@ -46,6 +46,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
@@ -55,6 +56,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.logic.BackHandlerCompat
 import at.bitfire.icsdroid.ui.reusable.AppBarIcon
 import at.bitfire.icsdroid.ui.reusable.AppBarMenu
+import at.bitfire.icsdroid.ui.subscription.SubscriptionCredentials
 import at.bitfire.icsdroid.ui.subscription.SubscriptionCredentialsModel
 import at.bitfire.icsdroid.ui.subscription.SubscriptionSettings
 import at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel
@@ -196,17 +198,13 @@ class EditCalendarActivity : AppCompatActivity() {
 
     @Composable
     fun ColumnScope.Content() {
-        /*
-        // if local file, hide authentication fragment
-        val uri = model.subscriptionWithCredential.value?.subscription?.url
-        binding.credentials.visibility =
-            if (uri != null && HttpUtils.supportsAuthentication(uri))
-                View.VISIBLE
-            else
-                View.GONE
-         */
-
         SubscriptionSettings(subscriptionSettingsModel)
+
+        // if local file, hide authentication
+        val uri = model.subscriptionWithCredential.value?.subscription?.url
+        if (uri != null && HttpUtils.supportsAuthentication(uri)) {
+            SubscriptionCredentials(credentialsModel)
+        }
     }
 
     @Composable
