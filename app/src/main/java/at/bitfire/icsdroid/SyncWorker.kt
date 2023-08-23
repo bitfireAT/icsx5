@@ -45,6 +45,7 @@ class SyncWorker(
          */
         const val ONLY_MIGRATE = "onlyMigration"
 
+        const val PROGRESS_STEP = "step"
         const val PROGRESS_MAX = "max"
         const val PROGRESS_CURRENT = "current"
         const val PROGRESS_INDETERMINATE = "indeterminate"
@@ -252,7 +253,7 @@ class SyncWorker(
         val cancelIntent = WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
 
         val title = applicationContext.getString(R.string.notification_sync_title)
-        val message = applicationContext.getString(step.name)
+        val message = applicationContext.getString(step.displayName)
         val cancel = applicationContext.getString(R.string.sync_cancel)
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationUtils.CHANNEL_SYNC_PROGRESS)
@@ -277,30 +278,33 @@ class SyncWorker(
         }.also { foregroundInfo = it }
     }
 
-    abstract class ProgressInfo {
+    sealed class SyncSteps {
         abstract val max: Int
         abstract val progress: Int
         abstract val indeterminate: Boolean
 
+        /** The step name, will be shown in the notification's text */
+        @get:StringRes
+        abstract val displayName: Int
+
+        /** The identifier of this step. Usually a short name of the object implementing the class */
+        abstract val id: String
+
         fun workData(): Data = workDataOf(
+            PROGRESS_STEP to displayName,
             PROGRESS_CURRENT to progress,
             PROGRESS_MAX to max,
             PROGRESS_INDETERMINATE to indeterminate
         )
-    }
-
-    sealed class SyncSteps: ProgressInfo() {
-
-        /** The step name, will be shown in the notification's text */
-        @get:StringRes
-        abstract val name: Int
 
         object Start: SyncSteps() {
             override val max: Int = -1
             override val progress: Int = -1
             override val indeterminate: Boolean = true
 
-            override val name: Int = R.string.notification_sync_start
+            override val displayName: Int = R.string.notification_sync_start
+
+            override val id: String = "start"
         }
 
         object Migration: SyncSteps() {
@@ -308,7 +312,9 @@ class SyncWorker(
             override val progress: Int = -1
             override val indeterminate: Boolean = true
 
-            override val name: Int = R.string.notification_sync_migration
+            override val displayName: Int = R.string.notification_sync_migration
+
+            override val id: String = "migration"
         }
 
         class Subscriptions(
@@ -317,7 +323,9 @@ class SyncWorker(
         ): SyncSteps() {
             override val indeterminate: Boolean = false
 
-            override val name: Int = R.string.notification_sync_calendar
+            override val displayName: Int = R.string.notification_sync_calendar
+
+            override val id: String = "subscriptions"
         }
 
         class Calendar(
@@ -326,7 +334,9 @@ class SyncWorker(
         ): SyncSteps() {
             override val indeterminate: Boolean = false
 
-            override val name: Int = R.string.notification_sync_calendar
+            override val displayName: Int = R.string.notification_sync_calendar
+
+            override val id: String = "calendar"
         }
     }
 
