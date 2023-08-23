@@ -7,7 +7,7 @@ apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     namespace 'at.bitfire.icsdroid'
 
