@@ -99,6 +99,8 @@ class SyncWorker(
     private val account = AppAccount.get(applicationContext)
     lateinit var provider: ContentProviderClient
 
+    private lateinit var foregroundInfo: ForegroundInfo
+
     private var forceReSync: Boolean = false
 
     override suspend fun doWork(): Result {
@@ -150,6 +152,8 @@ class SyncWorker(
 
         return Result.success()
     }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo = foregroundInfo
 
     /**
      * Migrates all the legacy calendar-based subscriptions to the database. Performs these steps:
@@ -269,7 +273,7 @@ class SyncWorker(
             ForegroundInfo(notificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             ForegroundInfo(notificationId, notification)
-        }
+        }.also { foregroundInfo = it }
     }
 
     abstract class ProgressInfo {
