@@ -145,9 +145,9 @@ class CalendarListActivity: AppCompatActivity() {
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
-        val isRefreshing by model.isRefreshing.observeAsState(initial = true)
+        val syncWorker by model.syncWorker.observeAsState()
         val pullRefreshState = rememberPullRefreshState(
-            refreshing = isRefreshing,
+            refreshing = syncWorker != null,
             onRefresh = ::onRefreshRequested
         )
 
@@ -230,16 +230,28 @@ class CalendarListActivity: AppCompatActivity() {
                 }
 
                 items(subscriptions ?: emptyList()) { subscription ->
-                    CalendarListItem(subscription = subscription, onClick = {
-                        val intent = Intent(context, EditCalendarActivity::class.java)
-                        intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
-                        startActivity(intent)
-                    })
+                    val syncStep = syncWorker
+                        ?.progress
+                        ?.let(SyncWorker.SyncSteps::fromData)
+                        ?.takeIf { it.subscriptionId == subscription.id }
+
+                    CalendarListItem(
+                        subscription = subscription,
+                        syncStep = syncStep,
+                        onClick = {
+                            val intent = Intent(context, EditCalendarActivity::class.java)
+                            intent.putExtra(
+                                EditCalendarActivity.EXTRA_SUBSCRIPTION_ID,
+                                subscription.id
+                            )
+                            startActivity(intent)
+                        }
+                    )
                 }
             }
 
             PullRefreshIndicator(
-                refreshing = isRefreshing,
+                refreshing = syncWorker != null,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
@@ -345,9 +357,9 @@ class CalendarListActivity: AppCompatActivity() {
         val askForWhitelisting = MutableLiveData(false)
 
 
-        /** whether there are running sync workers */
-        val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
-            workInfos.any { it.state == WorkInfo.State.RUNNING }
+        /** contains a list of all the workers currently running */
+        val syncWorker = SyncWorker.liveStatus(application).map { workInfos ->
+            workInfos.find { it.state == WorkInfo.State.RUNNING }
         }
 
         /** LiveData watching the subscriptions */

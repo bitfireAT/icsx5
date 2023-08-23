@@ -26,6 +26,7 @@
     <string name="notification_sync_migration">Running migrations…</string>
     <string name="notification_sync_subscriptions">Fetching subscriptions…</string>
     <string name="notification_sync_calendar">Updating local calendar…</string>
+    <string name="notification_sync_events">Processing events…</string>
     <string name="sync_cancel">Cancel</string>
 
     <!-- CalendarListActivity -->

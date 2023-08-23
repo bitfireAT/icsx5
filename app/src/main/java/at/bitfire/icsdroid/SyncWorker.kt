@@ -48,7 +48,7 @@ class SyncWorker(
         const val PROGRESS_STEP = "step"
         const val PROGRESS_MAX = "max"
         const val PROGRESS_CURRENT = "current"
-        const val PROGRESS_INDETERMINATE = "indeterminate"
+        const val PROGRESS_SUBSCRIPTION = "subscription"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -109,7 +109,7 @@ class SyncWorker(
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
-        setForeground(createForegroundInfo(SyncSteps.Start))
+        updateForegroundInfo(SyncSteps.Start)
 
         provider =
             try {
@@ -139,10 +139,15 @@ class SyncWorker(
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
 
-                setForeground(createForegroundInfo(SyncSteps.Calendar(subscriptions.size, i)))
+                updateForegroundInfo(SyncSteps.Calendar(subscriptions.size, i, subscription.id))
 
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
-                ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
+                ProcessEventsTask(applicationContext, subscription, calendar, forceReSync)
+                    .sync { progress, max ->
+                        updateForegroundInfo(
+                            SyncSteps.ProcessEvents(max, progress, subscription.id)
+                        )
+                    }
             }
         } catch (e: InterruptedException) {
             Log.e(TAG, "Thread interrupted", e)
@@ -164,7 +169,7 @@ class SyncWorker(
      * 3. If there's no matching [Subscription], create it.
      */
     private suspend fun migrateLegacyCalendars() {
-        setForeground(createForegroundInfo(SyncSteps.Migration))
+        updateForegroundInfo(SyncSteps.Migration)
 
         @Suppress("DEPRECATION")
         val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
@@ -215,7 +220,7 @@ class SyncWorker(
 
         // synchronize them
         for ((i, subscription) in subscriptions.withIndex()) {
-            setForeground(createForegroundInfo(SyncSteps.Subscriptions(subscriptions.size, i)))
+            updateForegroundInfo(SyncSteps.Subscriptions(subscriptions.size, i, subscription.id))
 
             val calendarId = subscription.calendarId
             val calendar = calendars.remove(calendarId)
@@ -245,7 +250,15 @@ class SyncWorker(
         }
     }
 
-    private suspend fun createForegroundInfo(step: SyncSteps): ForegroundInfo {
+    /**
+     * Updates the progress information for the worker. Sets the value of [foregroundInfo] so that
+     * it can be fetched by [getForegroundInfo] at any moment.
+     *
+     * Also updates the current progress of synchronization with [setProgress].
+     *
+     * @param step The current step of synchronization.
+     */
+    private suspend fun updateForegroundInfo(step: SyncSteps): ForegroundInfo {
         NotificationUtils.createChannels(applicationContext)
 
         val notificationId = id.toString().hashCode()
@@ -268,7 +281,9 @@ class SyncWorker(
             .build()
 
         setProgress(
-            step.workData()
+            step.workData().also {
+                Log.i("SyncWorker", "Progress: ${step.id} - ${step.progress} / ${step.max} - ${step.subscriptionId}\nData: $it")
+            }
         )
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -279,9 +294,44 @@ class SyncWorker(
     }
 
     sealed class SyncSteps {
+        companion object {
+            /**
+             * Provides a sync step from the data given by a worker. Extracts its [SyncSteps.id],
+             * which is used for identifying which step is currently running.
+             *
+             * @param data The data to extract the step from.
+             *
+             * @return The instance of [SyncSteps] associated with the data stored at [data], or
+             * null if the data doesn't contain a step name, or it could not be recognized.
+             */
+            fun fromData(data: Data): SyncSteps? = when(data.getString(PROGRESS_STEP)) {
+                Start.id -> Start
+                Migration.id -> Migration
+                Subscriptions.id -> Subscriptions(
+                    data.getInt(PROGRESS_MAX, -1),
+                    data.getInt(PROGRESS_CURRENT, -1),
+                    data.getLong(PROGRESS_SUBSCRIPTION, -1)
+                )
+                ProcessEvents.id -> ProcessEvents(
+                    data.getInt(PROGRESS_MAX, -1),
+                    data.getInt(PROGRESS_CURRENT, -1),
+                    data.getLong(PROGRESS_SUBSCRIPTION, -1)
+                )
+                Calendar.id -> Calendar(
+                    data.getInt(PROGRESS_MAX, -1),
+                    data.getInt(PROGRESS_CURRENT, -1),
+                    data.getLong(PROGRESS_SUBSCRIPTION, -1)
+                )
+                else -> null
+            }
+        }
+
         abstract val max: Int
         abstract val progress: Int
         abstract val indeterminate: Boolean
+
+        /** can be used for relating a progress step with a subscription */
+        abstract val subscriptionId: Long?
 
         /** The step name, will be shown in the notification's text */
         @get:StringRes
@@ -290,17 +340,23 @@ class SyncWorker(
         /** The identifier of this step. Usually a short name of the object implementing the class */
         abstract val id: String
 
+        /** Obtains a float from 0 to 1 representing the proportion between [progress] and [max] */
+        val percentage: Float
+            get() = progress.toFloat() / max
+
         fun workData(): Data = workDataOf(
-            PROGRESS_STEP to displayName,
+            PROGRESS_STEP to id,
             PROGRESS_CURRENT to progress,
             PROGRESS_MAX to max,
-            PROGRESS_INDETERMINATE to indeterminate
+            PROGRESS_SUBSCRIPTION to subscriptionId
         )
 
         object Start: SyncSteps() {
             override val max: Int = -1
             override val progress: Int = -1
             override val indeterminate: Boolean = true
+
+            override val subscriptionId: Long? = null
 
             override val displayName: Int = R.string.notification_sync_start
 
@@ -312,6 +368,8 @@ class SyncWorker(
             override val progress: Int = -1
             override val indeterminate: Boolean = true
 
+            override val subscriptionId: Long? = null
+
             override val displayName: Int = R.string.notification_sync_migration
 
             override val id: String = "migration"
@@ -319,24 +377,50 @@ class SyncWorker(
 
         class Subscriptions(
             override val max: Int,
-            override val progress: Int
+            override val progress: Int,
+            override val subscriptionId: Long
         ): SyncSteps() {
+            companion object {
+                const val id: String = "subscriptions"
+            }
+
             override val indeterminate: Boolean = false
 
             override val displayName: Int = R.string.notification_sync_calendar
 
-            override val id: String = "subscriptions"
+            override val id: String = Companion.id
+        }
+
+        class ProcessEvents(
+            override val max: Int,
+            override val progress: Int,
+            override val subscriptionId: Long
+        ): SyncSteps() {
+            companion object {
+                const val id: String = "process_events"
+            }
+
+            override val indeterminate: Boolean = false
+
+            override val displayName: Int = R.string.notification_sync_events
+
+            override val id: String = Companion.id
         }
 
         class Calendar(
             override val max: Int,
-            override val progress: Int
+            override val progress: Int,
+            override val subscriptionId: Long
         ): SyncSteps() {
+            companion object {
+                const val id: String = "calendar"
+            }
+
             override val indeterminate: Boolean = false
 
             override val displayName: Int = R.string.notification_sync_calendar
 
-            override val id: String = "calendar"
+            override val id: String = Companion.id
         }
     }
 

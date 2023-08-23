@@ -1,15 +1,19 @@
 package at.bitfire.icsdroid.ui.list
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -20,14 +24,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.reusable.ColorCircle
 import java.text.DateFormat
 import java.util.Date
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CalendarListItem(
     subscription: Subscription,
+    syncStep: SyncWorker.SyncSteps?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -73,6 +80,41 @@ fun CalendarListItem(
                     color = colorResource(R.color.redorange)
                 )
             }
+            AnimatedContent(
+                // Update visibility with changes of step type
+                targetState = syncStep?.id,
+                label = "animate-progress"
+            ) {
+                if (syncStep != null) {
+                    if (syncStep.indeterminate) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        )
+                    } else {
+                        LinearProgressIndicator(
+                            progress = syncStep.percentage,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        )
+                    }
+                }
+            }
+            AnimatedContent(
+                // Update visibility with changes of step type
+                targetState = syncStep?.id,
+                label = "animate-progress-label",
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                if (syncStep != null) {
+                    Text(
+                        text = stringResource(syncStep.displayName),
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+            }
         }
     }
 }
@@ -89,7 +131,8 @@ fun CalendarListItem_Preview(
             color = data.color,
             lastSync = data.lastUpdate,
             errorMessage = data.errorMessage
-        )
+        ),
+        syncStep = data.step
     ) { }
 }
 
@@ -98,7 +141,8 @@ data class CalendarListItemPreviewData(
     val url: Uri,
     val color: Int? = null,
     val lastUpdate: Long? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val step: SyncWorker.SyncSteps? = null
 )
 
 class CalendarListItemPreviewProvider : PreviewParameterProvider<CalendarListItemPreviewData> {
@@ -121,6 +165,20 @@ class CalendarListItemPreviewProvider : PreviewParameterProvider<CalendarListIte
             url = Uri.parse("http://example.com/mycalendar.ics"),
             displayName = "Example Subscription",
             errorMessage = "Testing error message.\nThis can be multiline"
-        )
+        ),
+        // Subscription with color, no error, no last update, synchronizing undetermined
+        CalendarListItemPreviewData(
+            url = Uri.parse("http://example.com/mycalendar.ics"),
+            displayName = "Example Subscription",
+            color = Color.Red.toArgb(),
+            step = SyncWorker.SyncSteps.Start
+        ),
+        // Subscription with color, no error, no last update, synchronizing progress
+        CalendarListItemPreviewData(
+            url = Uri.parse("http://example.com/mycalendar.ics"),
+            displayName = "Example Subscription",
+            color = Color.Red.toArgb(),
+            step = SyncWorker.SyncSteps.Subscriptions(100, 75, -1)
+        ),
     )
 }

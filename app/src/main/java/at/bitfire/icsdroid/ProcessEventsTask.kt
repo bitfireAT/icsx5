@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.WorkerThread
 import androidx.core.app.NotificationCompat
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.util.DateUtils
@@ -18,6 +19,7 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
+import kotlinx.coroutines.runBlocking
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
@@ -52,8 +54,12 @@ class ProcessEventsTask(
     private val db = AppDatabase.getInstance(context)
     private val subscriptionsDao = db.subscriptionsDao()
 
-    suspend fun sync() {
+    private var progress: (suspend (current: Int, max: Int) -> Unit)? = null
+
+    suspend fun sync(progress: (@WorkerThread suspend (current: Int, max: Int) -> Unit)? = null) {
         Thread.currentThread().contextClassLoader = context.classLoader
+
+        this.progress = progress
 
         try {
             processEvents()
@@ -208,7 +214,9 @@ class ProcessEventsTask(
         )
         val uids = HashSet<String>(events.size)
 
-        for (ev in events) {
+        for ((i, ev) in events.withIndex()) {
+            runBlocking { progress?.invoke(i, events.size) }
+
             val event = updateAlarms(ev)
             val uid = event.uid!!
             Log.d(Constants.TAG, "Found VEVENT: $uid")
