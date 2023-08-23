@@ -263,6 +263,7 @@ class SyncWorker(
             .setOngoing(true)
             .setProgress(step.max, step.progress, step.indeterminate)
             .addAction(android.R.drawable.ic_delete, cancel, cancelIntent)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
         setProgress(
