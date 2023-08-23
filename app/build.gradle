@@ -105,7 +105,7 @@ dependencies {
     implementation 'com.github.bitfireAT:cert4android:3817e62d9f173d8f8b800d24769f42cb205f560e'
     implementation 'com.github.bitfireAT:ical4android:a78e72f580'
 
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.core:core-ktx:1.10.1'
