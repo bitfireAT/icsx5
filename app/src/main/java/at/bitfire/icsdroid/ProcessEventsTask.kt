@@ -19,7 +19,9 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
@@ -215,7 +217,7 @@ class ProcessEventsTask(
         val uids = HashSet<String>(events.size)
 
         for ((i, ev) in events.withIndex()) {
-            runBlocking { progress?.invoke(i, events.size) }
+            CoroutineScope(Dispatchers.IO).launch { progress?.invoke(i, events.size) }
 
             val event = updateAlarms(ev)
             val uid = event.uid!!
