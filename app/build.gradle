@@ -45,7 +45,7 @@ android {
         kotlinCompilerExtensionVersion = '1.5.1'
     }
 
-    flavorDimensions "distribution"
+    flavorDimensions = ["distribution"]
     productFlavors {
         standard
         gplay
