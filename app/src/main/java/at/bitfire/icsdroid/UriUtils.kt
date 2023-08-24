@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
 import java.net.URISyntaxException
 
@@ -19,7 +20,12 @@ object UriUtils {
      * @return true on success, false if the Intent could not be resolved (for instance, because
      * there is no user agent installed)
      */
-    fun launchUri(context: Context, uri: Uri, action: String = Intent.ACTION_VIEW, toastInstallBrowser: Boolean = true): Boolean {
+    fun launchUri(
+        context: Context,
+        uri: Uri,
+        action: String = Intent.ACTION_VIEW,
+        toastInstallBrowser: Boolean = true
+    ): Boolean {
         val intent = Intent(action, uri)
         try {
             context.startActivity(intent)
@@ -43,5 +49,26 @@ object UriUtils {
         true
     } catch (e: URISyntaxException) {
         false
+    }
+
+    /**
+     * Tries to extract the name of the file associated with the given [Uri]. May return null if the
+     * uri doesn't have a valid [Uri.getPath].
+     */
+    fun Uri.getFileName(context: Context): String? {
+        var result: String? = null
+        if (scheme == "content") {
+            context.contentResolver
+                .query(this, null, null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (index >= 0) {
+                            result = cursor.getString(index)
+                        }
+                    }
+                }
+        }
+        return result ?: path?.substringAfterLast('/')
     }
 }
