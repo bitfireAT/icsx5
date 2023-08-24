@@ -82,6 +82,7 @@
             android:label="@string/activity_add_calendar"
             android:parentActivityName=".ui.CalendarListActivity"
             android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="UnusedAttribute">
             <intent-filter>
                 <!-- intent filter for resources with text/calendar MIME type -->
