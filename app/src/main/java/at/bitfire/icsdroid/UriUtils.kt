@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import java.net.URISyntaxException
 
 object UriUtils {
     /**
@@ -31,5 +32,16 @@ object UriUtils {
             Toast.makeText(context, R.string.install_browser, Toast.LENGTH_LONG).show()
 
         return false
+    }
+
+    /**
+     * Tries to parse the given URL into an [Uri]. If it cannot be converted,`false` is returned,
+     * otherwise `true`.
+     */
+    fun isValidUri(url: String): Boolean = try {
+        Uri.parse(url)
+        true
+    } catch (e: URISyntaxException) {
+        false
     }
 }
