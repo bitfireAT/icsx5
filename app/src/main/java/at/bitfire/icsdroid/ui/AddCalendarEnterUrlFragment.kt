@@ -22,10 +22,11 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
-import okhttp3.HttpUrl.Companion.toHttpUrl
 
+@Deprecated("Migrate to Jetpack Compose")
 class AddCalendarEnterUrlFragment: Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()

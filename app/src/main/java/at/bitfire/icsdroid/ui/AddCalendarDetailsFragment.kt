@@ -25,6 +25,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@Deprecated("Migrate to Jetpack Compose")
 class AddCalendarDetailsFragment: Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()

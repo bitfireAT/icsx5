@@ -23,13 +23,14 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
-import java.io.InputStream
-import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
 
+@Deprecated("Migrate to Jetpack Compose")
 class AddCalendarValidationFragment: DialogFragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
