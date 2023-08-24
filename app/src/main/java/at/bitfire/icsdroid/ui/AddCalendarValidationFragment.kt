@@ -101,6 +101,10 @@ class AddCalendarValidationFragment: DialogFragment() {
 
     /* activityModel and data source */
 
+    @Deprecated(
+        "Moved to subscription package",
+        ReplaceWith("at.bitfire.icsdroid.ui.subscription.SubscriptionValidationModel")
+    )
     class ValidationModel(
             val context: Application,
             val originalUri: Uri,
