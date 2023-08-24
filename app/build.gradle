@@ -1,3 +1,5 @@
+import com.mikepenz.aboutlibraries.plugin.DuplicateMode
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -5,8 +7,7 @@ apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '33.0.2'
+    compileSdk 34
 
     namespace 'at.bitfire.icsdroid'
 
@@ -43,10 +44,10 @@ android {
 
     composeOptions {
         // Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = '1.4.7'
+        kotlinCompilerExtensionVersion = '1.5.1'
     }
 
-    flavorDimensions "distribution"
+    flavorDimensions = ["distribution"]
     productFlavors {
         standard
         gplay
@@ -88,7 +89,7 @@ android {
 }
 
 configurations {
-    all {
+    configureEach {
         // exclude modules which are in conflict with system libraries
         exclude module: "commons-logging"
         exclude group: "org.json", module: "json"
@@ -99,17 +100,17 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
     implementation 'com.github.bitfireAT:cert4android:3817e62d9f173d8f8b800d24769f42cb205f560e'
     implementation 'com.github.bitfireAT:ical4android:a78e72f580'
 
-    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.fragment:fragment-ktx:1.6.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -123,7 +124,7 @@ dependencies {
     implementation 'androidx.compose.material:material'
     debugImplementation "androidx.compose.ui:ui-tooling"
     implementation "androidx.compose.ui:ui-tooling-preview"
-    implementation "androidx.compose.runtime:runtime-livedata:1.4.3"
+    implementation "androidx.compose.runtime:runtime-livedata:1.5.0"
     implementation 'com.google.accompanist:accompanist-themeadapter-material:0.30.1'
     implementation 'io.github.vanpra.compose-material-dialogs:color:0.9.0'
 
@@ -156,6 +157,6 @@ dependencies {
 }
 
 aboutLibraries {
-    duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    duplicationMode = DuplicateMode.MERGE
     includePlatform = false
 }

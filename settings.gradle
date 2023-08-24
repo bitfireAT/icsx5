@@ -4,4 +4,4 @@ pluginManagement {
     }
 }
 
-include ':app', ':ical4android'
+include ':app'
