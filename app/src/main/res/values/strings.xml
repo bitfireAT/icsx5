@@ -10,6 +10,8 @@
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>
     <string name="action_next">Next</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_share">Share</string>
     <string name="calendar_permissions_required">Calendar permissions required</string>
     <string name="calendar_permissions_required_text">Required for storing downloaded events locally.</string>
     <string name="notification_permissions_required">Notification permissions required</string>
@@ -57,6 +59,8 @@
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
+    <string name="add_calendar_type_url">Subscribe to URL</string>
+    <string name="add_calendar_type_file">Subscribe to File</string>
     <string name="add_calendar_need_valid_uri">Valid URI required</string>
     <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
     <string name="add_calendar_create">Subscribe now</string>
@@ -67,7 +71,9 @@
     <string name="add_calendar_title_hint">Calendar name</string>
     <string name="add_calendar_url_text">Enter a Webcal address:</string>
     <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
+    <!-- FIXME - add_calendar_pick_file_text can be removed -->
     <string name="add_calendar_pick_file_text">Alternatively, select a file from local storage.</string>
+    <string name="add_calendar_error_title">URL not valid</string>
     <string name="add_calendar_pick_file">Pick file</string>
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
