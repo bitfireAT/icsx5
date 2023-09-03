@@ -76,7 +76,7 @@ class ProcessEventsTask(
     private fun updateAlarms(event: Event): Event = event.apply {
         if (subscription.ignoreEmbeddedAlerts) {
             // Remove all alerts
-            Log.d(Constants.TAG, "Removing all alarms from ${uid}: $this")
+            Log.d(Constants.TAG, "Removing all alarms from ${uid}")
             alarms.clear()
         }
         val isAllDay = DateUtils.isDate(dtStart)
@@ -211,7 +211,7 @@ class ProcessEventsTask(
         for (ev in events) {
             val event = updateAlarms(ev)
             val uid = event.uid!!
-            Log.d(Constants.TAG, "Found VEVENT: $uid")
+            Log.d(Constants.TAG, "Found VEVENT $uid: $event")
             uids += uid
 
             val localEvents = calendar.queryByUID(uid)
