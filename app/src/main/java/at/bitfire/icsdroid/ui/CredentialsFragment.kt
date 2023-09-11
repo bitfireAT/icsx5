@@ -31,6 +31,10 @@ class CredentialsFragment: Fragment() {
         return binding.root
     }
 
+    @Deprecated(
+        "Class moved",
+        replaceWith = ReplaceWith("at.bitfire.icsdroid.ui.subscription.CredentialsModel")
+    )
     class CredentialsModel : ViewModel() {
         var originalRequiresAuth: Boolean? = null
         var originalUsername: String? = null

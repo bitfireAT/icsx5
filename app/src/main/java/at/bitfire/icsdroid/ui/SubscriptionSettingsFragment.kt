@@ -137,6 +137,10 @@ class SubscriptionSettingsFragment : Fragment() {
             .show()
     }
 
+    @Deprecated(
+        "Class moved",
+        replaceWith = ReplaceWith("at.bitfire.icsdroid.ui.subscription.SubscriptionSettingsModel")
+    )
     class SubscriptionSettingsModel : ViewModel() {
         var url = MutableLiveData<String>()
 
