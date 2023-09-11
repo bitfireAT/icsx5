@@ -26,6 +26,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import org.joda.time.Minutes
 import org.joda.time.format.PeriodFormat
 
+@Deprecated("Migrate to Jetpack Compose")
 class SubscriptionSettingsFragment : Fragment() {
 
     private val model by activityViewModels<SubscriptionSettingsModel>()

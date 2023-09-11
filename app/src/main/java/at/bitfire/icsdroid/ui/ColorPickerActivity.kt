@@ -13,6 +13,7 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 
+@Deprecated("Use Jetpack Compose.")
 class ColorPickerActivity: AppCompatActivity(), ColorPickerDialogListener {
 
     companion object {
