@@ -15,18 +15,18 @@ android {
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
-        minSdkVersion(21)
-        targetSdkVersion(33)
+        minSdk = 21
+        targetSdk = 33
 
         versionCode = 73
         versionName = "2.2-beta.1"
 
-        setProperty("archivesBaseName", "icsx5-" + versionCode + "-" + versionName)
+        setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ksp {
-            arg("room.schemaLocation", "$projectDir/schemas".toString())
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -76,10 +76,12 @@ android {
     }
 
     lint {
-        // disable ("ExtraTranslation", "MissingTranslation", "InvalidPackage", "OnClick")
+        disable.addAll(
+            listOf("ExtraTranslation", "MissingTranslation", "InvalidPackage", "OnClick")
+        )
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/*.md"
         }
@@ -104,9 +106,6 @@ configurations {
 dependencies {
     val aboutLibs = "10.7.0"
     val composeBomVersion = "2023.08.00"   // https://developer.android.com/jetpack/compose/bom
-    val kotlin =
-        "1.9.0"            // keep in sync with app/build.gradle composeOptions.kotlinCompilerExtensionVersion
-    val kspVersion = "1.0.11"
     val okhttp = "5.0.0-alpha.11"
     val room = "2.5.2"
 
