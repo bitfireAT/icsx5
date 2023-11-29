@@ -104,7 +104,7 @@ configurations {
 }
 
 dependencies {
-    val aboutLibs = "10.7.0"
+    val aboutLibsVersion: String by rootProject.extra
     val composeBomVersion = "2023.08.00"   // https://developer.android.com/jetpack/compose/bom
     val okhttp = "5.0.0-alpha.11"
     val room = "2.5.2"
@@ -138,7 +138,7 @@ dependencies {
     implementation("io.github.vanpra.compose-material-dialogs:color:0.9.0")
 
     implementation("com.jaredrummler:colorpicker:1.1.0")
-    implementation("com.mikepenz:aboutlibraries-compose:${aboutLibs}")
+    implementation("com.mikepenz:aboutlibraries-compose:${aboutLibsVersion}")
     implementation("com.squareup.okhttp3:okhttp:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-brotli:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-coroutines:${okhttp}")
