@@ -46,7 +46,7 @@ android {
 
     composeOptions {
         // Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
 
     flavorDimensions += "distribution"
@@ -104,27 +104,27 @@ configurations {
 }
 
 dependencies {
-    val aboutLibs = "10.7.0"
+    val aboutLibsVersion: String by rootProject.extra
     val composeBomVersion = "2023.08.00"   // https://developer.android.com/jetpack/compose/bom
     val okhttp = "5.0.0-alpha.11"
-    val room = "2.5.2"
+    val room = "2.6.0"
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     implementation("com.github.bitfireAT:cert4android:3817e62d9f173d8f8b800d24769f42cb205f560e")
-    implementation("com.github.bitfireAT:ical4android:b682476")
+    implementation("com.github.bitfireAT:ical4android:916f2228e8fb55d26dea171733feaf22d6e45594")
 
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.fragment:fragment-ktx:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.android.material:material:1.10.0")
 
     // Jetpack Compose
     val composeBom = platform("androidx.compose:compose-bom:${composeBomVersion}")
@@ -133,12 +133,12 @@ dependencies {
     implementation("androidx.compose.material:material")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
-    implementation("com.google.accompanist:accompanist-themeadapter-material:0.30.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+    implementation("com.google.accompanist:accompanist-themeadapter-material:0.32.0")
     implementation("io.github.vanpra.compose-material-dialogs:color:0.9.0")
 
     implementation("com.jaredrummler:colorpicker:1.1.0")
-    implementation("com.mikepenz:aboutlibraries-compose:${aboutLibs}")
+    implementation("com.mikepenz:aboutlibraries-compose:${aboutLibsVersion}")
     implementation("com.squareup.okhttp3:okhttp:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-brotli:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-coroutines:${okhttp}")
