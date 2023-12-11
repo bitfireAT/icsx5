@@ -60,6 +60,8 @@
     <string name="add_calendar_create">Subscribe now</string>
     <string name="add_calendar_created">Subscribed successfully</string>
     <string name="add_calendar_password">Password</string>
+    <string name="add_calendar_password_hide">Hide password</string>
+    <string name="add_calendar_password_show">Show password</string>
     <string name="add_calendar_requires_authentication">Requires authentication</string>
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
