@@ -22,7 +22,7 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.testing.WorkManagerTestInitHelper
 import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.util.MiscUtils.ContentProviderClientHelper.closeCompat
+import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.SyncWorker
