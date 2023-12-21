@@ -31,6 +31,7 @@ import at.bitfire.icsdroid.databinding.EditCalendarBinding
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.model.CredentialsModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -43,7 +44,7 @@ class EditCalendarActivity: AppCompatActivity() {
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
-    private val credentialsModel by viewModels<CredentialsFragment.CredentialsModel>()
+    private val credentialsModel by viewModels<CredentialsModel>()
 
     private val model by viewModels<SubscriptionModel> {
         object: ViewModelProvider.Factory {
@@ -177,16 +178,13 @@ class EditCalendarActivity: AppCompatActivity() {
 
         val credential = subscriptionWithCredential.credential
         val requiresAuth = credential != null
-        credentialsModel.originalRequiresAuth = requiresAuth
         credentialsModel.requiresAuth.value = requiresAuth
 
         if (credential != null) {
             credential.username.let { username ->
-                credentialsModel.originalUsername = username
                 credentialsModel.username.value = username
             }
             credential.password.let { password ->
-                credentialsModel.originalPassword = password
                 credentialsModel.password.value = password
             }
         }
@@ -225,7 +223,7 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
-    private fun dirty(): Boolean = subscriptionSettingsModel.dirty() || credentialsModel.dirty()
+    private fun dirty(): Boolean = subscriptionSettingsModel.dirty() || true
 
 
     /* view model and data source */
@@ -248,7 +246,7 @@ class EditCalendarActivity: AppCompatActivity() {
          */
         fun updateSubscription(
             subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
-            credentialsModel: CredentialsFragment.CredentialsModel
+            credentialsModel: CredentialsModel
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 subscriptionWithCredential.value?.let { subscriptionWithCredentials ->

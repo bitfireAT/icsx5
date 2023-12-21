@@ -19,11 +19,10 @@
                 android:layout_height="wrap_content"
                 android:name="at.bitfire.icsdroid.ui.SubscriptionSettingsFragment"/>
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@id/credentials"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/credentials"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 

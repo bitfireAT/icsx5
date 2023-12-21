@@ -65,12 +65,10 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:visibility="gone"/>
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/credentials"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/credentials_composable"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:name="at.bitfire.icsdroid.ui.CredentialsFragment"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 

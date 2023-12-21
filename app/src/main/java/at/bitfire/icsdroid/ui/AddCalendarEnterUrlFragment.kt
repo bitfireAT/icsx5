@@ -15,6 +15,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -22,6 +24,7 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
+import at.bitfire.icsdroid.model.CredentialsModel
 import java.net.URI
 import java.net.URISyntaxException
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -29,7 +32,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 class AddCalendarEnterUrlFragment: Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
-    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+    private val credentialsModel by activityViewModels<CredentialsModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
 
     private val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -57,6 +60,23 @@ class AddCalendarEnterUrlFragment: Fragment() {
         binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.model = subscriptionSettingsModel
+
+        binding.credentialsComposable.apply {
+            // Dispose the Composition when viewLifecycleOwner is destroyed
+            setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+            )
+            setContent {
+                LoginCredentialsComposable(
+                    credentialsModel.requiresAuth.observeAsState(false).value,
+                    credentialsModel.username.observeAsState("").value,
+                    credentialsModel.password.observeAsState("").value,
+                    onRequiresAuthChange = { credentialsModel.requiresAuth.postValue(it) },
+                    onUsernameChange = { credentialsModel.username.postValue(it) },
+                    onPasswordChange = { credentialsModel.password.postValue(it) },
+                )
+            }
+        }
 
         setHasOptionsMenu(true)
         return binding.root
@@ -116,7 +136,7 @@ class AddCalendarEnterUrlFragment: Fragment() {
             }
 
             val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
-            binding.credentials.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
+            binding.credentialsComposable.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     // SAF file, no need for auth

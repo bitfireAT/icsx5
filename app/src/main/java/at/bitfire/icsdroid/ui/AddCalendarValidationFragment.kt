@@ -23,6 +23,7 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.model.CredentialsModel
 import java.io.InputStream
 import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +34,7 @@ import okhttp3.MediaType
 class AddCalendarValidationFragment: DialogFragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
-    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+    private val credentialsModel by activityViewModels<CredentialsModel>()
 
     private val validationModel by viewModels<ValidationModel> {
         object : ViewModelProvider.Factory {

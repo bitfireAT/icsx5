@@ -22,13 +22,14 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.model.CredentialsModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
-    private val credentialsModel by activityViewModels<CredentialsFragment.CredentialsModel>()
+    private val credentialsModel by activityViewModels<CredentialsModel>()
     private val model by activityViewModels<SubscriptionModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +100,7 @@ class AddCalendarDetailsFragment: Fragment() {
          */
         fun create(
             subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
-            credentialsModel: CredentialsFragment.CredentialsModel,
+            credentialsModel: CredentialsModel,
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {

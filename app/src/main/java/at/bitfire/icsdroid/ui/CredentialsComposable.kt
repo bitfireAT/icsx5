@@ -38,9 +38,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.model.CredentialsModel
 
 class CredentialsFragment: Fragment() {
 
@@ -63,24 +62,6 @@ class CredentialsFragment: Fragment() {
                 )
             }
         }
-
-    class CredentialsModel : ViewModel() {
-        var originalRequiresAuth: Boolean? = null
-        var originalUsername: String? = null
-        var originalPassword: String? = null
-
-        val requiresAuth = MutableLiveData(false)
-        val username = MutableLiveData("")
-        val password = MutableLiveData("")
-
-        init {
-            requiresAuth.value = false
-        }
-
-        fun dirty() = requiresAuth.value != originalRequiresAuth ||
-                username.value != originalUsername ||
-                password.value != originalPassword
-    }
 
 }
 
