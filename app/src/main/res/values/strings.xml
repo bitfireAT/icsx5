@@ -65,6 +65,7 @@
     <string name="add_calendar_requires_authentication">Requires authentication</string>
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
+    <string name="add_calendar_pick_color">Pick color</string>
     <string name="add_calendar_url_text">Enter a Webcal address:</string>
     <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
     <string name="add_calendar_pick_file_text">Alternatively, select a file from local storage.</string>
@@ -72,7 +73,7 @@
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
     <string name="add_calendar_alarms_title">Alarms</string>
-    <string name="add_calendar_alarms_ignore_title">Ignore alerts embed in the calendar</string>
+    <string name="add_calendar_alarms_ignore_title">Ignore alerts embedded in the calendar</string>
     <string name="add_calendar_alarms_ignore_description">If enabled, all the incoming alarms from the server will be dismissed.</string>
     <string name="add_calendar_alarms_default_title">Add a default alarm for all events</string>
     <string name="add_calendar_alarms_default_all_day_title">Add a default alarm for all-day events</string>
@@ -82,7 +83,6 @@
     <string name="default_alarm_dialog_message">This will add an alarm for all events</string>
     <string name="default_alarm_dialog_hint">Minutes before event</string>
     <string name="default_alarm_dialog_set">Set</string>
-    <string name="default_alarm_dialog_error">Introduce a valid number</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>

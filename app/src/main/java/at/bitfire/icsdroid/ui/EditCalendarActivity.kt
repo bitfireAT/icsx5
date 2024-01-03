@@ -156,23 +156,18 @@ class EditCalendarActivity: AppCompatActivity() {
 
         subscriptionSettingsModel.url.value = subscription.url.toString()
         subscription.displayName.let {
-            subscriptionSettingsModel.originalTitle = it
             subscriptionSettingsModel.title.value = it
         }
         subscription.color.let {
-            subscriptionSettingsModel.originalColor = it
             subscriptionSettingsModel.color.value = it
         }
         subscription.ignoreEmbeddedAlerts.let {
-            subscriptionSettingsModel.originalIgnoreAlerts = it
             subscriptionSettingsModel.ignoreAlerts.postValue(it)
         }
         subscription.defaultAlarmMinutes.let {
-            subscriptionSettingsModel.originalDefaultAlarmMinutes = it
             subscriptionSettingsModel.defaultAlarmMinutes.postValue(it)
         }
         subscription.defaultAllDayAlarmMinutes.let {
-            subscriptionSettingsModel.originalDefaultAllDayAlarmMinutes = it
             subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(it)
         }
 
@@ -223,7 +218,8 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
-    private fun dirty(): Boolean = subscriptionSettingsModel.dirty() || true
+    //TODO: Get rid of dirty model mechanism
+    private fun dirty(): Boolean = true
 
 
     /* view model and data source */

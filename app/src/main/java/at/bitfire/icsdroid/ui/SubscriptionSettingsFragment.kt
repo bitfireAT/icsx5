@@ -5,157 +5,208 @@
 package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.widget.CompoundButton.OnCheckedChangeListener
-import android.widget.EditText
-import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Circle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.databinding.SubscriptionSettingsBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.switchmaterial.SwitchMaterial
-import org.joda.time.Minutes
-import org.joda.time.format.PeriodFormat
+import at.bitfire.icsdroid.ui.reusable.SwitchSetting
 
 class SubscriptionSettingsFragment : Fragment() {
 
     private val model by activityViewModels<SubscriptionSettingsModel>()
 
-    private lateinit var binding: SubscriptionSettingsBinding
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        binding = SubscriptionSettingsBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
-        binding.model = model
-
-        model.defaultAlarmMinutes.observe(
-            viewLifecycleOwner,
-            defaultAlarmObserver(
-                binding.defaultAlarmSwitch,
-                binding.defaultAlarmText,
-                model.defaultAlarmMinutes
-            )
-        )
-        model.defaultAllDayAlarmMinutes.observe(
-            viewLifecycleOwner,
-            defaultAlarmObserver(
-                binding.defaultAlarmAllDaySwitch,
-                binding.defaultAlarmAllDayText,
-                model.defaultAllDayAlarmMinutes
-            )
-        )
-
         val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
             model.color.value = color
         }
-        binding.color.setOnClickListener {
-            colorPickerContract.launch(model.color.value)
-        }
-
-        return binding.root
-    }
-
-    /**
-     * Provides an observer for the default alarm fields.
-     * @param switch The switch view that updates the currently stored minutes.
-     * @param textView The viewer for the current value of the stored minutes.
-     * @param selectedMinutes The LiveData instance that holds the currently selected amount of minutes.
-     */
-    private fun defaultAlarmObserver(
-        switch: SwitchMaterial,
-        textView: TextView,
-        selectedMinutes: MutableLiveData<Long>
-    ) = Observer { min: Long? ->
-        switch.isChecked = min != null
-        // We add the listener once the switch has an initial value
-        switch.setOnCheckedChangeListener(getOnCheckedChangeListener(switch, selectedMinutes))
-
-        if (min == null)
-            textView.text = getString(R.string.add_calendar_alarms_default_none)
-        else {
-            val alarmPeriodText = PeriodFormat.wordBased().print(Minutes.minutes(min.toInt()))
-            textView.text = getString(R.string.add_calendar_alarms_default_description, alarmPeriodText)
-        }
-    }
-
-    /**
-     * Provides an [OnCheckedChangeListener] for watching the checked changes of a switch that
-     * provides the alarm time in minutes for a given parameter. Also holds the alert dialog that
-     * asks the user the amount of time to set.
-     * @param switch The switch that is going to update the selection of minutes.
-     * @param observable The state holder of the amount of minutes selected.
-     */
-    private fun getOnCheckedChangeListener(
-        switch: SwitchMaterial,
-        observable: MutableLiveData<Long>
-    ) = OnCheckedChangeListener { _, checked ->
-        if (!checked) {
-            observable.value = null
-            return@OnCheckedChangeListener
-        }
-
-        val editText = EditText(requireContext()).apply {
-            setHint(R.string.default_alarm_dialog_hint)
-            isSingleLine = true
-            maxLines = 1
-            imeOptions = EditorInfo.IME_ACTION_DONE
-            inputType = InputType.TYPE_CLASS_NUMBER
-
-            addTextChangedListener { txt ->
-                val text = txt?.toString()
-                val num = text?.toLongOrNull()
-                error = if (text == null || text.isBlank() || num == null)
-                    getString(R.string.default_alarm_dialog_error)
-                else
-                    null
+        return ComposeView(requireActivity()).apply {
+            setContent {
+                val url by model.url.observeAsState("")
+                val title by model.title.observeAsState("")
+                val color by model.color.observeAsState(0)
+                val ignoreAlerts by model.ignoreAlerts.observeAsState(false)
+                val defaultAlarmMinutes by model.defaultAlarmMinutes.observeAsState()
+                val defaultAllDayAlarmMinutes by model.defaultAllDayAlarmMinutes.observeAsState()
+                SubscriptionSettingsComposable(
+                    url = url,
+                    title = title,
+                    titleChanged = { model.title.postValue(it) },
+                    color = color,
+                    colorIconClicked = { colorPickerContract.launch(color) },
+                    ignoreAlerts = ignoreAlerts,
+                    ignoreAlertsChanged = { model.ignoreAlerts.postValue(it) },
+                    defaultAlarmMinutes = defaultAlarmMinutes,
+                    defaultAlarmMinutesChanged = { model.defaultAlarmMinutes.postValue(it.toLongOrNull()) },
+                    defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                    defaultAllDayAlarmMinutesChanged = { model.defaultAllDayAlarmMinutes.postValue(it.toLongOrNull()) }
+                )
             }
         }
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.default_alarm_dialog_title)
-            .setMessage(R.string.default_alarm_dialog_message)
-            .setView(editText)
-            .setPositiveButton(R.string.default_alarm_dialog_set) { dialog, _ ->
-                if (editText.error == null) {
-                    observable.value = editText.text?.toString()?.toLongOrNull()
-                    dialog.dismiss()
-                }
-            }
-            .setOnCancelListener {
-                switch.isChecked = false
-            }
-            .create()
-            .show()
     }
 
     class SubscriptionSettingsModel : ViewModel() {
-        var url = MutableLiveData<String>()
-
-        var originalTitle: String? = null
+        val url = MutableLiveData<String>()
         val title = MutableLiveData<String>()
-
-        var originalColor: Int? = null
         val color = MutableLiveData<Int>()
-
-        var originalIgnoreAlerts: Boolean? = null
         val ignoreAlerts = MutableLiveData<Boolean>()
-
-        var originalDefaultAlarmMinutes: Long? = null
         val defaultAlarmMinutes = MutableLiveData<Long>()
-
-        var originalDefaultAllDayAlarmMinutes: Long? = null
         val defaultAllDayAlarmMinutes = MutableLiveData<Long>()
-
-        fun dirty(): Boolean = originalTitle != title.value || originalColor != color.value || originalIgnoreAlerts != ignoreAlerts.value ||
-                originalDefaultAlarmMinutes != defaultAlarmMinutes.value || originalDefaultAllDayAlarmMinutes != defaultAllDayAlarmMinutes.value
     }
 
+}
+
+@Composable
+private fun SubscriptionSettingsComposable(
+    url: String,
+    title: String,
+    titleChanged: (String) -> Unit,
+    color: Int,
+    colorIconClicked: () -> Unit,
+    ignoreAlerts: Boolean,
+    ignoreAlertsChanged: (Boolean) -> Unit,
+    defaultAlarmMinutes: Long?,
+    defaultAlarmMinutesChanged: (String) -> Unit,
+    defaultAllDayAlarmMinutes: Long?,
+    defaultAllDayAlarmMinutesChanged: (String) -> Unit,
+) {
+    Column(
+        Modifier.fillMaxWidth()
+    ) {
+
+        // Title
+        Text(
+            text = stringResource(R.string.add_calendar_title),
+            style = MaterialTheme.typography.h5,
+        )
+
+        // Name and color card
+        Card (
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    Modifier.weight(5f)
+                ) {
+                    Text(
+                        text = url,
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.body2,
+                    )
+                    TextField(
+                        value = title,
+                        onValueChange = titleChanged,
+                        label = { Text(stringResource(R.string.add_calendar_title_hint)) },
+                        singleLine = true,
+                    )
+                }
+                IconButton(
+                    onClick = colorIconClicked,
+                    modifier = Modifier
+                        .weight(1f)
+                        .size(48.dp)
+                        .padding(start = 8.dp)) {
+                    Icon(
+                        imageVector = Icons.Rounded.Circle,
+                        contentDescription = stringResource(R.string.add_calendar_pick_color),
+                        tint = Color(color),
+                        modifier = Modifier
+                            .size(48.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.padding(12.dp))
+
+        // Alarms
+        Text(
+            text = stringResource(R.string.add_calendar_alarms_title),
+            style = MaterialTheme.typography.h5,
+        )
+
+        // Ignore existing alarms
+        SwitchSetting(
+            title = stringResource(R.string.add_calendar_alarms_ignore_title),
+            description = stringResource(R.string.add_calendar_alarms_ignore_description),
+            checked = ignoreAlerts,
+            onCheckedChange = ignoreAlertsChanged
+        )
+
+        Spacer(modifier = Modifier.padding(12.dp))
+
+        // Default Alarm
+        Text(
+            text = stringResource(R.string.default_alarm_dialog_title),
+            style = MaterialTheme.typography.body1,
+        )
+        Text(
+            text = stringResource(R.string.default_alarm_dialog_message),
+            color = Color.Gray,
+            style = MaterialTheme.typography.body2,
+        )
+        OutlinedTextField(
+            value = (defaultAlarmMinutes ?: "").toString(),
+            onValueChange = defaultAlarmMinutesChanged,
+            label = { Text(stringResource(R.string.default_alarm_dialog_hint)) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.padding(12.dp))
+
+        // Default Alarm (All Day Events)
+        Text(
+            text = stringResource(R.string.add_calendar_alarms_default_all_day_title),
+            style = MaterialTheme.typography.body1,
+        )
+        Text(
+            text = stringResource(R.string.default_alarm_dialog_message),
+            color = Color.Gray,
+            style = MaterialTheme.typography.body2,
+        )
+        OutlinedTextField(
+            value = (defaultAllDayAlarmMinutes ?: "").toString(),
+            onValueChange = defaultAllDayAlarmMinutesChanged,
+            label = { Text(stringResource(R.string.default_alarm_dialog_hint)) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.padding(12.dp))
+    }
 }
