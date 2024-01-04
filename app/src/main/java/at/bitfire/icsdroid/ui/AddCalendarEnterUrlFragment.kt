@@ -15,25 +15,34 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import at.bitfire.icsdroid.model.CredentialsModel
+import at.bitfire.icsdroid.model.ValidationModel
+import com.google.android.material.snackbar.Snackbar
 import java.net.URI
 import java.net.URISyntaxException
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
-class AddCalendarEnterUrlFragment: Fragment() {
+class AddCalendarEnterUrlFragment : Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsModel>()
+    private val validationModel by activityViewModels<ValidationModel>()
     private lateinit var binding: AddCalendarEnterUrlBinding
+
+    private var nextMenuItem: MenuItem? = null
 
     private val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri != null) {
@@ -44,19 +53,66 @@ class AddCalendarEnterUrlFragment: Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        val invalidate = Observer<Any?> {
-            requireActivity().invalidateOptionsMenu()
-        }
-        arrayOf(
-            subscriptionSettingsModel.url,
-            credentialsModel.requiresAuth,
-            credentialsModel.username,
-            credentialsModel.password
-        ).forEach {
-            it.observe(viewLifecycleOwner, invalidate)
+    private val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.enter_url_fragment, menu)
+
+            nextMenuItem = menu.findItem(R.id.next)
+
+            // Invoke the observer once to set the initial visibility of nextMenuItem
+            formInvalidator.onChanged(null)
         }
 
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
+            R.id.next -> {
+                // flush the credentials if auth toggle is disabled
+                if (credentialsModel.requiresAuth.value != true) {
+                    credentialsModel.username.value = null
+                    credentialsModel.password.value = null
+                }
+
+                val uriString: String? = subscriptionSettingsModel.url.value
+                val uri: Uri? = uriString?.let(Uri::parse)
+                val authenticate = credentialsModel.requiresAuth.value ?: false
+
+                if (uri != null) {
+                    val validationSnackbar = Snackbar.make(
+                        requireContext(),
+                        binding.root,
+                        getString(R.string.add_calendar_validating),
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                    validationSnackbar.show()
+
+                    validationModel.validate(
+                        uri,
+                        if (authenticate) credentialsModel.username.value else null,
+                        if (authenticate) credentialsModel.password.value else null
+                    ).invokeOnCompletion { validationSnackbar.dismiss() }
+                }
+
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private val formInvalidator = Observer<Any?> {
+        val uri = validateUri()
+
+        val requiresAuth = credentialsModel.requiresAuth.value ?: false
+        val username: String? = credentialsModel.username.value
+        val password: String? = credentialsModel.password.value
+        val authOK =
+            if (requiresAuth)
+                !username.isNullOrEmpty() && !password.isNullOrEmpty()
+            else
+                true
+        nextMenuItem?.isVisible = uri != null && authOK
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
         binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.model = subscriptionSettingsModel
@@ -67,19 +123,70 @@ class AddCalendarEnterUrlFragment: Fragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
+                val requiresAuth by credentialsModel.requiresAuth.observeAsState(false)
+                val username: String? by credentialsModel.username.observeAsState("")
+                val password: String? by credentialsModel.password.observeAsState("")
+
                 LoginCredentialsComposable(
-                    credentialsModel.requiresAuth.observeAsState(false).value,
-                    credentialsModel.username.observeAsState("").value,
-                    credentialsModel.password.observeAsState("").value,
-                    onRequiresAuthChange = { credentialsModel.requiresAuth.postValue(it) },
-                    onUsernameChange = { credentialsModel.username.postValue(it) },
-                    onPasswordChange = { credentialsModel.password.postValue(it) },
+                    requiresAuth,
+                    username,
+                    password,
+                    onRequiresAuthChange = credentialsModel.requiresAuth::postValue,
+                    onUsernameChange = credentialsModel.username::postValue,
+                    onPasswordChange = credentialsModel.password::postValue,
                 )
             }
         }
 
-        setHasOptionsMenu(true)
+        activity?.addMenuProvider(menuProvider)
+
+        arrayOf(
+            subscriptionSettingsModel.url,
+            credentialsModel.requiresAuth,
+            credentialsModel.username,
+            credentialsModel.password
+        ).forEach {
+            it.observe(viewLifecycleOwner, formInvalidator)
+        }
+
+        validationModel.isVerifyingUrl.observe(viewLifecycleOwner) { isVerifyingUrl ->
+            nextMenuItem?.isVisible = !isVerifyingUrl
+            binding.urlEdit.isEnabled = !isVerifyingUrl
+            binding.pickStorageFile.isEnabled = !isVerifyingUrl
+        }
+
+        validationModel.result.observe(viewLifecycleOwner) { info ->
+            val exception = info.exception
+            if (exception == null) {
+                subscriptionSettingsModel.url.value = info.uri.toString()
+
+                if (subscriptionSettingsModel.color.value == null)
+                    subscriptionSettingsModel.color.value =
+                        info.calendarColor ?: ContextCompat.getColor(requireContext(), R.color.lightblue)
+
+                if (subscriptionSettingsModel.title.value.isNullOrBlank())
+                    subscriptionSettingsModel.title.value = info.calendarName ?: info.uri.toString()
+
+                parentFragmentManager
+                    .beginTransaction()
+                    .replace(android.R.id.content, AddCalendarDetailsFragment())
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss()
+            } else {
+                val errorMessage =
+                    exception.localizedMessage ?: exception.message ?: exception.toString()
+                AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
+            }
+        }
+
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        activity?.removeMenuProvider(menuProvider)
+        nextMenuItem = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -90,21 +197,14 @@ class AddCalendarEnterUrlFragment: Fragment() {
         validateUri()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.enter_url_fragment, menu)
+    override fun onPause() {
+        super.onPause()
+        HttpClient.setForeground(false)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val itemNext = menu.findItem(R.id.next)
-
-        val uri = validateUri()
-
-        val authOK =
-            if (credentialsModel.requiresAuth.value == true)
-                !credentialsModel.username.value.isNullOrEmpty() && !credentialsModel.password.value.isNullOrEmpty()
-            else
-                true
-        itemNext.isEnabled = uri != null && authOK
+    override fun onResume() {
+        super.onResume()
+        HttpClient.setForeground(true)
     }
 
 
@@ -179,24 +279,6 @@ class AddCalendarEnterUrlFragment: Fragment() {
             binding.url.error = errorMsg
         }
         return uri
-    }
-
-
-    /* actions */
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.next) {
-
-            // flush the credentials if auth toggle is disabled
-            if (credentialsModel.requiresAuth.value != true) {
-                credentialsModel.username.value = null
-                credentialsModel.password.value = null
-            }
-
-            AddCalendarValidationFragment().show(parentFragmentManager, "validation")
-            return true
-        }
-        return false
     }
 
 }
