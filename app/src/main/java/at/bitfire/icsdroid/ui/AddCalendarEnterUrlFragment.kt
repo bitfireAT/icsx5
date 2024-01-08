@@ -15,8 +15,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
@@ -27,20 +29,17 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.databinding.AddCalendarEnterUrlBinding
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.ValidationModel
-import com.google.android.material.snackbar.Snackbar
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
-import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class AddCalendarEnterUrlFragment : Fragment() {
 
     private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsModel>()
     private val validationModel by activityViewModels<ValidationModel>()
-    private lateinit var binding: AddCalendarEnterUrlBinding
 
     private var nextMenuItem: MenuItem? = null
 
@@ -49,7 +48,7 @@ class AddCalendarEnterUrlFragment : Fragment() {
             // keep the picked file accessible after the first sync and reboots
             requireActivity().contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-            binding.url.editText?.setText(uri.toString())
+            subscriptionSettingsModel.url.value = uri.toString()
         }
     }
 
@@ -71,24 +70,15 @@ class AddCalendarEnterUrlFragment : Fragment() {
                     credentialsModel.password.value = null
                 }
 
-                val uriString: String? = subscriptionSettingsModel.url.value
-                val uri: Uri? = uriString?.let(Uri::parse)
+                val uri: Uri? = subscriptionSettingsModel.url.value?.let(Uri::parse)
                 val authenticate = credentialsModel.requiresAuth.value ?: false
 
                 if (uri != null) {
-                    val validationSnackbar = Snackbar.make(
-                        requireContext(),
-                        binding.root,
-                        getString(R.string.add_calendar_validating),
-                        Snackbar.LENGTH_INDEFINITE
-                    )
-                    validationSnackbar.show()
-
                     validationModel.validate(
                         uri,
                         if (authenticate) credentialsModel.username.value else null,
                         if (authenticate) credentialsModel.password.value else null
-                    ).invokeOnCompletion { validationSnackbar.dismiss() }
+                    )
                 }
 
                 true
@@ -113,31 +103,6 @@ class AddCalendarEnterUrlFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, inState: Bundle?): View {
-        binding = AddCalendarEnterUrlBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
-        binding.model = subscriptionSettingsModel
-
-        binding.credentialsComposable.apply {
-            // Dispose the Composition when viewLifecycleOwner is destroyed
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                val requiresAuth by credentialsModel.requiresAuth.observeAsState(false)
-                val username: String? by credentialsModel.username.observeAsState("")
-                val password: String? by credentialsModel.password.observeAsState("")
-
-                LoginCredentialsComposable(
-                    requiresAuth,
-                    username,
-                    password,
-                    onRequiresAuthChange = credentialsModel.requiresAuth::postValue,
-                    onUsernameChange = credentialsModel.username::postValue,
-                    onPasswordChange = credentialsModel.password::postValue,
-                )
-            }
-        }
-
         activity?.addMenuProvider(menuProvider)
 
         arrayOf(
@@ -151,13 +116,10 @@ class AddCalendarEnterUrlFragment : Fragment() {
 
         validationModel.isVerifyingUrl.observe(viewLifecycleOwner) { isVerifyingUrl ->
             nextMenuItem?.isVisible = !isVerifyingUrl
-            binding.urlEdit.isEnabled = !isVerifyingUrl
-            binding.pickStorageFile.isEnabled = !isVerifyingUrl
         }
 
-        validationModel.result.observe(viewLifecycleOwner) { info ->
-            val exception = info.exception
-            if (exception == null) {
+        validationModel.result.observe(viewLifecycleOwner) { info: ResourceInfo? ->
+            if (info != null && info.exception == null) {
                 subscriptionSettingsModel.url.value = info.uri.toString()
 
                 if (subscriptionSettingsModel.color.value == null)
@@ -172,14 +134,50 @@ class AddCalendarEnterUrlFragment : Fragment() {
                     .replace(android.R.id.content, AddCalendarDetailsFragment())
                     .addToBackStack(null)
                     .commitAllowingStateLoss()
-            } else {
-                val errorMessage =
-                    exception.localizedMessage ?: exception.message ?: exception.toString()
-                AlertFragment.create(errorMessage, exception).show(parentFragmentManager, null)
             }
         }
 
-        return binding.root
+        return ComposeView(requireContext()).apply {
+            // Dispose the Composition when viewLifecycleOwner is destroyed
+            setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+            )
+            setContent {
+                val url: String by subscriptionSettingsModel.url.observeAsState("")
+                val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
+                val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
+                val requiresAuth by credentialsModel.requiresAuth.observeAsState(false)
+                val username: String? by credentialsModel.username.observeAsState("")
+                val password: String? by credentialsModel.password.observeAsState("")
+                val isInsecure: Boolean by credentialsModel.isInsecure.observeAsState(false)
+                val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
+                val validationResult by validationModel.result.observeAsState()
+
+                // Validate the URL once at launch
+                LaunchedEffect(Unit) { validateUri() }
+
+                EnterUrlComposable(
+                    requiresAuth = requiresAuth,
+                    onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
+                    username = username,
+                    onUsernameChange = credentialsModel.username::setValue,
+                    password = password,
+                    onPasswordChange = credentialsModel.password::setValue,
+                    isInsecure = isInsecure,
+                    url = url,
+                    onUrlChange = subscriptionSettingsModel.url::setValue,
+                    urlError = urlError,
+                    supportsAuthentication = supportsAuthentication,
+                    isVerifyingUrl = isVerifyingUrl,
+                    validationResult = validationResult,
+                    onValidationResultDismiss = { validationModel.result.value = null },
+                    onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
+                    onSubmit = {
+                        nextMenuItem?.let { id -> menuProvider.onMenuItemSelected(id) }
+                    }
+                )
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -187,14 +185,6 @@ class AddCalendarEnterUrlFragment : Fragment() {
 
         activity?.removeMenuProvider(menuProvider)
         nextMenuItem = null
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.pickStorageFile.setOnClickListener {
-            pickFile.launch(arrayOf("text/calendar"))
-        }
-
-        validateUri()
     }
 
     override fun onPause() {
@@ -236,7 +226,7 @@ class AddCalendarEnterUrlFragment : Fragment() {
             }
 
             val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
-            binding.credentialsComposable.visibility = if (supportsAuthenticate) View.VISIBLE else View.GONE
+            subscriptionSettingsModel.supportsAuthentication.value = supportsAuthenticate
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     // SAF file, no need for auth
@@ -270,13 +260,9 @@ class AddCalendarEnterUrlFragment : Fragment() {
             }
 
             // warn if auth. required and not using HTTPS
-            binding.insecureAuthenticationWarning.visibility =
-                    if (credentialsModel.requiresAuth.value == true && !uri.scheme.equals("https", true))
-                        View.VISIBLE
-                    else
-                        View.GONE
+            credentialsModel.isInsecure.value = credentialsModel.requiresAuth.value == true && !uri.scheme.equals("https", true)
         } finally {
-            binding.url.error = errorMsg
+            subscriptionSettingsModel.urlError.value = errorMsg
         }
         return uri
     }

@@ -29,7 +29,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
 
     val isVerifyingUrl = MutableLiveData(false)
 
-    val result = MutableLiveData<ResourceInfo>()
+    val result = MutableLiveData<ResourceInfo?>(null)
 
     fun validate(
         originalUri: Uri,
