@@ -33,12 +33,13 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.CredentialsModel
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AddCalendarDetailsFragment: Fragment() {
 
-    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsModel>()
     private val model by activityViewModels<SubscriptionModel>()
 
@@ -143,7 +144,7 @@ class AddCalendarDetailsFragment: Fragment() {
          * Creates a new subscription taking the data from the given models.
          */
         fun create(
-            subscriptionSettingsModel: SubscriptionSettingsFragment.SubscriptionSettingsModel,
+            subscriptionSettingsModel: SubscriptionSettingsModel,
             credentialsModel: CredentialsModel,
         ) {
             viewModelScope.launch(Dispatchers.IO) {

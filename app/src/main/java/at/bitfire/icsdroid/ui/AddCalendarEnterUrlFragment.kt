@@ -30,6 +30,7 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.CredentialsModel
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
@@ -37,7 +38,7 @@ import java.net.URISyntaxException
 
 class AddCalendarEnterUrlFragment : Fragment() {
 
-    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
+    private val subscriptionSettingsModel by activityViewModels<SubscriptionSettingsModel>()
     private val credentialsModel by activityViewModels<CredentialsModel>()
     private val validationModel by activityViewModels<ValidationModel>()
 
