@@ -102,7 +102,7 @@ class SubscriptionSettingsFragment : Fragment() {
 }
 
 @Composable
-private fun SubscriptionSettingsComposable(
+fun SubscriptionSettingsComposable(
     url: String,
     title: String,
     titleChanged: (String) -> Unit,
