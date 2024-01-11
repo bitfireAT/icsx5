@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import at.bitfire.icsdroid.calendar.LocalCalendar
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 
 class AddCalendarActivity: AppCompatActivity() {
 
@@ -16,7 +17,7 @@ class AddCalendarActivity: AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
-    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsFragment.SubscriptionSettingsModel>()
+    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
 
 
     override fun onCreate(inState: Bundle?) {

@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,13 +36,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.reusable.SwitchSetting
-import java.net.URISyntaxException
 
 class SubscriptionSettingsFragment : Fragment() {
 
@@ -78,31 +73,10 @@ class SubscriptionSettingsFragment : Fragment() {
         }
     }
 
-    class SubscriptionSettingsModel : ViewModel() {
-        val url = MutableLiveData<String>()
-        val urlError = MutableLiveData<String?>()
-        val title = MutableLiveData<String>()
-        val color = MutableLiveData<Int>()
-        val ignoreAlerts = MutableLiveData<Boolean>()
-        val defaultAlarmMinutes = MutableLiveData<Long>()
-        val defaultAllDayAlarmMinutes = MutableLiveData<Long>()
-
-        val supportsAuthentication = MediatorLiveData(false).apply {
-            addSource(url) {
-                val uri = try {
-                    Uri.parse(it)
-                } catch (e: URISyntaxException) {
-                    return@addSource
-                }
-                value = HttpUtils.supportsAuthentication(uri)
-            }
-        }
-    }
-
 }
 
 @Composable
-private fun SubscriptionSettingsComposable(
+fun SubscriptionSettingsComposable(
     url: String,
     title: String,
     titleChanged: (String) -> Unit,
