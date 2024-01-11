@@ -1,8 +1,8 @@
 buildscript {
     val aboutLibsVersion by extra("10.7.0")
     val agpVersion = "8.2.1"
-    val kotlinVersion = "1.9.20"
-    val kspVersion = "1.0.14"
+    val kotlinVersion = "1.9.22"
+    val kspVersion = "1.0.16"
 
     repositories {
         google()
