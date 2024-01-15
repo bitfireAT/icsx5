@@ -47,7 +47,7 @@ import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.CredentialsModel
-import at.bitfire.icsdroid.model.SubscriptionModel
+import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import com.google.accompanist.themeadapter.material.MdcTheme
@@ -67,7 +67,7 @@ class AddCalendarActivity : AppCompatActivity() {
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
     private val credentialsModel by viewModels<CredentialsModel>()
     private val validationModel by viewModels<ValidationModel>()
-    private val subscriptionModel by viewModels<SubscriptionModel>()
+    private val subscriptionModel by viewModels<CreateSubscriptionModel>()
 
     private val pickFile =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
