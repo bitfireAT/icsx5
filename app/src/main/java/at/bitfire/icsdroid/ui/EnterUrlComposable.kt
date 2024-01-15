@@ -49,7 +49,7 @@ fun EnterUrlComposable(
     password: String?,
     onPasswordChange: (String) -> Unit,
     isInsecure: Boolean,
-    url: String,
+    url: String?,
     onUrlChange: (String) -> Unit,
     urlError: String?,
     supportsAuthentication: Boolean,
@@ -102,7 +102,7 @@ fun EnterUrlComposable(
             )
 
             TextField(
-                value = url,
+                value = url ?: "",
                 onValueChange = onUrlChange,
                 modifier = Modifier
                         .fillMaxWidth()

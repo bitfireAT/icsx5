@@ -67,7 +67,10 @@ class SubscriptionSettingsFragment : Fragment() {
                     defaultAlarmMinutes = defaultAlarmMinutes,
                     defaultAlarmMinutesChanged = { model.defaultAlarmMinutes.postValue(it.toLongOrNull()) },
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
-                    defaultAllDayAlarmMinutesChanged = { model.defaultAllDayAlarmMinutes.postValue(it.toLongOrNull()) }
+                    defaultAllDayAlarmMinutesChanged = { model.defaultAllDayAlarmMinutes.postValue(it.toLongOrNull()) },
+                    // TODO: Complete with some valid state
+                    isCreating = false,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -77,10 +80,10 @@ class SubscriptionSettingsFragment : Fragment() {
 
 @Composable
 fun SubscriptionSettingsComposable(
-    url: String,
-    title: String,
+    url: String?,
+    title: String?,
     titleChanged: (String) -> Unit,
-    color: Int,
+    color: Int?,
     colorIconClicked: () -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
@@ -88,10 +91,10 @@ fun SubscriptionSettingsComposable(
     defaultAlarmMinutesChanged: (String) -> Unit,
     defaultAllDayAlarmMinutes: Long?,
     defaultAllDayAlarmMinutesChanged: (String) -> Unit,
+    isCreating: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        Modifier.fillMaxWidth()
-    ) {
+    Column(modifier) {
 
         // Title
         Text(
@@ -111,15 +114,16 @@ fun SubscriptionSettingsComposable(
                     Modifier.weight(5f)
                 ) {
                     Text(
-                        text = url,
+                        text = url ?: "",
                         color = Color.Gray,
                         style = MaterialTheme.typography.body2,
                     )
                     TextField(
-                        value = title,
+                        value = title ?: "",
                         onValueChange = titleChanged,
                         label = { Text(stringResource(R.string.add_calendar_title_hint)) },
                         singleLine = true,
+                        enabled = !isCreating
                     )
                 }
                 IconButton(
@@ -131,7 +135,7 @@ fun SubscriptionSettingsComposable(
                     Icon(
                         imageVector = Icons.Rounded.Circle,
                         contentDescription = stringResource(R.string.add_calendar_pick_color),
-                        tint = Color(color),
+                        tint = color?.let { Color(it) } ?: Color.Unspecified,
                         modifier = Modifier
                             .size(48.dp)
                     )
@@ -173,7 +177,8 @@ fun SubscriptionSettingsComposable(
             label = { Text(stringResource(R.string.default_alarm_dialog_hint)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isCreating
         )
 
         Spacer(modifier = Modifier.padding(12.dp))
@@ -194,7 +199,8 @@ fun SubscriptionSettingsComposable(
             label = { Text(stringResource(R.string.default_alarm_dialog_hint)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isCreating
         )
 
         Spacer(modifier = Modifier.padding(12.dp))

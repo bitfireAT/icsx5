@@ -79,7 +79,7 @@
         </activity>
         <activity
             android:name=".ui.AddCalendarActivity"
-            android:label="@string/activity_add_calendar"
+            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ui.CalendarListActivity"
             android:exported="true"
             tools:ignore="UnusedAttribute">

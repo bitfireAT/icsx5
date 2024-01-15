@@ -22,6 +22,7 @@ class SubscriptionModel(application: Application) : AndroidViewModel(application
 
     val success = MutableLiveData(false)
     val errorMessage = MutableLiveData<String>()
+    val isCreating = MutableLiveData(false)
 
     /**
      * Creates a new subscription taking the data from the given models.
@@ -31,6 +32,7 @@ class SubscriptionModel(application: Application) : AndroidViewModel(application
         credentialsModel: CredentialsModel,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
+            isCreating.postValue(true)
             try {
                 val subscription = Subscription(
                     displayName = subscriptionSettingsModel.title.value!!,
@@ -66,6 +68,8 @@ class SubscriptionModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
                 errorMessage.postValue(e.localizedMessage)
+            } finally {
+                isCreating.postValue(false)
             }
         }
     }

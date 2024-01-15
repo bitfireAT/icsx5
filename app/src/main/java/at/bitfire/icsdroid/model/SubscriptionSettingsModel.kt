@@ -8,19 +8,21 @@ import at.bitfire.icsdroid.HttpUtils
 import java.net.URISyntaxException
 
 class SubscriptionSettingsModel : ViewModel() {
-    val url = MutableLiveData<String>()
-    val urlError = MutableLiveData<String?>()
-    val title = MutableLiveData<String>()
-    val color = MutableLiveData<Int>()
-    val ignoreAlerts = MutableLiveData<Boolean>()
-    val defaultAlarmMinutes = MutableLiveData<Long>()
-    val defaultAllDayAlarmMinutes = MutableLiveData<Long>()
+    val url = MutableLiveData<String?>(null)
+    val urlError = MutableLiveData<String?>(null)
+    val title = MutableLiveData<String?>(null)
+    val color = MutableLiveData<Int?>(null)
+    val ignoreAlerts = MutableLiveData(false)
+    val defaultAlarmMinutes = MutableLiveData<Long?>(null)
+    val defaultAllDayAlarmMinutes = MutableLiveData<Long?>(null)
 
     val supportsAuthentication = MediatorLiveData(false).apply {
         addSource(url) {
             val uri = try {
                 Uri.parse(it)
             } catch (e: URISyntaxException) {
+                return@addSource
+            } catch (_: NullPointerException) {
                 return@addSource
             }
             value = HttpUtils.supportsAuthentication(uri)
