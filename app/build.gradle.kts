@@ -161,7 +161,7 @@ dependencies {
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("junit:junit:4.13.2")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:${okhttp}")
-    androidTestImplementation("androidx.work:work-testing:2.8.1")
+    androidTestImplementation("androidx.work:work-testing:2.9.0")
 
     testImplementation("junit:junit:4.13.2")
 }
