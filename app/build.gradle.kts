@@ -143,7 +143,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-brotli:${okhttp}")
     implementation("com.squareup.okhttp3:okhttp-coroutines:${okhttp}")
-    implementation("joda-time:joda-time:2.12.5")
+    implementation("joda-time:joda-time:2.12.6")
 
     // latest commons that don"t require Java 8
     //noinspection GradleDependency
