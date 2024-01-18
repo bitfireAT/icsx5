@@ -106,7 +106,6 @@ configurations {
 dependencies {
     val aboutLibsVersion: String by rootProject.extra
     val composeBomVersion = "2023.10.01"   // https://developer.android.com/jetpack/compose/bom
-    val okhttp = "5.0.0-alpha.11"
     val room = "2.6.1"
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
@@ -140,10 +139,15 @@ dependencies {
 
     implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.mikepenz:aboutlibraries-compose:${aboutLibsVersion}")
-    implementation("com.squareup.okhttp3:okhttp:${okhttp}")
-    implementation("com.squareup.okhttp3:okhttp-brotli:${okhttp}")
-    implementation("com.squareup.okhttp3:okhttp-coroutines:${okhttp}")
     implementation("joda-time:joda-time:2.12.6")
+
+    val okHttpBom = platform("com.squareup.okhttp3:okhttp-bom:4.12.0")
+    implementation(okHttpBom)
+    androidTestImplementation(okHttpBom)
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:okhttp-brotli")
+    // FIXME - Add when OkHttp 5.0.0 is stable
+    // implementation("com.squareup.okhttp3:okhttp-coroutines")
 
     // latest commons that don"t require Java 8
     //noinspection GradleDependency
@@ -160,7 +164,7 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("junit:junit:4.13.2")
-    androidTestImplementation("com.squareup.okhttp3:mockwebserver:${okhttp}")
+    androidTestImplementation("com.squareup.okhttp3:mockwebserver")
     androidTestImplementation("androidx.work:work-testing:2.9.0")
 
     testImplementation("junit:junit:4.13.2")
