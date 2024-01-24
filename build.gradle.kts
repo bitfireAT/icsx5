@@ -1,6 +1,6 @@
 buildscript {
     val aboutLibsVersion by extra("10.7.0")
-    val agpVersion = "8.2.1"
+    val agpVersion = "8.2.2"
     val kotlinVersion = "1.9.22"
     val kspVersion = "1.0.16"
 
