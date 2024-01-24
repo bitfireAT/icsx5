@@ -4,37 +4,53 @@
 
 package at.bitfire.icsdroid.ui
 
-import android.app.Application
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import androidx.activity.addCallback
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.SyncWorker
-import at.bitfire.icsdroid.databinding.EditCalendarBinding
-import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
+import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.CredentialsModel
+import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.accompanist.themeadapter.material.MdcTheme
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -45,48 +61,75 @@ class EditCalendarActivity: AppCompatActivity() {
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
+    private var initialSubscription: Subscription? = null
     private val credentialsModel by viewModels<CredentialsModel>()
+    private var initialCredentials: Credential? = null
 
-    private val model by viewModels<SubscriptionModel> {
-        object: ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1)
-                return SubscriptionModel(application, subscriptionId) as T
+    private val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
+        subscriptionSettingsModel.color.value = color
+    }
+
+    // Whether use made changes are legal
+    private val inputValid: LiveData<Boolean> by lazy {
+        object : MediatorLiveData<Boolean>() {
+            init {
+                addSource(subscriptionSettingsModel.title) { validate() }
+                addSource(credentialsModel.requiresAuth) { validate() }
+                addSource(credentialsModel.username) { validate() }
+                addSource(credentialsModel.password) { validate() }
+            }
+            fun validate() {
+                val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
+                val authOK = credentialsModel.run {
+                    if (requiresAuth.value == true)
+                        username.value != null && password.value != null
+                    else
+                        true
+                }
+                value = titleOK && authOK
             }
         }
     }
 
-    lateinit var binding: EditCalendarBinding
+    // Whether unsaved changes exist
+    private val modelsDirty: MutableLiveData<Boolean> by lazy {
+        object : MediatorLiveData<Boolean>() {
+            init {
+                addSource(subscriptionSettingsModel.title) { value = subscriptionDirty() }
+                addSource(subscriptionSettingsModel.color) { value = subscriptionDirty() }
+                addSource(subscriptionSettingsModel.ignoreAlerts) { value = subscriptionDirty() }
+                addSource(subscriptionSettingsModel.defaultAlarmMinutes) { value = subscriptionDirty() }
+                addSource(subscriptionSettingsModel.defaultAllDayAlarmMinutes) { value = subscriptionDirty() }
+                addSource(credentialsModel.username) { value = credentialDirty() }
+                addSource(credentialsModel.password) { value = credentialDirty() }
+            }
+            fun subscriptionDirty() = initialSubscription?.let {
+                !subscriptionSettingsModel.equalsSubscription(it)
+            } ?: false
+            fun credentialDirty() = initialCredentials?.let {
+                !credentialsModel.equalsCredential(it)
+            } ?: false
+        }
+    }
 
+    private val model by viewModels<EditSubscriptionModel> {
+        object: ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1)
+                return EditSubscriptionModel(application, subscriptionId) as T
+            }
+        }
+    }
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
 
+        // Initialise view models and save their initial state
         model.subscriptionWithCredential.observe(this) { data ->
             if (data != null)
                 onSubscriptionLoaded(data)
         }
-
-        val invalidate = Observer<Any?> {
-            invalidateOptionsMenu()
-        }
-        arrayOf(
-            subscriptionSettingsModel.title,
-            subscriptionSettingsModel.color,
-            subscriptionSettingsModel.ignoreAlerts,
-            subscriptionSettingsModel.defaultAlarmMinutes,
-            subscriptionSettingsModel.defaultAllDayAlarmMinutes,
-            credentialsModel.requiresAuth,
-            credentialsModel.username,
-            credentialsModel.password
-        ).forEach { element ->
-            element.observe(this, invalidate)
-        }
-
-        binding = DataBindingUtil.setContentView(this, R.layout.edit_calendar)
-        binding.lifecycleOwner = this
-        binding.model = model
 
         // handle status changes
         model.successMessage.observe(this) { message ->
@@ -96,62 +139,21 @@ class EditCalendarActivity: AppCompatActivity() {
             }
         }
 
-        // show error message from calling intent, if available
-        if (inState == null)
-            intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                AlertFragment.create(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable)
-                    .show(supportFragmentManager, null)
+        setContent {
+            MdcTheme {
+                // show error message from calling intent, if available
+                if (inState == null)
+                    intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
+                        AlertFragmentDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
+                    }
+                EditCalendarComposable()
             }
-
-        onBackPressedDispatcher.addCallback {
-            if (dirty()) {
-                // If the form is dirty, warn the user about losing changes
-                supportFragmentManager.beginTransaction()
-                    .add(SaveDismissDialogFragment(), null)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit()
-            } else
-                // Otherwise, simply finish the activity
-                finish()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.edit_calendar_activity, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val dirty = dirty()
-        menu.findItem(R.id.delete)
-                .setEnabled(!dirty)
-                .setVisible(!dirty)
-
-        menu.findItem(R.id.cancel)
-                .setEnabled(dirty)
-                .setVisible(dirty)
-
-        // if local file, hide authentication fragment
-        val uri = model.subscriptionWithCredential.value?.subscription?.url
-        binding.credentials.visibility =
-            if (uri != null && HttpUtils.supportsAuthentication(uri))
-                View.VISIBLE
-            else
-                View.GONE
-
-        val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
-        val authOK = credentialsModel.run {
-            if (requiresAuth.value == true)
-                username.value != null && password.value != null
-            else
-                true
-        }
-        menu.findItem(R.id.save)
-                .setEnabled(dirty && titleOK && authOK)
-                .setVisible(dirty && titleOK && authOK)
-        return true
-    }
-
+    /**
+     * Initialise view models and remember their initial state
+     */
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
         val subscription = subscriptionWithCredential.subscription
 
@@ -184,150 +186,176 @@ class EditCalendarActivity: AppCompatActivity() {
                 credentialsModel.password.value = password
             }
         }
+
+        // Save state, before user makes changes
+        initialSubscription = subscription
+        initialCredentials = credential
     }
 
 
     /* user actions */
 
-    fun onSave(item: MenuItem?) {
-        model.updateSubscription(subscriptionSettingsModel, credentialsModel)
+    private fun onSave() = model.updateSubscription(subscriptionSettingsModel, credentialsModel)
+
+    private fun onDelete() = model.removeSubscription()
+
+    private fun onShare() = model.subscriptionWithCredential.value?.let { (subscription, _) ->
+        ShareCompat.IntentBuilder(this)
+            .setSubject(subscription.displayName)
+            .setText(subscription.url.toString())
+            .setType("text/plain")
+            .setChooserTitle(R.string.edit_calendar_send_url)
+            .startChooser()
     }
 
-    fun onAskDelete(item: MenuItem) {
-        supportFragmentManager.beginTransaction()
-            .add(DeleteDialogFragment(), null)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-            .commit()
-    }
+    /* Composables */
 
-    private fun onDelete() {
-        model.removeSubscription()
-    }
-
-    fun onCancel(item: MenuItem?) {
-        finish()
-    }
-
-    fun onShare(item: MenuItem) {
-        model.subscriptionWithCredential.value?.let { (subscription, _) ->
-            ShareCompat.IntentBuilder(this)
-                    .setSubject(subscription.displayName)
-                    .setText(subscription.url.toString())
-                    .setType("text/plain")
-                    .setChooserTitle(R.string.edit_calendar_send_url)
-                    .startChooser()
-        }
-    }
-
-    //TODO: Get rid of dirty model mechanism
-    private fun dirty(): Boolean = true
-
-
-    /* view model and data source */
-
-    class SubscriptionModel(
-        application: Application,
-        private val subscriptionId: Long
-    ): AndroidViewModel(application) {
-
-        private val db = AppDatabase.getInstance(application)
-        private val credentialsDao = db.credentialsDao()
-        private val subscriptionsDao = db.subscriptionsDao()
-
-        val successMessage = MutableLiveData<String>()
-
-        val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
-
-        /**
-         * Updates the loaded subscription from the data provided by the view models.
-         */
-        fun updateSubscription(
-            subscriptionSettingsModel: SubscriptionSettingsModel,
-            credentialsModel: CredentialsModel
-        ) {
-            viewModelScope.launch(Dispatchers.IO) {
-                subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
-                    val subscription = subscriptionWithCredentials.subscription
-
-                    val newSubscription = subscription.copy(
-                        displayName = subscriptionSettingsModel.title.value ?: subscription.displayName,
-                        color = subscriptionSettingsModel.color.value,
-                        defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
-                        defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                        ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false
+    @Composable
+    private fun EditCalendarComposable() {
+        val url by subscriptionSettingsModel.url.observeAsState("")
+        val title by subscriptionSettingsModel.title.observeAsState("")
+        val color by subscriptionSettingsModel.color.observeAsState(0)
+        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
+        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState()
+        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState()
+        val inputValid by inputValid.observeAsState(false)
+        val modelsDirty by modelsDirty.observeAsState(false)
+        Scaffold(
+            topBar = { AppBarComposable(inputValid, modelsDirty) }
+        ) { paddingValues ->
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                SubscriptionSettingsComposable(
+                    url = url,
+                    title = title,
+                    titleChanged = { subscriptionSettingsModel.title.postValue(it) },
+                    color = color,
+                    colorIconClicked = { colorPickerContract.launch(color) },
+                    ignoreAlerts = ignoreAlerts,
+                    ignoreAlertsChanged = { subscriptionSettingsModel.ignoreAlerts.postValue(it) },
+                    defaultAlarmMinutes = defaultAlarmMinutes,
+                    defaultAlarmMinutesChanged = {
+                        subscriptionSettingsModel.defaultAlarmMinutes.postValue(
+                            it.toLongOrNull()
+                        )
+                    },
+                    defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                    defaultAllDayAlarmMinutesChanged = {
+                        subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(
+                            it.toLongOrNull()
+                        )
+                    },
+                    isCreating = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(
+                    false
+                )
+                val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
+                val username: String? by credentialsModel.username.observeAsState(null)
+                val password: String? by credentialsModel.password.observeAsState(null)
+                AnimatedVisibility(visible = supportsAuthentication) {
+                    LoginCredentialsComposable(
+                        requiresAuth,
+                        username,
+                        password,
+                        onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
+                        onUsernameChange = credentialsModel.username::setValue,
+                        onPasswordChange = credentialsModel.password::setValue
                     )
-                    subscriptionsDao.update(newSubscription)
-
-                    if (credentialsModel.requiresAuth.value == true) {
-                        val username = credentialsModel.username.value
-                        val password = credentialsModel.password.value
-                        if (username != null && password != null)
-                            credentialsDao.upsert(Credential(subscriptionId, username, password))
-                    } else
-                        credentialsDao.removeBySubscriptionId(subscriptionId)
-
-                    // notify UI about success
-                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_saved))
-
-                    // sync the subscription to reflect the changes in the calendar provider
-                    SyncWorker.run(getApplication(), forceResync = true)
                 }
             }
         }
+    }
 
-        /**
-         * Removes the loaded subscription.
-         */
-        fun removeSubscription() {
-            viewModelScope.launch(Dispatchers.IO) {
-                subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
-                    subscriptionsDao.delete(subscriptionWithCredentials.subscription)
-
-                    // sync the subscription to reflect the changes in the calendar provider
-                    SyncWorker.run(getApplication())
-
-                    // notify UI about success
-                    successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_deleted))
+    @Composable
+    private fun AppBarComposable(valid: Boolean, modelsDirty: Boolean) {
+        val openDeleteDialog = remember { mutableStateOf(false) }
+        AlertDialogBox(
+            isOpen = openDeleteDialog,
+            message = stringResource(R.string.edit_calendar_really_delete),
+            confirmButtonText = stringResource(R.string.edit_calendar_delete),
+            confirmButtonCallback = { onDelete() },
+            dismissButtonText = stringResource(R.string.edit_calendar_cancel)
+        )
+        val openSaveDismissDialog = remember { mutableStateOf(false) }
+        AlertDialogBox(
+            isOpen = openSaveDismissDialog,
+            message = stringResource(R.string.edit_calendar_unsaved_changes),
+            confirmButtonText = stringResource(R.string.edit_calendar_save),
+            confirmButtonCallback = { onSave() },
+            dismissButtonText = stringResource(R.string.edit_calendar_dismiss),
+            dismissButtonCallback = { finish() }
+        )
+        TopAppBar(
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        if (modelsDirty)
+                            openSaveDismissDialog.value = true
+                        else
+                            finish()
+                    }
+                ) {
+                    Icon(Icons.Filled.ArrowBack, null)
+                }
+            },
+            title = { Text(text = stringResource(R.string.activity_edit_calendar)) },
+            actions = {
+                IconButton(onClick = { onShare() }) {
+                    Icon(
+                        Icons.Filled.Share,
+                        stringResource(R.string.edit_calendar_send_url)
+                    )
+                }
+                IconButton(onClick = { openDeleteDialog.value = true }) {
+                    Icon(Icons.Filled.Delete, stringResource(R.string.edit_calendar_delete))
+                }
+                AnimatedVisibility(visible = valid && modelsDirty) {
+                    IconButton(onClick = { onSave() }) {
+                        Icon(Icons.Filled.Check, stringResource(R.string.edit_calendar_save))
+                    }
                 }
             }
-        }
-
+        )
     }
 
-
-    /** "Really delete?" dialog */
-    class DeleteDialogFragment: DialogFragment() {
-
-        override fun onCreateDialog(savedInstanceState: Bundle?) =
-            AlertDialog.Builder(requireActivity())
-                .setMessage(R.string.edit_calendar_really_delete)
-                .setPositiveButton(R.string.edit_calendar_delete) { dialog, _ ->
-                    dialog.dismiss()
-                    (activity as EditCalendarActivity?)?.onDelete()
+    @Composable
+    fun AlertDialogBox(
+        isOpen: MutableState<Boolean>,
+        message: String,
+        confirmButtonText: String,
+        confirmButtonCallback: () -> Unit = {},
+        dismissButtonText: String,
+        dismissButtonCallback: () -> Unit = {}
+    ) {
+        if (isOpen.value)
+            AlertDialog(
+                onDismissRequest = { isOpen.value = false },
+                text = { Text(message) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        isOpen.value = false
+                        confirmButtonCallback()
+                    }) { Text(confirmButtonText) }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        isOpen.value = false
+                        dismissButtonCallback()
+                    }) { Text(dismissButtonText) }
                 }
-                .setNegativeButton(R.string.edit_calendar_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-
+            )
     }
 
-    /** "Save or dismiss" dialog */
-    class SaveDismissDialogFragment: DialogFragment() {
-
-        override fun onCreateDialog(savedInstanceState: Bundle?) =
-            AlertDialog.Builder(requireActivity())
-                .setTitle(R.string.edit_calendar_unsaved_changes)
-                .setPositiveButton(R.string.edit_calendar_save) { dialog, _ ->
-                    dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.onSave(null)
-                }
-                .setNegativeButton(R.string.edit_calendar_dismiss) { dialog, _ ->
-                    dialog.dismiss()
-                    (activity as? EditCalendarActivity)?.onCancel(null)
-                }
-                .create()
-
+    @Preview
+    @Composable
+    fun TopBarComposable_Preview() {
+        AppBarComposable(valid = true, modelsDirty = true)
     }
 
 }

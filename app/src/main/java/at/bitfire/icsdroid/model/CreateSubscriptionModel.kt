@@ -14,7 +14,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SubscriptionModel(application: Application) : AndroidViewModel(application) {
+class CreateSubscriptionModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getInstance(getApplication())
     private val subscriptionsDao = database.subscriptionsDao()

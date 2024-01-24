@@ -118,6 +118,7 @@
         </activity>
         <activity
             android:name=".ui.EditCalendarActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/activity_edit_calendar"
             android:parentActivityName=".ui.CalendarListActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
