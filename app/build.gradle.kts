@@ -134,7 +134,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
-    implementation("com.google.accompanist:accompanist-themeadapter-material:0.32.0")
+    implementation("com.google.accompanist:accompanist-themeadapter-material:0.34.0")
     implementation("io.github.vanpra.compose-material-dialogs:color:0.9.0")
 
     implementation("com.jaredrummler:colorpicker:1.1.0")
