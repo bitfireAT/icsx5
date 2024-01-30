@@ -19,9 +19,9 @@ jobs:
 
       - name: Archive results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-unit
           path: |
             app/build/outputs/lint*
             app/build/reports
@@ -80,8 +80,8 @@ jobs:
 
       - name: Archive results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-instrumented-${{ matrix.api-level }}
           path: |
             app/build/reports
