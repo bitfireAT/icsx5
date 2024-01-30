@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
+import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -15,29 +16,29 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 
 class HttpClient private constructor(
-        context: Context
+    context: Context
 ) {
 
     companion object {
         private var INSTANCE: HttpClient? = null
 
+        private val appInForeground = MutableStateFlow(false)
+
         @Synchronized
         fun get(context: Context): HttpClient {
             INSTANCE?.let { return it }
-            HttpClient(context.applicationContext).let {
-                INSTANCE = it
-                return it
-            }
+            return HttpClient(context.applicationContext)
+                .also { INSTANCE = it }
         }
 
         fun setForeground(foreground: Boolean) {
-            INSTANCE?.certManager?.appInForeground = foreground
+            appInForeground.tryEmit(foreground)
         }
     }
 
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
-    private val certManager = CustomCertManager(context)
+    private val certManager = CustomCertManager(context, appInForeground = appInForeground)
 
     private val sslContext = SSLContext.getInstance("TLS")
     init {
@@ -45,21 +46,22 @@ class HttpClient private constructor(
     }
 
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(BrotliInterceptor)
-            .addNetworkInterceptor(UserAgentInterceptor)
-            .followRedirects(false)
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .sslSocketFactory(sslContext.socketFactory, certManager)
-            .hostnameVerifier(certManager.hostnameVerifier(OkHostnameVerifier))
-            .build()
+        .addNetworkInterceptor(BrotliInterceptor)
+        .addNetworkInterceptor(UserAgentInterceptor)
+        .followRedirects(false)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .sslSocketFactory(sslContext.socketFactory, certManager)
+        .hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
+        .build()
 
 
     object UserAgentInterceptor : Interceptor {
 
         override fun intercept(chain: Interceptor.Chain): Response {
-            val request = chain.request().newBuilder()
-                    .header("User-Agent", Constants.USER_AGENT)
+            val request = chain.request()
+                .newBuilder()
+                .header("User-Agent", Constants.USER_AGENT)
             return chain.proceed(request.build())
         }
 

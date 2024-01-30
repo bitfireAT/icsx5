@@ -111,8 +111,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    implementation("com.github.bitfireAT:cert4android:3817e62d9f173d8f8b800d24769f42cb205f560e")
-    implementation("com.github.bitfireAT:ical4android:916f2228e8fb55d26dea171733feaf22d6e45594")
+    implementation("com.github.bitfireAT:cert4android:2bb3898")
+    implementation("com.github.bitfireAT:ical4android:cc21286")
 
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
