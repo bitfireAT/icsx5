@@ -27,8 +27,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -282,7 +282,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         }
                     }
                 ) {
-                    Icon(Icons.Filled.ArrowBack, null)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                 }
             },
             title = { Text(text = stringResource(R.string.activity_add_calendar)) },
@@ -292,7 +292,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         onClick = { onNextRequested(pagerState.currentPage) },
                         enabled = !isVerifyingUrl && !isCreating
                     ) {
-                        Icon(Icons.Filled.ArrowForward, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
                     }
                 }
             }

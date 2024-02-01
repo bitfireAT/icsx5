@@ -127,7 +127,7 @@ class CalendarListActivity: AppCompatActivity() {
                     val show: Boolean by service.shouldShow().observeAsState(false)
                     if (show) service.Content()
                 }
-                
+
                 Scaffold(
                     floatingActionButton = {
                         FloatingActionButton(
