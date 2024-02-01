@@ -21,7 +21,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     private val credentialsDao = database.credentialsDao()
 
     val success = MutableLiveData(false)
-    val errorMessage = MutableLiveData<String>()
+    val errorMessage = MutableLiveData<String?>(null)
     val isCreating = MutableLiveData(false)
 
     /**
@@ -67,7 +67,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 success.postValue(true)
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
-                errorMessage.postValue(e.localizedMessage)
+                errorMessage.postValue(e.localizedMessage ?: e.message)
             } finally {
                 isCreating.postValue(false)
             }

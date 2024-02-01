@@ -114,7 +114,7 @@ class AddCalendarActivity : AppCompatActivity() {
             }
         }
         subscriptionModel.errorMessage.observe(this) { message ->
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            message?.let { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
         }
 
         setContent {
