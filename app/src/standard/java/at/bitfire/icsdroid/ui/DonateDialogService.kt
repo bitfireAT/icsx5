@@ -50,6 +50,7 @@ class DonateDialogService: ComposableStartupService {
     private lateinit var preferences: SharedPreferences
 
     override fun initialize(activity: AppCompatActivity) {
+        if (this::preferences.isInitialized) return
         preferences = activity.getPreferences(0)
     }
 

@@ -117,9 +117,8 @@ class CalendarListActivity: AppCompatActivity() {
             requestCalendarPermissions()
 
         // Init and collect all ComposableStartupServices
-        val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java).onEach { service ->
-            if (savedInstanceState == null) service.initialize(this)
-        }
+        val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
+            .onEach { it.initialize(this) }
 
         setContent {
             MdcTheme {
