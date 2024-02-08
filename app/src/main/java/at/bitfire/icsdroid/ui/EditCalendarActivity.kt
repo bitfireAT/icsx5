@@ -63,9 +63,10 @@ class EditCalendarActivity: AppCompatActivity() {
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
     private var initialSubscription: Subscription? = null
     private val credentialsModel by viewModels<CredentialsModel>()
-    private var initialCredentials: Credential? = null
+    private var initialCredential: Credential? = null
+    private var initialRequiresAuthValue: Boolean? = null
 
-    // Whether use made changes are legal
+    // Whether user made changes are legal
     private val inputValid: LiveData<Boolean> by lazy {
         object : MediatorLiveData<Boolean>() {
             init {
@@ -78,7 +79,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
                 val authOK = credentialsModel.run {
                     if (requiresAuth.value == true)
-                        username.value != null && password.value != null
+                        !username.value.isNullOrBlank() && !password.value.isNullOrBlank()
                     else
                         true
                 }
@@ -96,15 +97,18 @@ class EditCalendarActivity: AppCompatActivity() {
                 addSource(subscriptionSettingsModel.ignoreAlerts) { value = subscriptionDirty() }
                 addSource(subscriptionSettingsModel.defaultAlarmMinutes) { value = subscriptionDirty() }
                 addSource(subscriptionSettingsModel.defaultAllDayAlarmMinutes) { value = subscriptionDirty() }
+                addSource(credentialsModel.requiresAuth) { value = credentialDirty() }
                 addSource(credentialsModel.username) { value = credentialDirty() }
                 addSource(credentialsModel.password) { value = credentialDirty() }
             }
             fun subscriptionDirty() = initialSubscription?.let {
                 !subscriptionSettingsModel.equalsSubscription(it)
             } ?: false
-            fun credentialDirty() = initialCredentials?.let {
-                !credentialsModel.equalsCredential(it)
-            } ?: false
+            fun credentialDirty() =
+                initialRequiresAuthValue != credentialsModel.requiresAuth.value ||
+                initialCredential?.let {
+                    !credentialsModel.equalsCredential(it)
+                } ?: false
         }
     }
 
@@ -185,7 +189,8 @@ class EditCalendarActivity: AppCompatActivity() {
 
         // Save state, before user makes changes
         initialSubscription = subscription
-        initialCredentials = credential
+        initialCredential = credential
+        initialRequiresAuthValue = credentialsModel.requiresAuth.value
     }
 
 
@@ -283,15 +288,22 @@ class EditCalendarActivity: AppCompatActivity() {
                                                                                  },
             ) { openDeleteDialog = false }
         var openSaveDismissDialog by remember { mutableStateOf(false) }
-        if (openSaveDismissDialog)
+        if (openSaveDismissDialog) {
             GenericAlertDialog(
-                content = { Text(text = stringResource(R.string.edit_calendar_unsaved_changes)) },
-                confirmButton = stringResource(R.string.edit_calendar_save) to {
+                content = { Text(text = if (valid)
+                    stringResource(R.string.edit_calendar_unsaved_changes)
+                else
+                    stringResource(R.string.edit_calendar_need_valid_credentials)
+                ) },
+                confirmButton = if (valid) stringResource(R.string.edit_calendar_save) to {
                     onSave()
+                    openSaveDismissDialog = false
+                } else stringResource(R.string.edit_calendar_edit) to {
                     openSaveDismissDialog = false
                 },
                 dismissButton = stringResource(R.string.edit_calendar_dismiss) to ::finish
             ) { openSaveDismissDialog = false }
+        }
         TopAppBar(
             navigationIcon = {
                 IconButton(

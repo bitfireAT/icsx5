@@ -96,6 +96,10 @@
     <string name="edit_calendar_dismiss">Dismiss</string>
     <string name="edit_calendar_failed">Operation failed</string>
     <string name="edit_calendar_really_delete">Do you really want to unsubscribe from this calendar?</string>
+    <string name="edit_calendar_edit">Edit</string>
+    <string name="edit_calendar_need_valid_credentials">Username and password required</string>
+    <string name="edit_calendar_need_username">Username required</string>
+    <string name="edit_calendar_need_password">Password required</string>
     <string name="edit_calendar_save">Save</string>
     <string name="edit_calendar_saved">Changes saved</string>
     <string name="edit_calendar_send_url">Send URL</string>

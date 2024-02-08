@@ -6,8 +6,8 @@ import at.bitfire.icsdroid.db.entity.Credential
 
 class CredentialsModel : ViewModel() {
     val requiresAuth = MutableLiveData(false)
-    val username = MutableLiveData("")
-    val password = MutableLiveData("")
+    val username = MutableLiveData<String?>(null)
+    val password = MutableLiveData<String?>(null)
 
     val isInsecure = MutableLiveData(false)
 

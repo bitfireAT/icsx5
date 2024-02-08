@@ -31,16 +31,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.ui.reusable.TextFieldErrorLabel
 
 @Composable
 fun LoginCredentialsComposable(
     requiresAuth: Boolean,
-    username: String?,
-    password: String?,
+    username: String? = null,
+    password: String? = null,
     onRequiresAuthChange: (Boolean) -> Unit,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
 ) {
+    val usernameError = if (username?.isBlank() == true)
+        stringResource(R.string.edit_calendar_need_username)
+    else null
+    val passwordError = if (username?.isBlank() == true)
+        stringResource(R.string.edit_calendar_need_password)
+    else null
     Column(
         Modifier.fillMaxWidth()
     ) {
@@ -62,16 +69,21 @@ fun LoginCredentialsComposable(
             OutlinedTextField(
                 value = username ?: "",
                 onValueChange = onUsernameChange,
-                label = { Text( stringResource(R.string.add_calendar_user_name)) },
+                label = { Text(stringResource(R.string.add_calendar_user_name)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = usernameError != null,
                 modifier = Modifier.fillMaxWidth()
             )
+            TextFieldErrorLabel(usernameError)
+
             PasswordTextField(
                 password = password ?: "",
                 labelText = stringResource(R.string.add_calendar_password),
+                isError = passwordError != null,
                 onPasswordChange = onPasswordChange
             )
+            TextFieldErrorLabel(passwordError)
         }
     }
 }
@@ -112,6 +124,32 @@ fun LoginCredentialsComposable_Preview() {
     LoginCredentialsComposable(
         requiresAuth = true,
         username = "Demo user",
+        password = "demo password",
+        onRequiresAuthChange = {},
+        onUsernameChange = {},
+        onPasswordChange = {}
+    )
+}
+
+@Composable
+@Preview
+fun LoginCredentialsComposable_Preview_Empty() {
+    LoginCredentialsComposable(
+        requiresAuth = true,
+        username = null,
+        password = null,
+        onRequiresAuthChange = {},
+        onUsernameChange = {},
+        onPasswordChange = {}
+    )
+}
+
+@Composable
+@Preview
+fun LoginCredentialsComposable_Preview_Error() {
+    LoginCredentialsComposable(
+        requiresAuth = true,
+        username = "",
         password = "",
         onRequiresAuthChange = {},
         onUsernameChange = {},
