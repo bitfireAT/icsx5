@@ -142,7 +142,7 @@ dependencies {
 
     implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.mikepenz:aboutlibraries-compose:${aboutLibsVersion}")
-    implementation("joda-time:joda-time:2.12.6")
+    implementation("joda-time:joda-time:2.12.7")
 
     val okHttpBom = platform("com.squareup.okhttp3:okhttp-bom:4.12.0")
     implementation(okHttpBom)
