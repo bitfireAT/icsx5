@@ -65,10 +65,6 @@ class EditCalendarActivity: AppCompatActivity() {
     private val credentialsModel by viewModels<CredentialsModel>()
     private var initialCredentials: Credential? = null
 
-    private val colorPickerContract = registerForActivityResult(ColorPickerActivity.Contract()) { color ->
-        subscriptionSettingsModel.color.value = color
-    }
-
     // Whether use made changes are legal
     private val inputValid: LiveData<Boolean> by lazy {
         object : MediatorLiveData<Boolean>() {
@@ -214,7 +210,7 @@ class EditCalendarActivity: AppCompatActivity() {
     private fun EditCalendarComposable() {
         val url by subscriptionSettingsModel.url.observeAsState("")
         val title by subscriptionSettingsModel.title.observeAsState("")
-        val color by subscriptionSettingsModel.color.observeAsState(0)
+        val color by subscriptionSettingsModel.color.observeAsState()
         val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
         val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState()
         val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState()
@@ -234,7 +230,7 @@ class EditCalendarActivity: AppCompatActivity() {
                     title = title,
                     titleChanged = { subscriptionSettingsModel.title.postValue(it) },
                     color = color,
-                    colorIconClicked = { colorPickerContract.launch(color) },
+                    colorChanged = subscriptionSettingsModel.color::postValue,
                     ignoreAlerts = ignoreAlerts,
                     ignoreAlertsChanged = { subscriptionSettingsModel.ignoreAlerts.postValue(it) },
                     defaultAlarmMinutes = defaultAlarmMinutes,

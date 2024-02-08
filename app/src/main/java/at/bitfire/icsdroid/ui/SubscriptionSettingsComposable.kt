@@ -21,6 +21,10 @@ import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Circle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +32,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.calendar.LocalCalendar
+import at.bitfire.icsdroid.ui.reusable.ColorPickerDialog
 import at.bitfire.icsdroid.ui.reusable.SwitchSetting
 
 @Composable
@@ -36,7 +42,7 @@ fun SubscriptionSettingsComposable(
     title: String?,
     titleChanged: (String) -> Unit,
     color: Int?,
-    colorIconClicked: () -> Unit,
+    colorChanged: (Int) -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
@@ -78,8 +84,9 @@ fun SubscriptionSettingsComposable(
                         enabled = !isCreating
                     )
                 }
+                var changeColorDialogOpen by remember { mutableStateOf(false) }
                 IconButton(
-                    onClick = colorIconClicked,
+                    onClick = { changeColorDialogOpen = true },
                     modifier = Modifier
                         .weight(1f)
                         .size(48.dp)
@@ -92,6 +99,13 @@ fun SubscriptionSettingsComposable(
                             .size(48.dp)
                     )
                 }
+                // Color picker dialog
+                if (changeColorDialogOpen)
+                    ColorPickerDialog(
+                        initialColor = color ?: LocalCalendar.DEFAULT_COLOR,
+                        onSelectColor = colorChanged,
+                        onDialogDismissed = { changeColorDialogOpen = false }
+                    )
             }
         }
 

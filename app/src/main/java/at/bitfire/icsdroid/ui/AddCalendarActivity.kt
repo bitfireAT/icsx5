@@ -82,12 +82,6 @@ class AddCalendarActivity : AppCompatActivity() {
             }
         }
 
-    private val colorPickerContract =
-        registerForActivityResult(ColorPickerActivity.Contract()) { color ->
-            subscriptionSettingsModel.color.value = color
-        }
-
-
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
 
@@ -221,7 +215,7 @@ class AddCalendarActivity : AppCompatActivity() {
                                 title = title,
                                 titleChanged = subscriptionSettingsModel.title::setValue,
                                 color = color,
-                                colorIconClicked = { colorPickerContract.launch(color) },
+                                colorChanged = subscriptionSettingsModel.color::setValue,
                                 ignoreAlerts = ignoreAlerts,
                                 ignoreAlertsChanged = subscriptionSettingsModel.ignoreAlerts::setValue,
                                 defaultAlarmMinutes = defaultAlarmMinutes,

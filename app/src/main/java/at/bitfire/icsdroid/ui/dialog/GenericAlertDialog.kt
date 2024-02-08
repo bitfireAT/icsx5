@@ -4,6 +4,7 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 /**
  * Provides a generic [AlertDialog] with some utilities.
@@ -37,4 +38,19 @@ fun GenericAlertDialog(
             TextButton(onClick = { onClick() }) { Text(text) }
         }
     )
+}
+
+@Preview
+@Composable
+fun GenericAlertDialog_Preview() {
+    GenericAlertDialog(
+        confirmButton = "OK" to {},
+        dismissButton =  "Cancel" to {},
+        title = "Hello!",
+        content = {
+            Text("Hello again!")
+        }
+    ) {
+
+    }
 }

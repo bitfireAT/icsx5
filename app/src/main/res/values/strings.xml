@@ -66,6 +66,7 @@
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
     <string name="add_calendar_pick_color">Pick color</string>
+    <string name="add_calendar_default_color">Default color</string>
     <string name="add_calendar_url_text">Enter a Webcal address:</string>
     <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
     <string name="add_calendar_pick_file_text">Alternatively, select a file from local storage.</string>
