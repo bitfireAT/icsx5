@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.ui.reusable.TextFieldErrorLabel
+import at.bitfire.icsdroid.ui.partials.TextFieldErrorLabel
 
 @Composable
 fun LoginCredentialsComposable(

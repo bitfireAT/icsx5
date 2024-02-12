@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui.reusable
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size

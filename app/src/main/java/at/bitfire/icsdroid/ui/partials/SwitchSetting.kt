@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui.reusable
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

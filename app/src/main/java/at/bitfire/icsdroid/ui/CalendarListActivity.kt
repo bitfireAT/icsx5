@@ -65,9 +65,9 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.service.ComposableStartupService
-import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
-import at.bitfire.icsdroid.ui.list.CalendarListItem
-import at.bitfire.icsdroid.ui.reusable.ActionCard
+import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
+import at.bitfire.icsdroid.ui.partials.CalendarListItem
+import at.bitfire.icsdroid.ui.partials.ActionCard
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

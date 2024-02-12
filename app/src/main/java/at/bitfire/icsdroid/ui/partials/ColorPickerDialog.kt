@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid.ui.reusable
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.runtime.Composable
 import at.bitfire.icsdroid.calendar.LocalCalendar

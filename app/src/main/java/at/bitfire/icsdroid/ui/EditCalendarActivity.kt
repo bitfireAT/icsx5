@@ -47,8 +47,8 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.ui.dialog.AlertFragmentDialog
-import at.bitfire.icsdroid.ui.dialog.GenericAlertDialog
+import at.bitfire.icsdroid.ui.partials.AlertFragmentDialog
+import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 
 class EditCalendarActivity: AppCompatActivity() {

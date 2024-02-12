@@ -39,7 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.ui.dialog.AlertFragmentDialog
+import at.bitfire.icsdroid.ui.partials.AlertFragmentDialog
 
 @Composable
 fun EnterUrlComposable(

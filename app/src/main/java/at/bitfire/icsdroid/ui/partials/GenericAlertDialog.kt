@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui.dialog
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
