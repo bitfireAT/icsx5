@@ -16,7 +16,7 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 @Composable
-fun AlertFragmentDialog(
+fun AlertDialog(
     message: String,
     throwable: Throwable? = null,
     onDismissRequest: () -> Unit

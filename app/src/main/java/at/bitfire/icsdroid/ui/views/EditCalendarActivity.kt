@@ -47,7 +47,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.ui.partials.AlertFragmentDialog
+import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 
@@ -142,7 +142,7 @@ class EditCalendarActivity: AppCompatActivity() {
             // show error message from calling intent, if available
             if (inState == null)
                 intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                    AlertFragmentDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
+                    AlertDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
                 }
             EditCalendarComposable()
         }

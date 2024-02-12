@@ -18,7 +18,7 @@
   <string name="add_calendar_pick_file_text">Nebo zvolte soubor ze zařízení.</string>
   <string name="add_calendar_pick_file">Zvolit soubor</string>
   <string name="add_calendar_user_name">Uživatelské jméno</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Sdílet detaily</string>
   <!--EditCalendarActivity-->
   <string name="edit_calendar_cancel">Zrušit</string>

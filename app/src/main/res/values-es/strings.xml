@@ -26,7 +26,7 @@
   <string name="add_calendar_title_hint">Nombre del calendario</string>
   <string name="add_calendar_user_name">Nombre de usuario</string>
   <string name="add_calendar_validating">Validando recurso de calendario…</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar suscripción</string>
   <string name="edit_calendar_cancel">Cancelar</string>

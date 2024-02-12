@@ -47,7 +47,7 @@
   <string name="default_alarm_dialog_hint">Minutes avant l\'événement</string>
   <string name="default_alarm_dialog_set">Définir</string>
   <string name="default_alarm_dialog_error">Ajouter un nombre valide</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Partager les détails</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Modifier l\'abonnement</string>

@@ -40,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.ResourceInfo
-import at.bitfire.icsdroid.ui.partials.AlertFragmentDialog
+import at.bitfire.icsdroid.ui.partials.AlertDialog
 
 @Composable
 fun EnterUrlComposable(
@@ -65,7 +65,7 @@ fun EnterUrlComposable(
 
     validationResult?.exception?.let { exception ->
         val errorMessage = exception.localizedMessage ?: exception.message ?: exception.toString()
-        AlertFragmentDialog(
+        AlertDialog(
             errorMessage, exception, onValidationResultDismiss
         )
     }
