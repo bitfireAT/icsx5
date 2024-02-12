@@ -114,7 +114,7 @@ dependencies {
     implementation("com.github.bitfireAT:cert4android:2bb3898")
     implementation("com.github.bitfireAT:ical4android:cc21286")
 
-    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.1")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
     implementation("com.maxkeppeler.sheets-compose-dialogs:color:1.2.1")
 
     implementation("androidx.activity:activity-compose:1.8.2")
