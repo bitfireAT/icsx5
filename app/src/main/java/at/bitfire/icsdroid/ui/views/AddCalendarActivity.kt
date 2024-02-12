@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid.ui
+package at.bitfire.icsdroid.ui.views
 
 import android.content.Intent
 import android.net.Uri
@@ -49,6 +49,7 @@ import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
+import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.theme.colorPrimary
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.launch
