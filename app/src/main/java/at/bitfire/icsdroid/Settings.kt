@@ -42,9 +42,6 @@ class Settings(context: Context) {
         prefs.edit()
             .putBoolean(FORCE_DARK_MODE, force)
             .apply()
-
-        // actually set dark mode
-        MyApp.setNightMode(force)
     }
 
 }

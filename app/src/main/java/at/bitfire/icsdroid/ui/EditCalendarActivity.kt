@@ -6,7 +6,6 @@ package at.bitfire.icsdroid.ui
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -50,7 +49,7 @@ import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.dialog.AlertFragmentDialog
 import at.bitfire.icsdroid.ui.dialog.GenericAlertDialog
-import com.google.accompanist.themeadapter.material.MdcTheme
+import at.bitfire.icsdroid.ui.theme.setContentThemed
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -139,15 +138,13 @@ class EditCalendarActivity: AppCompatActivity() {
             }
         }
 
-        setContent {
-            MdcTheme {
-                // show error message from calling intent, if available
-                if (inState == null)
-                    intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                        AlertFragmentDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
-                    }
-                EditCalendarComposable()
-            }
+        setContentThemed {
+            // show error message from calling intent, if available
+            if (inState == null)
+                intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
+                    AlertFragmentDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
+                }
+            EditCalendarComposable()
         }
     }
 

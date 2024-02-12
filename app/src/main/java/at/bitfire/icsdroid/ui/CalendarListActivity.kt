@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -69,7 +68,7 @@ import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.dialog.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.list.CalendarListItem
 import at.bitfire.icsdroid.ui.reusable.ActionCard
-import com.google.accompanist.themeadapter.material.MdcTheme
+import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.ServiceLoader
@@ -120,40 +119,38 @@ class CalendarListActivity: AppCompatActivity() {
         val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
             .onEach { it.initialize(this) }
 
-        setContent {
-            MdcTheme {
-                compStartupServices.forEach { service ->
-                    val show: Boolean by service.shouldShow().observeAsState(false)
-                    if (show) service.Content()
-                }
+        setContentThemed {
+            compStartupServices.forEach { service ->
+                val show: Boolean by service.shouldShow().observeAsState(false)
+                if (show) service.Content()
+            }
 
-                Scaffold(
-                    floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = {
-                                // Launch the Subscription add Activity
-                                startActivity(Intent(this, AddCalendarActivity::class.java))
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = stringResource(R.string.activity_add_calendar)
-                            )
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                            // Launch the Subscription add Activity
+                            startActivity(Intent(this, AddCalendarActivity::class.java))
                         }
-                    },
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(stringResource(R.string.title_activity_calendar_list))
-                            },
-                            actions = {
-                                ActionOverflowMenu()
-                            }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = stringResource(R.string.activity_add_calendar)
                         )
                     }
-                ) { paddingValues ->
-                    ActivityContent(paddingValues)
+                },
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(stringResource(R.string.title_activity_calendar_list))
+                        },
+                        actions = {
+                            ActionOverflowMenu()
+                        }
+                    )
                 }
+            ) { paddingValues ->
+                ActivityContent(paddingValues)
             }
         }
     }

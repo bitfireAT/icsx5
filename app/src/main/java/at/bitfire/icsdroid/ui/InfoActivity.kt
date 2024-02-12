@@ -12,7 +12,6 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -52,7 +51,7 @@ import androidx.core.text.HtmlCompat
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
-import com.google.accompanist.themeadapter.material.MdcTheme
+import at.bitfire.icsdroid.ui.theme.setContentThemed
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 
 class InfoActivity: ComponentActivity() {
@@ -60,7 +59,7 @@ class InfoActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        setContentThemed {
             MainLayout()
         }
     }
@@ -87,45 +86,43 @@ class InfoActivity: ComponentActivity() {
     @Composable
     @Preview
     fun MainLayout() {
-        MdcTheme {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        navigationIcon = {
-                            IconButton({ onNavigateUp() }) {
-                                Icon(
-                                    imageVector = Icons.Filled.ArrowBack,
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        title = {
-                            Text(
-                                stringResource(R.string.app_name)
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton({ onNavigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = null
                             )
-                        },
-                        actions = {
-                            IconButton({ showWebSite() }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_public),
-                                    contentDescription = stringResource(R.string.app_info_web_site)
-                                )
-                            }
-                            IconButton({ showMastodon() }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.mastodon_white),
-                                    contentDescription = stringResource(R.string.app_info_mastodon)
-                                )
-                            }
                         }
-                    )
-                }
-            ) { contentPadding ->
-                Column(Modifier.padding(contentPadding)) {
-                    Header()
-                    License()
-                    LibrariesContainer()
-                }
+                    },
+                    title = {
+                        Text(
+                            stringResource(R.string.app_name)
+                        )
+                    },
+                    actions = {
+                        IconButton({ showWebSite() }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_public),
+                                contentDescription = stringResource(R.string.app_info_web_site)
+                            )
+                        }
+                        IconButton({ showMastodon() }) {
+                            Icon(
+                                painter = painterResource(R.drawable.mastodon_white),
+                                contentDescription = stringResource(R.string.app_info_mastodon)
+                            )
+                        }
+                    }
+                )
+            }
+        ) { contentPadding ->
+            Column(Modifier.padding(contentPadding)) {
+                Header()
+                License()
+                LibrariesContainer()
             }
         }
     }

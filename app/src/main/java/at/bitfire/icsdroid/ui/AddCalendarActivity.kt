@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -38,19 +37,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
-import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
+import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
-import com.google.accompanist.themeadapter.material.MdcTheme
+import at.bitfire.icsdroid.ui.theme.colorPrimary
+import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
@@ -111,132 +111,127 @@ class AddCalendarActivity : AppCompatActivity() {
             message?.let { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
         }
 
-        setContent {
-            MdcTheme {
-                val pagerState = rememberPagerState { 2 }
+        setContentThemed {
+            val pagerState = rememberPagerState { 2 }
 
-                val url: String? by subscriptionSettingsModel.url.observeAsState(null)
-                val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
-                val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
-                val title by subscriptionSettingsModel.title.observeAsState(null)
-                val color by subscriptionSettingsModel.color.observeAsState(null)
-                val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
-                val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState(null)
-                val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState(null)
+            val url: String? by subscriptionSettingsModel.url.observeAsState(null)
+            val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
+            val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
+            val title by subscriptionSettingsModel.title.observeAsState(null)
+            val color by subscriptionSettingsModel.color.observeAsState(null)
+            val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
+            val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState(null)
+            val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState(null)
 
-                val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
-                val username: String? by credentialsModel.username.observeAsState(null)
-                val password: String? by credentialsModel.password.observeAsState(null)
-                val isInsecure: Boolean by credentialsModel.isInsecure.observeAsState(false)
+            val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
+            val username: String? by credentialsModel.username.observeAsState(null)
+            val password: String? by credentialsModel.password.observeAsState(null)
+            val isInsecure: Boolean by credentialsModel.isInsecure.observeAsState(false)
 
-                val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
-                val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
+            val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
+            val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
 
-                val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
+            val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
 
-                var showNextButton by remember { mutableStateOf(false) }
+            var showNextButton by remember { mutableStateOf(false) }
 
-                // Receive updates for the URL introduction page
-                LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
-                    if (isVerifyingUrl) {
-                        showNextButton = true
-                        return@LaunchedEffect
-                    }
-
-                    val uri = validateUri()
-                    val authOK =
-                        if (requiresAuth)
-                            !username.isNullOrEmpty() && !password.isNullOrEmpty()
-                        else
-                            true
-                    showNextButton = uri != null && authOK
+            // Receive updates for the URL introduction page
+            LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
+                if (isVerifyingUrl) {
+                    showNextButton = true
+                    return@LaunchedEffect
                 }
 
-                // Receive updates for the Details page
-                LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-                    showNextButton = !subscriptionSettingsModel.title.value.isNullOrBlank()
-                }
+                val uri = validateUri()
+                val authOK =
+                    if (requiresAuth)
+                        !username.isNullOrEmpty() && !password.isNullOrEmpty()
+                    else
+                        true
+                showNextButton = uri != null && authOK
+            }
 
-                LaunchedEffect(validationResult) {
-                    Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
-                    if (validationResult == null || validationResult?.exception != null) return@LaunchedEffect
-                    val info = validationResult!!
+            // Receive updates for the Details page
+            LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
+                showNextButton = !subscriptionSettingsModel.title.value.isNullOrBlank()
+            }
 
-                    // When a result has been obtained, and it's neither null nor has an exception,
-                    // clean the subscriptionSettingsModel, and move the pager to the next page
-                    subscriptionSettingsModel.url.value = info.uri.toString()
+            LaunchedEffect(validationResult) {
+                Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
+                if (validationResult == null || validationResult?.exception != null) return@LaunchedEffect
+                val info = validationResult!!
 
-                    if (subscriptionSettingsModel.color.value == null)
-                        subscriptionSettingsModel.color.value =
-                            info.calendarColor ?: ContextCompat.getColor(
-                                this@AddCalendarActivity,
-                                R.color.lightblue
-                            )
+                // When a result has been obtained, and it's neither null nor has an exception,
+                // clean the subscriptionSettingsModel, and move the pager to the next page
+                subscriptionSettingsModel.url.value = info.uri.toString()
 
-                    if (subscriptionSettingsModel.title.value.isNullOrBlank())
-                        subscriptionSettingsModel.title.value =
-                            info.calendarName ?: info.uri.toString()
+                if (subscriptionSettingsModel.color.value == null)
+                    subscriptionSettingsModel.color.value =
+                        info.calendarColor ?: colorPrimary.toArgb()
 
-                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                }
+                if (subscriptionSettingsModel.title.value.isNullOrBlank())
+                    subscriptionSettingsModel.title.value =
+                        info.calendarName ?: info.uri.toString()
 
-                Scaffold(
-                    topBar = { TopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
-                ) { paddingValues ->
-                    HorizontalPager(
-                        state = pagerState,
-                        userScrollEnabled = false,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                    ) { page ->
-                        when (page) {
-                            0 -> EnterUrlComposable(
-                                requiresAuth = requiresAuth,
-                                onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
-                                username = username,
-                                onUsernameChange = credentialsModel.username::setValue,
-                                password = password,
-                                onPasswordChange = credentialsModel.password::setValue,
-                                isInsecure = isInsecure,
-                                url = url,
-                                onUrlChange = subscriptionSettingsModel.url::setValue,
-                                urlError = urlError,
-                                supportsAuthentication = supportsAuthentication,
-                                isVerifyingUrl = isVerifyingUrl,
-                                validationResult = validationResult,
-                                onValidationResultDismiss = { validationModel.result.value = null },
-                                onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
-                                onSubmit = { onNextRequested(1) }
-                            )
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            }
 
-                            1 -> SubscriptionSettingsComposable(
-                                url = url,
-                                title = title,
-                                titleChanged = subscriptionSettingsModel.title::setValue,
-                                color = color,
-                                colorChanged = subscriptionSettingsModel.color::setValue,
-                                ignoreAlerts = ignoreAlerts,
-                                ignoreAlertsChanged = subscriptionSettingsModel.ignoreAlerts::setValue,
-                                defaultAlarmMinutes = defaultAlarmMinutes,
-                                defaultAlarmMinutesChanged = {
-                                    subscriptionSettingsModel.defaultAlarmMinutes.postValue(
-                                        it.toLongOrNull()
-                                    )
-                                },
-                                defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
-                                defaultAllDayAlarmMinutesChanged = {
-                                    subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(
-                                        it.toLongOrNull()
-                                    )
-                                },
-                                isCreating = isCreating,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(rememberScrollState())
-                                    .padding(16.dp)
-                            )
-                        }
+            Scaffold(
+                topBar = { TopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
+            ) { paddingValues ->
+                HorizontalPager(
+                    state = pagerState,
+                    userScrollEnabled = false,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) { page ->
+                    when (page) {
+                        0 -> EnterUrlComposable(
+                            requiresAuth = requiresAuth,
+                            onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
+                            username = username,
+                            onUsernameChange = credentialsModel.username::setValue,
+                            password = password,
+                            onPasswordChange = credentialsModel.password::setValue,
+                            isInsecure = isInsecure,
+                            url = url,
+                            onUrlChange = subscriptionSettingsModel.url::setValue,
+                            urlError = urlError,
+                            supportsAuthentication = supportsAuthentication,
+                            isVerifyingUrl = isVerifyingUrl,
+                            validationResult = validationResult,
+                            onValidationResultDismiss = { validationModel.result.value = null },
+                            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
+                            onSubmit = { onNextRequested(1) }
+                        )
+
+                        1 -> SubscriptionSettingsComposable(
+                            url = url,
+                            title = title,
+                            titleChanged = subscriptionSettingsModel.title::setValue,
+                            color = color,
+                            colorChanged = subscriptionSettingsModel.color::setValue,
+                            ignoreAlerts = ignoreAlerts,
+                            ignoreAlertsChanged = subscriptionSettingsModel.ignoreAlerts::setValue,
+                            defaultAlarmMinutes = defaultAlarmMinutes,
+                            defaultAlarmMinutesChanged = {
+                                subscriptionSettingsModel.defaultAlarmMinutes.postValue(
+                                    it.toLongOrNull()
+                                )
+                            },
+                            defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                            defaultAllDayAlarmMinutesChanged = {
+                                subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(
+                                    it.toLongOrNull()
+                                )
+                            },
+                            isCreating = isCreating,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp)
+                        )
                     }
                 }
             }
