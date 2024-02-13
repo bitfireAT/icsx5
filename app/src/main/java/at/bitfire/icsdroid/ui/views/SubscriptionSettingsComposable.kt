@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid.ui
+package at.bitfire.icsdroid.ui.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,8 +33,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
-import at.bitfire.icsdroid.ui.reusable.ColorPickerDialog
-import at.bitfire.icsdroid.ui.reusable.SwitchSetting
+import at.bitfire.icsdroid.ui.partials.ColorPickerDialog
+import at.bitfire.icsdroid.ui.partials.SwitchSetting
 
 @Composable
 fun SubscriptionSettingsComposable(

@@ -31,7 +31,7 @@
   <string name="add_calendar_pick_file">Fájl kiválasztása</string>
   <string name="add_calendar_user_name">Felhasználónév</string>
   <string name="add_calendar_validating">A naptár ellenőrzése…</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Részletek megosztása</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">A feliratkozás módosítása</string>

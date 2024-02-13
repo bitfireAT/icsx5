@@ -17,7 +17,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.service.ComposableStartupService
-import at.bitfire.icsdroid.ui.dialog.GenericAlertDialog
+import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 
 class DonateDialogService: ComposableStartupService {
     companion object {

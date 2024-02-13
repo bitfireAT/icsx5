@@ -50,7 +50,7 @@
   <string name="default_alarm_dialog_hint">予定の...分前</string>
   <string name="default_alarm_dialog_set">設定</string>
   <string name="default_alarm_dialog_error">有効な数字を入力してください</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">詳細情報を共有</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">購読を編集</string>

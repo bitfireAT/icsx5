@@ -49,7 +49,7 @@
   <string name="default_alarm_dialog_hint">Minuty przed wydarzeniem</string>
   <string name="default_alarm_dialog_set">Komplet</string>
   <string name="default_alarm_dialog_error">Wprowadź prawidłowy numer</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Udostępnij szczegóły</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Edytuj subskrypcję</string>

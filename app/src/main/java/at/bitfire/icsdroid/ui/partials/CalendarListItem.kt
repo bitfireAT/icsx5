@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui.list
+package at.bitfire.icsdroid.ui.partials
 
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.ui.reusable.ColorCircle
 import java.text.DateFormat
 import java.util.Date
 

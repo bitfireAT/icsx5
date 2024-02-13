@@ -50,7 +50,7 @@
   <string name="default_alarm_dialog_hint">事件开始多少分钟</string>
   <string name="default_alarm_dialog_set">设置</string>
   <string name="default_alarm_dialog_error">输入的数字无效</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">分享详情</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">编辑订阅</string>

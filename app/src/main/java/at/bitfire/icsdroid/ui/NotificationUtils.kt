@@ -12,6 +12,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.ui.views.CalendarListActivity
 
 object NotificationUtils {
 

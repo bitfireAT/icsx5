@@ -50,7 +50,7 @@
   <string name="default_alarm_dialog_hint">За несколько минут до события</string>
   <string name="default_alarm_dialog_set">Установить</string>
   <string name="default_alarm_dialog_error">Введите действительное число</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Поделиться информацией</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Изменить подписку</string>

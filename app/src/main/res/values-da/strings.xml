@@ -30,7 +30,7 @@
   <string name="add_calendar_pick_file">Vælg fil</string>
   <string name="add_calendar_user_name">Brugernavn</string>
   <string name="add_calendar_validating">Validerer kalenderkilden ...</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Del detaljer</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Rediger abonnement</string>

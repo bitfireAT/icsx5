@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid.ui.dialog
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
@@ -16,7 +16,7 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 @Composable
-fun AlertFragmentDialog(
+fun AlertDialog(
     message: String,
     throwable: Throwable? = null,
     onDismissRequest: () -> Unit

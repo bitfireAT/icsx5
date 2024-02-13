@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid.ui.dialog
+package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn

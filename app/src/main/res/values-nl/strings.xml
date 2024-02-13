@@ -41,7 +41,7 @@
   <string name="default_alarm_dialog_hint">Minuten voor gebeurtenis</string>
   <string name="default_alarm_dialog_set">Instellen</string>
   <string name="default_alarm_dialog_error">Voer een geldig getal in</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Details delen</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Abonnement bewerken</string>

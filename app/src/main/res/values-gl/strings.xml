@@ -27,7 +27,7 @@
   <string name="add_calendar_title_hint">Nome do calendario</string>
   <string name="add_calendar_user_name">Nome de usuaria</string>
   <string name="add_calendar_validating">Validando fonte do calendario...</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">Comparte detalles</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar subscrición</string>

@@ -12,7 +12,7 @@
   <string name="add_calendar_password">මුරපදය</string>
   <string name="add_calendar_title_hint">දින දසුනේ නම</string>
   <string name="add_calendar_user_name">පරිශීලක නාමය</string>
-  <!--AlertFragment-->
+  <!--AlertDialog-->
   <string name="alert_share_details">විස්තර බෙදාගන්න</string>
   <!--EditCalendarActivity-->
   <string name="edit_calendar_cancel">අවලංගු</string>
