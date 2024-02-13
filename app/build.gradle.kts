@@ -1,11 +1,11 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("kotlin-kapt")
-    id("com.mikepenz.aboutlibraries.plugin")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.aboutLibs)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
 
         versionCode = 73
@@ -45,8 +45,7 @@ android {
     }
 
     composeOptions {
-        // Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     flavorDimensions += "distribution"
@@ -104,73 +103,55 @@ configurations {
 }
 
 dependencies {
-    val aboutLibsVersion: String by rootProject.extra
-    val composeBomVersion = "2024.02.00"   // https://developer.android.com/jetpack/compose/bom
-    val room = "2.6.1"
+    implementation(libs.kotlinx.coroutines)
+    coreLibraryDesugaring(libs.desugaring)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation(libs.bitfire.cert4android)
+    implementation(libs.bitfire.ical4android)
 
-    implementation("com.github.bitfireAT:cert4android:2bb3898")
-    implementation("com.github.bitfireAT:ical4android:cc21286")
+    implementation(libs.compose.dialogs.color)
+    implementation(libs.compose.dialogs.core)
 
-    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
-    implementation("com.maxkeppeler.sheets-compose-dialogs:color:1.2.1")
-
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.androidx.activityCompose)
+    implementation(libs.androidx.appCompat)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.work.runtime)
 
     // Jetpack Compose
-    val composeBom = platform("androidx.compose:compose-bom:${composeBomVersion}")
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-    implementation("androidx.compose.material:material")
-    implementation("androidx.compose.material:material-icons-extended")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
-    implementation("com.google.accompanist:accompanist-themeadapter-material:0.34.0")
-    implementation("io.github.vanpra.compose-material-dialogs:color:0.9.0")
+    implementation(libs.compose.material)
+    implementation(libs.compose.materialIconsExtended)
+    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.toolingPreview)
+    implementation(libs.compose.runtime.livedata)
 
-    implementation("com.jaredrummler:colorpicker:1.1.0")
-    implementation("com.mikepenz:aboutlibraries-compose:${aboutLibsVersion}")
-    implementation("joda-time:joda-time:2.12.7")
+    implementation(libs.aboutLibs.compose)
+    implementation(libs.jodaTime)
 
-    val okHttpBom = platform("com.squareup.okhttp3:okhttp-bom:4.12.0")
-    implementation(okHttpBom)
-    androidTestImplementation(okHttpBom)
-    implementation("com.squareup.okhttp3:okhttp")
-    implementation("com.squareup.okhttp3:okhttp-brotli")
+    implementation(libs.okhttp.base)
+    implementation(libs.okhttp.brotli)
     // FIXME - Add when OkHttp 5.0.0 is stable
-    // implementation("com.squareup.okhttp3:okhttp-coroutines")
+    // implementation(libs.okhttp.coroutines)
 
     // latest commons that don"t require Java 8
     //noinspection GradleDependency
-    implementation("commons-io:commons-io:2.6")
+    implementation(libs.commons.io)
     //noinspection GradleDependency
-    implementation("org.apache.commons:commons-lang3:3.8.1")
+    implementation(libs.commons.lang3)
 
     // Room Database
-    implementation("androidx.room:room-ktx:${room}")
-    ksp("androidx.room:room-compiler:${room}")
+    implementation(libs.room.base)
+    ksp(libs.room.compiler)
 
     // for tests
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test:rules:1.5.0")
-    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
-    androidTestImplementation("junit:junit:4.13.2")
-    androidTestImplementation("com.squareup.okhttp3:mockwebserver")
-    androidTestImplementation("androidx.work:work-testing:2.9.0")
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.arch.core.testing)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.androidx.work.testing)
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
 }
 
 aboutLibraries {
