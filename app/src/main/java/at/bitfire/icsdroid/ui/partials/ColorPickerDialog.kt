@@ -4,6 +4,7 @@
 
 package at.bitfire.icsdroid.ui.partials
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -13,6 +14,7 @@ import com.maxkeppeler.sheets.color.models.ColorSelection
 import com.maxkeppeler.sheets.color.models.MultipleColors
 import com.maxkeppeler.sheets.color.models.SingleColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPickerDialog(
     initialColor: Int,

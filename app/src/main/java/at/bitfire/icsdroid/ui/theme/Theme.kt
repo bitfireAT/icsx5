@@ -10,31 +10,51 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import at.bitfire.icsdroid.Settings
 
-private val LightColors = lightColors(
-    primary = colorPrimary,
-    secondary = colorSecondary,
-    onSecondary = Color.White
+private val DarkColors = darkColorScheme(
+    primary = lightblue,
+    onPrimary = offwhite,
+    primaryContainer = lightblue,
+    onPrimaryContainer = offwhite,
+    secondary = lightblue,
+    onSecondary = offwhite,
+    secondaryContainer = lightblue,
+    onSecondaryContainer = offwhite,
+    tertiary = lightblue,
+    onTertiary = offwhite,
+    tertiaryContainer = lightblue,
+    onTertiaryContainer = offwhite,
 )
 
-private val DarkColors = darkColors(
-    primary = colorPrimaryDark,
-    secondary = colorSecondary,
-    onSecondary = Color.White
+private val LightColors = lightColorScheme(
+    primary = lightblue,
+    onPrimary = offwhite,
+    primaryContainer = lightblue,
+    onPrimaryContainer = offwhite,
+    secondary = lightblue,
+    onSecondary = offwhite,
+    secondaryContainer = lightblue,
+    onSecondaryContainer = offwhite,
+    tertiary = lightblue,
+    onTertiary = offwhite,
+    tertiaryContainer = lightblue,
+    onTertiaryContainer = offwhite,
+    background = offwhite,
+    surfaceVariant = lightgrey,
 )
+
 
 @Composable
 fun AppTheme(
@@ -43,23 +63,21 @@ fun AppTheme(
 ) {
     val context = LocalContext.current
 
-    val colors = if (darkTheme)
+    val colorScheme = if (darkTheme)
         DarkColors
     else
         LightColors
 
-    MaterialTheme(
-        colors = colors
-    ) {
+    MaterialTheme(colorScheme = colorScheme) {
         LaunchedEffect(darkTheme) {
             (context as? AppCompatActivity)?.let { activity ->
                 val style = if (darkTheme)
                     SystemBarStyle.dark(
-                        actionBarDarkTheme.toArgb()
+                        nearlyBlack.toArgb()
                     )
                 else
                     SystemBarStyle.dark(
-                        colorPrimaryDark.toArgb()
+                        darkblue.toArgb()
                     )
                 activity.enableEdgeToEdge(
                     statusBarStyle = style,

@@ -11,15 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Circle
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +57,7 @@ fun SubscriptionSettingsComposable(
         // Title
         Text(
             text = stringResource(R.string.add_calendar_title),
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.headlineSmall,
         )
 
         // Name and color card
@@ -72,9 +72,10 @@ fun SubscriptionSettingsComposable(
                     Modifier.weight(5f)
                 ) {
                     Text(
+                        modifier = Modifier.padding(horizontal = 14.dp),
                         text = url ?: "",
                         color = Color.Gray,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     TextField(
                         value = title ?: "",
@@ -114,7 +115,7 @@ fun SubscriptionSettingsComposable(
         // Alarms
         Text(
             text = stringResource(R.string.add_calendar_alarms_title),
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.headlineSmall,
         )
 
         // Ignore existing alarms
@@ -130,12 +131,12 @@ fun SubscriptionSettingsComposable(
         // Default Alarm
         Text(
             text = stringResource(R.string.default_alarm_dialog_title),
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyLarge,
         )
         Text(
             text = stringResource(R.string.default_alarm_dialog_message),
             color = Color.Gray,
-            style = MaterialTheme.typography.body2,
+            style = MaterialTheme.typography.bodyMedium,
         )
         OutlinedTextField(
             value = (defaultAlarmMinutes ?: "").toString(),
@@ -152,12 +153,12 @@ fun SubscriptionSettingsComposable(
         // Default Alarm (All Day Events)
         Text(
             text = stringResource(R.string.add_calendar_alarms_default_all_day_title),
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyLarge,
         )
         Text(
             text = stringResource(R.string.default_alarm_dialog_message),
             color = Color.Gray,
-            style = MaterialTheme.typography.body2,
+            style = MaterialTheme.typography.bodyMedium,
         )
         OutlinedTextField(
             value = (defaultAllDayAlarmMinutes ?: "").toString(),

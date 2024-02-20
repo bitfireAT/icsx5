@@ -2,8 +2,8 @@ package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -17,9 +17,9 @@ fun TextFieldErrorLabel(error: String?) {
         err?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.caption,
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 4.dp),
-                color = MaterialTheme.colors.error
+                color = MaterialTheme.colorScheme.error
             )
         }
     }

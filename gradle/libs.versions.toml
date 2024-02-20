@@ -19,6 +19,7 @@ commons-lang3 = "3.8.1"
 compose-compiler = "1.5.8"
 compose-dialogs = "1.3.0"
 compose-material = "1.6.1"
+compose-material3 = "1.2.0"
 compose-runtime = "1.6.1"
 compose-ui = "1.6.1"
 desugaring = "2.0.4"
@@ -47,7 +48,7 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "co
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 compose-dialogs-color = { module = "com.maxkeppeler.sheets-compose-dialogs:color", version.ref = "compose-dialogs" }
 compose-dialogs-core = { module = "com.maxkeppeler.sheets-compose-dialogs:core", version.ref = "compose-dialogs" }
-compose-material = { module = "androidx.compose.material:material", version.ref = "compose-material" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 compose-materialIconsExtended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-ui" }
 compose-ui-toolingPreview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }

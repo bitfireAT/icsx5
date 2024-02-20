@@ -3,13 +3,12 @@ package at.bitfire.icsdroid.ui.partials
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
-import androidx.compose.material.Text
+import androidx.compose.material3.ListItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
@@ -18,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import at.bitfire.icsdroid.R
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 fun SyncIntervalDialog(
     currentInterval: Long,
     onSetSyncInterval: (Long) -> Unit,
@@ -40,7 +38,8 @@ fun SyncIntervalDialog(
                         modifier = Modifier.clickable {
                             onSetSyncInterval(syncIntervalValues[index])
                         },
-                        trailing = {
+                        headlineContent = { Text(name) },
+                        trailingContent = {
                             Icon(
                                 imageVector = if (currentIntervalIdx == index)
                                     Icons.Filled.RadioButtonChecked
@@ -49,7 +48,7 @@ fun SyncIntervalDialog(
                                 contentDescription = null
                             )
                         }
-                    ) { Text(name) }
+                    )
                 }
             }
         }

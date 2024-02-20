@@ -6,9 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,13 +45,13 @@ fun CalendarListItem(
         ) {
             Text(
                 text = subscription.url.toString(),
-                style = MaterialTheme.typography.caption,
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colors.onBackground.copy(ContentAlpha.medium)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = subscription.displayName,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
@@ -60,15 +59,15 @@ fun CalendarListItem(
                     DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT)
                         .format(Date(lastSync))
                 } ?: stringResource(R.string.calendar_list_not_synced_yet),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.fillMaxWidth()
             )
             subscription.errorMessage?.let { errorMessage ->
                 Text(
                     text = errorMessage,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colors.error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
         }

@@ -15,29 +15,29 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Checkbox
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -66,11 +67,13 @@ import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.InfoActivity
-import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
-import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ActionCard
+import at.bitfire.icsdroid.ui.partials.CalendarListItem
+import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
+import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.ServiceLoader
 
@@ -96,6 +99,7 @@ class CalendarListActivity: AppCompatActivity() {
     private lateinit var requestNotificationPermission: () -> Unit
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -141,7 +145,7 @@ class CalendarListActivity: AppCompatActivity() {
                     }
                 },
                 topBar = {
-                    TopAppBar(
+                    ExtendedTopAppBar(
                         title = {
                             Text(stringResource(R.string.title_activity_calendar_list))
                         },
@@ -163,16 +167,21 @@ class CalendarListActivity: AppCompatActivity() {
 
     /* UI components */
 
-    @OptIn(ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
         val isRefreshing by model.isRefreshing.observeAsState(initial = true)
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = isRefreshing,
-            onRefresh = ::onRefreshRequested
-        )
+        val pullRefreshState = rememberPullToRefreshState()
+        if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
+            onRefreshRequested()
+            pullRefreshState.endRefresh()
+        }
+        if (!isRefreshing) LaunchedEffect(true) {
+            delay(1000) // So we can see the spinner shortly, when sync finishes super fast
+            pullRefreshState.endRefresh()
+        }
 
         val subscriptions by model.subscriptions.observeAsState()
 
@@ -183,8 +192,12 @@ class CalendarListActivity: AppCompatActivity() {
         Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .pullRefresh(pullRefreshState)
+                .nestedScroll(pullRefreshState.nestedScrollConnection)
         ) {
+            PullToRefreshContainer(
+                modifier = Modifier.align(Alignment.TopCenter),
+                state = pullRefreshState,
+            )
             LazyColumn(Modifier.fillMaxSize()) {
                 // Calendar permission card
                 if (askForCalendarPermission) {
@@ -242,7 +255,7 @@ class CalendarListActivity: AppCompatActivity() {
                     item(key = "empty") {
                         Text(
                             text = stringResource(R.string.calendar_list_empty_info),
-                            style = MaterialTheme.typography.body1,
+                            style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -260,12 +273,6 @@ class CalendarListActivity: AppCompatActivity() {
                     })
                 }
             }
-
-            PullRefreshIndicator(
-                refreshing = isRefreshing,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
         }
     }
 
@@ -297,60 +304,56 @@ class CalendarListActivity: AppCompatActivity() {
             onDismissRequest = { showMenu = false }
         ) {
             DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_set_sync_interval)) },
                 onClick = {
                     showMenu = false
                     showSyncIntervalDialog = true
                 }
-            ) {
-                Text(stringResource(R.string.calendar_list_set_sync_interval))
-            }
+            )
             DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_synchronize)) },
                 onClick = {
                     showMenu = false
                     onRefreshRequested()
                 }
-            ) {
-                Text(stringResource(R.string.calendar_list_synchronize))
-            }
+            )
             DropdownMenuItem(
+                text = {
+                    val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
+                    Row(verticalAlignment = Alignment.CenterVertically,) {
+                        Text(stringResource(R.string.settings_force_dark_theme))
+                        Checkbox(
+                            checked = forceDarkMode,
+                            onCheckedChange = { onToggleDarkMode() }
+                        )
+                    }
+                },
                 onClick =  {
                     showMenu = false
                     onToggleDarkMode()
                 }
-            ) {
-                val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
-
-                Text(stringResource(R.string.settings_force_dark_theme))
-                Checkbox(
-                    checked = forceDarkMode,
-                    onCheckedChange = { onToggleDarkMode() }
-                )
-            }
+            )
             DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_privacy_policy)) },
                 onClick = {
                     showMenu = false
                     UriUtils.launchUri(context, Uri.parse(PRIVACY_POLICY_URL))
                 }
-            ) {
-                Text(stringResource(R.string.calendar_list_privacy_policy))
-            }
+            )
             DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_info)) },
                 onClick = {
                     showMenu = false
                     startActivity(Intent(context, InfoActivity::class.java))
                 }
-            ) {
-                Text(stringResource(R.string.calendar_list_info))
-            }
+            )
         }
     }
 
 
     /* actions */
 
-    private fun onRefreshRequested() {
-        SyncWorker.run(this, true)
-    }
+    private fun onRefreshRequested() = SyncWorker.run(this, true)
 
     private fun onToggleDarkMode() {
         val settings = Settings(this)

@@ -9,7 +9,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -19,40 +18,38 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
+import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 
 class InfoActivity: ComponentActivity() {
 
@@ -83,12 +80,13 @@ class InfoActivity: ComponentActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @Preview
     fun MainLayout() {
         Scaffold(
             topBar = {
-                TopAppBar(
+                ExtendedTopAppBar(
                     navigationIcon = {
                         IconButton({ onNavigateUp() }) {
                             Icon(
@@ -122,7 +120,14 @@ class InfoActivity: ComponentActivity() {
             Column(Modifier.padding(contentPadding)) {
                 Header()
                 License()
-                LibrariesContainer()
+                LibrariesContainer(
+                    colors = LibraryDefaults.libraryColors(
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                        badgeBackgroundColor = MaterialTheme.colorScheme.primary,
+                        badgeContentColor = MaterialTheme.colorScheme.onPrimary,
+                    )
+                )
             }
         }
     }
@@ -147,8 +152,8 @@ class InfoActivity: ComponentActivity() {
             )
             Text(
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.onBackground
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = stringResource(
@@ -156,9 +161,9 @@ class InfoActivity: ComponentActivity() {
                     BuildConfig.VERSION_NAME,
                     BuildConfig.FLAVOR
                 ),
-                style = MaterialTheme.typography.subtitle1,
-                color = MaterialTheme.colors.onBackground,
-                modifier = Modifier.alpha(ContentAlpha.medium)
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Normal
             )
         }
     }
@@ -194,20 +199,15 @@ class InfoActivity: ComponentActivity() {
     }
 
     @Composable
-    fun TextDialog(@StringRes text: Int, state: MutableState<Boolean>, buttons: @Composable () -> Unit = {}) {
-        AlertDialog(
-            text = {
-                AndroidView({ context ->
-                   TextView(context).also {
-                       it.text = HtmlCompat.fromHtml(
-                           getString(text).replace("\n", "<br/>"),
-                           HtmlCompat.FROM_HTML_MODE_COMPACT)
-                   }
-                }, modifier = Modifier.verticalScroll(rememberScrollState()))
+    fun TextDialog(@StringRes text: Int, state: MutableState<Boolean>) {
+        GenericAlertDialog(
+            content = { Text(HtmlCompat.fromHtml(
+                    getString(text).replace("\n", "<br/>"),
+                    HtmlCompat.FROM_HTML_MODE_COMPACT).toString()) },
+            confirmButton = stringResource(R.string.edit_calendar_dismiss) to {
+                state.value = false
             },
-            buttons = buttons,
-            onDismissRequest = { state.value = false }
-        )
+        ) { state.value = false }
     }
 
 }

@@ -14,16 +14,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -48,6 +48,7 @@ import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.AlertDialog
+import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 
@@ -270,6 +271,7 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AppBarComposable(valid: Boolean, modelsDirty: Boolean) {
         var openDeleteDialog by remember { mutableStateOf(false) }
@@ -301,7 +303,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 dismissButton = stringResource(R.string.edit_calendar_dismiss) to ::finish
             ) { openSaveDismissDialog = false }
         }
-        TopAppBar(
+        ExtendedTopAppBar(
             navigationIcon = {
                 IconButton(
                     onClick = {

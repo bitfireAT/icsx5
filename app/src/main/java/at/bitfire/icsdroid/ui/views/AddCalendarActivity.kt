@@ -21,13 +21,14 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +51,8 @@ import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.ResourceInfo
-import at.bitfire.icsdroid.ui.theme.colorPrimary
+import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
+import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -168,7 +170,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
                 if (subscriptionSettingsModel.color.value == null)
                     subscriptionSettingsModel.color.value =
-                        info.calendarColor ?: colorPrimary.toArgb()
+                        info.calendarColor ?: lightblue.toArgb()
 
                 if (subscriptionSettingsModel.title.value.isNullOrBlank())
                     subscriptionSettingsModel.title.value =
@@ -178,7 +180,7 @@ class AddCalendarActivity : AppCompatActivity() {
             }
 
             Scaffold(
-                topBar = { TopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
+                topBar = { AddCalendarTopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
             ) { paddingValues ->
                 HorizontalPager(
                     state = pagerState,
@@ -250,15 +252,16 @@ class AddCalendarActivity : AppCompatActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun TopAppBar(
+    private fun AddCalendarTopAppBar(
         pagerState: PagerState,
         showNextButton: Boolean,
         isVerifyingUrl: Boolean,
         isCreating: Boolean
     ) {
         val scope = rememberCoroutineScope()
-        androidx.compose.material.TopAppBar(
+        ExtendedTopAppBar(
             navigationIcon = {
                 IconButton(
                     onClick = {
