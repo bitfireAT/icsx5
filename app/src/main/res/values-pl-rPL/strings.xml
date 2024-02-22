@@ -2,13 +2,10 @@
 <resources>
   <string name="account_name">Subskrypcje kalendarzy</string>
   <!--common strings-->
-  <string name="action_next">Dalej</string>
-  <string name="calendar_permissions_required">Wymagane uprawnienia kalendarza</string>
+    <string name="calendar_permissions_required">Wymagane uprawnienia kalendarza</string>
   <string name="notification_permissions_required">Wymagane uprawnienia do powiadomień</string>
-  <string name="could_not_load_calendar">Nie można załadować kalendarza</string>
-  <string name="notification_channel_sync_problem">Problemy z synchronizacją</string>
-  <string name="permissions_required">Wymagane uprawnienia</string>
-  <string name="permissions_grant">Udziel</string>
+    <string name="notification_channel_sync_problem">Problemy z synchronizacją</string>
+    <string name="permissions_grant">Udziel</string>
   <string name="install_browser">Zainstaluj przeglądarkę internetową</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Moje subskrypcje</string>
@@ -18,16 +15,14 @@
   <string name="calendar_list_set_sync_interval">Ustaw interwał synchronizacji</string>
   <string name="calendar_list_synchronize">Zsynchronizuj teraz</string>
   <string name="calendar_list_battery_whitelist_title">Bateria: Biała lista ICSx⁵ dla krótkich interwałów synchronizacji</string>
-  <string name="calendar_list_battery_whitelist_settings">Ustawienia</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">Wymuś ciemny motyw</string>
   <string name="calendar_list_privacy_policy">Polityka prywatności</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subskrybuj kalendarz</string>
   <string name="add_calendar_need_valid_uri">Wymagany prawidłowy identyfikator URI </string>
   <string name="add_calendar_authentication_without_https_warning">Osoby trzecie mogą łatwo przechwycić Twoje dane uwierzytelniające. Użyj protokołu HTTPS do bezpiecznego uwierzytelniania.</string>
-  <string name="add_calendar_create">Subskrybuj teraz</string>
-  <string name="add_calendar_created">Zasubskrybowano pomyślnie</string>
+    <string name="add_calendar_created">Zasubskrybowano pomyślnie</string>
   <string name="add_calendar_password">Hasło</string>
   <string name="add_calendar_requires_authentication">Wymaga uwierzytelnienia</string>
   <string name="add_calendar_title">Tytuł i kolor</string>
@@ -36,20 +31,15 @@
   <string name="add_calendar_pick_file_text">Alternatywnie wybierz plik z pamięci lokalnej.</string>
   <string name="add_calendar_pick_file">Wybierz plik</string>
   <string name="add_calendar_user_name">Nazwa użytkownika</string>
-  <string name="add_calendar_validating">Sprawdzanie poprawności zasobu kalendarza...</string>
+  <string name="add_calendar_validating">Sprawdzanie poprawności zasobu kalendarza…</string>
   <string name="add_calendar_alarms_title">Alarmy</string>
   <string name="add_calendar_alarms_ignore_title">Ignoruj ​​alerty osadzone w kalendarzu</string>
   <string name="add_calendar_alarms_ignore_description">Jeśli ta opcja jest włączona, wszystkie alarmy przychodzące z serwera zostaną odrzucone.</string>
-  <string name="add_calendar_alarms_default_title">Dodaj domyślny alarm dla wszystkich wydarzeń</string>
-  <string name="add_calendar_alarms_default_all_day_title">Dodaj domyślny alarm dla wydarzeń całodniowych</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">Alarm <b>%s</b> przed uruchomieniem</string>
-  <string name="add_calendar_alarms_default_none">Brak domyślnego alarmu</string>
-  <string name="default_alarm_dialog_title">Dodaj domyślny alarm</string>
+    <string name="add_calendar_alarms_default_all_day_title">Dodaj domyślny alarm dla wydarzeń całodniowych</string>
+    <string name="default_alarm_dialog_title">Dodaj domyślny alarm</string>
   <string name="default_alarm_dialog_message">Spowoduje to dodanie alarmu dla wszystkich wydarzeń</string>
   <string name="default_alarm_dialog_hint">Minuty przed wydarzeniem</string>
-  <string name="default_alarm_dialog_set">Komplet</string>
-  <string name="default_alarm_dialog_error">Wprowadź prawidłowy numer</string>
-  <!--AlertDialog-->
+    <!--AlertDialog-->
   <string name="alert_share_details">Udostępnij szczegóły</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Edytuj subskrypcję</string>
@@ -57,17 +47,14 @@
   <string name="edit_calendar_delete">Anuluj subskrypcję</string>
   <string name="edit_calendar_deleted">Subskrypcja została pomyślnie anulowana</string>
   <string name="edit_calendar_dismiss">Odrzuć</string>
-  <string name="edit_calendar_failed">Operacja nie powiodła się</string>
-  <string name="edit_calendar_really_delete">Czy na pewno chcesz anulować subskrypcję tego kalendarza?</string>
+    <string name="edit_calendar_really_delete">Czy na pewno chcesz anulować subskrypcję tego kalendarza?</string>
   <string name="edit_calendar_save">Zapisz</string>
   <string name="edit_calendar_saved">Zmiany zapisane</string>
   <string name="edit_calendar_send_url">Wyślij adres URL</string>
-  <string name="edit_calendar_sync_this_calendar">Zsynchronizuj ten kalendarz</string>
-  <string name="edit_calendar_unsaved_changes">Istnieją niezapisane zmiany.</string>
+    <string name="edit_calendar_unsaved_changes">Istnieją niezapisane zmiany.</string>
   <!--synchronization-->
   <string name="sync_error_title">Błąd synchronizacji</string>
-  <string name="set_sync_interval_save">Zapisz</string>
-  <string name="set_sync_interval_title">Ustaw interwał synchronizacji:</string>
+    <string name="set_sync_interval_title">Ustaw interwał synchronizacji:</string>
   <string-array name="set_sync_interval_names">
     <item>Tylko ręcznie</item>
     <item>Co 15 minut</item>
@@ -84,9 +71,7 @@
   <string name="activity_app_info">Informacje o aplikacji</string>
   <string name="app_info_version">Wersja %1$s-%2$s</string>
   <string name="app_info_donate">Darowizna</string>
-  <string name="app_info_description">Subskrybuj kanały Webcal</string>
-  <string name="app_info_twitter">Nowości i aktualizacje</string>
-  <string name="app_info_web_site">Strona internetowa</string>
+    <string name="app_info_web_site">Strona internetowa</string>
   <string name="donate_title">Informacje Open Source</string>
   <string name="donate_message">Cieszymy się, że korzystasz z ICSx⁵, oprogramowania open source (GPLv3). Ponieważ rozwój i utrzymanie ICSx⁵ było i nadal wymaga wiele pracy, rozważ darowiznę.</string>
   <string name="donate_now">Pokaż stronę darowizny</string>

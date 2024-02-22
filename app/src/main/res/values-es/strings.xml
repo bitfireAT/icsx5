@@ -2,8 +2,7 @@
 <resources>
   <string name="account_name">Suscripciones de calendario</string>
   <!--common strings-->
-  <string name="action_next">Siguiente</string>
-  <string name="calendar_permissions_required">Se necesitan permisos para el calendario</string>
+    <string name="calendar_permissions_required">Se necesitan permisos para el calendario</string>
   <string name="notification_channel_sync_problem">Problemas de sincronización</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mis suscripciones</string>
@@ -12,14 +11,12 @@
   <string name="calendar_list_not_synced_yet">aún no se ha sincronizado</string>
   <string name="calendar_list_set_sync_interval">Marcar intervalo de sincronización</string>
   <string name="calendar_list_battery_whitelist_title">Batería: Meter ICSx⁵ en lista blanca para intervalos de sinc. cortos</string>
-  <string name="calendar_list_battery_whitelist_settings">Configuración</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Suscribirse a calendario</string>
   <string name="add_calendar_need_valid_uri">Se requiere una URI válida</string>
   <string name="add_calendar_authentication_without_https_warning">Terceras partes pueden interceptar tus credencias con facilidad. Usa HTTPS para una autenticación segura.</string>
-  <string name="add_calendar_create">Suscribirse ahora</string>
-  <string name="add_calendar_created">Suscrito con éxito</string>
+    <string name="add_calendar_created">Suscrito con éxito</string>
   <string name="add_calendar_password">Contraseña</string>
   <string name="add_calendar_requires_authentication">Requiere autenticación</string>
   <string name="add_calendar_title">Título y color</string>
@@ -33,17 +30,14 @@
   <string name="edit_calendar_delete">Abandonar suscripción</string>
   <string name="edit_calendar_deleted">Suscripción abandonada con éxito</string>
   <string name="edit_calendar_dismiss">Descartar</string>
-  <string name="edit_calendar_failed">La operación ha fallado</string>
-  <string name="edit_calendar_really_delete">¿Estás seguro de que quieres abandonar la suscripción a este calendario?</string>
+    <string name="edit_calendar_really_delete">¿Estás seguro de que quieres abandonar la suscripción a este calendario?</string>
   <string name="edit_calendar_save">Guardar</string>
   <string name="edit_calendar_saved">Cambios guardados</string>
   <string name="edit_calendar_send_url">Enviar URL</string>
-  <string name="edit_calendar_sync_this_calendar">Sincronizar este calendario</string>
-  <string name="edit_calendar_unsaved_changes">Hay cambios sin guardar.</string>
+    <string name="edit_calendar_unsaved_changes">Hay cambios sin guardar.</string>
   <!--synchronization-->
   <string name="sync_error_title">Error en la sincronización</string>
-  <string name="set_sync_interval_save">Guardar</string>
-  <string name="set_sync_interval_title">Establecer intervalo de sincronización:</string>
+    <string name="set_sync_interval_title">Establecer intervalo de sincronización:</string>
   <string-array name="set_sync_interval_names">
     <item>Solo manualmente</item>
     <item>Cada 15 minutos</item>
@@ -59,9 +53,7 @@
   <string name="activity_app_info">Info de la app</string>
   <string name="app_info_version">%2$sVersión %1$s-</string>
   <string name="app_info_donate">Donar</string>
-  <string name="app_info_description">Suscribirse a fuentes Webcal</string>
-  <string name="app_info_twitter">Noticias y actualizaciones</string>
-  <string name="app_info_web_site">Sitio web</string>
+    <string name="app_info_web_site">Sitio web</string>
   <string name="donate_title">Información de código abierto</string>
   <string name="donate_message">Nos alegra que uses ICSx⁵, que es software de código abierto (GPL v.3). Puesto que ha sido y sigue siendo mucho trabajo desarrollar y mantener ICSx⁵, por favor, considera hacer una donación.</string>
   <string name="donate_now">Mostrar página de donaciones</string>

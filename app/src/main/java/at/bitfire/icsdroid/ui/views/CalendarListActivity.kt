@@ -7,7 +7,6 @@ package at.bitfire.icsdroid.ui.views
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import androidx.activity.viewModels
@@ -237,7 +236,7 @@ class CalendarListActivity: AppCompatActivity() {
                 }
 
                 // Whitelisting card
-                if (askForWhitelisting && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (askForWhitelisting) {
                     item(key = "battery-whitelisting") {
                         ActionCard(
                             title = stringResource(R.string.calendar_list_battery_whitelist_title),
@@ -323,7 +322,7 @@ class CalendarListActivity: AppCompatActivity() {
             DropdownMenuItem(
                 text = {
                     val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
-                    Row(verticalAlignment = Alignment.CenterVertically,) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.settings_force_dark_theme))
                         Checkbox(
                             checked = forceDarkMode,
@@ -401,18 +400,13 @@ class CalendarListActivity: AppCompatActivity() {
             val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
             askForCalendarPermission.postValue(!haveCalendarPermission)
 
-            val shouldWhitelistApp = if (Build.VERSION.SDK_INT >= 23) {
-                val powerManager = getApplication<Application>().getSystemService<PowerManager>()
-                val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
+            val powerManager = getApplication<Application>().getSystemService<PowerManager>()
+            val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
 
-                val syncInterval = AppAccount.syncInterval(getApplication())
+            val syncInterval = AppAccount.syncInterval(getApplication())
 
-                // If not ignoring battery optimizations, and sync interval is less than a day
-                isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
-            } else {
-                // If using Android < 6, this is not necessary
-                false
-            }
+            // If not ignoring battery optimizations, and sync interval is less than a day
+            val shouldWhitelistApp = isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
             askForWhitelisting.postValue(shouldWhitelistApp)
         }
 

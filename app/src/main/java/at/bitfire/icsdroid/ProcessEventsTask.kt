@@ -188,7 +188,7 @@ class ProcessEventsTask(
                         context,
                         0,
                         errorIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat
+                        PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
                     )
                 )
                 .setAutoCancel(true)
