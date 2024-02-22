@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -172,13 +173,13 @@ class CalendarListActivity: AppCompatActivity() {
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
-        val isRefreshing by model.isRefreshing.observeAsState(initial = true)
+        val syncing by model.isRefreshing.observeAsState(initial = true)
         val pullRefreshState = rememberPullToRefreshState()
         if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
+            pullRefreshState.startRefresh()
             onRefreshRequested()
-            pullRefreshState.endRefresh()
         }
-        if (!isRefreshing) LaunchedEffect(true) {
+        if (!syncing) LaunchedEffect(true) {
             delay(1000) // So we can see the spinner shortly, when sync finishes super fast
             pullRefreshState.endRefresh()
         }
@@ -195,8 +196,10 @@ class CalendarListActivity: AppCompatActivity() {
                 .nestedScroll(pullRefreshState.nestedScrollConnection)
         ) {
             PullToRefreshContainer(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier.align(Alignment.TopCenter).zIndex(1f),
                 state = pullRefreshState,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
             LazyColumn(Modifier.fillMaxSize()) {
                 // Calendar permission card
