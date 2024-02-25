@@ -2,8 +2,7 @@
 <resources>
   <string name="account_name">Calendários subscritos</string>
   <!--common strings-->
-  <string name="action_next">Seguinte</string>
-  <string name="calendar_permissions_required">Necessárias permissões de calendário</string>
+    <string name="calendar_permissions_required">Necessárias permissões de calendário</string>
   <string name="notification_channel_sync_problem">Problemas de sincronização</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Os meus calendários</string>
@@ -12,38 +11,33 @@
   <string name="calendar_list_not_synced_yet">ainda não sincronizado</string>
   <string name="calendar_list_set_sync_interval">Definir intervalo de sincronização</string>
   <string name="calendar_list_battery_whitelist_title">Bateria: Autorizar ICSx⁵ para permitir intervalos de sincronização curtos</string>
-  <string name="calendar_list_battery_whitelist_settings">Definições</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subscrever calendário</string>
   <string name="add_calendar_need_valid_uri">Endereço/URI válido necessário</string>
   <string name="add_calendar_authentication_without_https_warning">As suas credenciais podem ser facilmente intercetadas por terceiros. Utilize HTTPS para uma autenticação segura.</string>
-  <string name="add_calendar_create">Subscrever agora</string>
-  <string name="add_calendar_created">Subscrito com sucesso</string>
+    <string name="add_calendar_created">Subscrito com sucesso</string>
   <string name="add_calendar_password">Palavra-passe</string>
   <string name="add_calendar_requires_authentication">Requer autenticação</string>
   <string name="add_calendar_title">Título e cor</string>
   <string name="add_calendar_title_hint">Nome de calendário</string>
   <string name="add_calendar_user_name">Nome de utilizador</string>
-  <string name="add_calendar_validating">A validar calendário...</string>
-  <!--AlertFragment-->
+  <string name="add_calendar_validating">A validar calendário…</string>
+  <!--AlertDialog-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Editar subscrição</string>
   <string name="edit_calendar_cancel">Cancelar</string>
   <string name="edit_calendar_delete">Remover subscrição</string>
   <string name="edit_calendar_deleted">Removida subscrição com sucesso</string>
   <string name="edit_calendar_dismiss">Ignorar</string>
-  <string name="edit_calendar_failed">Operação sem sucesso</string>
-  <string name="edit_calendar_really_delete">Deseja remover a subscrição deste calendário?</string>
+    <string name="edit_calendar_really_delete">Deseja remover a subscrição deste calendário?</string>
   <string name="edit_calendar_save">Salvar</string>
   <string name="edit_calendar_saved">Modificações guardadas</string>
   <string name="edit_calendar_send_url">Enviar endereço</string>
-  <string name="edit_calendar_sync_this_calendar">Sincronizar este calendário</string>
-  <string name="edit_calendar_unsaved_changes">Existem modificações não guardadas</string>
+    <string name="edit_calendar_unsaved_changes">Existem modificações não guardadas</string>
   <!--synchronization-->
   <string name="sync_error_title">Erro de sincronização</string>
-  <string name="set_sync_interval_save">Salvar</string>
-  <string name="set_sync_interval_title">Intervalo de sincronização:</string>
+    <string name="set_sync_interval_title">Intervalo de sincronização:</string>
   <string-array name="set_sync_interval_names">
     <item>Apenas manualmente</item>
     <item>A cada 15 minutos</item>
@@ -73,9 +67,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
     ]]></string>
   <string name="app_info_donate">Doar</string>
-  <string name="app_info_description">Subscrever feed Webcal</string>
-  <string name="app_info_twitter">Notícias e updates</string>
-  <string name="app_info_web_site">Sítio web</string>
+    <string name="app_info_web_site">Sítio web</string>
   <string name="donate_title">Informação Open-Source</string>
   <string name="donate_message">Agradecemos o voto de confiança ao usar ICSx⁵, um software open-source (GPLv3). Porque desenvolver e manter ICSx⁵ foi e continua a ser bastante trabalhoso, por favor considere um donativo.</string>
   <string name="donate_now">Mostrar página de donativos</string>

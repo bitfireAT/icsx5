@@ -13,7 +13,6 @@ import at.bitfire.icsdroid.HttpUtils.toUri
 import okhttp3.Credentials
 import okhttp3.MediaType
 import okhttp3.Request
-import okhttp3.executeAsync
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -155,8 +154,8 @@ open class CalendarFetcher(
                     // 20x
                     response.isSuccessful ->
                         onSuccess(
-                                response.body.byteStream(),
-                                response.body.contentType(),
+                                response.body!!.byteStream(),
+                                response.body!!.contentType(),
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
                                     HttpUtils.parseDate(it)?.time

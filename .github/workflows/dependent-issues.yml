@@ -51,4 +51,5 @@ jobs:
           # (Optional) A custom comment body. It supports `{{ dependencies }}` token.
           comment: >
             This PR/issue depends on:
+            
             {{ dependencies }}

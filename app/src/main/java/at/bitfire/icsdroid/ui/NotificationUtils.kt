@@ -12,20 +12,13 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.ui.views.CalendarListActivity
 
 object NotificationUtils {
 
     const val CHANNEL_SYNC = "sync"
 
     const val NOTIFY_PERMISSION = 0
-
-
-    val flagImmutableCompat: Int =
-        if (Build.VERSION.SDK_INT >= 23)
-            PendingIntent.FLAG_IMMUTABLE
-        else
-            0
-
 
     fun createChannels(context: Context): NotificationManager {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -52,7 +45,7 @@ object NotificationUtils {
             .setContentTitle(context.getString(R.string.sync_permission_required))
             .setContentText(context.getString(R.string.sync_permission_required_sync_calendar))
             .setCategory(NotificationCompat.CATEGORY_ERROR)
-            .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + flagImmutableCompat))
+            .setContentIntent(PendingIntent.getActivity(context, 0, askPermissionsIntent, PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE))
             .setAutoCancel(true)
             .setLocalOnly(true)
             .build()

@@ -2,8 +2,7 @@
 <resources>
   <string name="account_name">Підписки на календарі</string>
   <!--common strings-->
-  <string name="action_next">Далі</string>
-  <string name="notification_channel_sync_problem">Проблеми синхронізації</string>
+    <string name="notification_channel_sync_problem">Проблеми синхронізації</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мої підписки</string>
   <string name="calendar_list_empty_info">Для підписки на Webcal стрічку, використовуйте кнопку + або відкрийте Webcal URL-посилання.</string>
@@ -11,38 +10,33 @@
   <string name="calendar_list_not_synced_yet">ще не синхронізовано</string>
   <string name="calendar_list_set_sync_interval">Встановити інтервал синхронізації</string>
   <string name="calendar_list_battery_whitelist_title">Батарея: вимкніть обмеження для ICSx⁵ для частішої синхронізації</string>
-  <string name="calendar_list_battery_whitelist_settings">Налаштування</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Підписатися на календар</string>
   <string name="add_calendar_need_valid_uri">Потрібен дійсний URI</string>
   <string name="add_calendar_authentication_without_https_warning">Треті особи можуть з легкістю перехопити ваші дані. Використовуйте HTTPS для безпечної аутентифікації.</string>
-  <string name="add_calendar_create">Підписатися зараз</string>
-  <string name="add_calendar_created">Підписка виконана вдало</string>
+    <string name="add_calendar_created">Підписка виконана вдало</string>
   <string name="add_calendar_password">Пароль</string>
   <string name="add_calendar_requires_authentication">Вимагається аутентифікація</string>
   <string name="add_calendar_title">Заголовок &amp; Колір</string>
   <string name="add_calendar_title_hint">Назва Календаря</string>
   <string name="add_calendar_user_name">Ім\'я користувача</string>
-  <string name="add_calendar_validating">Перевіряємо джерело календаря...</string>
-  <!--AlertFragment-->
+  <string name="add_calendar_validating">Перевіряємо джерело календаря…</string>
+  <!--AlertDialog-->
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Правити підписку</string>
   <string name="edit_calendar_cancel">Відміна</string>
   <string name="edit_calendar_delete">Відписатися</string>
   <string name="edit_calendar_deleted">Відписку виконано вдало</string>
   <string name="edit_calendar_dismiss">Скасувати</string>
-  <string name="edit_calendar_failed">Невдала операція</string>
-  <string name="edit_calendar_really_delete">Дійсно бажаєте відписатися від цього календаря?</string>
+    <string name="edit_calendar_really_delete">Дійсно бажаєте відписатися від цього календаря?</string>
   <string name="edit_calendar_save">Зберегти</string>
   <string name="edit_calendar_saved">Зміни збережено</string>
   <string name="edit_calendar_send_url">Відправити URL</string>
-  <string name="edit_calendar_sync_this_calendar">Синхронізувати цей календар</string>
-  <string name="edit_calendar_unsaved_changes">Маєте не збережені зміни.</string>
+    <string name="edit_calendar_unsaved_changes">Маєте не збережені зміни.</string>
   <!--synchronization-->
   <string name="sync_error_title">Помилка синхронизації</string>
-  <string name="set_sync_interval_save">Зберегти</string>
-  <string name="set_sync_interval_title">Інтервал синхронізації:</string>
+    <string name="set_sync_interval_title">Інтервал синхронізації:</string>
   <string-array name="set_sync_interval_names">
     <item>Тільки вручну</item>
     <item>Кожні 15 хвилин</item>
@@ -57,8 +51,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Інформація про додаток</string>
   <string name="app_info_donate">Пожертва</string>
-  <string name="app_info_twitter">Новини &amp; оновлення</string>
-  <string name="app_info_web_site">Веб-сторінка</string>
+    <string name="app_info_web_site">Веб-сторінка</string>
   <string name="donate_title">Інформація про відкритий код</string>
   <string name="donate_message">Ми раді, що ви використовуєте додаток ICSx⁵, котрий являє собою програмне забезпечення з відкритим кодом (GPLv3). Зважаючи на те, що зроблено багато роботи і ще треба не менше для розробки і підтримки ICSx⁵, будьте ласкаві, розгляньте можливість пожертви.</string>
   <string name="donate_now">Показати сторінку пожертви</string>

@@ -53,6 +53,7 @@ data class Subscription(
          * @param calendar The legacy calendar to create the subscription from.
          * @return A new [Subscription] that has the contents of [calendar].
          */
+        @Suppress("DEPRECATION")
         fun fromLegacyCalendar(calendar: LocalCalendar) =
             Subscription(
                 calendarId = calendar.id,

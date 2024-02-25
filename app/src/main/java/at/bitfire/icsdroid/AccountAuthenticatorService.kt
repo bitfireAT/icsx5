@@ -13,7 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
-import at.bitfire.icsdroid.ui.AddCalendarActivity
+import at.bitfire.icsdroid.ui.views.AddCalendarActivity
 
 class AccountAuthenticatorService: Service() {
 

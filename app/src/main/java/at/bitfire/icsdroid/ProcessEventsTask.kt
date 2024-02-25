@@ -16,7 +16,7 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.ui.EditCalendarActivity
+import at.bitfire.icsdroid.ui.views.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
@@ -188,7 +188,7 @@ class ProcessEventsTask(
                         context,
                         0,
                         errorIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT + NotificationUtils.flagImmutableCompat
+                        PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
                     )
                 )
                 .setAutoCancel(true)

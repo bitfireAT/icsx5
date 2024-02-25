@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="at.bitfire.icsdroid"
     android:installLocation="internalOnly">
 
     <!-- fetch iCalendar files -->
@@ -39,10 +38,9 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".MyApp"
         android:networkSecurityConfig="@xml/network_security"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         android:enableOnBackInvokedCallback="true"
         tools:ignore="UnusedAttribute">
 
@@ -69,8 +67,7 @@
         </service>
 
         <activity
-            android:name=".ui.CalendarListActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:name=".ui.views.CalendarListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -78,9 +75,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.AddCalendarActivity"
-            android:label="@string/activity_add_calendar"
-            android:parentActivityName=".ui.CalendarListActivity"
+            android:name=".ui.views.AddCalendarActivity"
+            android:parentActivityName=".ui.views.CalendarListActivity"
             android:exported="true"
             tools:ignore="UnusedAttribute">
             <intent-filter>
@@ -117,15 +113,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.EditCalendarActivity"
+            android:name=".ui.views.EditCalendarActivity"
             android:label="@string/activity_edit_calendar"
-            android:parentActivityName=".ui.CalendarListActivity"
+            android:parentActivityName=".ui.views.CalendarListActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name=".ui.ColorPickerActivity" />
         <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
-            android:parentActivityName=".ui.CalendarListActivity" />
+            android:parentActivityName=".ui.views.CalendarListActivity" />
 
     </application>
 

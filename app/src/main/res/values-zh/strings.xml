@@ -2,14 +2,11 @@
 <resources>
   <string name="account_name">日历订阅</string>
   <!--common strings-->
-  <string name="action_next">继续</string>
-  <string name="calendar_permissions_required">请授予访问日历的权限</string>
+    <string name="calendar_permissions_required">请授予访问日历的权限</string>
   <string name="notification_permissions_required">需要通知权限</string>
-  <string name="could_not_load_calendar">无法加载日历</string>
-  <string name="no_browser">未安装浏览器</string>
+    <string name="no_browser">未安装浏览器</string>
   <string name="notification_channel_sync_problem">同步问题</string>
-  <string name="permissions_required">需要权限</string>
-  <string name="permissions_grant">授予</string>
+    <string name="permissions_grant">授予</string>
   <string name="install_browser">请安装网络浏览器</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">我的订阅</string>
@@ -19,16 +16,14 @@
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
   <string name="calendar_list_synchronize">立即同步</string>
   <string name="calendar_list_battery_whitelist_title">电池：请将ICSx⁵列入允许频繁同步的白名单</string>
-  <string name="calendar_list_battery_whitelist_settings">设置</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <string name="settings_force_dark_theme">强制深色主题</string>
   <string name="calendar_list_privacy_policy">隐私政策</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">订阅至日历</string>
   <string name="add_calendar_need_valid_uri">URI无效</string>
   <string name="add_calendar_authentication_without_https_warning">您的认证信息容易被第三方截取，请使用HTTPS进行安全的身份认证。</string>
-  <string name="add_calendar_create">立即订阅</string>
-  <string name="add_calendar_created">订阅成功</string>
+    <string name="add_calendar_created">订阅成功</string>
   <string name="add_calendar_password">密码</string>
   <string name="add_calendar_requires_authentication">需要进行身份验证</string>
   <string name="add_calendar_title">标题 &amp; 颜色</string>
@@ -41,16 +36,11 @@
   <string name="add_calendar_alarms_title">闹铃</string>
   <string name="add_calendar_alarms_ignore_title">忽略嵌入在日历中的警报</string>
   <string name="add_calendar_alarms_ignore_description">一旦启用，所有之后来自该服务器的闹铃都将被无视。</string>
-  <string name="add_calendar_alarms_default_title">为所有事件添加默认闹铃</string>
-  <string name="add_calendar_alarms_default_all_day_title">为全天事件添加默认闹铃</string>
-  <string name="add_calendar_alarms_default_description" formatted="true">开始前 <b>%s</b>响铃</string>
-  <string name="add_calendar_alarms_default_none">无默认闹铃</string>
-  <string name="default_alarm_dialog_title">添加默认闹铃</string>
+    <string name="add_calendar_alarms_default_all_day_title">为全天事件添加默认闹铃</string>
+    <string name="default_alarm_dialog_title">添加默认闹铃</string>
   <string name="default_alarm_dialog_message">这会为所有事件添加一个闹铃</string>
   <string name="default_alarm_dialog_hint">事件开始多少分钟</string>
-  <string name="default_alarm_dialog_set">设置</string>
-  <string name="default_alarm_dialog_error">输入的数字无效</string>
-  <!--AlertFragment-->
+    <!--AlertDialog-->
   <string name="alert_share_details">分享详情</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">编辑订阅</string>
@@ -58,17 +48,14 @@
   <string name="edit_calendar_delete">取消订阅</string>
   <string name="edit_calendar_deleted">取消成功</string>
   <string name="edit_calendar_dismiss">关闭</string>
-  <string name="edit_calendar_failed">操作失败</string>
-  <string name="edit_calendar_really_delete">您确定要取消订阅该日历吗？</string>
+    <string name="edit_calendar_really_delete">您确定要取消订阅该日历吗？</string>
   <string name="edit_calendar_save">保存</string>
   <string name="edit_calendar_saved">已保存修改</string>
   <string name="edit_calendar_send_url">发送URL</string>
-  <string name="edit_calendar_sync_this_calendar">同步该日历</string>
-  <string name="edit_calendar_unsaved_changes">有尚未保存的修改</string>
+    <string name="edit_calendar_unsaved_changes">有尚未保存的修改</string>
   <!--synchronization-->
   <string name="sync_error_title">同步时发生错误</string>
-  <string name="set_sync_interval_save">保存</string>
-  <string name="set_sync_interval_title">设置同步间隔时间</string>
+    <string name="set_sync_interval_title">设置同步间隔时间</string>
   <string-array name="set_sync_interval_names">
     <item>手动同步</item>
     <item>每15分钟</item>
@@ -99,9 +86,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
     \"]]></string>
   <string name="app_info_donate">捐赠</string>
-  <string name="app_info_description">订阅Webcal源</string>
-  <string name="app_info_twitter">新闻 &amp; 更新</string>
-  <string name="app_info_web_site">网站</string>
+    <string name="app_info_web_site">网站</string>
   <string name="donate_title">开源信息</string>
   <string name="donate_message">非常高兴您选择使用ICSx⁵，该应用是开源软件（GPLv3）。因为应用开发及维护需要很大的工作量，欢迎您考虑捐赠。</string>
   <string name="donate_now">前往捐助页面</string>

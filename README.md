@@ -17,6 +17,11 @@ News and updates: [@davx5app@fosstodon.org](https://fosstodon.org/@davx5app)
 
 Help, discussion, ideas, bug reports: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
 
+> [!IMPORTANT]
+> 
+> This repository is a fork of the official [ICSx⁵](https://github.com/bitfireAT/icsx5).
+> This is a major rewrite for making sure ICSx⁵ works as it should.
+
 
 
 Contributions
