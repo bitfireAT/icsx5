@@ -14,7 +14,7 @@ bitfire-ical4android = "821ab3f"
 #noinspection GradleDependency
 commons-io = "2.6"
 #noinspection GradleDependency
-commons-lang3 = "3.8.1"
+commons-lang3 = "3.14.0"
 # Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 compose-compiler = "1.5.8"
 compose-dialogs = "1.3.0"
