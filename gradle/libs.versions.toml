@@ -12,7 +12,7 @@ androidx-work = "2.9.0"
 bitfire-cert4android = "f0964cb"
 bitfire-ical4android = "821ab3f"
 #noinspection GradleDependency
-commons-io = "2.6"
+commons-io = "2.15.1"
 #noinspection GradleDependency
 commons-lang3 = "3.8.1"
 # Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
