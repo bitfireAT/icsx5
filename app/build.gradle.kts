@@ -18,8 +18,8 @@ android {
         minSdk = 23
         targetSdk = 34
 
-        versionCode = 73
-        versionName = "2.2-beta.1"
+        versionCode = 74
+        versionName = "2.2-beta.2"
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
