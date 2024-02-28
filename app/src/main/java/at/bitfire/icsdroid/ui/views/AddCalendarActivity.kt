@@ -81,7 +81,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
 
-                subscriptionSettingsModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.postValue(uri.toString())
             }
         }
 
