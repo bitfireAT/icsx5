@@ -2,10 +2,15 @@
 <resources>
   <string name="account_name">Subscripcions a calendaris</string>
   <!--common strings-->
-    <string name="calendar_permissions_required">Cal permís d\'accés al calendari</string>
+  <string name="action_more">Més</string>
+  <string name="calendar_permissions_required">Cal permís d\'accés al calendari</string>
+  <string name="calendar_permissions_required_text">Necessari per a desar localment els esdeveniments descarregats.</string>
   <string name="notification_permissions_required">Cal el permís de notificacions</string>
-    <string name="notification_channel_sync_problem">Problemes de sincronització</string>
-    <string name="permissions_grant">Concedir</string>
+  <string name="notification_permissions_required_text">Per a mostrar notificacions en cas de problemes de sincronització com errors.</string>
+  <string name="no_browser">Cap explorador instal·lat</string>
+  <string name="notification_channel_sync_problem">Problemes de sincronització</string>
+  <string name="permissions_grant">Concedir</string>
+  <string name="install_browser">Per favor, instal·la un explorador web</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Les meues subscripcions</string>
   <string name="calendar_list_empty_info">Per a subscriure\'t a un fil Webcal, prem el botó +, o obre una URL Webcal.</string>
@@ -13,14 +18,27 @@
   <string name="calendar_list_not_synced_yet">encara no sincronitzat</string>
   <string name="calendar_list_set_sync_interval">Període de sincronització</string>
   <string name="calendar_list_synchronize">Sincronitza ara</string>
-  <string name="calendar_list_battery_whitelist_title">Bateria: afegeix ICSx⁵ a la llista blanca per a intervals curts</string>
-    <!--settings, currently in CalendarListActivity-->
+  <string name="calendar_list_battery_whitelist_title">Optimització de bateria</string>
+  <string name="calendar_list_battery_whitelist_text">Les optimitzacions de bateria poden prevenir intervals de sincronització més curts d\'un dia. Estableix %s a \"No optimitzat\"</string>
+  <string name="calendar_list_battery_whitelist_open_settings">Obrir configuració</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="calendar_list_privacy_policy">Política de privacitat</string>
+  <string name="set_sync_interval_title">Estableix el període de sincronització:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Només manualment</item>
+    <item>Cada 15 minuts</item>
+    <item>Cada hora</item>
+    <item>Cada 2 hores</item>
+    <item>Cada 4 hores</item>
+    <item>Una vegada al dia</item>
+    <item>Setmanalment</item>
+  </string-array>
   <string name="settings_force_dark_theme">Força el tema obscur</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subscriure\'s a un calendari</string>
   <string name="add_calendar_need_valid_uri">Cal una URI vàlida</string>
   <string name="add_calendar_authentication_without_https_warning">Altres persones poden interceptar les teues credencials, utilitza HTTPS per a una autentificació segura.</string>
-    <string name="add_calendar_created">Subscrit correctament</string>
+  <string name="add_calendar_created">Subscrit correctament</string>
   <string name="add_calendar_password">Contrassenya</string>
   <string name="add_calendar_requires_authentication">Cal autenticar-se</string>
   <string name="add_calendar_title">Títol i Color</string>
@@ -31,13 +49,12 @@
   <string name="add_calendar_user_name">Nom d\'usuari</string>
   <string name="add_calendar_validating">Validant el recurs de calendari…</string>
   <string name="add_calendar_alarms_title">Alarmes</string>
-  <string name="add_calendar_alarms_ignore_title">Ignora les alertes incloses al calendari</string>
   <string name="add_calendar_alarms_ignore_description">Si està habilitat, totes les alarmes que vinguen del servidor seran eliminades.</string>
-    <string name="add_calendar_alarms_default_all_day_title">Afegeix una alarma per defecte per als esdeveniments de tot el dia</string>
-    <string name="default_alarm_dialog_title">Afegir alarma per defecte</string>
+  <string name="add_calendar_alarms_default_all_day_title">Afegeix una alarma per defecte per als esdeveniments de tot el dia</string>
+  <string name="default_alarm_dialog_title">Afegir alarma per defecte</string>
   <string name="default_alarm_dialog_message">Açò afegirà una alarma per a tots els esdeveniments</string>
   <string name="default_alarm_dialog_hint">Minuts abans de l\'esdeveniment</string>
-    <!--AlertDialog-->
+  <!--AlertFragment-->
   <string name="alert_share_details">Compartir detalls</string>
   <!--EditCalendarActivity-->
   <string name="activity_edit_calendar">Edita la subscripció</string>
@@ -45,31 +62,35 @@
   <string name="edit_calendar_delete">Desubscriure\'s</string>
   <string name="edit_calendar_deleted">S\'ha desubscrit correctament</string>
   <string name="edit_calendar_dismiss">Amaga</string>
-    <string name="edit_calendar_really_delete">Segur que et vols desubscriure d\'aquest calendari?</string>
+  <string name="edit_calendar_really_delete">Segur que et vols desubscriure d\'aquest calendari?</string>
   <string name="edit_calendar_save">Desa</string>
   <string name="edit_calendar_saved">Canvis desats</string>
   <string name="edit_calendar_send_url">Envia la URL</string>
-    <string name="edit_calendar_unsaved_changes">Hi han canvis sense desar.</string>
+  <string name="edit_calendar_unsaved_changes">Hi han canvis sense desar.</string>
   <!--synchronization-->
   <string name="sync_error_title">Error de sincronització</string>
-    <string name="set_sync_interval_title">Estableix el període de sincronització:</string>
-  <string-array name="set_sync_interval_names">
-    <item>Només manualment</item>
-    <item>Cada 15 minuts</item>
-    <item>Cada hora</item>
-    <item>Cada 2 hores</item>
-    <item>Cada 4 hores</item>
-    <item>Una vegada al dia</item>
-    <item>Setmanalment</item>
-  </string-array>
   <string name="sync_permission_required">Permisos necessaris</string>
   <string name="sync_permission_required_sync_calendar">Cal tindre permís per a sincronitzar el calendari</string>
   <string name="could_not_open_storage_file">No s\'ha pogut obrir el fitxer de l\'emmagatzematge</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Informació de l\'app</string>
   <string name="app_info_version">Versió %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[\"
+Aquest programa és programari lliure: el podeu redistribuir i/o modificar
+sota els termes de la Llicència Pública General de GNU publicada per
+la Free Software Foundation, ja sigui la versió 3 de la llicència o
+(a la vostra opció) qualsevol versió posterior.
+
+Aquest programa es distribueix amb l\'esperança que sigui útil,
+però SENSE CAP GARANTIA; sense ni tan sols la garantia implícita de
+COMERCIABILITAT o ADEQUACIÓ PER A UN FINS PARTICULAR. Veure el
+Llicència pública general GNU per a més detalls.
+
+Hauríeu d\'haver rebut una còpia de la Llicència Pública General de GNU
+juntament amb aquest programa. Si no, mira <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    \"]]></string>
   <string name="app_info_donate">Donar</string>
-    <string name="app_info_web_site">Lloc web</string>
+  <string name="app_info_web_site">Lloc web</string>
   <string name="donate_title">Informació de codi obert</string>
   <string name="donate_message">Ens alegra que faces servir ICSx⁵, que és un programari de codi obert (GPLv3). Ja que ha sigut i segueix sent un treball dur mantindre i seguir desenvolupant ICSx⁵, per favor, considera una donació.</string>
   <string name="donate_now">Mostra la pàgina de donació</string>

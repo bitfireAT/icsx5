@@ -2,42 +2,22 @@
 <resources>
   <string name="account_name">Inscrições de calendários</string>
   <!--common strings-->
-    <string name="calendar_permissions_required">É necessário permissões de calendário</string>
+  <string name="calendar_permissions_required">É necessário permissões de calendário</string>
+  <string name="notification_permissions_required">É necessário permissão para notificações</string>
+  <string name="no_browser">Nenhum navegador instalado</string>
   <string name="notification_channel_sync_problem">Problemas de sincronização</string>
+  <string name="permissions_grant">Conceder</string>
+  <string name="install_browser">Instale um navegador Web</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Minhas assinaturas</string>
   <string name="calendar_list_empty_info">Para assinar um feed de Webcal, use o botão + ou abra a URL Webcal.</string>
   <string name="calendar_list_info">Sobre o ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ainda não sincronizado</string>
   <string name="calendar_list_set_sync_interval">Definir intervalo de sincronização</string>
-  <string name="calendar_list_battery_whitelist_title">Bateria: Sincronizar ICSx⁵ em intervalos curtos</string>
-    <!--settings, currently in CalendarListActivity-->
-  <!--AddCalendarActivity-->
-  <string name="activity_add_calendar">Inscrever-se no calendário</string>
-  <string name="add_calendar_need_valid_uri">É necessário uma URI válida</string>
-  <string name="add_calendar_authentication_without_https_warning">Terceiros podem facilmente interceptar suas credenciais. Use HTTPS para autenticação segura.</string>
-    <string name="add_calendar_created">Inscrição realizada com sucesso</string>
-  <string name="add_calendar_password">Senha</string>
-  <string name="add_calendar_requires_authentication">Autenticação necessária</string>
-  <string name="add_calendar_title">Título e cor</string>
-  <string name="add_calendar_title_hint">Nome do calendário</string>
-  <string name="add_calendar_user_name">Nome de usuário</string>
-  <string name="add_calendar_validating">Validando o recurso de calendário…</string>
-  <!--AlertDialog-->
-  <!--EditCalendarActivity-->
-  <string name="activity_edit_calendar">Editar inscrição</string>
-  <string name="edit_calendar_cancel">Cancelar</string>
-  <string name="edit_calendar_delete">Desinscrever</string>
-  <string name="edit_calendar_deleted">Inscrição cancelada com sucesso</string>
-  <string name="edit_calendar_dismiss">Dispensar</string>
-    <string name="edit_calendar_really_delete">Deseja realmente cancelar a inscrição neste calendário?</string>
-  <string name="edit_calendar_save">Salvar</string>
-  <string name="edit_calendar_saved">Alterações salvas</string>
-  <string name="edit_calendar_send_url">Enviar URL</string>
-    <string name="edit_calendar_unsaved_changes">Há alterações que não foram salvas.</string>
-  <!--synchronization-->
-  <string name="sync_error_title">Erro de sincronização</string>
-    <string name="set_sync_interval_title">Definir intervalo de sincronização:</string>
+  <string name="calendar_list_synchronize">Sincronizar agora</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="calendar_list_privacy_policy">Política de privacidade</string>
+  <string name="set_sync_interval_title">Definir intervalo de sincronização:</string>
   <string-array name="set_sync_interval_names">
     <item>Apenas manualmente</item>
     <item>A cada 15 minutos</item>
@@ -47,13 +27,50 @@
     <item>Uma vez por dia</item>
     <item>Uma vez por semana</item>
   </string-array>
+  <string name="settings_force_dark_theme">Forçar tema escuro</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Inscrever-se no calendário</string>
+  <string name="add_calendar_need_valid_uri">É necessário uma URI válida</string>
+  <string name="add_calendar_authentication_without_https_warning">Terceiros podem facilmente interceptar suas credenciais. Use HTTPS para autenticação segura.</string>
+  <string name="add_calendar_created">Inscrição realizada com sucesso</string>
+  <string name="add_calendar_password">Senha</string>
+  <string name="add_calendar_requires_authentication">Autenticação necessária</string>
+  <string name="add_calendar_title">Título e cor</string>
+  <string name="add_calendar_title_hint">Nome do calendário</string>
+  <string name="add_calendar_url_text">Digite um endereço Webcal:</string>
+  <string name="add_calendar_pick_file_text">Alternativamente, selecione um arquivo do armazenamento local.</string>
+  <string name="add_calendar_pick_file">Selecionar arquivo</string>
+  <string name="add_calendar_user_name">Nome de usuário</string>
+  <string name="add_calendar_validating">Validando o recurso de calendário...</string>
+  <string name="add_calendar_alarms_title">Alarmes</string>
+  <string name="add_calendar_alarms_ignore_description">Se ativado, todos os alarmes recebidos do servidor serão ignorados.</string>
+  <string name="add_calendar_alarms_default_all_day_title">Adicionar um alarme padrão para eventos de dia inteiro</string>
+  <string name="default_alarm_dialog_title">Adicionar alarme padrão</string>
+  <string name="default_alarm_dialog_message">Isto irá adicionar um alarme para todos os eventos</string>
+  <string name="default_alarm_dialog_hint">Minutos antes do evento</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Compartilhar detalhes</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Editar inscrição</string>
+  <string name="edit_calendar_cancel">Cancelar</string>
+  <string name="edit_calendar_delete">Desinscrever</string>
+  <string name="edit_calendar_deleted">Inscrição cancelada com sucesso</string>
+  <string name="edit_calendar_dismiss">Dispensar</string>
+  <string name="edit_calendar_really_delete">Deseja realmente cancelar a inscrição neste calendário?</string>
+  <string name="edit_calendar_save">Salvar</string>
+  <string name="edit_calendar_saved">Alterações salvas</string>
+  <string name="edit_calendar_send_url">Enviar URL</string>
+  <string name="edit_calendar_unsaved_changes">Há alterações que não foram salvas.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Erro de sincronização</string>
   <string name="sync_permission_required">Permissão necessária</string>
   <string name="sync_permission_required_sync_calendar">Precisando de permissão para sincronizar seu calendário</string>
+  <string name="could_not_open_storage_file">Não foi possível abrir o arquivo do armazenamento</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Informações do aplicativo</string>
   <string name="app_info_version">Versão %1$s-%2$s</string>
   <string name="app_info_donate">Doações</string>
-    <string name="app_info_web_site">Página Web</string>
+  <string name="app_info_web_site">Página Web</string>
   <string name="donate_title">Informações de código aberto</string>
   <string name="donate_message">Estamos felizes que você usa o ICSx⁵, que é um software livre (GPLv3). Como a manutenção e desenvolvimento do ICSx⁵ ainda está em pleno desenvolvimento, considere fazer uma doação.</string>
   <string name="donate_now">Mostrar a página de doações</string>

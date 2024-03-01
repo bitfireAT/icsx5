@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="account_name">Abonamente calendar</string>
+  <!--common strings-->
+  <string name="action_more">Mai mult</string>
+  <string name="calendar_permissions_required">Sunt necesare permisiuni pentru calendar</string>
+  <string name="calendar_permissions_required_text">Necesar pentru stocarea locală a evenimentelor descărcate.</string>
+  <string name="notification_permissions_required">Sunt necesare permisiuni de notificare</string>
+  <string name="notification_permissions_required_text">Pentru a afișa notificări în cazul condițiilor de sincronizare, cum ar fi erorile.</string>
+  <string name="no_browser">Niciun browser instalat</string>
+  <string name="notification_channel_sync_problem">Probleme de sincronizare</string>
+  <string name="permissions_grant">Acordă</string>
+  <string name="install_browser"> Instalează un browser web</string>
+  <!--CalendarListActivity-->
+  <string name="title_activity_calendar_list">Abonamentele mele</string>
+  <string name="calendar_list_empty_info">Pentru a te abona la un flux Webcal, utilizează butonul + sau deschide o adresă URL Webcal.</string>
+  <string name="calendar_list_info">Despre ICSx⁵</string>
+  <string name="calendar_list_not_synced_yet">încă nu este sincronizat</string>
+  <string name="calendar_list_set_sync_interval">Setează intervalul de sincronizare</string>
+  <string name="calendar_list_synchronize">Sincronizează acum</string>
+  <string name="calendar_list_battery_whitelist_title">Optimizarea bateriei</string>
+  <string name="calendar_list_battery_whitelist_text">Optimizările bateriei pot împiedica intervalele de sincronizare mai scurte de o zi. Setează %s la „Neoptimizată”.</string>
+  <string name="calendar_list_battery_whitelist_open_settings">Deschide setările</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="calendar_list_privacy_policy">Politica de confidențialitate</string>
+  <string name="set_sync_interval_title">Setează intervalul de sincronizare:</string>
+  <string-array name="set_sync_interval_names">
+    <item>Doar manual</item>
+    <item>La fiecare 15 minute</item>
+    <item>În fiecare oră</item>
+    <item>La fiecare 2 ore</item>
+    <item>La fiecare 4 ore</item>
+    <item>O dată pe zi</item>
+    <item>O dată pe săptămână</item>
+  </string-array>
+  <string name="settings_force_dark_theme">Forțează tema întunecată</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Abonează-te la calendar</string>
+  <string name="add_calendar_need_valid_uri">Este necesar un URI valid</string>
+  <string name="add_calendar_authentication_without_https_warning">Terții pot intercepta cu ușurință acreditările. Utilizează HTTPS pentru autentificare sigură.</string>
+  <string name="add_calendar_created">Abonat cu succes</string>
+  <string name="add_calendar_password">Parolă</string>
+  <string name="add_calendar_requires_authentication">Necesită autentificare</string>
+  <string name="add_calendar_title">Titlu și culoare</string>
+  <string name="add_calendar_title_hint">Numele calendarului</string>
+  <string name="add_calendar_url_text">Introdu o adresă Webcal:</string>
+  <string name="add_calendar_pick_file_text">Alternativ, selectează un fișier din stocarea locală.</string>
+  <string name="add_calendar_pick_file">Alege fișierul</string>
+  <string name="add_calendar_user_name">Nume de utilizator</string>
+  <string name="add_calendar_validating">Se validează resursa calendarului...</string>
+  <string name="add_calendar_alarms_title">Alarme</string>
+  <string name="add_calendar_alarms_ignore_description">Dacă este activat, toate alarmele primite de la server vor fi respinse.</string>
+  <string name="add_calendar_alarms_default_all_day_title">Adaugă o alarmă implicită pentru evenimente de toată ziua</string>
+  <string name="default_alarm_dialog_title">Adaugă o alarmă implicită</string>
+  <string name="default_alarm_dialog_message">Aceasta va adăuga o alarmă pentru toate evenimentele</string>
+  <string name="default_alarm_dialog_hint">Minute înainte de eveniment</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Distribuie detaliile</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Editează abonamentul</string>
+  <string name="edit_calendar_cancel">Anulează</string>
+  <string name="edit_calendar_delete">Dezabonare</string>
+  <string name="edit_calendar_deleted">Dezabonat cu succes</string>
+  <string name="edit_calendar_dismiss">Respinge</string>
+  <string name="edit_calendar_really_delete">Chiar dorești să te dezabonezi de la acest calendar?</string>
+  <string name="edit_calendar_save">Salvează</string>
+  <string name="edit_calendar_saved">Modificări salvate</string>
+  <string name="edit_calendar_send_url">Trimite adresa URL</string>
+  <string name="edit_calendar_unsaved_changes">Există modificări nesalvate.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Eroare de sincronizare</string>
+  <string name="sync_permission_required">Permisiune necesară</string>
+  <string name="sync_permission_required_sync_calendar">Permisiune necesară pentru a sincroniza calendarul</string>
+  <string name="could_not_open_storage_file">Nu s-a putut deschide fișierul din stocare</string>
+  <!--InfoActivity-->
+  <string name="activity_app_info">Informații despre aplicație</string>
+  <string name="app_info_version">Versiune %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[\"
+Acest program este software gratuit: îl poți redistribui și/sau modifica
+în conformitate cu termenii Licenței publice generale GNU publicate de
+Free Software Foundation, fie versiunea 3 a licenței, fie
+(la alegerea ta) orice versiune ulterioară.
+
+Acest program este distribuit în speranța că va fi util,
+dar FĂRĂ NICIO GARANȚIE; fără măcar garanția implicită a
+VANTABILITĂȚII sau ADECVARE PENTRU UN ANUMIT SCOP. Vezi 
+GNU General Public License pentru mai multe detalii.
+
+Ar fi trebuit să fi primit o copie a licenței publice generale GNU
+împreună cu acest program. Dacă nu, vezi <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    \"]]></string>
+  <string name="app_info_donate">Donează</string>
+  <string name="app_info_web_site">Pagină web</string>
+  <string name="donate_title">Informații cu sursă deschisă</string>
+  <string name="donate_message">Ne bucurăm că utilizezi ICSx⁵, care este un soft open-source (GPLv3). Pentru că a fost și este încă multă muncă pentru a dezvolta și menține ICSx⁵, te rugăm ai în considerare o donație.</string>
+  <string name="donate_now">Afișează pagina de donații</string>
+  <string name="donate_later">Poate mai târziu</string>
+</resources>

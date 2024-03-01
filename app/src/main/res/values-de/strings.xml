@@ -2,48 +2,28 @@
 <resources>
   <string name="account_name">Kalender-Abos</string>
   <!--common strings-->
-    <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
-    <string name="notification_channel_sync_problem">Sync-Probleme</string>
+  <string name="action_more">Mehr</string>
+  <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
+  <string name="calendar_permissions_required_text">Benötigt, um heruntergeladene Termine lokal zu speichern.</string>
+  <string name="notification_permissions_required">Benachrichtigungs-Berechtigung benötigt</string>
+  <string name="notification_permissions_required_text">Um im Falle von Synchronisierungs-Bedingungen wie Fehlern Benachrichtigungen anzuzeigen</string>
+  <string name="no_browser">Kein Browser installiert</string>
+  <string name="notification_channel_sync_problem">Sync-Probleme</string>
+  <string name="permissions_grant">Gewähren</string>
+  <string name="install_browser">Bitte installiere einen Internetbrowser</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
-  <string name="calendar_list_battery_whitelist_title">Für kurze Intervalle: Akku-Optimierung für
-ICSx⁵ deaktivieren</string>
-    <!--settings, currently in CalendarListActivity-->
-  <string name="settings_force_dark_theme">Dunklen Stil verwenden</string>
-  <!--AddCalendarActivity-->
-  <string name="activity_add_calendar">Kalender abonnieren</string>
-  <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
-  <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
-    <string name="add_calendar_created">Kalender erfolgreich abonniert</string>
-  <string name="add_calendar_password">Passwort</string>
-  <string name="add_calendar_requires_authentication">Zugangsdaten benötigt</string>
-  <string name="add_calendar_title">Name &amp; Farbe</string>
-  <string name="add_calendar_title_hint">Kalendername</string>
-  <string name="add_calendar_url_text">Webcal Adresse eingeben</string>
-  <string name="add_calendar_pick_file_text">Alternativ eine Datei aus dem lokalen Dateisystem auswählen</string>
-  <string name="add_calendar_pick_file">Datei auswählen</string>
-  <string name="add_calendar_user_name">Benutzername</string>
-  <string name="add_calendar_validating">Überprüfe Kalender…</string>
-  <!--AlertDialog-->
-  <string name="alert_share_details">Details teilen</string>
-  <!--EditCalendarActivity-->
-  <string name="activity_edit_calendar">Kalender-Abo bearbeiten</string>
-  <string name="edit_calendar_cancel">Abbrechen</string>
-  <string name="edit_calendar_delete">Abo löschen</string>
-  <string name="edit_calendar_deleted">Abo erfolgreich entfernt</string>
-  <string name="edit_calendar_dismiss">Verwerfen</string>
-    <string name="edit_calendar_really_delete">Wollen Sie dieses Kalender-Abo wirklich entfernen?</string>
-  <string name="edit_calendar_save">Speichern</string>
-  <string name="edit_calendar_saved">Änderungen gespeichert</string>
-  <string name="edit_calendar_send_url">URL senden</string>
-    <string name="edit_calendar_unsaved_changes">Änderungen wurden noch nicht gespeichert.</string>
-  <!--synchronization-->
-  <string name="sync_error_title">Fehler bei der Aktualisierung</string>
-    <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
+  <string name="calendar_list_synchronize">Jetzt synchronisieren</string>
+  <string name="calendar_list_battery_whitelist_title">Akku optimieren</string>
+  <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
+  <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="calendar_list_privacy_policy">Datenschutzrichtlinie</string>
+  <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
   <string-array name="set_sync_interval_names">
     <item>Nur manuell</item>
     <item>Alle 15 Minuten</item>
@@ -53,14 +33,57 @@ ICSx⁵ deaktivieren</string>
     <item>Einmal täglich</item>
     <item>Einmal wöchentlich</item>
   </string-array>
+  <string name="settings_force_dark_theme">Dunklen Stil verwenden</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Kalender abonnieren</string>
+  <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
+  <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
+  <string name="add_calendar_created">Kalender erfolgreich abonniert</string>
+  <string name="add_calendar_password">Passwort</string>
+  <string name="add_calendar_requires_authentication">Zugangsdaten benötigt</string>
+  <string name="add_calendar_title">Name &amp; Farbe</string>
+  <string name="add_calendar_title_hint">Kalendername</string>
+  <string name="add_calendar_url_text">Webcal Adresse eingeben</string>
+  <string name="add_calendar_pick_file_text">Alternativ eine Datei aus dem lokalen Dateisystem auswählen</string>
+  <string name="add_calendar_pick_file">Datei auswählen</string>
+  <string name="add_calendar_user_name">Benutzername</string>
+  <string name="add_calendar_validating">Überprüfe Kalender…</string>
+  <string name="add_calendar_alarms_title">Alarme</string>
+  <string name="add_calendar_alarms_ignore_description">Falls eingeschaltet, werden alle eingehenden Benachrichtigungen vom Server verworfen.</string>
+  <string name="add_calendar_alarms_default_all_day_title">Füge eine Standard-Benachrichtigung für ganztätige Termine hinzu</string>
+  <string name="default_alarm_dialog_title">Füge eine Standard-Benachrichtigung hinzu</string>
+  <string name="default_alarm_dialog_message">Dies wird eine Benachrichtigung für alle Termine erstellen</string>
+  <string name="default_alarm_dialog_hint">Minuten vor dem Termin</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Details teilen</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Kalender-Abo bearbeiten</string>
+  <string name="edit_calendar_cancel">Abbrechen</string>
+  <string name="edit_calendar_delete">Abo löschen</string>
+  <string name="edit_calendar_deleted">Abo erfolgreich entfernt</string>
+  <string name="edit_calendar_dismiss">Verwerfen</string>
+  <string name="edit_calendar_really_delete">Wollen Sie dieses Kalender-Abo wirklich entfernen?</string>
+  <string name="edit_calendar_save">Speichern</string>
+  <string name="edit_calendar_saved">Änderungen gespeichert</string>
+  <string name="edit_calendar_send_url">URL senden</string>
+  <string name="edit_calendar_unsaved_changes">Änderungen wurden noch nicht gespeichert.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Fehler bei der Aktualisierung</string>
   <string name="sync_permission_required">Berechtigung benötigt</string>
   <string name="sync_permission_required_sync_calendar">Kalender-Berechtigung wird zum Synchronisieren benötigt</string>
   <string name="could_not_open_storage_file">Datei konnte nicht geöffnet werden</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Über ICSx⁵</string>
   <string name="app_info_version">Version %1$s-%2$s</string>
+  <string name="app_info_gplv3_note"><![CDATA[
+Dieses Programm ist freie Software: Sie können es weiterverteilen und/oder es unter der \"GNU General Public License\" der \"Free Software Foundation\" unter Version 3 oder höher verändern.
+
+Dieses Programm wurde veröffentlicht mit der Hoffnung nützlich zu sein, jedoch OHNE IRGENDEINE GARANTIE; auch ohne die implizierte Garantie jeglicher Tauglichkeit oder Eignung für einen bestimmten Zweck. Mehr dazu lesen Sie in der \"GNU General Public License\".
+
+Sie sollten eine Kopie der \"GNU General Public License\" zusammen mit diesem Programm erhalten. Wenn nicht, besuchen Sie bitte die Seite <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+]]></string>
   <string name="app_info_donate">Spenden</string>
-    <string name="app_info_web_site">Homepage</string>
+  <string name="app_info_web_site">Homepage</string>
   <string name="donate_title">Open-Source-Information</string>
   <string name="donate_message">Wir freuen uns, dass Sie ICSx⁵ und damit Open-Source-Software (GPLv3) verwenden. Nachdem es viel Arbeit war und noch ist, ICSx⁵ zu entwickeln und zu warten, gibt es die Möglichkeit, uns zu spenden.</string>
   <string name="donate_now">Spendenseite anzeigen</string>
