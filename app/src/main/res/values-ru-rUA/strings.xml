@@ -2,7 +2,7 @@
 <resources>
   <string name="account_name">Подписки на календари</string>
   <!--common strings-->
-    <string name="calendar_permissions_required">Разрешить доступ к календарю</string>
+  <string name="calendar_permissions_required">Разрешить доступ к календарю</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
@@ -10,34 +10,8 @@
   <string name="calendar_list_info">Об ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ещё не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
-  <string name="calendar_list_battery_whitelist_title">Батарея: добавьте ICSx⁵ в исключения для частой синхронизации</string>
-    <!--settings, currently in CalendarListActivity-->
-  <!--AddCalendarActivity-->
-  <string name="activity_add_calendar">Подписаться на календарь</string>
-  <string name="add_calendar_need_valid_uri">Требуется действительный URI</string>
-  <string name="add_calendar_authentication_without_https_warning">Ваши данные легко могут быть перехвачены третьими лицами. Используйте HTTPS  для безопасной аутентификации.</string>
-    <string name="add_calendar_created">Подписка выполнена успешно</string>
-  <string name="add_calendar_password">Пароль</string>
-  <string name="add_calendar_requires_authentication">Требуется аутентификация</string>
-  <string name="add_calendar_title">Заглавие &amp; Цвет</string>
-  <string name="add_calendar_title_hint">Название календаря</string>
-  <string name="add_calendar_user_name">Имя пользователя</string>
-  <string name="add_calendar_validating">Проверка источника календаря…</string>
-  <!--AlertDialog-->
-  <!--EditCalendarActivity-->
-  <string name="activity_edit_calendar">Изменить подписку</string>
-  <string name="edit_calendar_cancel">Отмена</string>
-  <string name="edit_calendar_delete">Отписаться</string>
-  <string name="edit_calendar_deleted">Подписка отменена</string>
-  <string name="edit_calendar_dismiss">Убрать</string>
-    <string name="edit_calendar_really_delete">Уверены, что хотите отменить подписку на этот календарь?</string>
-  <string name="edit_calendar_save">Сохранить</string>
-  <string name="edit_calendar_saved">Изменения сохранены</string>
-  <string name="edit_calendar_send_url">Отправить URL-ссылку</string>
-    <string name="edit_calendar_unsaved_changes">Имеются несохранённые изменения.</string>
-  <!--synchronization-->
-  <string name="sync_error_title">Ошибка синхронизации</string>
-    <string name="set_sync_interval_title">Задать интервал синхронизации:</string>
+  <!--settings, currently in CalendarListActivity-->
+  <string name="set_sync_interval_title">Задать интервал синхронизации:</string>
   <string-array name="set_sync_interval_names">
     <item>Только вручную</item>
     <item>Каждые 15 минут</item>
@@ -47,13 +21,38 @@
     <item>Раз в день</item>
     <item>Раз в неделю</item>
   </string-array>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">Подписаться на календарь</string>
+  <string name="add_calendar_need_valid_uri">Требуется действительный URI</string>
+  <string name="add_calendar_authentication_without_https_warning">Ваши данные легко могут быть перехвачены третьими лицами. Используйте HTTPS  для безопасной аутентификации.</string>
+  <string name="add_calendar_created">Подписка выполнена успешно</string>
+  <string name="add_calendar_password">Пароль</string>
+  <string name="add_calendar_requires_authentication">Требуется аутентификация</string>
+  <string name="add_calendar_title">Заглавие &amp; Цвет</string>
+  <string name="add_calendar_title_hint">Название календаря</string>
+  <string name="add_calendar_user_name">Имя пользователя</string>
+  <string name="add_calendar_validating">Проверка источника календаря...</string>
+  <!--AlertFragment-->
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">Изменить подписку</string>
+  <string name="edit_calendar_cancel">Отмена</string>
+  <string name="edit_calendar_delete">Отписаться</string>
+  <string name="edit_calendar_deleted">Подписка отменена</string>
+  <string name="edit_calendar_dismiss">Убрать</string>
+  <string name="edit_calendar_really_delete">Уверены, что хотите отменить подписку на этот календарь?</string>
+  <string name="edit_calendar_save">Сохранить</string>
+  <string name="edit_calendar_saved">Изменения сохранены</string>
+  <string name="edit_calendar_send_url">Отправить URL-ссылку</string>
+  <string name="edit_calendar_unsaved_changes">Имеются несохранённые изменения.</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Ошибка синхронизации</string>
   <string name="sync_permission_required">Необходим доступ</string>
   <string name="sync_permission_required_sync_calendar">Необходимо разрешение для синхронизации вашего календаря</string>
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_version">Версия %1$s-%2$s</string>
   <string name="app_info_donate">Пожертвовать</string>
-    <string name="app_info_web_site">Веб страница</string>
+  <string name="app_info_web_site">Веб страница</string>
   <string name="donate_title">Сведения об открытом коде</string>
   <string name="donate_message">Мы рады тому, что вы используете приложение ICSx⁵, которое представляет собой программное обеспечение с открытым кодом (GPLv3). По причине того, что было потрачено, и ещё необходимо, много усилий для разработки и обслуживания ICSx⁵, пожалуйста, рассмотрите возможность пожертвования.</string>
   <string name="donate_now">Показать страницу для пожертвования</string>

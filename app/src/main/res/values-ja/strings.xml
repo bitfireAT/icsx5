@@ -2,12 +2,16 @@
 <resources>
   <string name="account_name">カレンダーの購読</string>
   <!--common strings-->
-    <string name="calendar_permissions_required">カレンダーへのアクセスを許可してください</string>
+  <string name="action_more">詳細</string>
+  <string name="calendar_permissions_required">カレンダーへのアクセスを許可してください</string>
+  <string name="calendar_permissions_required_text">ダウンロードした予定をローカルに保存するために必要です。</string>
   <string name="notification_permissions_required">通知を許可してください</string>
-    <string name="no_browser">ブラウザーがインストールされていません</string>
+  <string name="notification_permissions_required_text">同期の状態がエラーなどの場合に通知を表示するために必要です。</string>
+  <string name="no_browser">ブラウザーがインストールされていません</string>
   <string name="notification_channel_sync_problem">同期に問題が発生しました</string>
-    <string name="permissions_grant">許可</string>
+  <string name="permissions_grant">許可</string>
   <string name="install_browser">ウェブブラウザーをインストールしてください</string>
+  <string name="required_annotation">必須</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">購読中のカレンダー</string>
   <string name="calendar_list_empty_info">+ ボタンから登録するか Webcal URL を開いて Webcal フィードを購読できます</string>
@@ -15,47 +19,12 @@
   <string name="calendar_list_not_synced_yet">まだ同期されていません</string>
   <string name="calendar_list_set_sync_interval">同期間隔を設定</string>
   <string name="calendar_list_synchronize">今すぐ同期</string>
-  <string name="calendar_list_battery_whitelist_title">バッテリー: 一定間隔で同期を実行するため ICSx⁵ をホワイトリストに追加してください</string>
-    <!--settings, currently in CalendarListActivity-->
-  <string name="settings_force_dark_theme">ダークテーマを使用</string>
+  <string name="calendar_list_battery_whitelist_title">バッテリー最適化</string>
+  <string name="calendar_list_battery_whitelist_text">バッテリー最適化により、1 日以下の同期間隔で動作しなくなる可能性があります。%s を「最適化しない」に設定してください。</string>
+  <string name="calendar_list_battery_whitelist_open_settings">設定を開く</string>
+  <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">プライバシーポリシー</string>
-  <!--AddCalendarActivity-->
-  <string name="activity_add_calendar">カレンダーを購読</string>
-  <string name="add_calendar_need_valid_uri">有効な URI が必要です</string>
-  <string name="add_calendar_authentication_without_https_warning">第三者が簡単にあなたの認証情報にアクセスできます。HTTPS を使用して認証情報を保護してください</string>
-    <string name="add_calendar_created">購読が完了しました</string>
-  <string name="add_calendar_password">パスワード</string>
-  <string name="add_calendar_requires_authentication">認証情報が必要</string>
-  <string name="add_calendar_title">件名と色</string>
-  <string name="add_calendar_title_hint">カレンダーの名前</string>
-  <string name="add_calendar_url_text">Webcal アドレスを入力:</string>
-  <string name="add_calendar_pick_file_text">ローカルストレージからファイルを選択することもできます</string>
-  <string name="add_calendar_pick_file">ファイルを選択</string>
-  <string name="add_calendar_user_name">ユーザー名</string>
-  <string name="add_calendar_validating">カレンダー情報を確認しています…</string>
-  <string name="add_calendar_alarms_title">アラーム</string>
-  <string name="add_calendar_alarms_ignore_title">カレンダーに埋め込まれた通知を無視</string>
-  <string name="add_calendar_alarms_ignore_description">有効にすると、そのサーバーから送信されるすべてのアラームが無視されます</string>
-    <string name="add_calendar_alarms_default_all_day_title">終日の予定にデフォルトのアラームを追加</string>
-    <string name="default_alarm_dialog_title">デフォルトのアラームを追加</string>
-  <string name="default_alarm_dialog_message">設定すると、すべての予定にアラームを追加します</string>
-  <string name="default_alarm_dialog_hint">予定の…分前</string>
-    <!--AlertDialog-->
-  <string name="alert_share_details">詳細情報を共有</string>
-  <!--EditCalendarActivity-->
-  <string name="activity_edit_calendar">購読を編集</string>
-  <string name="edit_calendar_cancel">キャンセル</string>
-  <string name="edit_calendar_delete">購読解除</string>
-  <string name="edit_calendar_deleted">購読を解除しました</string>
-  <string name="edit_calendar_dismiss">無視</string>
-    <string name="edit_calendar_really_delete">本当にカレンダーの購読を解除しますか？</string>
-  <string name="edit_calendar_save">保存</string>
-  <string name="edit_calendar_saved">変更が保存されました</string>
-  <string name="edit_calendar_send_url">URL を送信</string>
-    <string name="edit_calendar_unsaved_changes">保存されていない変更があります</string>
-  <!--synchronization-->
-  <string name="sync_error_title">同期エラー</string>
-    <string name="set_sync_interval_title">同期間隔を設定:</string>
+  <string name="set_sync_interval_title">同期間隔を設定:</string>
   <string-array name="set_sync_interval_names">
     <item>手動のみ</item>
     <item>15 分ごと</item>
@@ -65,6 +34,50 @@
     <item>毎日 1 回</item>
     <item>毎週 1 回</item>
   </string-array>
+  <string name="settings_force_dark_theme">ダークテーマを使用</string>
+  <!--AddCalendarActivity-->
+  <string name="activity_add_calendar">カレンダーを購読</string>
+  <string name="add_calendar_need_valid_uri">有効な URI が必要です</string>
+  <string name="add_calendar_authentication_without_https_warning">第三者が簡単にあなたの認証情報にアクセスできます。HTTPS を使用して認証情報を保護してください</string>
+  <string name="add_calendar_created">購読が完了しました</string>
+  <string name="add_calendar_password">パスワード</string>
+  <string name="add_calendar_password_hide">パスワードを非表示</string>
+  <string name="add_calendar_password_show">パスワードを表示</string>
+  <string name="add_calendar_requires_authentication">認証情報が必要</string>
+  <string name="add_calendar_title">件名と色</string>
+  <string name="add_calendar_title_hint">カレンダーの名前</string>
+  <string name="add_calendar_pick_color">色を選択</string>
+  <string name="add_calendar_url_text">Webcal アドレスを入力:</string>
+  <string name="add_calendar_pick_file_text">ローカルストレージからファイルを選択することもできます</string>
+  <string name="add_calendar_pick_file">ファイルを選択</string>
+  <string name="add_calendar_user_name">ユーザー名</string>
+  <string name="add_calendar_validating">カレンダー情報を確認しています...</string>
+  <string name="add_calendar_alarms_title">アラーム</string>
+  <string name="add_calendar_alarms_ignore_title">カレンダーに埋め込まれた通知を無視</string>
+  <string name="add_calendar_alarms_ignore_description">有効にすると、そのサーバーから送信されるすべてのアラームが無視されます</string>
+  <string name="add_calendar_alarms_default_all_day_title">終日の予定にデフォルトのアラームを追加</string>
+  <string name="default_alarm_dialog_title">デフォルトのアラームを追加</string>
+  <string name="default_alarm_dialog_message">設定すると、すべての予定にアラームを追加します</string>
+  <string name="default_alarm_dialog_hint">予定の...分前</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">詳細情報を共有</string>
+  <!--EditCalendarActivity-->
+  <string name="activity_edit_calendar">購読を編集</string>
+  <string name="edit_calendar_cancel">キャンセル</string>
+  <string name="edit_calendar_delete">購読解除</string>
+  <string name="edit_calendar_deleted">購読を解除しました</string>
+  <string name="edit_calendar_dismiss">無視</string>
+  <string name="edit_calendar_really_delete">本当にカレンダーの購読を解除しますか？</string>
+  <string name="edit_calendar_edit">編集</string>
+  <string name="edit_calendar_need_valid_credentials">ユーザー名とパスワードが必須です</string>
+  <string name="edit_calendar_need_username">ユーザー名が必須です</string>
+  <string name="edit_calendar_need_password">パスワードが必須です</string>
+  <string name="edit_calendar_save">保存</string>
+  <string name="edit_calendar_saved">変更が保存されました</string>
+  <string name="edit_calendar_send_url">URL を送信</string>
+  <string name="edit_calendar_unsaved_changes">保存されていない変更があります</string>
+  <!--synchronization-->
+  <string name="sync_error_title">同期エラー</string>
   <string name="sync_permission_required">権限が必要です</string>
   <string name="sync_permission_required_sync_calendar">カレンダーを同期するには権限を許可してください</string>
   <string name="could_not_open_storage_file">ストレージのファイルを開けません</string>
@@ -80,7 +93,7 @@
 ているはずです。もし受け取っていなければ、<a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a> をご覧ください。
     \"]]></string>
   <string name="app_info_donate">寄付</string>
-    <string name="app_info_web_site">ウェブサイト</string>
+  <string name="app_info_web_site">ウェブサイト</string>
   <string name="donate_title">オープンソース情報</string>
   <string name="donate_message">オープンソースソフトウェア (GPLv3) として ICSx⁵ をお届けできることをとても嬉しく思っています。ICSx⁵ の開発と維持を支える寄付をご検討ください。</string>
   <string name="donate_now">寄付ページを表示</string>

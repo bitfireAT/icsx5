@@ -1,29 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--common strings-->
-    <string name="permissions_grant">Povolit</string>
+  <string name="permissions_grant">Povolit</string>
   <!--CalendarListActivity-->
   <string name="calendar_list_info">O aplikaci ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">zatím nesynchromizováno</string>
   <string name="calendar_list_set_sync_interval">Nastavit interval synchronizace</string>
   <string name="calendar_list_synchronize">Synchronizovat nyní</string>
-    <!--settings, currently in CalendarListActivity-->
-  <!--AddCalendarActivity-->
-  <string name="add_calendar_password">Heslo</string>
-  <string name="add_calendar_requires_authentication">Vyžaduje autentizaci</string>
-  <string name="add_calendar_title_hint">Jméno kalendáře</string>
-  <string name="add_calendar_pick_file_text">Nebo zvolte soubor ze zařízení.</string>
-  <string name="add_calendar_pick_file">Zvolit soubor</string>
-  <string name="add_calendar_user_name">Uživatelské jméno</string>
-  <!--AlertDialog-->
-  <string name="alert_share_details">Sdílet detaily</string>
-  <!--EditCalendarActivity-->
-  <string name="edit_calendar_cancel">Zrušit</string>
-    <string name="edit_calendar_save">Uložit</string>
-  <string name="edit_calendar_saved">Změny uloženy</string>
-  <!--synchronization-->
-  <string name="sync_error_title">Chyba synchronizace </string>
-    <string-array name="set_sync_interval_names">
+  <!--settings, currently in CalendarListActivity-->
+  <string-array name="set_sync_interval_names">
     <item>Pouze ručně</item>
     <item>Každých 15 minut</item>
     <item>Každou hodinu</item>
@@ -32,6 +17,21 @@
     <item>Jednou denně</item>
     <item>Jednou týdně</item>
   </string-array>
+  <!--AddCalendarActivity-->
+  <string name="add_calendar_password">Heslo</string>
+  <string name="add_calendar_requires_authentication">Vyžaduje autentizaci</string>
+  <string name="add_calendar_title_hint">Jméno kalendáře</string>
+  <string name="add_calendar_pick_file_text">Nebo zvolte soubor ze zařízení.</string>
+  <string name="add_calendar_pick_file">Zvolit soubor</string>
+  <string name="add_calendar_user_name">Uživatelské jméno</string>
+  <!--AlertFragment-->
+  <string name="alert_share_details">Sdílet detaily</string>
+  <!--EditCalendarActivity-->
+  <string name="edit_calendar_cancel">Zrušit</string>
+  <string name="edit_calendar_save">Uložit</string>
+  <string name="edit_calendar_saved">Změny uloženy</string>
+  <!--synchronization-->
+  <string name="sync_error_title">Chyba synchronizace </string>
   <!--InfoActivity-->
   <string name="activity_app_info">Informace o aplikaci</string>
   <string name="donate_message">Jsme rádi, že používáte ICSx⁵, což je open-source software (GPLv3). Protože vývoj ICSx⁵ vyžadoval a stále vyžaduje hodně práce, zvažte prosím přispění.</string>

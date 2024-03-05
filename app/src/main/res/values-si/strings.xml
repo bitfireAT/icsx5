@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--common strings-->
-    <string name="calendar_permissions_required">දින දසුන් අවසරය අවශ්‍යයයි</string>
+  <string name="calendar_permissions_required">දින දසුන් අවසරය අවශ්‍යයයි</string>
   <string name="notification_channel_sync_problem">සමමුහූර්ත ගැටලු</string>
   <!--CalendarListActivity-->
   <string name="calendar_list_info">ICSx⁵ පිළිබඳව</string>
-    <!--settings, currently in CalendarListActivity-->
+  <!--settings, currently in CalendarListActivity-->
   <!--AddCalendarActivity-->
   <string name="add_calendar_password">මුරපදය</string>
   <string name="add_calendar_title_hint">දින දසුනේ නම</string>
   <string name="add_calendar_user_name">පරිශීලක නාමය</string>
-  <!--AlertDialog-->
+  <!--AlertFragment-->
   <string name="alert_share_details">විස්තර බෙදාගන්න</string>
   <!--EditCalendarActivity-->
   <string name="edit_calendar_cancel">අවලංගු</string>
@@ -18,12 +18,12 @@
   <string name="edit_calendar_saved">වෙනස්කම් සුරැකිණි</string>
   <string name="edit_calendar_send_url">ඒ.ස.නි. යවන්න</string>
   <!--synchronization-->
-    <string name="sync_permission_required">අවසරය අවශ්‍යයයි</string>
+  <string name="sync_permission_required">අවසරය අවශ්‍යයයි</string>
   <!--InfoActivity-->
   <string name="activity_app_info">යෙදුමේ තොරතුරු</string>
   <string name="app_info_version">අනුවාදය %1$s-%2$s</string>
   <string name="app_info_donate">පරිත්‍යාග</string>
-    <string name="app_info_web_site">වියමන අඩවිය</string>
+  <string name="app_info_web_site">වියමන අඩවිය</string>
   <string name="donate_now">පරිත්‍යාග පිටුව පෙන්වන්න</string>
   <string name="donate_later">සමහරවිට පසුව</string>
 </resources>
