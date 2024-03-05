@@ -11,6 +11,7 @@
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <string name="permissions_grant">Предоставить</string>
   <string name="install_browser">Пожалуйста, установите браузер</string>
+  <string name="required_annotation">Требуется</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>
   <string name="calendar_list_empty_info">Для подписки на ленту Webcal используйте кнопку + или откройте веб-адрес Webcal.</string>
@@ -40,15 +41,19 @@
   <string name="add_calendar_authentication_without_https_warning">Третьи лица могут легко перехватить ваши учетные данные. Используйте HTTPS для безопасной аутентификации.</string>
   <string name="add_calendar_created">Подписка выполнена успешно</string>
   <string name="add_calendar_password">Пароль</string>
+  <string name="add_calendar_password_hide">Скрыть пароль</string>
+  <string name="add_calendar_password_show">Показать пароль</string>
   <string name="add_calendar_requires_authentication">Требуется аутентификация</string>
   <string name="add_calendar_title">Название и цвет</string>
   <string name="add_calendar_title_hint">Название календаря</string>
+  <string name="add_calendar_pick_color">Выберите цвет</string>
   <string name="add_calendar_url_text">Введите адрес Webcal:</string>
   <string name="add_calendar_pick_file_text">Или выберите файл из локального хранилища.</string>
   <string name="add_calendar_pick_file">Выбрать файл</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
   <string name="add_calendar_validating">Проверка доступности календаря...</string>
   <string name="add_calendar_alarms_title">Оповещения</string>
+  <string name="add_calendar_alarms_ignore_title">Игнорировать оповещения, встроенные в календарь</string>
   <string name="add_calendar_alarms_ignore_description">Если включено, все входящие оповещения с сервера будут отклонены.</string>
   <string name="add_calendar_alarms_default_all_day_title">Добавьте оповещение по умолчанию для событий на весь день</string>
   <string name="default_alarm_dialog_title">Добавить оповещение по умолчанию</string>
@@ -63,6 +68,10 @@
   <string name="edit_calendar_deleted">Подписка отменена</string>
   <string name="edit_calendar_dismiss">Отклонить</string>
   <string name="edit_calendar_really_delete">Вы действительно хотите отписаться от этого календаря?</string>
+  <string name="edit_calendar_edit">Изменить</string>
+  <string name="edit_calendar_need_valid_credentials">Требуется имя пользователя и пароль</string>
+  <string name="edit_calendar_need_username">Требуется имя пользователя</string>
+  <string name="edit_calendar_need_password">Требуется пароль</string>
   <string name="edit_calendar_save">Сохранить</string>
   <string name="edit_calendar_saved">Изменения сохранены</string>
   <string name="edit_calendar_send_url">Отправить URL</string>
