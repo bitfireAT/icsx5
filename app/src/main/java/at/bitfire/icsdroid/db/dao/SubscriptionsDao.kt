@@ -2,7 +2,13 @@ package at.bitfire.icsdroid.db.dao
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Embedded
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.Update
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 
@@ -42,7 +48,7 @@ interface SubscriptionsDao {
     @Query("UPDATE subscriptions SET calendarId=:calendarId WHERE id=:id")
     fun updateCalendarId(id: Long, calendarId: Long?)
 
-    @Query("UPDATE subscriptions SET lastSync=:lastSync WHERE id=:id")
+    @Query("UPDATE subscriptions SET lastSync=:lastSync, errorMessage=null WHERE id=:id")
     fun updateStatusNotModified(id: Long, lastSync: Long = System.currentTimeMillis())
 
     @Query("UPDATE subscriptions SET eTag=:eTag, lastModified=:lastModified, lastSync=:lastSync, errorMessage=null WHERE id=:id")
