@@ -104,6 +104,7 @@
     <!-- InfoActivity -->
     <string name="activity_app_info">App info</string>
     <string name="app_info_version">Version %1$s-%2$s</string>
+    <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) and contributors</string>
     <string name="app_info_gplv3" translatable="false">GPLv3</string>
     <string name="app_info_gplv3_note"><![CDATA["
 This program is free software: you can redistribute it and/or modify
