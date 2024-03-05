@@ -8,4 +8,4 @@ val red = Color(0xffff2200)
 
 val offwhite = Color(0xfffcfcff)
 val lightgrey = Color(0xffdee3ea)
-val nearlyBlack = Color(0xFFD1D1D1)
+val nearlyBlack = Color(0xff1d1d1d)
