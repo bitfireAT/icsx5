@@ -4,7 +4,9 @@
 
 package at.bitfire.icsdroid.ui.views
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -169,8 +171,9 @@ class CalendarListActivity: AppCompatActivity() {
 
     /* UI components */
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
+    @SuppressLint("BatteryLife")
+    @OptIn(ExperimentalMaterial3Api::class)
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
@@ -250,7 +253,14 @@ class CalendarListActivity: AppCompatActivity() {
                                 .padding(8.dp)
                                 .animateItemPlacement()
                         ) {
-                            val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                            val intent = Intent()
+                            val pm : PowerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                            if (pm.isIgnoringBatteryOptimizations(context.packageName)) {
+                                intent.action = android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                            } else {
+                                intent.action = android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                                intent.data = Uri.parse("package:${context.packageName}")
+                            }
                             startActivity(intent)
                         }
                     }
@@ -433,10 +443,8 @@ class CalendarListActivity: AppCompatActivity() {
             val powerManager = getApplication<Application>().getSystemService<PowerManager>()
             val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
 
-            val syncInterval = AppAccount.syncInterval(getApplication())
-
             // If not ignoring battery optimizations, and sync interval is less than a day
-            val shouldWhitelistApp = isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
+            val shouldWhitelistApp = isIgnoringBatteryOptimizations == false
             askForWhitelisting.postValue(shouldWhitelistApp)
 
             // Make sure permissions are not revoked automatically
