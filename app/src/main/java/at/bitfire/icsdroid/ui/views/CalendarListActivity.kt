@@ -7,8 +7,10 @@ package at.bitfire.icsdroid.ui.views
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -188,6 +190,7 @@ class CalendarListActivity: AppCompatActivity() {
         val askForCalendarPermission by model.askForCalendarPermission.observeAsState(false)
         val askForNotificationPermission by model.askForNotificationPermission.observeAsState(false)
         val askForWhitelisting by model.askForWhitelisting.observeAsState(false)
+        val askForAutoRevoke by model.askForAutoRevoke.observeAsState(false)
 
         Box(
             modifier = Modifier
@@ -249,6 +252,31 @@ class CalendarListActivity: AppCompatActivity() {
                         ) {
                             val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             startActivity(intent)
+                        }
+                    }
+                }
+
+                // Auto Revoke permissions warning
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && askForAutoRevoke) {
+                    item(key = "auto-revoke-whitelisting") {
+                        ActionCard(
+                            title = stringResource(R.string.calendar_list_autorevoke_permissions_title),
+                            message = stringResource(R.string.calendar_list_autorevoke_permissions_text, stringResource(R.string.app_name)),
+                            actionText = stringResource(R.string.calendar_list_battery_whitelist_open_settings),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .animateItemPlacement()
+                        ) {
+                            Toast.makeText(
+                                this@CalendarListActivity,
+                                R.string.calendar_list_autorevoke_permissions_instruction,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            startActivity(Intent(
+                                Intent.ACTION_AUTO_REVOKE_PERMISSIONS,
+                                Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                            ))
                         }
                     }
                 }
@@ -372,6 +400,8 @@ class CalendarListActivity: AppCompatActivity() {
 
         val askForWhitelisting = MutableLiveData(false)
 
+        val askForAutoRevoke = MutableLiveData(false)
+
 
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
@@ -408,6 +438,14 @@ class CalendarListActivity: AppCompatActivity() {
             // If not ignoring battery optimizations, and sync interval is less than a day
             val shouldWhitelistApp = isIgnoringBatteryOptimizations == false && syncInterval != AppAccount.SYNC_INTERVAL_MANUALLY && syncInterval < 86400
             askForWhitelisting.postValue(shouldWhitelistApp)
+
+            // Make sure permissions are not revoked automatically
+            val isAutoRevokeWhitelisted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                getApplication<Application>().packageManager.isAutoRevokeWhitelisted
+            } else {
+                true
+            }
+            askForAutoRevoke.postValue(!isAutoRevokeWhitelisted)
         }
 
     }

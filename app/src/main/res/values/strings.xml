@@ -27,6 +27,9 @@
     <string name="calendar_list_battery_whitelist_title">Battery optimization</string>
     <string name="calendar_list_battery_whitelist_text">Battery optimizations may prevent sync intervals shorter than a day. Set %s to \"Not optimized\".</string>
     <string name="calendar_list_battery_whitelist_open_settings">Open settings</string>
+    <string name="calendar_list_autorevoke_permissions_title">Auto-Revoke Permissions</string>
+    <string name="calendar_list_autorevoke_permissions_text">Android revokes permissions of rarely opened apps. Please disable permission revokes for %s.</string>
+    <string name="calendar_list_autorevoke_permissions_instruction">Click Permissions > uncheck \"Remove permissions if app isn\'t used\"</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="calendar_list_privacy_policy">Privacy policy</string>
     <string name="set_sync_interval_title">Set sync. interval:</string>
