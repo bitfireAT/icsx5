@@ -24,7 +24,7 @@ jobs:
 
       - name: Build signed packages
         # AboutLibraries 10.6.3 doesn't show any dependencies when configuration cache is used
-        run: ./gradlew --no-configuration-cache --no-daemon app:assembleRelease
+        run: ./gradlew --no-configuration-cache --no-daemon app:bundleRelease app:assembleRelease
         env:
           ANDROID_KEYSTORE: ${{ github.workspace }}/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
@@ -32,6 +32,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
 
       - name: Create Github release (from standard flavor)
+        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
@@ -39,12 +40,26 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
 
+      - uses: cardinalby/git-get-release-action@v1
+        id: get_release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}  # or your personal access token
+        with:
+          id: ${{ steps.create_release.outputs.id }}
+
+      - name: Write release notes
+        run: |
+          mkdir -p release-notes
+          touch release-notes/whatsnew-en-US
+          echo ${{ steps.get_release.outputs.body }} >> release-notes/whatsnew-en-US
+
       - name: Upload to Google Play (gplay flavor)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.google_play_service_account_json }}
           packageName: at.bitfire.icsdroid
-          releaseFiles: app/build/outputs/apk/gplay/release/*.apk
+          releaseFiles: app/build/outputs/apk/gplay/release/*.aab
           mappingFile: app/build/outputs/mapping/gplayRelease/mapping.txt
           track: internal
-
+          status: completed
+          whatsNewDirectory: release-notes
