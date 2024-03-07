@@ -22,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">电池优化</string>
   <string name="calendar_list_battery_whitelist_text">电池优化功能可能阻止小于一天的同步间隔。请将 %s 设为“不优化”</string>
   <string name="calendar_list_battery_whitelist_open_settings">打开设置</string>
+  <string name="calendar_list_autorevoke_permissions_title">自动撤销权限</string>
+  <string name="calendar_list_autorevoke_permissions_text">新版本安卓系统会撤销很少打开的应用的权限。请停用针对 %s 的权限撤销。</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">单击“权限”&gt; 取消勾选“如果不使用应用就删除权限”</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">隐私政策</string>
   <string name="set_sync_interval_title">设置同步间隔时间</string>
@@ -84,6 +87,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">应用信息</string>
   <string name="app_info_version">版本 %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) 及贡献者们</string>
   <string name="app_info_gplv3_note"><![CDATA[\"
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

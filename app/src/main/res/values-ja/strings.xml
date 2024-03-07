@@ -22,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">バッテリー最適化</string>
   <string name="calendar_list_battery_whitelist_text">バッテリー最適化により、1 日以下の同期間隔で動作しなくなる可能性があります。%s を「最適化しない」に設定してください。</string>
   <string name="calendar_list_battery_whitelist_open_settings">設定を開く</string>
+  <string name="calendar_list_autorevoke_permissions_title">権限の自動停止</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android は開かれないアプリの権限を停止します。%s の権限停止を無効にしてください。</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">権限 (許可) から、「使用していないアプリの権限を停止する」をオフにしてください</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">プライバシーポリシー</string>
   <string name="set_sync_interval_title">同期間隔を設定:</string>
@@ -84,6 +87,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">アプリ情報</string>
   <string name="app_info_version">バージョン %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner、Bernhard Stockmann (bitfire web engineering GmbH) と貢献者</string>
   <string name="app_info_gplv3_note"><![CDATA[\"
 このプログラムはフリーソフトウェアです。あなたはこれを、フリーソフトウェア財団によって発行された GNU 一般公衆利用許諾書 (バージョン 3 か、それ以降のバージョンのうちどれか) が定める条件の下で再頒布または改変することができます。
 
