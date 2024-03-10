@@ -18,7 +18,8 @@ android {
         minSdk = 23
         targetSdk = 34
 
-        versionCode = 74
+        val packageDir = File(rootDir, "package")
+        versionCode = File(packageDir, "version-code.txt").readText().toInt()
         versionName = "2.2-beta.2"
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
@@ -158,4 +159,18 @@ dependencies {
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
     includePlatform = false
+}
+
+tasks.create("increaseVersionCode") {
+    doLast {
+        val packageDir = File(rootDir, "package")
+        val versionCodeFile = File(packageDir, "version-code.txt")
+        val versionCode = versionCodeFile.readText().toInt()
+        versionCodeFile.writeText((versionCode + 1).toString())
+    }
+}
+
+// assembleRelease depends on increaseVersionCode
+tasks.named("assemble").configure {
+    dependsOn("increaseVersionCode")
 }
