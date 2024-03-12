@@ -33,7 +33,7 @@ jobs:
 
       - name: Create Github release (from standard flavor)
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
           files: app/build/outputs/apk/standard/release/*.apk
