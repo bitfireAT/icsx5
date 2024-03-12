@@ -58,7 +58,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.google_play_service_account_json }}
           packageName: at.bitfire.icsdroid
-          releaseFiles: app/build/outputs/apk/gplay/release/*.aab
+          releaseFiles: app/build/outputs/bundle/gplayRelease/*.aab
           mappingFile: app/build/outputs/mapping/gplayRelease/mapping.txt
           track: internal
           status: completed
