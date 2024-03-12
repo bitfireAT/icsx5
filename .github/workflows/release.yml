@@ -40,18 +40,18 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
 
-      - uses: cardinalby/git-get-release-action@v1
-        id: get_release
-        env:
-          GITHUB_TOKEN: ${{ github.token }}  # or your personal access token
-        with:
-          id: ${{ steps.create_release.outputs.id }}
+#      - uses: cardinalby/git-get-release-action@v1
+#        id: get_release
+#        env:
+#          GITHUB_TOKEN: ${{ github.token }}  # or your personal access token
+#        with:
+#          id: ${{ steps.create_release.outputs.id }}
 
-      - name: Write release notes
-        run: |
-          mkdir -p release-notes
-          touch release-notes/whatsnew-en-US
-          echo ${{ steps.get_release.outputs.body }} >> release-notes/whatsnew-en-US
+#      - name: Write release notes
+#        run: |
+#          mkdir -p release-notes
+#          touch release-notes/whatsnew-en-US
+#          echo ${{ steps.get_release.outputs.body }} >> release-notes/whatsnew-en-US
 
       - name: Upload to Google Play (gplay flavor)
         uses: r0adkll/upload-google-play@v1
@@ -62,4 +62,4 @@ jobs:
           mappingFile: app/build/outputs/mapping/gplayRelease/mapping.txt
           track: internal
           status: completed
-          whatsNewDirectory: release-notes
+#          whatsNewDirectory: release-notes
