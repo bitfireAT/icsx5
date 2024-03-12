@@ -22,14 +22,23 @@ jobs:
       - name: Prepare keystore
         run: echo ${{ secrets.android_keystore_base64 }} | base64 -d >$GITHUB_WORKSPACE/keystore.jks
 
-      - name: Build signed packages
+      - name: Build signed package (APK)
         # AboutLibraries 10.6.3 doesn't show any dependencies when configuration cache is used
-        run: ./gradlew --no-configuration-cache --no-daemon app:bundleRelease app:assembleRelease
+        run: ./gradlew --no-configuration-cache --no-daemon app:assembleRelease
         env:
           ANDROID_KEYSTORE: ${{ github.workspace }}/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
           ANDROID_KEY_ALIAS: ${{ secrets.android_key_alias }}
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
+
+      - name: Build signed bundle (AAB)
+        # AboutLibraries 10.6.3 doesn't show any dependencies when configuration cache is used
+        run: ./gradlew --no-configuration-cache --no-daemon app:bundleRelease
+        env:
+          ANDROID_KEYSTORE: ${{ github.workspace }}/keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
+          ANDROID_KEY_ALIAS: ${{ secrets.upload_key_alias }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.upload_key_password }}
 
       - name: Create Github release (from standard flavor)
         id: create_release
