@@ -135,8 +135,7 @@ class AddCalendarActivity : AppCompatActivity() {
             val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
 
             val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
-
-            var showNextButton by remember { mutableStateOf(false) }
+            val showNextButton by subscriptionModel.showNextButton.observeAsState(false)
 
             // Receive updates for the URL introduction page
             LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
@@ -156,7 +155,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // Receive updates for the Details page
             LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-                showNextButton = !subscriptionSettingsModel.title.value.isNullOrBlank()
+                subscriptionModel.showNextButton.postValue(!title.isNullOrBlank())
             }
 
             LaunchedEffect(validationResult) {
