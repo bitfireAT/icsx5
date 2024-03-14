@@ -33,10 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -54,10 +51,10 @@ import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
+import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 @OptIn(ExperimentalFoundationApi::class)
 class AddCalendarActivity : AppCompatActivity() {
@@ -81,7 +78,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
 
-                subscriptionSettingsModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.postValue(uri.toString())
             }
         }
 
@@ -90,15 +87,14 @@ class AddCalendarActivity : AppCompatActivity() {
 
         if (inState == null) {
             intent?.apply {
-                data?.let { uri ->
-                    subscriptionSettingsModel.url.value = uri.toString()
-                }
-                getStringExtra(EXTRA_TITLE)?.let {
-                    subscriptionSettingsModel.title.value = it
-                }
-                if (hasExtra(EXTRA_COLOR))
-                    subscriptionSettingsModel.color.value =
-                        getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                data?.toString()
+                    ?.let(subscriptionSettingsModel.url::postValue)
+                    ?.also { checkUrlIntroductionPage() }
+                getStringExtra(EXTRA_TITLE)
+                    ?.let(subscriptionSettingsModel.title::postValue)
+                takeIf { hasExtra(EXTRA_COLOR) }
+                    ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                    ?.let(subscriptionSettingsModel.color::postValue)
             }
         }
 
@@ -139,18 +135,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // Receive updates for the URL introduction page
             LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
-                if (isVerifyingUrl) {
-                    showNextButton = true
-                    return@LaunchedEffect
-                }
-
-                val uri = validateUri()
-                val authOK =
-                    if (requiresAuth)
-                        !username.isNullOrEmpty() && !password.isNullOrEmpty()
-                    else
-                        true
-                showNextButton = uri != null && authOK
+                checkUrlIntroductionPage()
             }
 
             // Receive updates for the Details page
@@ -317,6 +302,21 @@ class AddCalendarActivity : AppCompatActivity() {
             1 -> {
                 subscriptionModel.create(subscriptionSettingsModel, credentialsModel)
             }
+        }
+    }
+
+    private fun checkUrlIntroductionPage() {
+        if (validationModel.isVerifyingUrl.value == true) {
+            subscriptionModel.showNextButton.postValue(true)
+        } else {
+            val uri = validateUri()
+            val authOK =
+                if (credentialsModel.requiresAuth.value == true)
+                    !credentialsModel.username.value.isNullOrEmpty() &&
+                        !credentialsModel.password.value.isNullOrEmpty()
+                else
+                    true
+            subscriptionModel.showNextButton.postValue(uri != null && authOK)
         }
     }
 
