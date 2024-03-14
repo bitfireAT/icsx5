@@ -85,19 +85,6 @@ class AddCalendarActivity : AppCompatActivity() {
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
 
-        if (inState == null) {
-            intent?.apply {
-                data?.toString()
-                    ?.let(subscriptionSettingsModel.url::postValue)
-                    ?.also { checkUrlIntroductionPage() }
-                getStringExtra(EXTRA_TITLE)
-                    ?.let(subscriptionSettingsModel.title::postValue)
-                takeIf { hasExtra(EXTRA_COLOR) }
-                    ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
-                    ?.let(subscriptionSettingsModel.color::postValue)
-            }
-        }
-
         subscriptionModel.success.observe(this) { success ->
             if (success) {
                 // success, show notification and close activity
@@ -132,6 +119,21 @@ class AddCalendarActivity : AppCompatActivity() {
 
             val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
             val showNextButton by subscriptionModel.showNextButton.observeAsState(false)
+
+            LaunchedEffect(intent) {
+                if (inState == null) {
+                    intent?.apply {
+                        data?.toString()
+                            ?.let(subscriptionSettingsModel.url::postValue)
+                            ?.also { checkUrlIntroductionPage() }
+                        getStringExtra(EXTRA_TITLE)
+                            ?.let(subscriptionSettingsModel.title::postValue)
+                        takeIf { hasExtra(EXTRA_COLOR) }
+                            ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                            ?.let(subscriptionSettingsModel.color::postValue)
+                    }
+                }
+            }
 
             // Receive updates for the URL introduction page
             LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
