@@ -22,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">Оптимизация батареи</string>
   <string name="calendar_list_battery_whitelist_text">Оптимизация батареи может предотвратить интервалы синхронизации короче одного дня. Установите %s на \"Не оптимизировано\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Открыть настройки</string>
+  <string name="calendar_list_autorevoke_permissions_title">Автоотзыв разрешений</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android отзывает разрешения у редко используемых приложений. Пожалуйста, отключите отзыв разрешений для %s.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Нажмите \"Разрешения\" &gt; снимите флажок \"Удалять разрешения, если приложение не используется\".</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Политика конфиденциальности</string>
   <string name="set_sync_interval_title">Задание интервала синхронизации:</string>
@@ -84,6 +87,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Информация о приложении</string>
   <string name="app_info_version">Версия %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) and contributors</string>
   <string name="app_info_gplv3_note"><![CDATA[\"
 Эта программа является свободным программным обеспечением: вы можете распространять ее и/или изменять в соответствии с условиями General Public License GNU, опубликованной Фондом свободного программного обеспечения, либо версии 3 Лицензии, либо (по вашему выбору) любой более поздней версии.
 
