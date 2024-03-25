@@ -99,21 +99,6 @@
                 <data android:scheme="webcal" />
                 <data android:scheme="webcals" />
             </intent-filter>
-            <intent-filter>
-                <!-- intent filter for resources without MIME type, but URL ending with .ics -->
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="content" />
-                <data android:scheme="file" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="*" />
-                <data android:pathPattern=".*\\.ics" />
-                <data android:pathPattern=".*\\..*\\.ics" />
-                <data android:pathPattern=".*\\..*\\..*\\.ics" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.ics" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.views.EditCalendarActivity"
