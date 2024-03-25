@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui.views
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -123,9 +124,21 @@ class AddCalendarActivity : AppCompatActivity() {
             LaunchedEffect(intent) {
                 if (inState == null) {
                     intent?.apply {
-                        data?.toString()
+                        try {
+                            (data ?: getStringExtra(Intent.EXTRA_TEXT))
+                                ?.toString()
+                                ?.stripUrl()
+                                ?.let(subscriptionSettingsModel.url::postValue)
+                                ?.also { checkUrlIntroductionPage() }
+                        } catch (_: IllegalArgumentException) {
+                            // Data does not have a valid url
+                        }
+
+                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)
+                            ?.toString()
                             ?.let(subscriptionSettingsModel.url::postValue)
                             ?.also { checkUrlIntroductionPage() }
+
                         getStringExtra(EXTRA_TITLE)
                             ?.let(subscriptionSettingsModel.title::postValue)
                         takeIf { hasExtra(EXTRA_COLOR) }
@@ -394,6 +407,28 @@ class AddCalendarActivity : AppCompatActivity() {
             subscriptionSettingsModel.urlError.value = errorMsg
         }
         return uri
+    }
+
+    /**
+     * Strips the URL from a string. For example, the following string:
+     * ```
+     * "This is a URL: https://example.com"
+     * ```
+     * will return:
+     * ```
+     * "https://example.com"
+     * ```
+     * _Quotes are not included_
+     * @return The URL found in the string
+     * @throws IllegalArgumentException if no URL is found in the string
+     */
+    private fun String.stripUrl(): String {
+        // Find the start of the URL
+        val index = indexOfAny(listOf("https://", "http://"))
+        // If there's no URL, throw an error
+        if (index == -1) throw IllegalArgumentException("No URL found in string")
+        // Return the URL
+        return substring(index).substringBefore(" ")
     }
 
 }
