@@ -422,13 +422,10 @@ class AddCalendarActivity : AppCompatActivity() {
      * @return The URL found in the string
      * @throws IllegalArgumentException if no URL is found in the string
      */
-    private fun String.stripUrl(): String {
-        // Find the start of the URL
-        val index = indexOfAny(listOf("https://", "http://"))
-        // If there's no URL, throw an error
-        if (index == -1) throw IllegalArgumentException("No URL found in string")
-        // Return the URL
-        return substring(index).substringBefore(" ")
+    private fun String.stripUrl(): String? {
+        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[/\\w*]*".toRegex()
+            .find(this)
+            ?.value
     }
 
 }
