@@ -22,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">Optimizarea bateriei</string>
   <string name="calendar_list_battery_whitelist_text">Optimizările bateriei pot împiedica intervalele de sincronizare mai scurte de o zi. Setează %s la „Neoptimizată”.</string>
   <string name="calendar_list_battery_whitelist_open_settings">Deschide setările</string>
+  <string name="calendar_list_autorevoke_permissions_title">Revocare automată a permisiunilor</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android elimină permisiunile aplicațiilor rar deschise. Dezactivează revocarea permisiunilor pentru %s.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Clic pe Permisiuni &gt; debifează „Elimină permisiunile dacă aplicația nu este utilizată”</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Politica de confidențialitate</string>
   <string name="set_sync_interval_title">Setează intervalul de sincronizare:</string>
@@ -84,6 +87,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Informații despre aplicație</string>
   <string name="app_info_version">Versiune %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) și colaboratori</string>
   <string name="app_info_gplv3_note"><![CDATA[\"
 Acest program este software gratuit: îl poți redistribui și/sau modifica
 în conformitate cu termenii Licenței publice generale GNU publicate de
