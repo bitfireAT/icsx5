@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.LiveData
@@ -47,12 +48,18 @@ class DonateDialogService: ComposableStartupService {
         const val SHOW_EVERY_MILLIS_DISMISS = ONE_DAY_MILLIS * 14
     }
 
-    private lateinit var preferences: SharedPreferences
+    private var preferences: SharedPreferences? = null
 
     override fun initialize(activity: AppCompatActivity) {
-        if (this::preferences.isInitialized) return
-        preferences = activity.getPreferences(0)
+        if (preferences != null) return
+        preferences = getPreferences(activity)
     }
+
+    private fun getPreferences(activity: AppCompatActivity): SharedPreferences =
+        preferences ?: activity.getPreferences(0).also { preferences = it }
+
+    @Composable
+    private fun getActivity(): AppCompatActivity? = LocalContext.current as? AppCompatActivity
 
     /**
      * Whether [Content] should be displayed or not.
@@ -62,6 +69,7 @@ class DonateDialogService: ComposableStartupService {
      */
     @Composable
     override fun shouldShow(): LiveData<Boolean> = remember { MutableLiveData(false) }.also {
+        val activity = getActivity() ?: return@also
         DisposableEffect(it) {
             val listener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
                 // Receive updates only for PREF_NEXT_REMINDER
@@ -70,6 +78,7 @@ class DonateDialogService: ComposableStartupService {
                 val nextReminderTime = sharedPreferences.getLong(PREF_NEXT_REMINDER, 0)
                 it.postValue(nextReminderTime < System.currentTimeMillis())
             }
+            val preferences = getPreferences(activity)
             preferences.registerOnSharedPreferenceChangeListener(listener)
             listener.onSharedPreferenceChanged(preferences, PREF_NEXT_REMINDER)
 
@@ -82,25 +91,26 @@ class DonateDialogService: ComposableStartupService {
     /**
      * Dismisses the dialog for the given amount of milliseconds by updating the preference.
      */
-    private fun dismissDialogForMillis(millis: Long) =
-        preferences
+    private fun dismissDialogForMillis(activity: AppCompatActivity, millis: Long) =
+        getPreferences(activity)
             .edit()
             .putLong(PREF_NEXT_REMINDER, System.currentTimeMillis() + millis)
             .apply()
 
     @Composable
     override fun Content() {
+        val activity = getActivity()
         val uriHandler = LocalUriHandler.current
         GenericAlertDialog(
             onDismissRequest = { /* Cannot be dismissed */ },
             title = stringResource(R.string.donate_title),
             content = { Text(stringResource(R.string.donate_message)) },
             confirmButton = Pair(stringResource(R.string.donate_now).uppercase()) {
-                dismissDialogForMillis(SHOW_EVERY_MILLIS_DONATE)
+                dismissDialogForMillis(activity!!, SHOW_EVERY_MILLIS_DONATE)
                 uriHandler.openUri(DONATION_URI)
             },
             dismissButton = Pair(stringResource(R.string.donate_later).uppercase()) {
-                dismissDialogForMillis(SHOW_EVERY_MILLIS_DISMISS)
+                dismissDialogForMillis(activity!!, SHOW_EVERY_MILLIS_DISMISS)
             }
         )
     }

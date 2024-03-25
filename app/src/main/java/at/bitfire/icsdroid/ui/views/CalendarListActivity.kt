@@ -124,12 +124,11 @@ class CalendarListActivity: AppCompatActivity() {
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
 
+        // Init and collect all ComposableStartupServices
+        val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
+            .onEach { it.initialize(this) }
+
         setContentThemed {
-            // Init and collect all ComposableStartupServices
-            val compStartupServices = remember {
-                ServiceLoader.load(ComposableStartupService::class.java)
-                    .onEach { it.initialize(this) }
-            }
             compStartupServices.forEach { service ->
                 val show: Boolean by service.shouldShow().observeAsState(false)
                 if (show) service.Content()
@@ -202,7 +201,9 @@ class CalendarListActivity: AppCompatActivity() {
                 .nestedScroll(pullRefreshState.nestedScrollConnection)
         ) {
             PullToRefreshContainer(
-                modifier = Modifier.align(Alignment.TopCenter).zIndex(1f),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(1f),
                 state = pullRefreshState,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
