@@ -76,10 +76,10 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import java.util.ServiceLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.ServiceLoader
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -124,11 +124,12 @@ class CalendarListActivity: AppCompatActivity() {
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(this))
             requestCalendarPermissions()
 
-        // Init and collect all ComposableStartupServices
-        val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
-            .onEach { it.initialize(this) }
-
         setContentThemed {
+            // Init and collect all ComposableStartupServices
+            val compStartupServices = remember {
+                ServiceLoader.load(ComposableStartupService::class.java)
+                    .onEach { it.initialize(this) }
+            }
             compStartupServices.forEach { service ->
                 val show: Boolean by service.shouldShow().observeAsState(false)
                 if (show) service.Content()
