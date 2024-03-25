@@ -97,6 +97,7 @@ class EditCalendarActivity: AppCompatActivity() {
                 addSource(subscriptionSettingsModel.ignoreAlerts) { value = subscriptionDirty() }
                 addSource(subscriptionSettingsModel.defaultAlarmMinutes) { value = subscriptionDirty() }
                 addSource(subscriptionSettingsModel.defaultAllDayAlarmMinutes) { value = subscriptionDirty() }
+                addSource(subscriptionSettingsModel.ignoreDescription) { value = subscriptionDirty() }
                 addSource(credentialsModel.requiresAuth) { value = credentialDirty() }
                 addSource(credentialsModel.username) { value = credentialDirty() }
                 addSource(credentialsModel.password) { value = credentialDirty() }
@@ -171,6 +172,9 @@ class EditCalendarActivity: AppCompatActivity() {
         subscription.defaultAllDayAlarmMinutes.let {
             subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(it)
         }
+        subscription.ignoreDescription.let {
+            subscriptionSettingsModel.ignoreDescription.postValue(it)
+        }
 
         val credential = subscriptionWithCredential.credential
         val requiresAuth = credential != null
@@ -217,6 +221,7 @@ class EditCalendarActivity: AppCompatActivity() {
         val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
         val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState()
         val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState()
+        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.observeAsState(false)
         val inputValid by inputValid.observeAsState(false)
         val modelsDirty by modelsDirty.observeAsState(false)
         Scaffold(
@@ -248,6 +253,8 @@ class EditCalendarActivity: AppCompatActivity() {
                             it.toLongOrNull()
                         )
                     },
+                    ignoreDescription = ignoreDescription,
+                    onIgnoreDescriptionChanged = subscriptionSettingsModel.ignoreDescription::postValue,
                     isCreating = false,
                     modifier = Modifier.fillMaxWidth()
                 )

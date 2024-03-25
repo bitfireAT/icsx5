@@ -54,10 +54,10 @@ import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
+import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 @OptIn(ExperimentalFoundationApi::class)
 class AddCalendarActivity : AppCompatActivity() {
@@ -125,6 +125,7 @@ class AddCalendarActivity : AppCompatActivity() {
             val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
             val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState(null)
             val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState(null)
+            val ignoreDescription by subscriptionSettingsModel.ignoreDescription.observeAsState(false)
 
             val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
             val username: String? by credentialsModel.username.observeAsState(null)
@@ -229,6 +230,8 @@ class AddCalendarActivity : AppCompatActivity() {
                                     it.toLongOrNull()
                                 )
                             },
+                            ignoreDescription = ignoreDescription,
+                            onIgnoreDescriptionChanged = subscriptionSettingsModel.ignoreDescription::setValue,
                             isCreating = isCreating,
                             modifier = Modifier
                                 .fillMaxSize()

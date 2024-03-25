@@ -40,7 +40,8 @@ class EditSubscriptionModel(
                     color = subscriptionSettingsModel.color.value,
                     defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
                     defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false
+                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
+                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value ?: false
                 )
                 subscriptionsDao.update(newSubscription)
 

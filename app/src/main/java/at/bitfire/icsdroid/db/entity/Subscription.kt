@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.db.entity
 import android.net.Uri
 import android.provider.CalendarContract.Calendars
 import androidx.core.content.contentValuesOf
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import at.bitfire.icsdroid.calendar.LocalCalendar
@@ -41,6 +42,10 @@ data class Subscription(
     val defaultAlarmMinutes: Long? = null,
     /** setting: Shall a default alarm be added to every all-day event in the calendar? If yes, this field contains the minutes before the event. If no, it is `null`. */
     val defaultAllDayAlarmMinutes: Long? = null,
+
+    /** If true, the `DESCRIPTION` field of events will be dropped when synchronization runs. */
+    @ColumnInfo(defaultValue = "0")
+    val ignoreDescription: Boolean = false,
 
     /** The color that represents the subscription. */
     val color: Int? = null
