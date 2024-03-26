@@ -76,10 +76,10 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import java.util.ServiceLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.ServiceLoader
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -201,7 +201,9 @@ class CalendarListActivity: AppCompatActivity() {
                 .nestedScroll(pullRefreshState.nestedScrollConnection)
         ) {
             PullToRefreshContainer(
-                modifier = Modifier.align(Alignment.TopCenter).zIndex(1f),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(1f),
                 state = pullRefreshState,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
