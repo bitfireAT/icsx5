@@ -55,6 +55,7 @@ class DonateDialogService: ComposableStartupService {
         preferences = getPreferences(activity)
     }
 
+    // Note: Workaround for Android 6 (API 23) devices with low memory (1GB)
     private fun getPreferences(activity: AppCompatActivity): SharedPreferences =
         preferences ?: activity.getPreferences(0).also { preferences = it }
 
