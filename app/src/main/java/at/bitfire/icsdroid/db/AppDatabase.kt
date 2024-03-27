@@ -25,7 +25,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 @TypeConverters(Converters::class)
 @Database(
     entities = [Subscription::class, Credential::class],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration (
             from = 1,
@@ -34,6 +34,10 @@ import at.bitfire.icsdroid.db.entity.Subscription
         AutoMigration (
             from = 2,
             to = 3
+        ),
+        AutoMigration (
+            from = 3,
+            to = 4
         )
     ]
 )

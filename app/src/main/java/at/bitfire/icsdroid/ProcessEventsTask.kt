@@ -16,17 +16,17 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.ui.views.EditCalendarActivity
 import at.bitfire.icsdroid.ui.NotificationUtils
+import at.bitfire.icsdroid.ui.views.EditCalendarActivity
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.time.Duration
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.time.Duration
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
@@ -100,6 +100,18 @@ class ProcessEventsTask(
                     }
                 )
             )
+        }
+    }
+
+    /**
+     * Updates the advanced preferences of the given event according to the [subscription]'s:
+     * - [Subscription.ignoreDescription]
+     */
+    private fun updateAdvancedPreferences(event: Event): Event = event.apply {
+        if (subscription.ignoreDescription) {
+            // Remove the description
+            Log.d(Constants.TAG, "Removing the description from $uid")
+            description = null
         }
     }
 
@@ -209,7 +221,7 @@ class ProcessEventsTask(
         val uids = HashSet<String>(events.size)
 
         for (ev in events) {
-            val event = updateAlarms(ev)
+            val event = updateAlarms(ev).let(::updateAdvancedPreferences)
             val uid = event.uid!!
             Log.d(Constants.TAG, "Found VEVENT $uid: $event")
             uids += uid

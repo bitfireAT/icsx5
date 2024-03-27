@@ -41,6 +41,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                     ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
                     defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
                     defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
+                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value ?: false,
                 )
 
                 /** A list of all the ids of the inserted rows */

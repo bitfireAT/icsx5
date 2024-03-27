@@ -56,6 +56,7 @@
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
     <string name="add_calendar_need_valid_uri">Valid URI required</string>
+    <string name="add_calendar_authentication_title">Authentication</string>
     <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
     <string name="add_calendar_created">Subscribed successfully</string>
     <string name="add_calendar_password">Password</string>
@@ -78,6 +79,9 @@
     <string name="default_alarm_dialog_title">Add default alarm</string>
     <string name="default_alarm_dialog_message">This will add an alarm for all events</string>
     <string name="default_alarm_dialog_hint">Minutes before event</string>
+    <string name="add_calendar_advanced_title">Advanced</string>
+    <string name="add_calendar_description_title">Ignore DESCRIPTION field</string>
+    <string name="add_calendar_description_summary">If enabled, the DESCRIPTION field will be removed from events. Helpful if it contains spammy information.</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>

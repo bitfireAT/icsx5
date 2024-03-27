@@ -17,6 +17,9 @@ class SubscriptionSettingsModel : ViewModel() {
     val defaultAlarmMinutes = MutableLiveData<Long?>(null)
     val defaultAllDayAlarmMinutes = MutableLiveData<Long?>(null)
 
+    // advanced
+    val ignoreDescription = MutableLiveData(false)
+
     val supportsAuthentication = MediatorLiveData(false).apply {
         addSource(url) {
             val uri = try {
@@ -32,9 +35,10 @@ class SubscriptionSettingsModel : ViewModel() {
 
     fun equalsSubscription(subscription: Subscription) =
         url.value == subscription.url.toString()
-                && title.value == subscription.displayName
-                && color.value == subscription.color
-                && ignoreAlerts.value == subscription.ignoreEmbeddedAlerts
-                && defaultAlarmMinutes.value == subscription.defaultAlarmMinutes
-                && defaultAllDayAlarmMinutes.value == subscription.defaultAllDayAlarmMinutes
+            && title.value == subscription.displayName
+            && color.value == subscription.color
+            && ignoreAlerts.value == subscription.ignoreEmbeddedAlerts
+            && defaultAlarmMinutes.value == subscription.defaultAlarmMinutes
+            && defaultAllDayAlarmMinutes.value == subscription.defaultAllDayAlarmMinutes
+            && ignoreDescription.value == subscription.ignoreDescription
 }

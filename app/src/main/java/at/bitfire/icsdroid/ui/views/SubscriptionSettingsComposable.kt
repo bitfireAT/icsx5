@@ -49,6 +49,8 @@ fun SubscriptionSettingsComposable(
     defaultAlarmMinutesChanged: (String) -> Unit,
     defaultAllDayAlarmMinutes: Long?,
     defaultAllDayAlarmMinutesChanged: (String) -> Unit,
+    ignoreDescription: Boolean,
+    onIgnoreDescriptionChanged: (Boolean) -> Unit,
     isCreating: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -171,5 +173,19 @@ fun SubscriptionSettingsComposable(
         )
 
         Spacer(modifier = Modifier.padding(12.dp))
+
+        // Advanced
+
+        Text(
+            text = stringResource(R.string.add_calendar_advanced_title),
+            style = MaterialTheme.typography.headlineSmall,
+        )
+
+        SwitchSetting(
+            title = stringResource(R.string.add_calendar_description_title),
+            description = stringResource(R.string.add_calendar_description_summary),
+            checked = ignoreDescription ?: false,
+            onCheckedChange = onIgnoreDescriptionChanged
+        )
     }
 }
