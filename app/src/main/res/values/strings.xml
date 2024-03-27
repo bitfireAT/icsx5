@@ -81,7 +81,7 @@
     <string name="default_alarm_dialog_hint">Minutes before event</string>
     <string name="add_calendar_advanced_title">Advanced</string>
     <string name="add_calendar_description_title">Ignore DESCRIPTION field</string>
-    <string name="add_calendar_description_summary">If enabled, the DESCRIPTION field will be dropped from each event. This is normally used for adding spammy information to events.</string>
+    <string name="add_calendar_description_summary">If enabled, the DESCRIPTION field will be removed from events. Helpful if it contains spammy information.</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>
