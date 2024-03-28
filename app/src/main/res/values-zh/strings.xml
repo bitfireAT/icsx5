@@ -41,6 +41,7 @@
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">订阅至日历</string>
   <string name="add_calendar_need_valid_uri">URI无效</string>
+  <string name="add_calendar_authentication_title">身份验证</string>
   <string name="add_calendar_authentication_without_https_warning">您的认证信息容易被第三方截取，请使用HTTPS进行安全的身份认证。</string>
   <string name="add_calendar_created">订阅成功</string>
   <string name="add_calendar_password">密码</string>
@@ -62,6 +63,9 @@
   <string name="default_alarm_dialog_title">添加默认闹铃</string>
   <string name="default_alarm_dialog_message">这会为所有事件添加一个闹铃</string>
   <string name="default_alarm_dialog_hint">事件开始多少分钟</string>
+  <string name="add_calendar_advanced_title">高级</string>
+  <string name="add_calendar_description_title">忽略描述字段</string>
+  <string name="add_calendar_description_summary">如果开启，则描述字段将从活动中被删除。如果该字段包含垃圾信息，那么这会有帮助。</string>
   <!--AlertFragment-->
   <string name="alert_share_details">分享详情</string>
   <!--EditCalendarActivity-->
