@@ -86,6 +86,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:mimeType="text/calendar" />
+                <data android:scheme="content" />
                 <data android:scheme="file" />
                 <data android:scheme="http" />
                 <data android:scheme="https" />
@@ -99,18 +100,10 @@
                 <data android:scheme="webcals" />
             </intent-filter>
             <intent-filter>
-                <!-- intent filter for resources without MIME type, but URL ending with .ics -->
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="*" />
-                <data android:pathPattern=".*\\.ics" />
-                <data android:pathPattern=".*\\..*\\.ics" />
-                <data android:pathPattern=".*\\..*\\..*\\.ics" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.ics" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/calendar" />
             </intent-filter>
         </activity>
         <activity

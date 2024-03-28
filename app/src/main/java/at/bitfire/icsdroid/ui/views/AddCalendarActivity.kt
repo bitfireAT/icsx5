@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui.views
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,10 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -81,26 +79,12 @@ class AddCalendarActivity : AppCompatActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
 
-                subscriptionSettingsModel.url.value = uri.toString()
+                subscriptionSettingsModel.url.postValue(uri.toString())
             }
         }
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
-
-        if (inState == null) {
-            intent?.apply {
-                data?.let { uri ->
-                    subscriptionSettingsModel.url.value = uri.toString()
-                }
-                getStringExtra(EXTRA_TITLE)?.let {
-                    subscriptionSettingsModel.title.value = it
-                }
-                if (hasExtra(EXTRA_COLOR))
-                    subscriptionSettingsModel.color.value =
-                        getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
-            }
-        }
 
         subscriptionModel.success.observe(this) { success ->
             if (success) {
@@ -136,28 +120,43 @@ class AddCalendarActivity : AppCompatActivity() {
             val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
 
             val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
+            val showNextButton by subscriptionModel.showNextButton.observeAsState(false)
 
-            var showNextButton by remember { mutableStateOf(false) }
+            LaunchedEffect(intent) {
+                if (inState == null) {
+                    intent?.apply {
+                        try {
+                            (data ?: getStringExtra(Intent.EXTRA_TEXT))
+                                ?.toString()
+                                ?.stripUrl()
+                                ?.let(subscriptionSettingsModel.url::postValue)
+                                ?.also { checkUrlIntroductionPage() }
+                        } catch (_: IllegalArgumentException) {
+                            // Data does not have a valid url
+                        }
+
+                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)
+                            ?.toString()
+                            ?.let(subscriptionSettingsModel.url::postValue)
+                            ?.also { checkUrlIntroductionPage() }
+
+                        getStringExtra(EXTRA_TITLE)
+                            ?.let(subscriptionSettingsModel.title::postValue)
+                        takeIf { hasExtra(EXTRA_COLOR) }
+                            ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                            ?.let(subscriptionSettingsModel.color::postValue)
+                    }
+                }
+            }
 
             // Receive updates for the URL introduction page
             LaunchedEffect(url, requiresAuth, username, password, isVerifyingUrl) {
-                if (isVerifyingUrl) {
-                    showNextButton = true
-                    return@LaunchedEffect
-                }
-
-                val uri = validateUri()
-                val authOK =
-                    if (requiresAuth)
-                        !username.isNullOrEmpty() && !password.isNullOrEmpty()
-                    else
-                        true
-                showNextButton = uri != null && authOK
+                checkUrlIntroductionPage()
             }
 
             // Receive updates for the Details page
             LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-                showNextButton = !subscriptionSettingsModel.title.value.isNullOrBlank()
+                subscriptionModel.showNextButton.postValue(!title.isNullOrBlank())
             }
 
             LaunchedEffect(validationResult) {
@@ -324,6 +323,21 @@ class AddCalendarActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkUrlIntroductionPage() {
+        if (validationModel.isVerifyingUrl.value == true) {
+            subscriptionModel.showNextButton.postValue(true)
+        } else {
+            val uri = validateUri()
+            val authOK =
+                if (credentialsModel.requiresAuth.value == true)
+                    !credentialsModel.username.value.isNullOrEmpty() &&
+                        !credentialsModel.password.value.isNullOrEmpty()
+                else
+                    true
+            subscriptionModel.showNextButton.postValue(uri != null && authOK)
+        }
+    }
+
 
     /* dynamic changes */
 
@@ -396,6 +410,25 @@ class AddCalendarActivity : AppCompatActivity() {
             subscriptionSettingsModel.urlError.value = errorMsg
         }
         return uri
+    }
+
+    /**
+     * Strips the URL from a string. For example, the following string:
+     * ```
+     * "This is a URL: https://example.com"
+     * ```
+     * will return:
+     * ```
+     * "https://example.com"
+     * ```
+     * _Quotes are not included_
+     * @return The URL found in the string
+     * @throws IllegalArgumentException if no URL is found in the string
+     */
+    private fun String.stripUrl(): String? {
+        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[/\\w*]*".toRegex()
+            .find(this)
+            ?.value
     }
 
 }

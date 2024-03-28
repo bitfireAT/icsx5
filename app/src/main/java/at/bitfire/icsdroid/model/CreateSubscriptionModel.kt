@@ -23,6 +23,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     val success = MutableLiveData(false)
     val errorMessage = MutableLiveData<String?>(null)
     val isCreating = MutableLiveData(false)
+    val showNextButton = MutableLiveData(false)
 
     /**
      * Creates a new subscription taking the data from the given models.
