@@ -5,13 +5,19 @@
 package at.bitfire.icsdroid.ui.views
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,12 +30,15 @@ import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -41,7 +50,9 @@ import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.AlertDialog
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EnterUrlComposable(
     requiresAuth: Boolean,
@@ -52,7 +63,7 @@ fun EnterUrlComposable(
     onPasswordChange: (String) -> Unit,
     isInsecure: Boolean,
     url: String?,
-    onUrlChange: (String) -> Unit,
+    onUrlChange: (String?) -> Unit,
     urlError: String?,
     supportsAuthentication: Boolean,
     isVerifyingUrl: Boolean,
@@ -93,89 +104,206 @@ fun EnterUrlComposable(
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
         ) {
-            // Instead of adding vertical padding to column, use spacer so that if content is
-            // scrolled, it is not spaced
-            Spacer(modifier = Modifier.height(16.dp))
+            val scope = rememberCoroutineScope()
+            val state = rememberPagerState(pageCount = { 2 })
 
-            Text(
-                text = stringResource(R.string.add_calendar_url_text),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TextField(
-                value = url ?: "",
-                onValueChange = onUrlChange,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 16.dp),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Go
-                ),
-                keyboardActions = KeyboardActions { onSubmit() },
-                maxLines = 1,
-                singleLine = true,
-                placeholder = { Text(stringResource(R.string.add_calendar_url_sample)) },
-                isError = urlError != null,
-                enabled = !isVerifyingUrl
-            )
-            AnimatedVisibility(visible = urlError != null) {
-                Text(
-                    text = urlError ?: "",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-
-            Text(
-                text = stringResource(R.string.add_calendar_pick_file_text),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-            )
-
-            TextButton(
-                onClick = onPickFileRequested,
-                modifier = Modifier.padding(vertical = 15.dp),
-                enabled = !isVerifyingUrl
-            ) {
-                Text(stringResource(R.string.add_calendar_pick_file))
-            }
-
-            AnimatedVisibility(
-                visible = isInsecure,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-            ) {
-                Row(Modifier.fillMaxWidth()) {
-                    Icon(imageVector = Icons.Rounded.Warning, contentDescription = null)
-
+            TabRow(state.currentPage) {
+                Tab(state.currentPage == 0, onClick = {
+                    onUrlChange(null)
+                    scope.launch { state.scrollToPage(0) }
+                }) {
                     Text(
-                        text = stringResource(R.string.add_calendar_authentication_without_https_warning),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth()
+                        stringResource(R.string.add_calendar_subscribe_url).uppercase(),
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+                Tab(state.currentPage == 1, onClick = {
+                    onUrlChange(null)
+                    scope.launch { state.scrollToPage(1) }
+                }) {
+                    Text(
+                        stringResource(R.string.add_calendar_subscribe_file).uppercase(),
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }
 
-            AnimatedVisibility(visible = supportsAuthentication) {
-                LoginCredentialsComposable(
-                    requiresAuth,
-                    username,
-                    password,
-                    onRequiresAuthChange,
-                    onUsernameChange,
-                    onPasswordChange
-                )
+            // Instead of adding vertical padding to column, use spacer so that if content is
+            // scrolled, it is not spaced
+            Spacer(modifier = Modifier.height(16.dp))
+
+            HorizontalPager(
+                state,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+            ) { index ->
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())) {
+                    when (index) {
+                        0 -> SubscribeToUrl(
+                            url,
+                            onUrlChange,
+                            onSubmit,
+                            urlError,
+                            isVerifyingUrl,
+                            isInsecure,
+                            supportsAuthentication,
+                            requiresAuth,
+                            username,
+                            password,
+                            onRequiresAuthChange,
+                            onUsernameChange,
+                            onPasswordChange
+                        )
+
+                        1 -> SubscribeToFile(
+                            url,
+                            onUrlChange,
+                            onSubmit,
+                            urlError,
+                            isVerifyingUrl,
+                            onPickFileRequested
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.SubscribeToUrl(
+    url: String?,
+    onUrlChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    error: String?,
+    verifying: Boolean,
+    isInsecure: Boolean,
+    supportsAuthentication: Boolean,
+    requiresAuth: Boolean,
+    username: String?,
+    password: String?,
+    onRequiresAuthChange: (Boolean) -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit
+) {
+    ResourceInput(
+        url,
+        onUrlChange,
+        verifying,
+        onSubmit,
+        error,
+        labelText = stringResource(R.string.add_calendar_pick_url_label),
+        description = stringResource(R.string.add_calendar_pick_url_text),
+    )
+    AnimatedVisibility(
+        visible = isInsecure,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Icon(imageVector = Icons.Rounded.Warning, contentDescription = null)
+
+            Text(
+                text = stringResource(R.string.add_calendar_authentication_without_https_warning),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+    AnimatedVisibility(visible = supportsAuthentication) {
+        LoginCredentialsComposable(
+            requiresAuth,
+            username,
+            password,
+            onRequiresAuthChange,
+            onUsernameChange,
+            onPasswordChange
+        )
+    }
+}
+
+@Composable
+private fun ColumnScope.SubscribeToFile(
+    uri: String?,
+    onUriChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    error: String?,
+    verifying: Boolean,
+    onPickFileRequested: () -> Unit
+) {
+    ResourceInput(
+        uri,
+        onUriChange,
+        verifying,
+        onSubmit,
+        error,
+        stringResource(R.string.add_calendar_pick_file),
+        stringResource(R.string.add_calendar_pick_file_text),
+        readOnly = true,
+        onPickFileRequested
+    )
+}
+
+@Composable
+private fun ColumnScope.ResourceInput(
+    uri: String?,
+    onUriChange: (String) -> Unit,
+    verifying: Boolean,
+    onSubmit: () -> Unit,
+    error: String?,
+    labelText: String,
+    description: String,
+    readOnly: Boolean = false,
+    onClick: () -> Unit = {}
+) {
+    Text(
+        text = description,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.fillMaxWidth()
+    )
+    TextField(
+        value = uri ?: "",
+        onValueChange = onUriChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 16.dp),
+        enabled = !verifying,
+        readOnly = readOnly,
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.None,
+            keyboardType = KeyboardType.Uri,
+            imeAction = ImeAction.Go
+        ),
+        keyboardActions = KeyboardActions { onSubmit() },
+        maxLines = 1,
+        singleLine = true,
+        placeholder = { Text(labelText) },
+        isError = error != null,
+        interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+            LaunchedEffect(interactionSource) {
+                interactionSource.interactions.collect {
+                    if (it is PressInteraction.Release)
+                        onClick()
+                }
+            }
+        }
+    )
+    AnimatedVisibility(visible = error != null) {
+        Text(
+            text = error ?: "",
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
