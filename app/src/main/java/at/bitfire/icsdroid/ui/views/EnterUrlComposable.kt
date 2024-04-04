@@ -26,6 +26,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,13 +43,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.AlertDialog
@@ -110,20 +116,42 @@ fun EnterUrlComposable(
             TabRow(state.currentPage) {
                 Tab(state.currentPage == 0, onClick = {
                     onUrlChange(null)
-                    scope.launch { state.scrollToPage(0) }
-                }) {
+                    scope.launch { state.scrollToPage(0) }},
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    val color = if (state.currentPage == 0) MaterialTheme.colorScheme.primary else Color.Gray
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Icon(
+                        Icons.Default.Link,
+                        stringResource(R.string.add_calendar_subscribe_url),
+                        tint = color
+                    )
                     Text(
                         stringResource(R.string.add_calendar_subscribe_url).uppercase(),
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 4.dp),
+                        color = color,
+                        fontSize = 3.em,
+                        fontWeight = FontWeight.Bold
                     )
                 }
                 Tab(state.currentPage == 1, onClick = {
                     onUrlChange(null)
-                    scope.launch { state.scrollToPage(1) }
-                }) {
+                    scope.launch { state.scrollToPage(1) }},
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    val color = if (state.currentPage == 1) MaterialTheme.colorScheme.primary else Color.Gray
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Icon(
+                        Icons.Default.FolderOpen,
+                        stringResource(R.string.add_calendar_subscribe_url),
+                        tint = color
+                    )
                     Text(
                         stringResource(R.string.add_calendar_subscribe_file).uppercase(),
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 4.dp),
+                        color = color,
+                        fontSize = 3.em,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
