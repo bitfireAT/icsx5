@@ -26,7 +26,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.rounded.Warning
@@ -228,8 +227,7 @@ private fun ColumnScope.SubscribeToUrl(
         verifying,
         onSubmit,
         error,
-        labelText = stringResource(R.string.add_calendar_pick_url_label),
-        description = stringResource(R.string.add_calendar_pick_url_text),
+        labelText = stringResource(R.string.add_calendar_pick_url_label)
     )
     AnimatedVisibility(
         visible = isInsecure,
@@ -275,7 +273,6 @@ private fun ColumnScope.SubscribeToFile(
         onSubmit,
         error,
         stringResource(R.string.add_calendar_pick_file),
-        stringResource(R.string.add_calendar_pick_file_text),
         readOnly = true,
         onPickFileRequested
     )
@@ -289,15 +286,9 @@ private fun ColumnScope.ResourceInput(
     onSubmit: () -> Unit,
     error: String?,
     labelText: String,
-    description: String,
     readOnly: Boolean = false,
     onClick: () -> Unit = {}
 ) {
-    Text(
-        text = description,
-        style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier.fillMaxWidth()
-    )
     TextField(
         value = uri ?: "",
         onValueChange = onUriChange,
