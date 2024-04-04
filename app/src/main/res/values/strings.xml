@@ -55,6 +55,7 @@
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
+    <string name="activity_add_calendar_subscribe">Subscribe</string>
     <string name="add_calendar_subscribe_url">Subscribe to URL</string>
     <string name="add_calendar_subscribe_file">Subscribe to file</string>
     <string name="add_calendar_need_valid_uri">Valid URI required</string>
