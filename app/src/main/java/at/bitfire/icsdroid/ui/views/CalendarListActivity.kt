@@ -8,11 +8,14 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -63,6 +66,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings
@@ -78,8 +82,11 @@ import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import java.util.ServiceLoader
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -91,6 +98,9 @@ class CalendarListActivity: AppCompatActivity() {
         const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
 
         const val PRIVACY_POLICY_URL = "https://icsx5.bitfire.at/privacy/"
+
+        /** The MIME type for SQLite files */
+        const val MIME_SQLITE = "application/vnd.sqlite3"
     }
 
     private val model by viewModels<SubscriptionsModel>()
@@ -101,6 +111,48 @@ class CalendarListActivity: AppCompatActivity() {
 
     /** Stores the post notification permission request for asking for permissions during runtime */
     private lateinit var requestNotificationPermission: () -> Unit
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val saveBackupRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument(MIME_SQLITE)
+    ) { uri ->
+        Toast.makeText(this, R.string.backup_export_toast, Toast.LENGTH_SHORT).show()
+        val job = model.exportBackup(uri ?: return@registerForActivityResult)
+        job.invokeOnCompletion {
+            val error = job.getCompletionExceptionOrNull()
+            if (error != null) {
+                Log.e(Constants.TAG, "Could not export backup.", error)
+                Toast.makeText(this, R.string.backup_export_error, Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, R.string.backup_export_success, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val loadBackupRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        Toast.makeText(this, R.string.backup_import_toast, Toast.LENGTH_SHORT).show()
+        val job = model.importBackup(uri ?: return@registerForActivityResult)
+        job.invokeOnCompletion {
+            val error = job.getCompletionExceptionOrNull()
+            if (error != null) {
+                Log.e(Constants.TAG, "Could not import backup.", error)
+                Toast.makeText(this, R.string.backup_import_error, Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, R.string.backup_import_success, Toast.LENGTH_LONG).show()
+
+                // Restart the application
+                val intent = Intent(this, CalendarListActivity::class.java).apply {
+                    addFlags(FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(intent)
+                finish()
+                Runtime.getRuntime().exit(0)
+            }
+        }
+    }
 
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -323,6 +375,7 @@ class CalendarListActivity: AppCompatActivity() {
         val context = LocalContext.current
 
         var showMenu by remember { mutableStateOf(false) }
+        var showBackupMenu by remember { mutableStateOf(false) }
 
         IconButton(onClick = { showMenu = true }) {
             Icon(Icons.Rounded.MoreVert, stringResource(R.string.action_more))
@@ -376,6 +429,13 @@ class CalendarListActivity: AppCompatActivity() {
                 }
             )
             DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_backup)) },
+                onClick = {
+                    showMenu = false
+                    showBackupMenu = true
+                }
+            )
+            DropdownMenuItem(
                 text = { Text(stringResource(R.string.calendar_list_privacy_policy)) },
                 onClick = {
                     showMenu = false
@@ -387,6 +447,26 @@ class CalendarListActivity: AppCompatActivity() {
                 onClick = {
                     showMenu = false
                     startActivity(Intent(context, InfoActivity::class.java))
+                }
+            )
+        }
+
+        DropdownMenu(
+            expanded = showBackupMenu,
+            onDismissRequest = { showBackupMenu = false; showMenu = true }
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_backup_import)) },
+                onClick = {
+                    showBackupMenu = false
+                    loadBackupRequestLauncher.launch(arrayOf("*/*"))
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.calendar_list_backup_export)) },
+                onClick = {
+                    showBackupMenu = false
+                    saveBackupRequestLauncher.launch("icsx5.sqlite")
                 }
             )
         }
@@ -456,6 +536,24 @@ class CalendarListActivity: AppCompatActivity() {
                 true
             }
             askForAutoRevoke.postValue(!isAutoRevokeWhitelisted)
+        }
+
+        fun exportBackup(uri: Uri) = viewModelScope.async {
+            withContext(Dispatchers.IO) {
+                val data = AppDatabase.readAllData(getApplication())
+                getApplication<Application>().contentResolver.openOutputStream(uri)?.use { output ->
+                    output.write(data)
+                }
+            }
+        }
+
+        fun importBackup(uri: Uri) = viewModelScope.async {
+            withContext(Dispatchers.IO) {
+                val data = getApplication<Application>().contentResolver.openInputStream(uri)?.readBytes()
+                if (data != null) {
+                    AppDatabase.recreateFromFile(getApplication()) { data.inputStream() }
+                }
+            }
         }
 
     }

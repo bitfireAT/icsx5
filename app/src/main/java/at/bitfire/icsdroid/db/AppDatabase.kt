@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.db
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.room.AutoMigration
 import androidx.room.Database
@@ -12,12 +13,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase.Companion.getInstance
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import java.io.InputStream
+import java.util.concurrent.Callable
+import kotlinx.coroutines.delay
 
 /**
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
@@ -47,6 +52,9 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var instance: AppDatabase? = null
 
+        @set:VisibleForTesting
+        var databaseName = "icsx5"
+
         /**
          * This function is only intended to be used by tests, use [getInstance], it initializes
          * the instance automatically.
@@ -74,17 +82,71 @@ abstract class AppDatabase : RoomDatabase() {
                 }
 
                 // create a new instance and save it
-                val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "icsx5")
-                    .fallbackToDestructiveMigration()
-                    .addCallback(object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            SyncWorker.run(context, onlyMigrate = true)
-                        }
-                    })
-                    .build()
+                val db = databaseBuilder(context).build()
                 instance = db
                 return db
             }
+        }
+
+        /**
+         * Creates a new builder for the database. This is used by tests to mock the function, and
+         * create in-memory databases.
+         */
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun databaseBuilder(context: Context): Builder<AppDatabase> =
+            Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, databaseName)
+                .fallbackToDestructiveMigration()
+                .addCallback(object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        SyncWorker.run(context, onlyMigrate = true)
+                    }
+                })
+
+        /** Reads all the data stored in the database */
+        suspend fun readAllData(context: Context): ByteArray {
+            // Wait until current transaction is finished
+            if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
+            // Close access to the database so no writes are performed
+            instance?.close()
+
+            // Get access to the database file
+            val file = context.getDatabasePath(databaseName)
+            // Read the contents
+            val bytes = file.readBytes()
+
+            // Dispose the instance
+            instance = null
+
+            // Open the database again
+            getInstance(context)
+
+            // Return the read bytes
+            return bytes
+        }
+
+        /** Clears the current database, and creates a new one from [stream] */
+        suspend fun recreateFromFile(context: Context, stream: Callable<InputStream>): AppDatabase {
+            // Wait until current transaction is finished
+            if (instance != null) while (instance?.inTransaction() == true) { delay(1) }
+            // Clear all the data existing if any
+            Log.d(Constants.TAG, "Clearing all tables in the database...")
+            instance?.clearAllTables()
+            instance?.close()
+            instance = null
+
+            Log.d(Constants.TAG, "Removing database file...")
+            val file = context.getDatabasePath(databaseName)
+            if (file.exists()) file.delete()
+
+            Log.d(Constants.TAG, "Creating a new database from the data imported...")
+            val newDatabase = databaseBuilder(context)
+                .createFromInputStream(stream)
+                .build()
+
+            val subscriptions = newDatabase.subscriptionsDao().getAll()
+            Log.i(Constants.TAG, "Successfully imported ${subscriptions.size} subscriptions.")
+
+            return newDatabase.also { instance = it }
         }
     }
 
