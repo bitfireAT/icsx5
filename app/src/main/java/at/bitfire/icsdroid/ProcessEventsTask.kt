@@ -21,6 +21,7 @@ import at.bitfire.icsdroid.ui.views.EditCalendarActivity
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.time.Duration
+import at.bitfire.icsdroid.ui.views.CalendarListActivity
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
@@ -60,6 +61,7 @@ class ProcessEventsTask(
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
             subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
+            notifyError(e)
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
@@ -262,4 +264,25 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "… $deleted events deleted")
     }
 
+    private fun notifyError(exception: Exception) {
+        val notificationManager = NotificationUtils.createChannels(context)
+        val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
+            .setSmallIcon(R.drawable.ic_sync_problem_white)
+            .setCategory(NotificationCompat.CATEGORY_ERROR)
+            .setGroup(context.getString(R.string.app_name))
+            .setContentTitle(context.getString(R.string.sync_error_title))
+            .setContentText(exception.localizedMessage ?: exception.message)
+            .setAutoCancel(true)
+            .setWhen(System.currentTimeMillis())
+            .setOnlyAlertOnce(true)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    Intent(context, CalendarListActivity::class.java),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        notificationManager.notify(subscription.id.toInt(), notification.build())
+    }
 }
