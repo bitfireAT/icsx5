@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -85,8 +86,15 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-
                 subscriptionSettingsModel.url.postValue(uri.toString())
+
+                // Get file name
+                val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    if (!cursor.moveToFirst()) return@use null
+                    val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    cursor.getString(name)
+                }
+                subscriptionSettingsModel.fileName.postValue(displayName)
             }
         }
 
@@ -109,6 +117,7 @@ class AddCalendarActivity : AppCompatActivity() {
             val pagerState = rememberPagerState { 2 }
 
             val url: String? by subscriptionSettingsModel.url.observeAsState(null)
+            val fileName: String? by subscriptionSettingsModel.fileName.observeAsState(null)
             val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
             val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
             val title by subscriptionSettingsModel.title.observeAsState(null)
@@ -207,7 +216,11 @@ class AddCalendarActivity : AppCompatActivity() {
                             onPasswordChange = credentialsModel.password::setValue,
                             isInsecure = isInsecure,
                             url = url,
-                            onUrlChange = subscriptionSettingsModel.url::setValue,
+                            fileName = fileName,
+                            onUrlChange = {
+                                subscriptionSettingsModel.fileName.value = null // file name is computed from URL
+                                subscriptionSettingsModel.url.value = it
+                            },
                             urlError = urlError,
                             supportsAuthentication = supportsAuthentication,
                             isVerifyingUrl = isVerifyingUrl,

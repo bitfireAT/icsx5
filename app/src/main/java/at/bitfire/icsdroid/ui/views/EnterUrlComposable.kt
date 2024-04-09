@@ -68,6 +68,7 @@ fun EnterUrlComposable(
     onPasswordChange: (String) -> Unit,
     isInsecure: Boolean,
     url: String?,
+    fileName: String?,
     onUrlChange: (String?) -> Unit,
     urlError: String?,
     supportsAuthentication: Boolean,
@@ -189,7 +190,7 @@ fun EnterUrlComposable(
                         )
 
                         1 -> SubscribeToFile(
-                            url,
+                            fileName,
                             onUrlChange,
                             onSubmit,
                             urlError,
@@ -259,16 +260,16 @@ private fun ColumnScope.SubscribeToUrl(
 
 @Composable
 private fun ColumnScope.SubscribeToFile(
-    uri: String?,
-    onUriChange: (String) -> Unit,
+    filename: String?,
+    onChange: (String) -> Unit,
     onSubmit: () -> Unit,
     error: String?,
     verifying: Boolean,
     onPickFileRequested: () -> Unit
 ) {
     ResourceInput(
-        uri,
-        onUriChange,
+        filename,
+        onChange,
         verifying,
         onSubmit,
         error,
@@ -280,9 +281,9 @@ private fun ColumnScope.SubscribeToFile(
 
 @Composable
 private fun ColumnScope.ResourceInput(
-    uri: String?,
-    onUriChange: (String) -> Unit,
-    verifying: Boolean,
+    value: String?,
+    onChange: (String) -> Unit,
+    enabled: Boolean,
     onSubmit: () -> Unit,
     error: String?,
     labelText: String,
@@ -290,12 +291,12 @@ private fun ColumnScope.ResourceInput(
     onClick: () -> Unit = {}
 ) {
     TextField(
-        value = uri ?: "",
-        onValueChange = onUriChange,
+        value = value ?: "",
+        onValueChange = onChange,
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 16.dp),
-        enabled = !verifying,
+        enabled = !enabled,
         readOnly = readOnly,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
@@ -338,6 +339,7 @@ fun EnterUrlComposable_Preview() {
         onPasswordChange = {},
         isInsecure = true,
         url = "http://previewUrl.com/calendarfile.ics",
+        fileName = "file name",
         onUrlChange = {},
         urlError = "",
         supportsAuthentication = true,

@@ -10,6 +10,7 @@ import java.net.URISyntaxException
 
 class SubscriptionSettingsModel : ViewModel() {
     val url = MutableLiveData<String?>(null)
+    val fileName = MutableLiveData<String?>(null)
     val urlError = MutableLiveData<String?>(null)
     val title = MutableLiveData<String?>(null)
     val color = MutableLiveData<Int?>(null)
