@@ -17,12 +17,17 @@ class TestSettings {
 
     @Test
     fun testForceDarkModeFlow() {
+        // Initialize settings
         val settings = Settings(appContext)
+        // Create a variable for storing the value of the preference when updated
         var forceDarkMode = false
+        // Launch a coroutine to collect the flow
         CoroutineScope(Dispatchers.IO).launch {
             settings.forceDarkModeFlow().collect { forceDarkMode = it }
         }
+        // Set the preference to true
         settings.forceDarkMode(true)
+        // Wait for the flow to update, or throw timeout
         runBlocking {
             withTimeout(1000) {
                 while (!forceDarkMode) {
