@@ -22,6 +22,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -86,6 +87,9 @@ fun EnterUrlComposable(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+        AnimatedVisibility(isVerifyingUrl) {
+            LinearProgressIndicator(Modifier.fillMaxWidth())
+        }
         Column(
             modifier = Modifier
                     .fillMaxSize()
@@ -93,6 +97,7 @@ fun EnterUrlComposable(
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
         ) {
+
             // Instead of adding vertical padding to column, use spacer so that if content is
             // scrolled, it is not spaced
             Spacer(modifier = Modifier.height(16.dp))
