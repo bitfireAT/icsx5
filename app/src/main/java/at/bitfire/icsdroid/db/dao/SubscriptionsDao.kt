@@ -24,7 +24,7 @@ interface SubscriptionsDao {
 
     @Deprecated(
         message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getAllFlow")
+        replaceWith = ReplaceWith("getAllFlow()")
     )
     @Query("SELECT * FROM subscriptions")
     fun getAllLive(): LiveData<List<Subscription>>
@@ -46,7 +46,7 @@ interface SubscriptionsDao {
 
     @Deprecated(
         message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getWithCredentialsByIdFlow")
+        replaceWith = ReplaceWith("getWithCredentialsByIdFlow(id)")
     )
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
@@ -56,7 +56,7 @@ interface SubscriptionsDao {
 
     @Deprecated(
         message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getErrorMessageFlow")
+        replaceWith = ReplaceWith("getErrorMessageFlow(id)")
     )
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageLive(id: Long): LiveData<String?>

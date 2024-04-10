@@ -24,7 +24,7 @@ class Settings(context: Context) {
 
     @Deprecated(
         message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("forceDarkModeFlow")
+        replaceWith = ReplaceWith("forceDarkModeFlow()")
     )
     fun forceDarkModeLive(): LiveData<Boolean> = object: LiveData<Boolean>() {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
