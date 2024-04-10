@@ -8,14 +8,19 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -25,6 +30,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -78,8 +86,15 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-
                 subscriptionSettingsModel.url.postValue(uri.toString())
+
+                // Get file name
+                val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    if (!cursor.moveToFirst()) return@use null
+                    val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    cursor.getString(name)
+                }
+                subscriptionSettingsModel.fileName.postValue(displayName)
             }
         }
 
@@ -102,6 +117,7 @@ class AddCalendarActivity : AppCompatActivity() {
             val pagerState = rememberPagerState { 2 }
 
             val url: String? by subscriptionSettingsModel.url.observeAsState(null)
+            val fileName: String? by subscriptionSettingsModel.fileName.observeAsState(null)
             val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
             val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
             val title by subscriptionSettingsModel.title.observeAsState(null)
@@ -180,7 +196,8 @@ class AddCalendarActivity : AppCompatActivity() {
             }
 
             Scaffold(
-                topBar = { AddCalendarTopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
+                topBar = { AddCalendarTopAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) },
+                bottomBar = { AddCalendarBottomAppBar(pagerState, showNextButton, isVerifyingUrl, isCreating) }
             ) { paddingValues ->
                 HorizontalPager(
                     state = pagerState,
@@ -199,7 +216,11 @@ class AddCalendarActivity : AppCompatActivity() {
                             onPasswordChange = credentialsModel.password::setValue,
                             isInsecure = isInsecure,
                             url = url,
-                            onUrlChange = subscriptionSettingsModel.url::setValue,
+                            fileName = fileName,
+                            onUrlChange = {
+                                subscriptionSettingsModel.fileName.value = null // file name is computed from URL
+                                subscriptionSettingsModel.url.value = it
+                            },
                             urlError = urlError,
                             supportsAuthentication = supportsAuthentication,
                             isVerifyingUrl = isVerifyingUrl,
@@ -292,6 +313,41 @@ class AddCalendarActivity : AppCompatActivity() {
                 }
             }
         )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun AddCalendarBottomAppBar(
+        pagerState: PagerState,
+        showNextButton: Boolean,
+        isVerifyingUrl: Boolean,
+        isCreating: Boolean
+    ) {
+        AnimatedVisibility(
+            pagerState.currentPage == 0 && showNextButton,
+            enter = expandVertically()
+        ) {
+            BottomAppBar(
+                content = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { onNextRequested(pagerState.currentPage) },
+                            enabled = !isVerifyingUrl && !isCreating
+                        ) {
+                            Text(stringResource(R.string.activity_add_calendar_subscribe).uppercase())
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForward,
+                                stringResource(R.string.activity_add_calendar_subscribe)
+                            )
+                        }
+                    }
+                }
+            )
+        }
     }
 
 

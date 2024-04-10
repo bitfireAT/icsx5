@@ -55,6 +55,9 @@
 
     <!-- AddCalendarActivity -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
+    <string name="activity_add_calendar_subscribe">Subscribe</string>
+    <string name="add_calendar_subscribe_url">Subscribe to URL</string>
+    <string name="add_calendar_subscribe_file">Subscribe to file</string>
     <string name="add_calendar_need_valid_uri">Valid URI required</string>
     <string name="add_calendar_authentication_title">Authentication</string>
     <string name="add_calendar_authentication_without_https_warning">Third parties can easily intercept your credentials. Use HTTPS for secure authentication.</string>
@@ -66,9 +69,9 @@
     <string name="add_calendar_title">Title &amp; Color</string>
     <string name="add_calendar_title_hint">Calendar name</string>
     <string name="add_calendar_pick_color">Pick color</string>
-    <string name="add_calendar_url_text">Enter a Webcal address:</string>
+    <string name="add_calendar_pick_url_label">Webcal address</string>
+    <string name="add_calendar_pick_file_label">File path</string>
     <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
-    <string name="add_calendar_pick_file_text">Alternatively, select a file from local storage.</string>
     <string name="add_calendar_pick_file">Pick file</string>
     <string name="add_calendar_user_name">User name</string>
     <string name="add_calendar_validating">Validating calendar resource…</string>
