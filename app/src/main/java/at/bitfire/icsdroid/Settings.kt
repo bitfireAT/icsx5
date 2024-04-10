@@ -7,6 +7,9 @@ package at.bitfire.icsdroid
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 class Settings(context: Context) {
 
@@ -19,6 +22,10 @@ class Settings(context: Context) {
 
     fun forceDarkMode(): Boolean = prefs.getBoolean(FORCE_DARK_MODE, false)
 
+    @Deprecated(
+        message = "Replace LiveData by Flows",
+        replaceWith = ReplaceWith("forceDarkModeFlow")
+    )
     fun forceDarkModeLive(): LiveData<Boolean> = object: LiveData<Boolean>() {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (key == FORCE_DARK_MODE) {
