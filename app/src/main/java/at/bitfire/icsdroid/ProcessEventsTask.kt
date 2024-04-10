@@ -17,11 +17,11 @@ import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import at.bitfire.icsdroid.ui.views.CalendarListActivity
 import at.bitfire.icsdroid.ui.views.EditCalendarActivity
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.time.Duration
-import at.bitfire.icsdroid.ui.views.CalendarListActivity
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
@@ -127,7 +127,7 @@ class ProcessEventsTask(
         var exception: Throwable? = null
 
         val downloader = object : CalendarFetcher(context, uri) {
-            override fun onSuccess(
+            override suspend fun onSuccess(
                 data: InputStream,
                 contentType: MediaType?,
                 eTag: String?,
@@ -148,18 +148,18 @@ class ProcessEventsTask(
                 }
             }
 
-            override fun onNotModified() {
+            override suspend fun onNotModified() {
                 Log.i(Constants.TAG, "Calendar has not been modified since last sync")
                 subscriptionsDao.updateStatusNotModified(subscription.id)
             }
 
-            override fun onNewPermanentUrl(target: Uri) {
+            override suspend fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
                 subscriptionsDao.updateUrl(subscription.id, target)
             }
 
-            override fun onError(error: Exception) {
+            override suspend fun onError(error: Exception) {
                 Log.w(Constants.TAG, "Sync error", error)
                 exception = error
             }
