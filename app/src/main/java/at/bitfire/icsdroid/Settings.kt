@@ -37,6 +37,23 @@ class Settings(context: Context) {
         }
     }
 
+    fun forceDarkModeFlow(): Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == FORCE_DARK_MODE) {
+                val forceDarkMode = prefs.getBoolean(key, false)
+                trySend(forceDarkMode)
+            }
+        }
+
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        listener.onSharedPreferenceChanged(prefs, FORCE_DARK_MODE)
+
+        awaitClose {
+            // Remove listener
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+
     fun forceDarkMode(force: Boolean) {
         // save setting
         prefs.edit()
