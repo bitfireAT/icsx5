@@ -15,6 +15,7 @@ import android.os.PowerManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -208,6 +210,15 @@ class CalendarListActivity: AppCompatActivity() {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
+
+            // progress indicator
+            AnimatedVisibility(syncing) {
+                LinearProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             LazyColumn(Modifier.fillMaxSize()) {
                 // Calendar permission card
                 if (askForCalendarPermission) {
