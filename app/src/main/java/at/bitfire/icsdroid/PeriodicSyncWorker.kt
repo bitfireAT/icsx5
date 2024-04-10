@@ -26,7 +26,7 @@ class PeriodicSyncWorker(
                         .setRequiredNetworkType(NetworkType.CONNECTED)      // network connection is usually required for synchronization
                         .build())
                     .build()
-                wm.enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.REPLACE, request)
+                wm.enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
             } else
                 wm.cancelUniqueWork(NAME)
         }
