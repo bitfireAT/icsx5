@@ -11,6 +11,7 @@ import androidx.room.Relation
 import androidx.room.Update
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SubscriptionsDao {
@@ -21,8 +22,15 @@ interface SubscriptionsDao {
     @Delete
     fun delete(vararg subscriptions: Subscription)
 
+    @Deprecated(
+        message = "Replace LiveData by Flows",
+        replaceWith = ReplaceWith("getAllFlow")
+    )
     @Query("SELECT * FROM subscriptions")
     fun getAllLive(): LiveData<List<Subscription>>
+
+    @Query("SELECT * FROM subscriptions")
+    fun getAllFlow(): Flow<List<Subscription>>
 
     @Query("SELECT * FROM subscriptions")
     fun getAll(): List<Subscription>
@@ -36,11 +44,25 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE url=:url")
     fun getByUrl(url: String): Subscription?
 
+    @Deprecated(
+        message = "Replace LiveData by Flows",
+        replaceWith = ReplaceWith("getWithCredentialsByIdFlow")
+    )
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
 
+    @Query("SELECT * FROM subscriptions WHERE id=:id")
+    fun getWithCredentialsByIdFlow(id: Long): Flow<SubscriptionWithCredential>
+
+    @Deprecated(
+        message = "Replace LiveData by Flows",
+        replaceWith = ReplaceWith("getErrorMessageFlow")
+    )
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageLive(id: Long): LiveData<String?>
+
+    @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
+    fun getErrorMessageFlow(id: Long): Flow<String?>
 
     @Update
     fun update(subscription: Subscription)
