@@ -15,9 +15,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.util.LinkedList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -59,9 +57,6 @@ class CalendarFetcherTest {
         val fetcher = object: CalendarFetcher(appContext, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = IOUtils.toString(data, Charsets.UTF_8)
-                withContext(Dispatchers.IO) {
-                    data.close()
-                }
             }
         }
         runBlocking {
@@ -98,9 +93,6 @@ class CalendarFetcherTest {
                 ical = IOUtils.toString(data, Charsets.UTF_8)
                 etag = eTag
                 lastmod = lastModified
-                withContext(Dispatchers.IO) {
-                    data.close()
-                }
             }
         }
         runBlocking {
@@ -140,9 +132,6 @@ class CalendarFetcherTest {
             }
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = IOUtils.toString(data, Charsets.UTF_8)
-                withContext(Dispatchers.IO) {
-                    data.close()
-                }
             }
         }
         runBlocking {
