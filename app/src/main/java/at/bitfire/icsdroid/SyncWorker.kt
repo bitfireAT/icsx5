@@ -8,14 +8,7 @@ import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.CoroutineWorker
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkerParameters
-import androidx.work.workDataOf
+import androidx.work.*
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.Constants.TAG
@@ -86,15 +79,8 @@ class SyncWorker(
                     .enqueue()
         }
 
-        @Deprecated(
-            message = "Replace LiveData by Flows",
-            replaceWith = ReplaceWith("statusFlow(context)")
-        )
         fun liveStatus(context: Context) =
             WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(NAME)
-
-        fun statusFlow(context: Context) =
-            WorkManager.getInstance(context).getWorkInfosForUniqueWorkFlow(NAME)
 
     }
 
@@ -158,7 +144,7 @@ class SyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
-    private suspend fun migrateLegacyCalendars() {
+    private fun migrateLegacyCalendars() {
         @Suppress("DEPRECATION")
         val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
 
@@ -198,7 +184,7 @@ class SyncWorker(
      * - updated (e.g. display name) if there's a [Subscription] for this calendar,
      * - deleted if there's no [Subscription] for this calendar.
      */
-    private suspend fun updateLocalCalendars() {
+    private fun updateLocalCalendars() {
         // subscriptions from DB
         val subscriptions = subscriptionsDao.getAll()
 

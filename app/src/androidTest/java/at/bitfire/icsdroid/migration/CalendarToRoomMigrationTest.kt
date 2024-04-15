@@ -33,15 +33,8 @@ import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.runBlocking
-import org.junit.AfterClass
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.ClassRule
-import org.junit.Test
+import org.junit.*
+import org.junit.Assert.*
 
 class CalendarToRoomMigrationTest {
 
@@ -165,7 +158,7 @@ class CalendarToRoomMigrationTest {
     }
 
     @Test
-    fun testMigrateFromV2_1() = runBlocking {
+    fun testMigrateFromV2_1() {
         // prepare: create local calendar plus subscription with subscription.id = LocalCalendar.id,
         // but with calendarId=null and COLUMN_MANAGED_BY_DB=null
         val calendar = createCalendar()

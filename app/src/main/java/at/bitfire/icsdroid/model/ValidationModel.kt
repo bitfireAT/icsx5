@@ -18,12 +18,12 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
-import java.io.InputStream
-import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
 
 class ValidationModel(application: Application): AndroidViewModel(application) {
 
@@ -43,7 +43,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(getApplication(), originalUri) {
-                override suspend fun onSuccess(
+                override fun onSuccess(
                     data: InputStream,
                     contentType: MediaType?,
                     eTag: String?,
@@ -75,13 +75,13 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
                     result.postValue(info)
                 }
 
-                override suspend fun onNewPermanentUrl(target: Uri) {
+                override fun onNewPermanentUrl(target: Uri) {
                     Log.i(Constants.TAG, "Got permanent redirect when validating, saving new URL: $target")
                     val location = uri.toURI().resolve(target.toURI())
                     info.uri = location.toUri()
                 }
 
-                override suspend fun onError(error: Exception) {
+                override fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
                     result.postValue(info)

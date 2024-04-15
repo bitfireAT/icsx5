@@ -10,14 +10,14 @@ import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
+import okhttp3.Credentials
+import okhttp3.MediaType
+import okhttp3.Request
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.util.Date
-import okhttp3.Credentials
-import okhttp3.MediaType
-import okhttp3.Request
+import java.util.*
 
 open class CalendarFetcher(
         val context: Context,
@@ -48,10 +48,10 @@ open class CalendarFetcher(
             fetchLocal()
     }
 
-    open suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+    open fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
-    open suspend fun onNotModified() {
+    open fun onNotModified() {
     }
 
     open suspend fun onRedirect(httpCode: Int, target: Uri) {
@@ -83,17 +83,17 @@ open class CalendarFetcher(
         fetchNetwork()
     }
 
-    open suspend fun onNewPermanentUrl(target: Uri) {
+    open fun onNewPermanentUrl(target: Uri) {
     }
 
-    open suspend fun onError(error: Exception) {
+    open fun onError(error: Exception) {
     }
 
 
     /**
      * Fetch the file with Android SAF
      */
-    internal suspend fun fetchLocal() {
+    internal fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
         try {
             val contentResolver = context.contentResolver
