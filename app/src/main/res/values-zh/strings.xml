@@ -40,6 +40,9 @@
   <string name="settings_force_dark_theme">强制深色主题</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">订阅至日历</string>
+  <string name="activity_add_calendar_subscribe">订阅</string>
+  <string name="add_calendar_subscribe_url">URL 订阅</string>
+  <string name="add_calendar_subscribe_file">文件订阅</string>
   <string name="add_calendar_need_valid_uri">URI无效</string>
   <string name="add_calendar_authentication_title">身份验证</string>
   <string name="add_calendar_authentication_without_https_warning">您的认证信息容易被第三方截取，请使用HTTPS进行安全的身份认证。</string>
@@ -51,8 +54,8 @@
   <string name="add_calendar_title">标题 &amp; 颜色</string>
   <string name="add_calendar_title_hint">日历名称</string>
   <string name="add_calendar_pick_color">挑选颜色</string>
-  <string name="add_calendar_url_text">输入 Webcal 地址</string>
-  <string name="add_calendar_pick_file_text">或者从本地存储选择一个文件 </string>
+  <string name="add_calendar_pick_url_label">Webcal 地址</string>
+  <string name="add_calendar_pick_file_label">文件路径</string>
   <string name="add_calendar_pick_file">选择文件</string>
   <string name="add_calendar_user_name">用户名</string>
   <string name="add_calendar_validating">正在验证日历…</string>

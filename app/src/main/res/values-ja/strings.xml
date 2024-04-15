@@ -51,8 +51,6 @@
   <string name="add_calendar_title">件名と色</string>
   <string name="add_calendar_title_hint">カレンダーの名前</string>
   <string name="add_calendar_pick_color">色を選択</string>
-  <string name="add_calendar_url_text">Webcal アドレスを入力:</string>
-  <string name="add_calendar_pick_file_text">ローカルストレージからファイルを選択することもできます</string>
   <string name="add_calendar_pick_file">ファイルを選択</string>
   <string name="add_calendar_user_name">ユーザー名</string>
   <string name="add_calendar_validating">カレンダー情報を確認しています...</string>
