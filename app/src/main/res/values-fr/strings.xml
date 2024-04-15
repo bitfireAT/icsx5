@@ -47,8 +47,6 @@
   <string name="add_calendar_title">Intitulé &amp; couleur</string>
   <string name="add_calendar_title_hint">Nom du calendrier</string>
   <string name="add_calendar_pick_color">Choisir une couleur</string>
-  <string name="add_calendar_url_text">Entrez une adresse Webcal : </string>
-  <string name="add_calendar_pick_file_text">Ou sinon, sélectionnez un fichier stocké localement. </string>
   <string name="add_calendar_pick_file">Choisir un fichier</string>
   <string name="add_calendar_user_name">Nom d\'utilisateur</string>
   <string name="add_calendar_validating">Validation du calendrier…</string>

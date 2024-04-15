@@ -50,8 +50,6 @@
   <string name="add_calendar_title">Títol i Color</string>
   <string name="add_calendar_title_hint">Nom del calendari</string>
   <string name="add_calendar_pick_color">Triar color</string>
-  <string name="add_calendar_url_text">Introdueix una direcció Webcal:</string>
-  <string name="add_calendar_pick_file_text">També pots seleccionar un fitxer de l\'emmagatzematge local.</string>
   <string name="add_calendar_pick_file">Tria un fitxer</string>
   <string name="add_calendar_user_name">Nom d\'usuari</string>
   <string name="add_calendar_validating">Validant el recurs de calendari…</string>

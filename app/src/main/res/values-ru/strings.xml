@@ -40,7 +40,11 @@
   <string name="settings_force_dark_theme">Темная тема</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Подписаться на календарь</string>
+  <string name="activity_add_calendar_subscribe">Подписаться</string>
+  <string name="add_calendar_subscribe_url">Подписаться на URL</string>
+  <string name="add_calendar_subscribe_file">Подписаться на файл</string>
   <string name="add_calendar_need_valid_uri">Требуется корректный URI</string>
+  <string name="add_calendar_authentication_title">Аутентификация</string>
   <string name="add_calendar_authentication_without_https_warning">Третьи лица могут легко перехватить ваши учетные данные. Используйте HTTPS для безопасной аутентификации.</string>
   <string name="add_calendar_created">Подписка выполнена успешно</string>
   <string name="add_calendar_password">Пароль</string>
@@ -50,8 +54,8 @@
   <string name="add_calendar_title">Название и цвет</string>
   <string name="add_calendar_title_hint">Название календаря</string>
   <string name="add_calendar_pick_color">Выберите цвет</string>
-  <string name="add_calendar_url_text">Введите адрес Webcal:</string>
-  <string name="add_calendar_pick_file_text">Или выберите файл из локального хранилища.</string>
+  <string name="add_calendar_pick_url_label">Адрес Webcal</string>
+  <string name="add_calendar_pick_file_label">Путь к файлу</string>
   <string name="add_calendar_pick_file">Выбрать файл</string>
   <string name="add_calendar_user_name">Имя пользователя</string>
   <string name="add_calendar_validating">Проверка доступности календаря...</string>
@@ -62,6 +66,9 @@
   <string name="default_alarm_dialog_title">Добавить оповещение по умолчанию</string>
   <string name="default_alarm_dialog_message">Это добавит оповещение для всех событий</string>
   <string name="default_alarm_dialog_hint">За несколько минут до события</string>
+  <string name="add_calendar_advanced_title">Дополнительно</string>
+  <string name="add_calendar_description_title">Игнорировать поле DESCRIPTION</string>
+  <string name="add_calendar_description_summary">Если эта опция включена, поле DESCRIPTION будет удаляться из событий. Полезно, если оно содержит спамерскую информацию.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Поделиться информацией</string>
   <!--EditCalendarActivity-->

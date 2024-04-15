@@ -43,8 +43,6 @@
   <string name="add_calendar_requires_authentication">Require autenticación</string>
   <string name="add_calendar_title">Título e Cor</string>
   <string name="add_calendar_title_hint">Nome do calendario</string>
-  <string name="add_calendar_url_text">Escribe o enderezo Webcal:</string>
-  <string name="add_calendar_pick_file_text">Alternativamente, elixe un ficheiro da almacenaxe local.</string>
   <string name="add_calendar_pick_file">Escolle o ficheiro</string>
   <string name="add_calendar_user_name">Nome de usuaria</string>
   <string name="add_calendar_validating">Validando fonte do calendario...</string>

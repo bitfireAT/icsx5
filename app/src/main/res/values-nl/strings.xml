@@ -37,8 +37,6 @@
   <string name="add_calendar_requires_authentication">Verificatie vereist</string>
   <string name="add_calendar_title">Titel &amp; Kleur</string>
   <string name="add_calendar_title_hint">Kalendernaam</string>
-  <string name="add_calendar_url_text">Webcal-adres invoeren:</string>
-  <string name="add_calendar_pick_file_text">Of een bestand uit de lokale opslag kiezen.</string>
   <string name="add_calendar_pick_file">Bestand kiezen</string>
   <string name="add_calendar_user_name">Gebruikersnaam</string>
   <string name="add_calendar_validating">Kalenderbron valideren...</string>
