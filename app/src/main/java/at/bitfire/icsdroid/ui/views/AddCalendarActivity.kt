@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.Constants
@@ -100,20 +101,8 @@ class AddCalendarActivity : AppCompatActivity() {
 
     override fun onCreate(inState: Bundle?) {
         super.onCreate(inState)
-
-        subscriptionModel.success.observe(this) { success ->
-            if (success) {
-                // success, show notification and close activity
-                Toast.makeText(this, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
-
-                finish()
-            }
-        }
-        subscriptionModel.errorMessage.observe(this) { message ->
-            message?.let { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
-        }
-
         setContentThemed {
+            val context = LocalContext.current
             val pagerState = rememberPagerState { 2 }
 
             val url: String? by subscriptionSettingsModel.url.observeAsState(null)
@@ -135,9 +124,21 @@ class AddCalendarActivity : AppCompatActivity() {
             val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
             val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
 
-            val isCreating: Boolean by subscriptionModel.isCreating.observeAsState(false)
-            val showNextButton by subscriptionModel.showNextButton.observeAsState(false)
+            val success by subscriptionModel.success
+            val errorMessage by subscriptionModel.errorMessage
+            val isCreating: Boolean by subscriptionModel.isCreating
+            val showNextButton by subscriptionModel.showNextButton
 
+            // on success, show notification and close activity
+            if (success) {
+                Toast.makeText(context, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
+                finish()
+            }
+
+            // on error, show error message
+            errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+
+            // If launched by intent
             LaunchedEffect(intent) {
                 if (inState == null) {
                     intent?.apply {
@@ -172,7 +173,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // Receive updates for the Details page
             LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-                subscriptionModel.showNextButton.postValue(!title.isNullOrBlank())
+                subscriptionModel.showNextButton.value = !title.isNullOrBlank()
             }
 
             LaunchedEffect(validationResult) {
@@ -330,7 +331,9 @@ class AddCalendarActivity : AppCompatActivity() {
             BottomAppBar(
                 content = {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -381,7 +384,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
     private fun checkUrlIntroductionPage() {
         if (validationModel.isVerifyingUrl.value == true) {
-            subscriptionModel.showNextButton.postValue(true)
+            subscriptionModel.showNextButton.value = true
         } else {
             val uri = validateUri()
             val authOK =
@@ -390,7 +393,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         !credentialsModel.password.value.isNullOrEmpty()
                 else
                     true
-            subscriptionModel.showNextButton.postValue(uri != null && authOK)
+            subscriptionModel.showNextButton.value = uri != null && authOK
         }
     }
 

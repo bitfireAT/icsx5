@@ -3,8 +3,8 @@ package at.bitfire.icsdroid.model
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.SyncWorker
@@ -20,10 +20,10 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
 
-    val success = MutableLiveData(false)
-    val errorMessage = MutableLiveData<String?>(null)
-    val isCreating = MutableLiveData(false)
-    val showNextButton = MutableLiveData(false)
+    val success = mutableStateOf(false)
+    val errorMessage = mutableStateOf<String?>(null)
+    val isCreating = mutableStateOf(false)
+    val showNextButton = mutableStateOf(false)
 
     /**
      * Creates a new subscription taking the data from the given models.
@@ -33,7 +33,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
         credentialsModel: CredentialsModel,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            isCreating.postValue(true)
+            isCreating.value = true
             try {
                 val subscription = Subscription(
                     displayName = subscriptionSettingsModel.title.value!!,
@@ -66,12 +66,12 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
 
-                success.postValue(true)
+                success.value = true
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
-                errorMessage.postValue(e.localizedMessage ?: e.message)
+                errorMessage.value = e.localizedMessage ?: e.message
             } finally {
-                isCreating.postValue(false)
+                isCreating.value = false
             }
         }
     }
