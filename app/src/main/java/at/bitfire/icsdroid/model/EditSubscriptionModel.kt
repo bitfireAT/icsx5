@@ -40,12 +40,12 @@ class EditSubscriptionModel(
                     color = subscriptionSettingsModel.color.value,
                     defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
                     defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
-                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value ?: false
+                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value,
+                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value
                 )
                 subscriptionsDao.update(newSubscription)
 
-                if (credentialsModel.requiresAuth.value == true) {
+                if (credentialsModel.requiresAuth.value) {
                     val username = credentialsModel.username.value
                     val password = credentialsModel.password.value
                     if (username != null && password != null)

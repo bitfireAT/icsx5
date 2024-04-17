@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
-import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
@@ -61,10 +61,10 @@ import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import java.net.URI
-import java.net.URISyntaxException
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import java.net.URI
+import java.net.URISyntaxException
 
 @OptIn(ExperimentalFoundationApi::class)
 class AddCalendarActivity : AppCompatActivity() {
@@ -87,7 +87,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                subscriptionSettingsModel.url.postValue(uri.toString())
+                subscriptionSettingsModel.url.value = uri.toString()
 
                 // Get file name
                 val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -95,7 +95,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     cursor.getString(name)
                 }
-                subscriptionSettingsModel.fileName.postValue(displayName)
+                subscriptionSettingsModel.fileName.value = displayName
             }
         }
 
@@ -105,21 +105,21 @@ class AddCalendarActivity : AppCompatActivity() {
             val context = LocalContext.current
             val pagerState = rememberPagerState { 2 }
 
-            val url: String? by subscriptionSettingsModel.url.observeAsState(null)
-            val fileName: String? by subscriptionSettingsModel.fileName.observeAsState(null)
-            val urlError: String? by subscriptionSettingsModel.urlError.observeAsState(null)
-            val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(false)
-            val title by subscriptionSettingsModel.title.observeAsState(null)
-            val color by subscriptionSettingsModel.color.observeAsState(null)
-            val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
-            val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState(null)
-            val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState(null)
-            val ignoreDescription by subscriptionSettingsModel.ignoreDescription.observeAsState(false)
+            val url: String? by subscriptionSettingsModel.url.collectAsState()
+            val fileName: String? by subscriptionSettingsModel.fileName.collectAsState()
+            val urlError: String? by subscriptionSettingsModel.urlError.collectAsState()
+            val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.collectAsState()
+            val title by subscriptionSettingsModel.title.collectAsState()
+            val color by subscriptionSettingsModel.color.collectAsState()
+            val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsState()
+            val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsState()
+            val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsState()
+            val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsState()
 
-            val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
-            val username: String? by credentialsModel.username.observeAsState(null)
-            val password: String? by credentialsModel.password.observeAsState(null)
-            val isInsecure: Boolean by credentialsModel.isInsecure.observeAsState(false)
+            val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsState()
+            val username: String? by credentialsModel.username.collectAsState()
+            val password: String? by credentialsModel.password.collectAsState()
+            val isInsecure: Boolean by credentialsModel.isInsecure.collectAsState()
 
             val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
             val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
@@ -146,7 +146,7 @@ class AddCalendarActivity : AppCompatActivity() {
                             (data ?: getStringExtra(Intent.EXTRA_TEXT))
                                 ?.toString()
                                 ?.stripUrl()
-                                ?.let(subscriptionSettingsModel.url::postValue)
+                                ?.let { subscriptionSettingsModel.url.value = it }
                                 ?.also { checkUrlIntroductionPage() }
                         } catch (_: IllegalArgumentException) {
                             // Data does not have a valid url
@@ -154,14 +154,14 @@ class AddCalendarActivity : AppCompatActivity() {
 
                         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)
                             ?.toString()
-                            ?.let(subscriptionSettingsModel.url::postValue)
+                            ?.let { subscriptionSettingsModel.url.value = it }
                             ?.also { checkUrlIntroductionPage() }
 
                         getStringExtra(EXTRA_TITLE)
-                            ?.let(subscriptionSettingsModel.title::postValue)
+                            ?.let { subscriptionSettingsModel.title.value = it }
                         takeIf { hasExtra(EXTRA_COLOR) }
                             ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
-                            ?.let(subscriptionSettingsModel.color::postValue)
+                            ?.let { subscriptionSettingsModel.color.value = it }
                     }
                 }
             }
@@ -210,11 +210,11 @@ class AddCalendarActivity : AppCompatActivity() {
                     when (page) {
                         0 -> EnterUrlComposable(
                             requiresAuth = requiresAuth,
-                            onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
+                            onRequiresAuthChange = { credentialsModel.requiresAuth.value = it },
                             username = username,
-                            onUsernameChange = credentialsModel.username::setValue,
+                            onUsernameChange = { credentialsModel.username.value = it },
                             password = password,
-                            onPasswordChange = credentialsModel.password::setValue,
+                            onPasswordChange = { credentialsModel.password.value = it },
                             isInsecure = isInsecure,
                             url = url,
                             fileName = fileName,
@@ -234,25 +234,25 @@ class AddCalendarActivity : AppCompatActivity() {
                         1 -> SubscriptionSettingsComposable(
                             url = url,
                             title = title,
-                            titleChanged = subscriptionSettingsModel.title::setValue,
+                            titleChanged = { subscriptionSettingsModel.title.value = it },
                             color = color,
-                            colorChanged = subscriptionSettingsModel.color::setValue,
+                            colorChanged = { subscriptionSettingsModel.color.value = it },
                             ignoreAlerts = ignoreAlerts,
-                            ignoreAlertsChanged = subscriptionSettingsModel.ignoreAlerts::setValue,
+                            ignoreAlertsChanged = {
+                                subscriptionSettingsModel.ignoreAlerts.value = it
+                            },
                             defaultAlarmMinutes = defaultAlarmMinutes,
                             defaultAlarmMinutesChanged = {
-                                subscriptionSettingsModel.defaultAlarmMinutes.postValue(
-                                    it.toLongOrNull()
-                                )
+                                subscriptionSettingsModel.defaultAlarmMinutes.value = it.toLongOrNull()
                             },
                             defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
                             defaultAllDayAlarmMinutesChanged = {
-                                subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(
-                                    it.toLongOrNull()
-                                )
+                                subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = it.toLongOrNull()
                             },
                             ignoreDescription = ignoreDescription,
-                            onIgnoreDescriptionChanged = subscriptionSettingsModel.ignoreDescription::setValue,
+                            onIgnoreDescriptionChanged = {
+                                subscriptionSettingsModel.ignoreDescription.value = it
+                            },
                             isCreating = isCreating,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -316,7 +316,6 @@ class AddCalendarActivity : AppCompatActivity() {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AddCalendarBottomAppBar(
         pagerState: PagerState,
@@ -359,13 +358,13 @@ class AddCalendarActivity : AppCompatActivity() {
             // First page (Enter Url)
             0 -> {
                 // flush the credentials if auth toggle is disabled
-                if (credentialsModel.requiresAuth.value != true) {
+                if (!credentialsModel.requiresAuth.value) {
                     credentialsModel.username.value = null
                     credentialsModel.password.value = null
                 }
 
                 val uri: Uri? = subscriptionSettingsModel.url.value?.let(Uri::parse)
-                val authenticate = credentialsModel.requiresAuth.value ?: false
+                val authenticate = credentialsModel.requiresAuth.value
 
                 if (uri != null) {
                     validationModel.validate(
@@ -388,7 +387,7 @@ class AddCalendarActivity : AppCompatActivity() {
         } else {
             val uri = validateUri()
             val authOK =
-                if (credentialsModel.requiresAuth.value == true)
+                if (credentialsModel.requiresAuth.value)
                     !credentialsModel.username.value.isNullOrEmpty() &&
                         !credentialsModel.password.value.isNullOrEmpty()
                 else
@@ -425,8 +424,13 @@ class AddCalendarActivity : AppCompatActivity() {
                 return null
             }
 
-            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
-            subscriptionSettingsModel.supportsAuthentication.value = supportsAuthenticate
+            // Fixme: Need to push update to source flow (subscriptionSettingsModel.url) ?
+//            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
+//            subscriptionSettingsModel.supportsAuthentication.value = supportsAuthenticate
+
+            subscriptionSettingsModel.url.value = uri.toString()
+
+
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     // SAF file, no need for auth

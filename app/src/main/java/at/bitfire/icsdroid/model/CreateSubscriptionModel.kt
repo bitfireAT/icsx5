@@ -39,17 +39,17 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                     displayName = subscriptionSettingsModel.title.value!!,
                     url = Uri.parse(subscriptionSettingsModel.url.value),
                     color = subscriptionSettingsModel.color.value,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
+                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value,
                     defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
                     defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value ?: false,
+                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value,
                 )
 
                 /** A list of all the ids of the inserted rows */
                 val id = subscriptionsDao.add(subscription)
 
                 // Create the credential in the IO thread
-                if (credentialsModel.requiresAuth.value == true) {
+                if (credentialsModel.requiresAuth.value) {
                     // If the subscription requires credentials, create them
                     val username = credentialsModel.username.value
                     val password = credentialsModel.password.value

@@ -25,8 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,9 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.bitfire.icsdroid.R
@@ -51,6 +48,7 @@ import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import kotlinx.coroutines.flow.combine
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -67,49 +65,48 @@ class EditCalendarActivity: AppCompatActivity() {
     private var initialRequiresAuthValue: Boolean? = null
 
     // Whether user made changes are legal
-    private val inputValid: LiveData<Boolean> by lazy {
-        object : MediatorLiveData<Boolean>() {
-            init {
-                addSource(subscriptionSettingsModel.title) { validate() }
-                addSource(credentialsModel.requiresAuth) { validate() }
-                addSource(credentialsModel.username) { validate() }
-                addSource(credentialsModel.password) { validate() }
+    private val inputValid by lazy {
+        combine(
+            subscriptionSettingsModel.title,
+            credentialsModel.requiresAuth,
+            credentialsModel.username,
+            credentialsModel.password
+        ) { title, requiresAuth, username, password ->
+            val titleOK = !title.isNullOrBlank()
+            val authOK = credentialsModel.run {
+                if (requiresAuth)
+                    !username.isNullOrBlank() && !password.isNullOrBlank()
+                else
+                    true
             }
-            fun validate() {
-                val titleOK = !subscriptionSettingsModel.title.value.isNullOrBlank()
-                val authOK = credentialsModel.run {
-                    if (requiresAuth.value == true)
-                        !username.value.isNullOrBlank() && !password.value.isNullOrBlank()
-                    else
-                        true
-                }
-                value = titleOK && authOK
-            }
+            titleOK && authOK
         }
     }
 
     // Whether unsaved changes exist
-    private val modelsDirty: MutableLiveData<Boolean> by lazy {
-        object : MediatorLiveData<Boolean>() {
-            init {
-                addSource(subscriptionSettingsModel.title) { value = subscriptionDirty() }
-                addSource(subscriptionSettingsModel.color) { value = subscriptionDirty() }
-                addSource(subscriptionSettingsModel.ignoreAlerts) { value = subscriptionDirty() }
-                addSource(subscriptionSettingsModel.defaultAlarmMinutes) { value = subscriptionDirty() }
-                addSource(subscriptionSettingsModel.defaultAllDayAlarmMinutes) { value = subscriptionDirty() }
-                addSource(subscriptionSettingsModel.ignoreDescription) { value = subscriptionDirty() }
-                addSource(credentialsModel.requiresAuth) { value = credentialDirty() }
-                addSource(credentialsModel.username) { value = credentialDirty() }
-                addSource(credentialsModel.password) { value = credentialDirty() }
-            }
-            fun subscriptionDirty() = initialSubscription?.let {
-                !subscriptionSettingsModel.equalsSubscription(it)
-            } ?: false
-            fun credentialDirty() =
-                initialRequiresAuthValue != credentialsModel.requiresAuth.value ||
-                initialCredential?.let {
-                    !credentialsModel.equalsCredential(it)
+    private val modelsDirty by lazy {
+        combine(
+            combine(
+                credentialsModel.requiresAuth,
+                credentialsModel.username,
+                credentialsModel.password
+            ) { requiresAuth, _, _ ->
+                initialRequiresAuthValue != requiresAuth ||
+                        initialCredential?.let { !credentialsModel.equalsCredential(it) } ?: false
+            },
+            combine(
+                subscriptionSettingsModel.title,
+                subscriptionSettingsModel.color,
+                subscriptionSettingsModel.ignoreAlerts,
+                subscriptionSettingsModel.defaultAlarmMinutes,
+                subscriptionSettingsModel.defaultAllDayAlarmMinutes,
+                subscriptionSettingsModel.ignoreDescription
+            ) {
+                initialSubscription?.let {
+                    !subscriptionSettingsModel.equalsSubscription(it)
                 } ?: false
+            }) { credentialsDirty, subscriptionsDirty ->
+            credentialsDirty || subscriptionsDirty
         }
     }
 
@@ -170,16 +167,16 @@ class EditCalendarActivity: AppCompatActivity() {
             subscriptionSettingsModel.color.value = it
         }
         subscription.ignoreEmbeddedAlerts.let {
-            subscriptionSettingsModel.ignoreAlerts.postValue(it)
+            subscriptionSettingsModel.ignoreAlerts.value = it
         }
         subscription.defaultAlarmMinutes.let {
-            subscriptionSettingsModel.defaultAlarmMinutes.postValue(it)
+            subscriptionSettingsModel.defaultAlarmMinutes.value = it
         }
         subscription.defaultAllDayAlarmMinutes.let {
-            subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(it)
+            subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = it
         }
         subscription.ignoreDescription.let {
-            subscriptionSettingsModel.ignoreDescription.postValue(it)
+            subscriptionSettingsModel.ignoreDescription.value = it
         }
 
         val credential = subscriptionWithCredential.credential
@@ -221,15 +218,15 @@ class EditCalendarActivity: AppCompatActivity() {
 
     @Composable
     private fun EditCalendarComposable() {
-        val url by subscriptionSettingsModel.url.observeAsState("")
-        val title by subscriptionSettingsModel.title.observeAsState("")
-        val color by subscriptionSettingsModel.color.observeAsState()
-        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.observeAsState(false)
-        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.observeAsState()
-        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.observeAsState()
-        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.observeAsState(false)
-        val inputValid by inputValid.observeAsState(false)
-        val modelsDirty by modelsDirty.observeAsState(false)
+        val url by subscriptionSettingsModel.url.collectAsState()
+        val title by subscriptionSettingsModel.title.collectAsState()
+        val color by subscriptionSettingsModel.color.collectAsState()
+        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsState()
+        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsState()
+        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsState()
+        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsState()
+        val inputValid by inputValid.collectAsState(false)
+        val modelsDirty by modelsDirty.collectAsState(false)
         Scaffold(
             topBar = { AppBarComposable(inputValid, modelsDirty) }
         ) { paddingValues ->
@@ -242,42 +239,38 @@ class EditCalendarActivity: AppCompatActivity() {
                 SubscriptionSettingsComposable(
                     url = url,
                     title = title,
-                    titleChanged = { subscriptionSettingsModel.title.postValue(it) },
+                    titleChanged = { subscriptionSettingsModel.title.value = it },
                     color = color,
-                    colorChanged = subscriptionSettingsModel.color::postValue,
+                    colorChanged = { subscriptionSettingsModel.color.value = it },
                     ignoreAlerts = ignoreAlerts,
-                    ignoreAlertsChanged = { subscriptionSettingsModel.ignoreAlerts.postValue(it) },
+                    ignoreAlertsChanged = { subscriptionSettingsModel.ignoreAlerts.value = it },
                     defaultAlarmMinutes = defaultAlarmMinutes,
                     defaultAlarmMinutesChanged = {
-                        subscriptionSettingsModel.defaultAlarmMinutes.postValue(
-                            it.toLongOrNull()
-                        )
+                        subscriptionSettingsModel.defaultAlarmMinutes.value = it.toLongOrNull()
                     },
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
                     defaultAllDayAlarmMinutesChanged = {
-                        subscriptionSettingsModel.defaultAllDayAlarmMinutes.postValue(
-                            it.toLongOrNull()
-                        )
+                        subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = it.toLongOrNull()
                     },
                     ignoreDescription = ignoreDescription,
-                    onIgnoreDescriptionChanged = subscriptionSettingsModel.ignoreDescription::postValue,
+                    onIgnoreDescriptionChanged = {
+                        subscriptionSettingsModel.ignoreDescription.value = it
+                    },
                     isCreating = false,
                     modifier = Modifier.fillMaxWidth()
                 )
-                val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.observeAsState(
-                    false
-                )
-                val requiresAuth: Boolean by credentialsModel.requiresAuth.observeAsState(false)
-                val username: String? by credentialsModel.username.observeAsState(null)
-                val password: String? by credentialsModel.password.observeAsState(null)
+                val supportsAuthentication by subscriptionSettingsModel.supportsAuthentication.collectAsState(false)
+                val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsState(false)
+                val username: String? by credentialsModel.username.collectAsState(null)
+                val password: String? by credentialsModel.password.collectAsState(null)
                 AnimatedVisibility(visible = supportsAuthentication) {
                     LoginCredentialsComposable(
                         requiresAuth,
                         username,
                         password,
-                        onRequiresAuthChange = credentialsModel.requiresAuth::setValue,
-                        onUsernameChange = credentialsModel.username::setValue,
-                        onPasswordChange = credentialsModel.password::setValue
+                        onRequiresAuthChange = { credentialsModel.requiresAuth.value = it },
+                        onUsernameChange = { credentialsModel.username.value = it },
+                        onPasswordChange = { credentialsModel.password.value = it }
                     )
                 }
             }
