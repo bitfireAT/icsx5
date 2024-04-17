@@ -41,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,8 +120,8 @@ class AddCalendarActivity : AppCompatActivity() {
             val password: String? by credentialsModel.password.collectAsState()
             val isInsecure: Boolean by credentialsModel.isInsecure.collectAsState()
 
-            val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl.observeAsState(false)
-            val validationResult: ResourceInfo? by validationModel.result.observeAsState(null)
+            val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl
+            val validationResult: ResourceInfo? by validationModel.result
 
             val success by subscriptionModel.success
             val errorMessage by subscriptionModel.errorMessage
@@ -294,7 +293,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         // otherwise, go back a page
                         else scope.launch {
                             // Needed for non-first-time validations to trigger following validation result updates
-                            validationModel.result.postValue(null)
+                            validationModel.result.value = null
                             pagerState.animateScrollToPage(pagerState.currentPage - 1)
                         }
                     }

@@ -7,8 +7,8 @@ package at.bitfire.icsdroid.model
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
@@ -27,9 +27,8 @@ import okhttp3.MediaType
 
 class ValidationModel(application: Application): AndroidViewModel(application) {
 
-    val isVerifyingUrl = MutableLiveData(false)
-
-    val result = MutableLiveData<ResourceInfo?>(null)
+    val isVerifyingUrl = mutableStateOf(false)
+    val result = mutableStateOf<ResourceInfo?>(null)
 
     fun validate(
         originalUri: Uri,
@@ -39,7 +38,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            isVerifyingUrl.postValue(true)
+            isVerifyingUrl.value = true
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(getApplication(), originalUri) {
@@ -72,7 +71,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
                         info.eventsFound = events.size
                     }
 
-                    result.postValue(info)
+                    result.value = info
                 }
 
                 override suspend fun onNewPermanentUrl(target: Uri) {
@@ -84,7 +83,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
                 override suspend fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
-                    result.postValue(info)
+                    result.value = info
                 }
             }
 
@@ -96,7 +95,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
 
             downloader.fetch()
         } finally {
-            isVerifyingUrl.postValue(false)
+            isVerifyingUrl.value = false
         }
     }
 
