@@ -129,15 +129,13 @@ class EditCalendarActivity: AppCompatActivity() {
                 onSubscriptionLoaded(data)
         }
 
-        // handle status changes
-        model.successMessage.observe(this) { message ->
-            if (message != null) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        setContentThemed {
+            val successMessage by model.successMessage
+            // show success message
+            successMessage?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                 finish()
             }
-        }
-
-        setContentThemed {
             // show error message from calling intent, if available
             var showingErrorMessage by remember {
                 mutableStateOf(inState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))

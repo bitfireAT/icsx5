@@ -1,8 +1,8 @@
 package at.bitfire.icsdroid.model
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
@@ -20,7 +20,7 @@ class EditSubscriptionModel(
     private val credentialsDao = db.credentialsDao()
     private val subscriptionsDao = db.subscriptionsDao()
 
-    val successMessage = MutableLiveData<String>()
+    val successMessage = mutableStateOf<String?>(null)
 
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
 
@@ -54,7 +54,7 @@ class EditSubscriptionModel(
                     credentialsDao.removeBySubscriptionId(subscriptionId)
 
                 // notify UI about success
-                successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_saved))
+                successMessage.value = getApplication<Application>().getString(R.string.edit_calendar_saved)
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication(), forceResync = true)
@@ -74,7 +74,7 @@ class EditSubscriptionModel(
                 SyncWorker.run(getApplication())
 
                 // notify UI about success
-                successMessage.postValue(getApplication<Application>().getString(R.string.edit_calendar_deleted))
+                successMessage.value = getApplication<Application>().getString(R.string.edit_calendar_deleted)
             }
         }
     }
