@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
@@ -192,10 +191,10 @@ class CalendarListActivity: AppCompatActivity() {
 
         val subscriptions by model.subscriptions.observeAsState()
 
-        val askForCalendarPermission by model.askForCalendarPermission.observeAsState(false)
-        val askForNotificationPermission by model.askForNotificationPermission.observeAsState(false)
-        val askForWhitelisting by model.askForWhitelisting.observeAsState(false)
-        val askForAutoRevoke by model.askForAutoRevoke.observeAsState(false)
+        val askForCalendarPermission by model.askForCalendarPermission
+        val askForNotificationPermission by model.askForNotificationPermission
+        val askForWhitelisting by model.askForWhitelisting
+        val askForAutoRevoke by model.askForAutoRevoke
 
         Box(
             modifier = Modifier
@@ -418,12 +417,12 @@ class CalendarListActivity: AppCompatActivity() {
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
-        val askForCalendarPermission = MutableLiveData(false)
-        val askForNotificationPermission = MutableLiveData(false)
+        val askForCalendarPermission = mutableStateOf(false)
+        val askForNotificationPermission = mutableStateOf(false)
 
-        val askForWhitelisting = MutableLiveData(false)
+        val askForWhitelisting = mutableStateOf(false)
 
-        val askForAutoRevoke = MutableLiveData(false)
+        val askForAutoRevoke = mutableStateOf(false)
 
 
         /** whether there are running sync workers */
@@ -448,17 +447,17 @@ class CalendarListActivity: AppCompatActivity() {
          */
         fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
             val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
-            askForNotificationPermission.postValue(!haveNotificationPermission)
+            askForNotificationPermission.value = !haveNotificationPermission
 
             val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
-            askForCalendarPermission.postValue(!haveCalendarPermission)
+            askForCalendarPermission.value = !haveCalendarPermission
 
             val powerManager = getApplication<Application>().getSystemService<PowerManager>()
             val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
 
             // If not ignoring battery optimizations, and sync interval is less than a day
             val shouldWhitelistApp = isIgnoringBatteryOptimizations == false
-            askForWhitelisting.postValue(shouldWhitelistApp)
+            askForWhitelisting.value = shouldWhitelistApp
 
             // Make sure permissions are not revoked automatically
             val isAutoRevokeWhitelisted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -466,7 +465,7 @@ class CalendarListActivity: AppCompatActivity() {
             } else {
                 true
             }
-            askForAutoRevoke.postValue(!isAutoRevokeWhitelisted)
+            askForAutoRevoke.value = !isAutoRevokeWhitelisted
         }
 
     }
