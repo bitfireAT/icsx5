@@ -10,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
@@ -69,7 +69,7 @@ class DonateDialogService: ComposableStartupService {
      * *true* if the preference value lies in the past, or *false* otherwise.
      */
     @Composable
-    override fun shouldShow(): LiveData<Boolean> = remember { MutableLiveData(false) }.also {
+    override fun shouldShow(): State<Boolean> = remember { mutableStateOf(false) }.also {
         val activity = getActivity() ?: return@also
         DisposableEffect(it) {
             val listener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
@@ -77,7 +77,7 @@ class DonateDialogService: ComposableStartupService {
                 if (key != PREF_NEXT_REMINDER) return@OnSharedPreferenceChangeListener
                 // Get preference value, calculate livedata value and post it
                 val nextReminderTime = sharedPreferences.getLong(PREF_NEXT_REMINDER, 0)
-                it.postValue(nextReminderTime < System.currentTimeMillis())
+                it.value = nextReminderTime < System.currentTimeMillis()
             }
             val preferences = getPreferences(activity)
             preferences.registerOnSharedPreferenceChangeListener(listener)

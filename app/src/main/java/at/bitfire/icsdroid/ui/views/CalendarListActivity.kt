@@ -77,10 +77,10 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import java.util.ServiceLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.ServiceLoader
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -131,7 +131,7 @@ class CalendarListActivity: AppCompatActivity() {
 
         setContentThemed {
             compStartupServices.forEach { service ->
-                val show: Boolean by service.shouldShow().observeAsState(false)
+                val show: Boolean by service.shouldShow()
                 if (show) service.Content()
             }
 
