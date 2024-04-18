@@ -39,7 +39,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -48,6 +47,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
@@ -104,21 +104,21 @@ class AddCalendarActivity : AppCompatActivity() {
             val context = LocalContext.current
             val pagerState = rememberPagerState { 2 }
 
-            val url: String? by subscriptionSettingsModel.url.collectAsState()
-            val fileName: String? by subscriptionSettingsModel.fileName.collectAsState()
-            val urlError: String? by subscriptionSettingsModel.urlError.collectAsState()
-            val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.collectAsState()
-            val title by subscriptionSettingsModel.title.collectAsState()
-            val color by subscriptionSettingsModel.color.collectAsState()
-            val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsState()
-            val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsState()
-            val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsState()
-            val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsState()
+            val url: String? by subscriptionSettingsModel.url.collectAsStateWithLifecycle()
+            val fileName: String? by subscriptionSettingsModel.fileName.collectAsStateWithLifecycle()
+            val urlError: String? by subscriptionSettingsModel.urlError.collectAsStateWithLifecycle()
+            val supportsAuthentication: Boolean by subscriptionSettingsModel.supportsAuthentication.collectAsStateWithLifecycle()
+            val title by subscriptionSettingsModel.title.collectAsStateWithLifecycle()
+            val color by subscriptionSettingsModel.color.collectAsStateWithLifecycle()
+            val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsStateWithLifecycle()
+            val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsStateWithLifecycle()
+            val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsStateWithLifecycle()
+            val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsStateWithLifecycle()
 
-            val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsState()
-            val username: String? by credentialsModel.username.collectAsState()
-            val password: String? by credentialsModel.password.collectAsState()
-            val isInsecure: Boolean by credentialsModel.isInsecure.collectAsState()
+            val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsStateWithLifecycle()
+            val username: String? by credentialsModel.username.collectAsStateWithLifecycle()
+            val password: String? by credentialsModel.password.collectAsStateWithLifecycle()
+            val isInsecure: Boolean by credentialsModel.isInsecure.collectAsStateWithLifecycle()
 
             val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl
             val validationResult: ResourceInfo? by validationModel.result

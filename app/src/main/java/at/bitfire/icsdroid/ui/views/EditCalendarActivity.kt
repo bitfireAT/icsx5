@@ -25,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
@@ -216,15 +216,15 @@ class EditCalendarActivity: AppCompatActivity() {
 
     @Composable
     private fun EditCalendarComposable() {
-        val url by subscriptionSettingsModel.url.collectAsState()
-        val title by subscriptionSettingsModel.title.collectAsState()
-        val color by subscriptionSettingsModel.color.collectAsState()
-        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsState()
-        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsState()
-        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsState()
-        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsState()
-        val inputValid by inputValid.collectAsState(false)
-        val modelsDirty by modelsDirty.collectAsState(false)
+        val url by subscriptionSettingsModel.url.collectAsStateWithLifecycle()
+        val title by subscriptionSettingsModel.title.collectAsStateWithLifecycle()
+        val color by subscriptionSettingsModel.color.collectAsStateWithLifecycle()
+        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsStateWithLifecycle()
+        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsStateWithLifecycle()
+        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsStateWithLifecycle()
+        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsStateWithLifecycle()
+        val inputValid by inputValid.collectAsStateWithLifecycle(false)
+        val modelsDirty by modelsDirty.collectAsStateWithLifecycle(false)
         Scaffold(
             topBar = { AppBarComposable(inputValid, modelsDirty) }
         ) { paddingValues ->
@@ -257,10 +257,10 @@ class EditCalendarActivity: AppCompatActivity() {
                     isCreating = false,
                     modifier = Modifier.fillMaxWidth()
                 )
-                val supportsAuthentication by subscriptionSettingsModel.supportsAuthentication.collectAsState(false)
-                val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsState(false)
-                val username: String? by credentialsModel.username.collectAsState(null)
-                val password: String? by credentialsModel.password.collectAsState(null)
+                val supportsAuthentication by subscriptionSettingsModel.supportsAuthentication.collectAsStateWithLifecycle()
+                val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsStateWithLifecycle()
+                val username: String? by credentialsModel.username.collectAsStateWithLifecycle()
+                val password: String? by credentialsModel.password.collectAsStateWithLifecycle()
                 AnimatedVisibility(visible = supportsAuthentication) {
                     LoginCredentialsComposable(
                         requiresAuth,
