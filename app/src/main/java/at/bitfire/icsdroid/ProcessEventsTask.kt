@@ -185,10 +185,10 @@ class ProcessEventsTask(
         exception?.let { ex ->
             val message = ex.localizedMessage ?: ex.message ?: ex.toString()
 
-            val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_ERROR_MESSAGE, message)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_THROWABLE, ex)
+            val errorIntent = Intent(context, CalendarListActivity::class.java).apply {
+                putExtra(CalendarListActivity.EXTRA_ERROR_MESSAGE, message)
+                putExtra(CalendarListActivity.EXTRA_THROWABLE, ex)
+            }
 
             val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
                 .setSmallIcon(R.drawable.ic_sync_problem_white)
