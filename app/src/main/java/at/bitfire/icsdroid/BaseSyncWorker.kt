@@ -100,6 +100,7 @@ abstract class BaseSyncWorker(
         // if there's a provider available, get all the calendars available in the system
         for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
             Log.i(Constants.TAG, "Found unmanaged (<= v2.1.1) calendar ${calendar.id}, migrating")
+            @Suppress("DEPRECATION")
             val url = calendar.url ?: continue
 
             // Special case v2.1: it created subscriptions, but did not set the COLUMN_MANAGED_BY_DB flag.
