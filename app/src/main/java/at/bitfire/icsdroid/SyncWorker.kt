@@ -7,15 +7,12 @@ package at.bitfire.icsdroid
 import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
-import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import at.bitfire.ical4android.AndroidCalendar
-import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.Constants.TAG
 
 class SyncWorker(
