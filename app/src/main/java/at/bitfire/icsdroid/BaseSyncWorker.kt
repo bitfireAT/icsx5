@@ -93,7 +93,7 @@ abstract class BaseSyncWorker(
      * 2. Checks that those calendars have a matching [Subscription] in the database.
      * 3. If there's no matching [Subscription], create it.
      */
-    private fun migrateLegacyCalendars() {
+    private suspend fun migrateLegacyCalendars() {
         @Suppress("DEPRECATION")
         val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
 
@@ -145,7 +145,7 @@ abstract class BaseSyncWorker(
      * - updated (e.g. display name) if there's a [Subscription] for this calendar,
      * - deleted if there's no [Subscription] for this calendar.
      */
-    private fun updateLocalCalendars() {
+    private suspend fun updateLocalCalendars() {
         // subscriptions from DB
         val subscriptions = subscriptionsDao.getAll()
 
