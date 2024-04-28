@@ -31,8 +31,6 @@
   <string name="add_calendar_requires_authentication">Kræver autentificering</string>
   <string name="add_calendar_title">Titel &amp; Farve</string>
   <string name="add_calendar_title_hint">Kalendernavn</string>
-  <string name="add_calendar_url_text">Angiv Webcal adresse</string>
-  <string name="add_calendar_pick_file_text">Eller, vælg fil fra lokal lagerplads.</string>
   <string name="add_calendar_pick_file">Vælg fil</string>
   <string name="add_calendar_user_name">Brugernavn</string>
   <string name="add_calendar_validating">Validerer kalenderkilden ...</string>

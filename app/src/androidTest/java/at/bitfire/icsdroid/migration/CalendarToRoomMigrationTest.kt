@@ -166,7 +166,7 @@ class CalendarToRoomMigrationTest {
     }
 
     @Test
-    fun testMigrateFromV2_1() {
+    fun testMigrateFromV2_1() = runBlocking {
         // prepare: create local calendar plus subscription with subscription.id = LocalCalendar.id,
         // but with calendarId=null and COLUMN_MANAGED_BY_DB=null
         val calendar = createCalendar()

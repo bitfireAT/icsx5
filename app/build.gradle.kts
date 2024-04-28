@@ -18,8 +18,8 @@ android {
         minSdk = 23
         targetSdk = 34
 
-        versionCode = 76
-        versionName = "2.2.1-beta.1"
+        versionCode = 77
+        versionName = "2.2.1"
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
@@ -55,11 +55,17 @@ android {
     }
 
     signingConfigs {
-        create("bitfire") {
+        create("bitfire_apk") {
             storeFile = file(System.getenv("ANDROID_KEYSTORE") ?: "/dev/null")
             storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("ANDROID_KEY_ALIAS")
             keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+        }
+        create("bitfire_aab") {
+            storeFile = file(System.getenv("ANDROID_KEYSTORE") ?: "/dev/null")
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("UPLOAD_KEY_ALIAS")
+            keyPassword = System.getenv("UPLOAD_KEY_PASSWORD")
         }
     }
 
@@ -70,7 +76,9 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("bitfire")
+
+            productFlavors.getByName("standard").signingConfig = signingConfigs.getByName("bitfire_apk")
+            productFlavors.getByName("gplay").signingConfig = signingConfigs.getByName("bitfire_aab")
         }
     }
 

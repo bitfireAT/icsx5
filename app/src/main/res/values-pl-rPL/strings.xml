@@ -11,6 +11,7 @@
   <string name="notification_channel_sync_problem">Problemy z synchronizacją</string>
   <string name="permissions_grant">Udziel</string>
   <string name="install_browser">Zainstaluj przeglądarkę internetową</string>
+  <string name="required_annotation">Wymagane</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Moje subskrypcje</string>
   <string name="calendar_list_empty_info">Aby zasubskrybować kanał Webcal, użyj przycisku + lub otwórz adres URL Webcal.</string>
@@ -21,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">Optymalizacja baterii</string>
   <string name="calendar_list_battery_whitelist_text">Optymalizacja baterii może uniemożliwić synchronizację w odstępach krótszych niż jeden dzień. Ustaw %s na \"Nie zoptymalizowano\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Otwórz ustawienia</string>
+  <string name="calendar_list_autorevoke_permissions_title">Automatyczne odbieranie uprawnień</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android cofa uprawnienia rzadko otwieranych aplikacji. Wyłącz odbieranie uprawnień dla %s.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Kliknij Uprawnienia &gt; odznacz \"Usuń uprawnienia, jeśli aplikacja nie jest używana\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Polityka prywatności</string>
   <string name="set_sync_interval_title">Ustaw interwał synchronizacji:</string>
@@ -36,24 +40,35 @@
   <string name="settings_force_dark_theme">Wymuś ciemny motyw</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subskrybuj kalendarz</string>
+  <string name="activity_add_calendar_subscribe">Subskrybuj</string>
+  <string name="add_calendar_subscribe_url">Subskrybuj URL</string>
+  <string name="add_calendar_subscribe_file">Subskrybuj plik</string>
   <string name="add_calendar_need_valid_uri">Wymagany prawidłowy identyfikator URI </string>
+  <string name="add_calendar_authentication_title">Autoryzacja</string>
   <string name="add_calendar_authentication_without_https_warning">Osoby trzecie mogą łatwo przechwycić Twoje dane uwierzytelniające. Użyj protokołu HTTPS do bezpiecznego uwierzytelniania.</string>
   <string name="add_calendar_created">Zasubskrybowano pomyślnie</string>
   <string name="add_calendar_password">Hasło</string>
+  <string name="add_calendar_password_hide">Ukryj hasło</string>
+  <string name="add_calendar_password_show">Pokaż hasło</string>
   <string name="add_calendar_requires_authentication">Wymaga uwierzytelnienia</string>
   <string name="add_calendar_title">Tytuł i kolor</string>
   <string name="add_calendar_title_hint">Nazwa kalendarza</string>
-  <string name="add_calendar_url_text">Wpisz adres Webcal:</string>
-  <string name="add_calendar_pick_file_text">Alternatywnie wybierz plik z pamięci lokalnej.</string>
+  <string name="add_calendar_pick_color">Wybierz kolor</string>
+  <string name="add_calendar_pick_url_label">Adres internetowy</string>
+  <string name="add_calendar_pick_file_label">Ścieżka do pliku</string>
   <string name="add_calendar_pick_file">Wybierz plik</string>
   <string name="add_calendar_user_name">Nazwa użytkownika</string>
   <string name="add_calendar_validating">Sprawdzanie poprawności zasobu kalendarza...</string>
   <string name="add_calendar_alarms_title">Alarmy</string>
+  <string name="add_calendar_alarms_ignore_title">Ignorowanie alertów wbudowanych w kalendarz</string>
   <string name="add_calendar_alarms_ignore_description">Jeśli ta opcja jest włączona, wszystkie alarmy przychodzące z serwera zostaną odrzucone.</string>
   <string name="add_calendar_alarms_default_all_day_title">Dodaj domyślny alarm dla wydarzeń całodniowych</string>
   <string name="default_alarm_dialog_title">Dodaj domyślny alarm</string>
   <string name="default_alarm_dialog_message">Spowoduje to dodanie alarmu dla wszystkich wydarzeń</string>
   <string name="default_alarm_dialog_hint">Minuty przed wydarzeniem</string>
+  <string name="add_calendar_advanced_title">Zaawansowane</string>
+  <string name="add_calendar_description_title">Zignoruj pole OPIS</string>
+  <string name="add_calendar_description_summary">Jeśli opcja ta jest włączona, pole OPIS będzie usuwane ze zdarzeń. Przydatne, jeśli zawiera spamerskie informacje.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Udostępnij szczegóły</string>
   <!--EditCalendarActivity-->
@@ -63,6 +78,10 @@
   <string name="edit_calendar_deleted">Subskrypcja została pomyślnie anulowana</string>
   <string name="edit_calendar_dismiss">Odrzuć</string>
   <string name="edit_calendar_really_delete">Czy na pewno chcesz anulować subskrypcję tego kalendarza?</string>
+  <string name="edit_calendar_edit">Edytuj</string>
+  <string name="edit_calendar_need_valid_credentials">Nazwa użytkownika i hasło są wymagane</string>
+  <string name="edit_calendar_need_username">Wymagana jest nazwa użytkownika</string>
+  <string name="edit_calendar_need_password">Hasło jest wymagane</string>
   <string name="edit_calendar_save">Zapisz</string>
   <string name="edit_calendar_saved">Zmiany zapisane</string>
   <string name="edit_calendar_send_url">Wyślij adres URL</string>
@@ -75,6 +94,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Informacje o aplikacji</string>
   <string name="app_info_version">Wersja %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (inżynieria sieciowa GmbH) i współpracownicy</string>
   <string name="app_info_gplv3_note"><![CDATA[\"
 Ten program jest wolnym oprogramowaniem: możesz go redystrybuować i/lub modyfikować
 na warunkach Powszechnej Licencji Publicznej GNU opublikowanej przez

@@ -21,7 +21,6 @@
   <string name="add_calendar_password">Heslo</string>
   <string name="add_calendar_requires_authentication">Vyžaduje autentizaci</string>
   <string name="add_calendar_title_hint">Jméno kalendáře</string>
-  <string name="add_calendar_pick_file_text">Nebo zvolte soubor ze zařízení.</string>
   <string name="add_calendar_pick_file">Zvolit soubor</string>
   <string name="add_calendar_user_name">Uživatelské jméno</string>
   <!--AlertFragment-->

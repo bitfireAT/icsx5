@@ -40,7 +40,11 @@
   <string name="settings_force_dark_theme">Força el tema obscur</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subscriure\'s a un calendari</string>
+  <string name="activity_add_calendar_subscribe">Subscriure\'s</string>
+  <string name="add_calendar_subscribe_url">Subscriure\'s a una URL</string>
+  <string name="add_calendar_subscribe_file">Subscriure\'s a un fitxer</string>
   <string name="add_calendar_need_valid_uri">Cal una URI vàlida</string>
+  <string name="add_calendar_authentication_title">Autenticació</string>
   <string name="add_calendar_authentication_without_https_warning">Altres persones poden interceptar les teues credencials, utilitza HTTPS per a una autentificació segura.</string>
   <string name="add_calendar_created">Subscrit correctament</string>
   <string name="add_calendar_password">Contrassenya</string>
@@ -50,8 +54,8 @@
   <string name="add_calendar_title">Títol i Color</string>
   <string name="add_calendar_title_hint">Nom del calendari</string>
   <string name="add_calendar_pick_color">Triar color</string>
-  <string name="add_calendar_url_text">Introdueix una direcció Webcal:</string>
-  <string name="add_calendar_pick_file_text">També pots seleccionar un fitxer de l\'emmagatzematge local.</string>
+  <string name="add_calendar_pick_url_label">Direcció Webcal</string>
+  <string name="add_calendar_pick_file_label">Direcció del fitxer</string>
   <string name="add_calendar_pick_file">Tria un fitxer</string>
   <string name="add_calendar_user_name">Nom d\'usuari</string>
   <string name="add_calendar_validating">Validant el recurs de calendari…</string>
@@ -62,6 +66,9 @@
   <string name="default_alarm_dialog_title">Afegir alarma per defecte</string>
   <string name="default_alarm_dialog_message">Açò afegirà una alarma per a tots els esdeveniments</string>
   <string name="default_alarm_dialog_hint">Minuts abans de l\'esdeveniment</string>
+  <string name="add_calendar_advanced_title">Avançat</string>
+  <string name="add_calendar_description_title">Ignora el camp DESCRIPTION</string>
+  <string name="add_calendar_description_summary">Si s\'habilita, el camp DESCRIPTION s\'eliminarà dels esdeveniments. Pot ser útil si té contingut brossa.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Compartir detalls</string>
   <!--EditCalendarActivity-->
