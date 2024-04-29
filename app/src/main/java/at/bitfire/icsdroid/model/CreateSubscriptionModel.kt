@@ -3,7 +3,9 @@ package at.bitfire.icsdroid.model
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -20,10 +22,19 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
 
-    val success = mutableStateOf(false)
-    val errorMessage = mutableStateOf<String?>(null)
-    val isCreating = mutableStateOf(false)
-    val showNextButton = mutableStateOf(false)
+    data class UiState(
+        val success: Boolean = false,
+        val errorMessage: String? = null,
+        val isCreating: Boolean = false,
+        val showNextButton: Boolean = false
+    )
+
+    var uiState by mutableStateOf(UiState())
+        private set
+
+    fun setShowNextButton(value: Boolean) {
+        uiState = uiState.copy(showNextButton = value)
+    }
 
     /**
      * Creates a new subscription taking the data from the given models.
@@ -33,7 +44,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
         credentialsModel: CredentialsModel,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            isCreating.value = true
+            uiState = uiState.copy(isCreating = true)
             try {
                 val subscription = Subscription(
                     displayName = subscriptionSettingsModel.title.value!!,
@@ -66,12 +77,12 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
 
-                success.value = true
+                uiState = uiState.copy(success = true)
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
-                errorMessage.value = e.localizedMessage ?: e.message
+                uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
             } finally {
-                isCreating.value = false
+                uiState = uiState.copy(isCreating = false)
             }
         }
     }

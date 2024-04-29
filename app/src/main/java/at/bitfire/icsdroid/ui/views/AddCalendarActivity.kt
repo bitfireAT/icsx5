@@ -56,7 +56,6 @@ import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
-import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
@@ -120,13 +119,15 @@ class AddCalendarActivity : AppCompatActivity() {
             val password: String? by credentialsModel.password.collectAsStateWithLifecycle()
             val isInsecure: Boolean by credentialsModel.isInsecure.collectAsStateWithLifecycle()
 
-            val isVerifyingUrl: Boolean by validationModel.isVerifyingUrl
-            val validationResult: ResourceInfo? by validationModel.result
+            val validationModelUiState = validationModel.uiState
+            val isVerifyingUrl =  validationModelUiState.isVerifyingUrl
+            val validationResult = validationModelUiState.result
 
-            val success by subscriptionModel.success
-            val errorMessage by subscriptionModel.errorMessage
-            val isCreating: Boolean by subscriptionModel.isCreating
-            val showNextButton by subscriptionModel.showNextButton
+            val subscriptionModelUiState = subscriptionModel.uiState
+            val success = subscriptionModelUiState.success
+            val errorMessage = subscriptionModelUiState.errorMessage
+            val isCreating: Boolean = subscriptionModelUiState.isCreating
+            val showNextButton = subscriptionModelUiState.showNextButton
 
             // on success, show notification and close activity
             if (success) {
@@ -172,13 +173,13 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // Receive updates for the Details page
             LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-                subscriptionModel.showNextButton.value = !title.isNullOrBlank()
+                subscriptionModel.setShowNextButton(!title.isNullOrBlank())
             }
 
             LaunchedEffect(validationResult) {
                 Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
-                if (validationResult == null || validationResult?.exception != null) return@LaunchedEffect
-                val info = validationResult!!
+                if (validationResult == null || validationResult.exception != null) return@LaunchedEffect
+                val info = validationResult
 
                 // When a result has been obtained, and it's neither null nor has an exception,
                 // clean the subscriptionSettingsModel, and move the pager to the next page
@@ -225,7 +226,7 @@ class AddCalendarActivity : AppCompatActivity() {
                             supportsAuthentication = supportsAuthentication,
                             isVerifyingUrl = isVerifyingUrl,
                             validationResult = validationResult,
-                            onValidationResultDismiss = { validationModel.result.value = null },
+                            onValidationResultDismiss = { validationModel.resetResult() },
                             onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
                             onSubmit = { onNextRequested(1) }
                         )
@@ -293,7 +294,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         // otherwise, go back a page
                         else scope.launch {
                             // Needed for non-first-time validations to trigger following validation result updates
-                            validationModel.result.value = null
+                            validationModel.resetResult()
                             pagerState.animateScrollToPage(pagerState.currentPage - 1)
                         }
                     }
@@ -381,8 +382,8 @@ class AddCalendarActivity : AppCompatActivity() {
     }
 
     private fun checkUrlIntroductionPage() {
-        if (validationModel.isVerifyingUrl.value == true) {
-            subscriptionModel.showNextButton.value = true
+        if (validationModel.uiState.isVerifyingUrl) {
+            subscriptionModel.setShowNextButton(true)
         } else {
             val uri = validateUri()
             val authOK =
@@ -391,7 +392,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         !credentialsModel.password.value.isNullOrEmpty()
                 else
                     true
-            subscriptionModel.showNextButton.value = uri != null && authOK
+            subscriptionModel.setShowNextButton(uri != null && authOK)
         }
     }
 

@@ -191,10 +191,7 @@ class CalendarListActivity: AppCompatActivity() {
 
         val subscriptions by model.subscriptions.observeAsState()
 
-        val askForCalendarPermission by model.askForCalendarPermission
-        val askForNotificationPermission by model.askForNotificationPermission
-        val askForWhitelisting by model.askForWhitelisting
-        val askForAutoRevoke by model.askForAutoRevoke
+        val uiState = model.uiState
 
         Box(
             modifier = Modifier
@@ -220,7 +217,7 @@ class CalendarListActivity: AppCompatActivity() {
 
             LazyColumn(Modifier.fillMaxSize()) {
                 // Calendar permission card
-                if (askForCalendarPermission) {
+                if (uiState.askForCalendarPermission) {
                     item(key = "calendar-perm") {
                         ActionCard(
                             title = stringResource(R.string.calendar_permissions_required),
@@ -237,7 +234,7 @@ class CalendarListActivity: AppCompatActivity() {
                 }
 
                 // Notification permission card
-                if (askForNotificationPermission) {
+                if (uiState.askForNotificationPermission) {
                     item(key = "notification-perm") {
                         ActionCard(
                             title = stringResource(R.string.notification_permissions_required),
@@ -254,7 +251,7 @@ class CalendarListActivity: AppCompatActivity() {
                 }
 
                 // Whitelisting card
-                if (askForWhitelisting) {
+                if (uiState.askForWhitelisting) {
                     item(key = "battery-whitelisting") {
                         ActionCard(
                             title = stringResource(R.string.calendar_list_battery_whitelist_title),
@@ -279,7 +276,7 @@ class CalendarListActivity: AppCompatActivity() {
                 }
 
                 // Auto Revoke permissions warning
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && askForAutoRevoke) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && uiState.askForAutoRevoke) {
                     item(key = "auto-revoke-whitelisting") {
                         ActionCard(
                             title = stringResource(R.string.calendar_list_autorevoke_permissions_title),
@@ -417,13 +414,15 @@ class CalendarListActivity: AppCompatActivity() {
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
-        val askForCalendarPermission = mutableStateOf(false)
-        val askForNotificationPermission = mutableStateOf(false)
+        data class UiState(
+            val askForCalendarPermission: Boolean = false,
+            val askForNotificationPermission: Boolean = false,
+            val askForWhitelisting: Boolean = false,
+            val askForAutoRevoke: Boolean = false,
+        )
 
-        val askForWhitelisting = mutableStateOf(false)
-
-        val askForAutoRevoke = mutableStateOf(false)
-
+        var uiState by mutableStateOf(UiState())
+            private set
 
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
@@ -441,23 +440,23 @@ class CalendarListActivity: AppCompatActivity() {
         }
 
         /**
-         * Performs all the checks necessary, and updates [askForCalendarPermission],
-         * [askForNotificationPermission] and [askForWhitelisting] which should be shown to the
+         * Performs all the checks necessary, and updates [UiState.askForCalendarPermission],
+         * [UiState.askForNotificationPermission] and [UiState.askForWhitelisting] which should be shown to the
          * user through a Snackbar.
          */
         fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
             val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
-            askForNotificationPermission.value = !haveNotificationPermission
+            uiState = uiState.copy(askForNotificationPermission = !haveNotificationPermission)
 
             val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
-            askForCalendarPermission.value = !haveCalendarPermission
+            uiState = uiState.copy(askForCalendarPermission = !haveCalendarPermission)
 
             val powerManager = getApplication<Application>().getSystemService<PowerManager>()
             val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
 
             // If not ignoring battery optimizations, and sync interval is less than a day
             val shouldWhitelistApp = isIgnoringBatteryOptimizations == false
-            askForWhitelisting.value = shouldWhitelistApp
+            uiState = uiState.copy(askForWhitelisting = shouldWhitelistApp)
 
             // Make sure permissions are not revoked automatically
             val isAutoRevokeWhitelisted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -465,7 +464,7 @@ class CalendarListActivity: AppCompatActivity() {
             } else {
                 true
             }
-            askForAutoRevoke.value = !isAutoRevokeWhitelisted
+            uiState = uiState.copy(askForAutoRevoke = !isAutoRevokeWhitelisted)
         }
 
     }
