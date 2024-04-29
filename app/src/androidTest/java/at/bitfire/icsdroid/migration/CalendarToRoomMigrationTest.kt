@@ -24,6 +24,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.AppAccount
+import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.calendar.LocalCalendar
@@ -140,7 +141,7 @@ class CalendarToRoomMigrationTest {
                 // run worker
                 val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
                     .setInputData(Data.Builder()
-                        .putBoolean(SyncWorker.ONLY_MIGRATE, true)
+                        .putBoolean(ONLY_MIGRATE, true)
                         .build())
                     .build().doWork()
                 assertEquals(Result.success(), result)
@@ -178,7 +179,7 @@ class CalendarToRoomMigrationTest {
                 // run worker
                 val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
                     .setInputData(Data.Builder()
-                        .putBoolean(SyncWorker.ONLY_MIGRATE, true)
+                        .putBoolean(ONLY_MIGRATE, true)
                         .build())
                     .build().doWork()
                 assertEquals(Result.success(), result)

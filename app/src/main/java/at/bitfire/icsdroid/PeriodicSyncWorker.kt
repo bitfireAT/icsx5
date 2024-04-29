@@ -12,7 +12,7 @@ import java.time.Duration
 class PeriodicSyncWorker(
     context: Context,
     workerParams: WorkerParameters
-): Worker(context, workerParams) {
+): BaseSyncWorker(context, workerParams) {
 
     companion object {
         private const val NAME = "PeriodicSync"
@@ -30,13 +30,5 @@ class PeriodicSyncWorker(
             } else
                 wm.cancelUniqueWork(NAME)
         }
-
     }
-
-    override fun doWork(): Result {
-        Log.i(Constants.TAG, "Periodic worker called, running sync worker")
-        SyncWorker.run(applicationContext)
-        return Result.success()
-    }
-
 }
