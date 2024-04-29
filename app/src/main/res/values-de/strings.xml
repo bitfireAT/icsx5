@@ -11,6 +11,7 @@
   <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <string name="permissions_grant">Gewähren</string>
   <string name="install_browser">Bitte installiere einen Internetbrowser</string>
+  <string name="required_annotation">Benötigt</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Abonnierte Kalender</string>
   <string name="calendar_list_empty_info">Noch kein Webcal-Abo! Mit + oder durch Öffnen eines Webcal-fähigen URLs hinzufügen.</string>
@@ -21,6 +22,9 @@
   <string name="calendar_list_battery_whitelist_title">Akku optimieren</string>
   <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
+  <string name="calendar_list_autorevoke_permissions_title">Automatischer Berechtigungsentzug</string>
+  <string name="calendar_list_autorevoke_permissions_text">Anroid enzieht wenig benutzten Apps die Berechtigungen. Bitte deaktiviere diese Einstellung für %s.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Klicke Berechtigungen &gt; deaktiviere \"App-Aktivität bei Nichtnutzung stoppen\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Datenschutzrichtlinie</string>
   <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
@@ -36,22 +40,35 @@
   <string name="settings_force_dark_theme">Dunklen Stil verwenden</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Kalender abonnieren</string>
+  <string name="activity_add_calendar_subscribe">Abonieren</string>
+  <string name="add_calendar_subscribe_url">URL abonieren</string>
+  <string name="add_calendar_subscribe_file">Datei abonieren</string>
   <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
+  <string name="add_calendar_authentication_title">Authentifizierung</string>
   <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
   <string name="add_calendar_created">Kalender erfolgreich abonniert</string>
   <string name="add_calendar_password">Passwort</string>
+  <string name="add_calendar_password_hide">Passwort ausblenden</string>
+  <string name="add_calendar_password_show">Passwort anzeigen</string>
   <string name="add_calendar_requires_authentication">Zugangsdaten benötigt</string>
   <string name="add_calendar_title">Name &amp; Farbe</string>
   <string name="add_calendar_title_hint">Kalendername</string>
+  <string name="add_calendar_pick_color">Farbe auswählen</string>
+  <string name="add_calendar_pick_url_label">Webcal-Adresse</string>
+  <string name="add_calendar_pick_file_label">Dateipfad</string>
   <string name="add_calendar_pick_file">Datei auswählen</string>
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
   <string name="add_calendar_alarms_title">Alarme</string>
+  <string name="add_calendar_alarms_ignore_title">Ignoriere eingebettete Alarme im Kalender</string>
   <string name="add_calendar_alarms_ignore_description">Falls eingeschaltet, werden alle eingehenden Benachrichtigungen vom Server verworfen.</string>
   <string name="add_calendar_alarms_default_all_day_title">Füge eine Standard-Benachrichtigung für ganztätige Termine hinzu</string>
   <string name="default_alarm_dialog_title">Füge eine Standard-Benachrichtigung hinzu</string>
   <string name="default_alarm_dialog_message">Dies wird eine Benachrichtigung für alle Termine erstellen</string>
   <string name="default_alarm_dialog_hint">Minuten vor dem Termin</string>
+  <string name="add_calendar_advanced_title">Erweitert</string>
+  <string name="add_calendar_description_title">Ignoriere DESCRIPTION-Feld</string>
+  <string name="add_calendar_description_summary">Wenn aktiviert, wird das DESCRIPTION-Feld von aus den Events entfernt. Hilfreich wenn es nachverfolgbare Informationen enthält.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Details teilen</string>
   <!--EditCalendarActivity-->
@@ -61,6 +78,10 @@
   <string name="edit_calendar_deleted">Abo erfolgreich entfernt</string>
   <string name="edit_calendar_dismiss">Verwerfen</string>
   <string name="edit_calendar_really_delete">Wollen Sie dieses Kalender-Abo wirklich entfernen?</string>
+  <string name="edit_calendar_edit">Bearbeiten</string>
+  <string name="edit_calendar_need_valid_credentials">Benutzername und Passwort benötigt</string>
+  <string name="edit_calendar_need_username">Benutzername benötigt</string>
+  <string name="edit_calendar_need_password">Passwort benötigt</string>
   <string name="edit_calendar_save">Speichern</string>
   <string name="edit_calendar_saved">Änderungen gespeichert</string>
   <string name="edit_calendar_send_url">URL senden</string>
@@ -73,6 +94,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Über ICSx⁵</string>
   <string name="app_info_version">Version %1$s-%2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) und Mitwirkende</string>
   <string name="app_info_gplv3_note"><![CDATA[
 Dieses Programm ist freie Software: Sie können es weiterverteilen und/oder es unter der \"GNU General Public License\" der \"Free Software Foundation\" unter Version 3 oder höher verändern.
 

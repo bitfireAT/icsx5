@@ -40,6 +40,9 @@
   <string name="settings_force_dark_theme">ダークテーマを使用</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">カレンダーを購読</string>
+  <string name="activity_add_calendar_subscribe">購読</string>
+  <string name="add_calendar_subscribe_url">URL を購読</string>
+  <string name="add_calendar_subscribe_file">ファイルを購読</string>
   <string name="add_calendar_need_valid_uri">有効な URI が必要です</string>
   <string name="add_calendar_authentication_title">認証</string>
   <string name="add_calendar_authentication_without_https_warning">第三者が簡単にあなたの認証情報にアクセスできます。HTTPS を使用して認証情報を保護してください</string>
@@ -51,6 +54,8 @@
   <string name="add_calendar_title">件名と色</string>
   <string name="add_calendar_title_hint">カレンダーの名前</string>
   <string name="add_calendar_pick_color">色を選択</string>
+  <string name="add_calendar_pick_url_label">Webcal アドレス</string>
+  <string name="add_calendar_pick_file_label">ファイルの場所</string>
   <string name="add_calendar_pick_file">ファイルを選択</string>
   <string name="add_calendar_user_name">ユーザー名</string>
   <string name="add_calendar_validating">カレンダー情報を確認しています...</string>
