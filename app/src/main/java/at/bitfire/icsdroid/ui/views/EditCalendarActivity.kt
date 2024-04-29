@@ -142,10 +142,16 @@ class EditCalendarActivity: AppCompatActivity() {
 
         setContentThemed {
             // show error message from calling intent, if available
-            if (inState == null)
+            var showingErrorMessage by remember {
+                mutableStateOf(inState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))
+            }
+            if (showingErrorMessage)
                 intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                    AlertDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {}
+                    AlertDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {
+                        showingErrorMessage = false
+                    }
                 }
+
             EditCalendarComposable()
         }
     }
