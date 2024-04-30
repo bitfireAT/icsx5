@@ -70,13 +70,6 @@ class SyncWorker(
                 .enqueue()
         }
 
-        @Deprecated(
-            message = "Replace LiveData by Flows",
-            replaceWith = ReplaceWith("statusFlow(context)")
-        )
-        fun liveStatus(context: Context) =
-            WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(NAME)
-
         fun statusFlow(context: Context) =
             WorkManager.getInstance(context).getWorkInfosForUniqueWorkFlow(NAME)
 
