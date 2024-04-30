@@ -126,7 +126,8 @@ class EditCalendarActivity: AppCompatActivity() {
         // Initialise view models and save their initial state
         lifecycleScope.launch {
             model.subscriptionWithCredential.flowWithLifecycle(lifecycle).collect { data ->
-                onSubscriptionLoaded(data)
+                if (data != null)
+                    onSubscriptionLoaded(data)
             }
         }
 
