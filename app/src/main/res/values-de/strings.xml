@@ -23,7 +23,7 @@
   <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatischer Berechtigungsentzug</string>
-  <string name="calendar_list_autorevoke_permissions_text">Anroid enzieht wenig benutzten Apps die Berechtigungen. Bitte deaktiviere diese Einstellung für %s.</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android entzieht wenig benutzten Apps die Berechtigungen. Bitte deaktiviere diese Einstellung für %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Klicke Berechtigungen &gt; deaktiviere \"App-Aktivität bei Nichtnutzung stoppen\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Datenschutzrichtlinie</string>
@@ -68,7 +68,7 @@
   <string name="default_alarm_dialog_hint">Minuten vor dem Termin</string>
   <string name="add_calendar_advanced_title">Erweitert</string>
   <string name="add_calendar_description_title">Ignoriere DESCRIPTION-Feld</string>
-  <string name="add_calendar_description_summary">Wenn aktiviert, wird das DESCRIPTION-Feld von aus den Events entfernt. Hilfreich wenn es nachverfolgbare Informationen enthält.</string>
+  <string name="add_calendar_description_summary">Wenn aktiviert, wird das DESCRIPTION-Feld in den Events entfernt. Hilfreich wenn es Spam ähnliche Informationen enthält.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Details teilen</string>
   <!--EditCalendarActivity-->
