@@ -201,14 +201,13 @@ class EditCalendarActivity: AppCompatActivity() {
     private fun onShare() {
         lifecycleScope.launch {
             model.subscriptionWithCredential.value?.let { (subscription, _) ->
-                Log.i(Constants.TAG, "Sharing URL...")
                 ShareCompat.IntentBuilder(this@EditCalendarActivity)
                     .setSubject(subscription.displayName)
                     .setText(subscription.url.toString())
                     .setType("text/plain")
                     .setChooserTitle(R.string.edit_calendar_send_url)
                     .startChooser()
-            } ?: Log.w(Constants.TAG, "There's no subscription to share")
+            }
         }
     }
 
