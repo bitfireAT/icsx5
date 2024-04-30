@@ -44,7 +44,6 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
@@ -54,8 +53,6 @@ class EditCalendarActivity: AppCompatActivity() {
 
     companion object {
         const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
-        const val EXTRA_ERROR_MESSAGE = "errorMessage"
-        const val EXTRA_THROWABLE = "errorThrowable"
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
@@ -136,17 +133,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                 finish()
             }
-            // show error message from calling intent, if available
-            var showingErrorMessage by remember {
-                mutableStateOf(inState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))
-            }
-            if (showingErrorMessage)
-                intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                    AlertDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {
-                        showingErrorMessage = false
-                    }
-                }
+        }
 
+        setContentThemed {
             EditCalendarComposable()
         }
     }

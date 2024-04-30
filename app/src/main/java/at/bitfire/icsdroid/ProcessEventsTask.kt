@@ -18,16 +18,15 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
-import at.bitfire.icsdroid.ui.views.EditCalendarActivity
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.time.Duration
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.time.Duration
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
@@ -182,36 +181,9 @@ class ProcessEventsTask(
 
         downloader.fetch()
 
-        exception?.let { ex ->
-            val message = ex.localizedMessage ?: ex.message ?: ex.toString()
-
-            val errorIntent = Intent(context, EditCalendarActivity::class.java)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_ERROR_MESSAGE, message)
-            errorIntent.putExtra(EditCalendarActivity.EXTRA_THROWABLE, ex)
-
-            val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
-                .setSmallIcon(R.drawable.ic_sync_problem_white)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
-                .setGroup(context.getString(R.string.app_name))
-                .setContentTitle(context.getString(R.string.sync_error_title))
-                .setContentText(message)
-                .setSubText(subscription.displayName)
-                .setContentIntent(
-                    PendingIntent.getActivity(
-                        context,
-                        0,
-                        errorIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
-                .setOnlyAlertOnce(true)
-            subscription.color?.let { notification.color = it }
-            notificationManager.notify(subscription.id.toString(), 0, notification.build())
-
-            subscriptionsDao.updateStatusError(subscription.id, message)
+        exception?.let { e ->
+            subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
+            notifyError(e)
         }
     }
 
@@ -264,14 +236,20 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "… $deleted events deleted")
     }
 
-    private fun notifyError(exception: Exception) {
+    private fun notifyError(exception: Throwable) {
+        val message = exception.localizedMessage ?: exception.message ?: exception.toString()
+        val errorIntent = Intent(context, CalendarListActivity::class.java).apply {
+            putExtra(CalendarListActivity.EXTRA_ERROR_MESSAGE, message)
+            putExtra(CalendarListActivity.EXTRA_THROWABLE, exception)
+        }
+
         val notificationManager = NotificationUtils.createChannels(context)
         val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
             .setSmallIcon(R.drawable.ic_sync_problem_white)
             .setCategory(NotificationCompat.CATEGORY_ERROR)
             .setGroup(context.getString(R.string.app_name))
             .setContentTitle(context.getString(R.string.sync_error_title))
-            .setContentText(exception.localizedMessage ?: exception.message)
+            .setContentText(message)
             .setAutoCancel(true)
             .setWhen(System.currentTimeMillis())
             .setOnlyAlertOnce(true)
@@ -279,10 +257,11 @@ class ProcessEventsTask(
                 PendingIntent.getActivity(
                     context,
                     0,
-                    Intent(context, CalendarListActivity::class.java),
-                    PendingIntent.FLAG_IMMUTABLE
+                    errorIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
                 )
             )
+        subscription.color?.let { notification.color = it }
         notificationManager.notify(subscription.id.toInt(), notification.build())
     }
 }

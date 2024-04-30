@@ -73,6 +73,7 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.ActionCard
+import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
@@ -92,6 +93,18 @@ class CalendarListActivity: AppCompatActivity() {
         const val EXTRA_REQUEST_CALENDAR_PERMISSION = "permission"
 
         const val PRIVACY_POLICY_URL = "https://icsx5.bitfire.at/privacy/"
+
+        /**
+         * If set, an alert dialog will be displayed with the message of this error.
+         * May be set together with [EXTRA_THROWABLE] to display a stack trace.
+         */
+        const val EXTRA_ERROR_MESSAGE = "errorMessage"
+
+        /**
+         * If set, an alert dialog will be displayed with the stack trace of this error.
+         * If set, [EXTRA_ERROR_MESSAGE] must also be set, otherwise does nothing.
+         */
+        const val EXTRA_THROWABLE = "errorThrowable"
     }
 
     private val model by viewModels<SubscriptionsModel>()
@@ -133,6 +146,17 @@ class CalendarListActivity: AppCompatActivity() {
             compStartupServices.forEach { service ->
                 val show: Boolean by service.shouldShow()
                 if (show) service.Content()
+            }
+
+            // show error message from calling intent, if available
+            var showingErrorMessage by remember {
+                mutableStateOf(savedInstanceState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))
+            }
+            if (showingErrorMessage) {
+                AlertDialog(
+                    intent.getStringExtra(EXTRA_ERROR_MESSAGE)!!,
+                    intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable
+                ) { showingErrorMessage = false }
             }
 
             Scaffold(
