@@ -6,7 +6,7 @@ package at.bitfire.icsdroid.service
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.LiveData
+import androidx.compose.runtime.State
 
 /**
  * Used for interactions between flavors.
@@ -23,10 +23,10 @@ interface ComposableStartupService {
 
     /**
      * Provides a stateful response to whether this composable should be shown or not.
-     * @return A [LiveData] that can be observed, and will make [Content] visible when `true`.
+     * @return A [State] that can be observed, and will make [Content] visible when `true`.
      */
     @Composable
-    fun shouldShow(): LiveData<Boolean>
+    fun shouldShow(): State<Boolean>
 
     /**
      * The content to display. It's not constrained, will be rendered together with the main UI.
