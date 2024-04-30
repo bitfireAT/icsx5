@@ -3,8 +3,10 @@ package at.bitfire.icsdroid.model
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.SyncWorker
@@ -20,10 +22,19 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
 
-    val success = MutableLiveData(false)
-    val errorMessage = MutableLiveData<String?>(null)
-    val isCreating = MutableLiveData(false)
-    val showNextButton = MutableLiveData(false)
+    data class UiState(
+        val success: Boolean = false,
+        val errorMessage: String? = null,
+        val isCreating: Boolean = false,
+        val showNextButton: Boolean = false
+    )
+
+    var uiState by mutableStateOf(UiState())
+        private set
+
+    fun setShowNextButton(value: Boolean) {
+        uiState = uiState.copy(showNextButton = value)
+    }
 
     /**
      * Creates a new subscription taking the data from the given models.
@@ -33,23 +44,23 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
         credentialsModel: CredentialsModel,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            isCreating.postValue(true)
+            uiState = uiState.copy(isCreating = true)
             try {
                 val subscription = Subscription(
                     displayName = subscriptionSettingsModel.title.value!!,
                     url = Uri.parse(subscriptionSettingsModel.url.value),
                     color = subscriptionSettingsModel.color.value,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value ?: false,
+                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value,
                     defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
                     defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value ?: false,
+                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value,
                 )
 
                 /** A list of all the ids of the inserted rows */
                 val id = subscriptionsDao.add(subscription)
 
                 // Create the credential in the IO thread
-                if (credentialsModel.requiresAuth.value == true) {
+                if (credentialsModel.requiresAuth.value) {
                     // If the subscription requires credentials, create them
                     val username = credentialsModel.username.value
                     val password = credentialsModel.password.value
@@ -66,12 +77,12 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
 
-                success.postValue(true)
+                uiState = uiState.copy(success = true)
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Couldn't create calendar", e)
-                errorMessage.postValue(e.localizedMessage ?: e.message)
+                uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
             } finally {
-                isCreating.postValue(false)
+                uiState = uiState.copy(isCreating = false)
             }
         }
     }

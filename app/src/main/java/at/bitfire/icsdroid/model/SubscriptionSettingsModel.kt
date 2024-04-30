@@ -1,38 +1,45 @@
 package at.bitfire.icsdroid.model
 
 import android.net.Uri
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.net.URISyntaxException
 
 class SubscriptionSettingsModel : ViewModel() {
-    val url = MutableLiveData<String?>(null)
-    val fileName = MutableLiveData<String?>(null)
-    val urlError = MutableLiveData<String?>(null)
-    val title = MutableLiveData<String?>(null)
-    val color = MutableLiveData<Int?>(null)
-    val ignoreAlerts = MutableLiveData(false)
-    val defaultAlarmMinutes = MutableLiveData<Long?>(null)
-    val defaultAllDayAlarmMinutes = MutableLiveData<Long?>(null)
+    val url = MutableStateFlow<String?>(null)
+    val fileName = MutableStateFlow<String?>(null)
+    val urlError = MutableStateFlow<String?>(null)
+    val title = MutableStateFlow<String?>(null)
+    val color = MutableStateFlow<Int?>(null)
+    val ignoreAlerts = MutableStateFlow(false)
+    val defaultAlarmMinutes = MutableStateFlow<Long?>(null)
+    val defaultAllDayAlarmMinutes = MutableStateFlow<Long?>(null)
 
-    // advanced
-    val ignoreDescription = MutableLiveData(false)
+    // advanced settings
+    val ignoreDescription = MutableStateFlow(false)
 
-    val supportsAuthentication = MediatorLiveData(false).apply {
-        addSource(url) {
-            val uri = try {
-                Uri.parse(it)
+    // computed settings
+    val supportsAuthentication: StateFlow<Boolean> = url.map { url ->
+        val uri = try {
+                Uri.parse(url)
             } catch (e: URISyntaxException) {
-                return@addSource
+                return@map false
             } catch (_: NullPointerException) {
-                return@addSource
-            }
-            value = HttpUtils.supportsAuthentication(uri)
+                return@map false
         }
-    }
+        return@map HttpUtils.supportsAuthentication(uri)
+    }.stateIn(
+        initialValue = false,
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000)
+    )
 
     fun equalsSubscription(subscription: Subscription) =
         url.value == subscription.url.toString()

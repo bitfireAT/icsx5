@@ -18,16 +18,15 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
-import at.bitfire.icsdroid.ui.views.EditCalendarActivity
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.time.Duration
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Trigger
 import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.time.Duration
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
