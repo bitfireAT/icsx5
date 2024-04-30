@@ -15,7 +15,9 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EditSubscriptionModel(
@@ -35,6 +37,7 @@ class EditSubscriptionModel(
         private set
 
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /**
      * Updates the loaded subscription from the data provided by the view models.
@@ -44,7 +47,7 @@ class EditSubscriptionModel(
         credentialsModel: CredentialsModel
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.firstOrNull()?.let { subscriptionWithCredentials ->
+            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
                 val subscription = subscriptionWithCredentials.subscription
 
                 val newSubscription = subscription.copy(
@@ -79,7 +82,7 @@ class EditSubscriptionModel(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.firstOrNull()?.let { subscriptionWithCredentials ->
+            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
                 subscriptionsDao.delete(subscriptionWithCredentials.subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
@@ -92,7 +95,7 @@ class EditSubscriptionModel(
     }
 
     fun shareUrl(activityContext: Context) = viewModelScope.launch {
-        subscriptionWithCredential.firstOrNull()?.let { (subscription, _) ->
+        subscriptionWithCredential.value?.let { (subscription, _) ->
             Log.i(Constants.TAG, "Sharing URL...")
             ShareCompat.IntentBuilder(activityContext)
                 .setSubject(subscription.displayName)
