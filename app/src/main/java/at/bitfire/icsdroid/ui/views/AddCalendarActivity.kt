@@ -424,13 +424,6 @@ class AddCalendarActivity : AppCompatActivity() {
                 return null
             }
 
-            // Fixme: Need to push update to source flow (subscriptionSettingsModel.url) ?
-//            val supportsAuthenticate = HttpUtils.supportsAuthentication(uri)
-//            subscriptionSettingsModel.supportsAuthentication.value = supportsAuthenticate
-
-            subscriptionSettingsModel.url.value = uri.toString()
-
-
             when (uri.scheme?.lowercase()) {
                 "content" -> {
                     // SAF file, no need for auth
