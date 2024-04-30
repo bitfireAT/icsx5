@@ -52,15 +52,19 @@ class ProcessEventsTask(
     private val db = AppDatabase.getInstance(context)
     private val subscriptionsDao = db.subscriptionsDao()
 
+    private var exception: Throwable? = null
+
     suspend fun sync() {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
             processEvents()
+            dismissNotification()
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
             subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
-            notifyError(e)
+            exception = e
+            notifyError()
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
     }
@@ -123,7 +127,6 @@ class ProcessEventsTask(
         // dismiss old notifications
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(subscription.id.toString(), 0)
-        var exception: Throwable? = null
 
         val downloader = object : CalendarFetcher(context, uri) {
             override suspend fun onSuccess(
@@ -183,7 +186,7 @@ class ProcessEventsTask(
 
         exception?.let { e ->
             subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
-            notifyError(e)
+            notifyError()
         }
     }
 
@@ -236,7 +239,12 @@ class ProcessEventsTask(
         Log.i(Constants.TAG, "… $deleted events deleted")
     }
 
-    private fun notifyError(exception: Throwable) {
+    /**
+     * Sends a notification to the user that the sync failed.
+     * Uses the exception in [exception].
+     */
+    private fun notifyError() {
+        val exception = exception ?: return
         val message = exception.localizedMessage ?: exception.message ?: exception.toString()
         val errorIntent = Intent(context, CalendarListActivity::class.java).apply {
             putExtra(CalendarListActivity.EXTRA_ERROR_MESSAGE, message)
@@ -263,5 +271,15 @@ class ProcessEventsTask(
             )
         subscription.color?.let { notification.color = it }
         notificationManager.notify(subscription.id.toInt(), notification.build())
+    }
+
+    /**
+     * If [exception] is not null, dismisses the notification for the subscription.
+     */
+    private fun dismissNotification() {
+        // If there's an error, do not dismiss the notification
+        if (exception != null) return
+        val notificationManager = NotificationUtils.createChannels(context)
+        notificationManager.cancel(subscription.id.toInt())
     }
 }
