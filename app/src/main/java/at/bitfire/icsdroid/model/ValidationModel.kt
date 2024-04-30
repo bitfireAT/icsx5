@@ -7,8 +7,10 @@ package at.bitfire.icsdroid.model
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
@@ -18,18 +20,26 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
-import java.io.InputStream
-import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
+import java.io.InputStream
+import java.io.InputStreamReader
 
 class ValidationModel(application: Application): AndroidViewModel(application) {
 
-    val isVerifyingUrl = MutableLiveData(false)
+    data class UiState(
+        val isVerifyingUrl: Boolean = false,
+        val result: ResourceInfo? = null
+    )
 
-    val result = MutableLiveData<ResourceInfo?>(null)
+    var uiState by mutableStateOf(UiState())
+        private set
+
+    fun resetResult() {
+        uiState = uiState.copy(result = null)
+    }
 
     fun validate(
         originalUri: Uri,
@@ -39,7 +49,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            isVerifyingUrl.postValue(true)
+            uiState = uiState.copy(isVerifyingUrl = true)
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(getApplication(), originalUri) {
@@ -72,7 +82,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
                         info.eventsFound = events.size
                     }
 
-                    result.postValue(info)
+                    uiState = uiState.copy(result = info)
                 }
 
                 override suspend fun onNewPermanentUrl(target: Uri) {
@@ -84,7 +94,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
                 override suspend fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
-                    result.postValue(info)
+                    uiState = uiState.copy(result = info)
                 }
             }
 
@@ -96,7 +106,7 @@ class ValidationModel(application: Application): AndroidViewModel(application) {
 
             downloader.fetch()
         } finally {
-            isVerifyingUrl.postValue(false)
+            uiState = uiState.copy(isVerifyingUrl = false)
         }
     }
 

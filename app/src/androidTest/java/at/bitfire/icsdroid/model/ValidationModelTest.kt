@@ -104,7 +104,7 @@ class ValidationModelTest {
             model.validate(server.url("/").toAndroidUri(), null, null).join()
         }
 
-        return model.result.value!!
+        return model.uiState.result!!
     }
 
 }

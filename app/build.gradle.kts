@@ -125,6 +125,7 @@ dependencies {
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.work.runtime)
 
     // Jetpack Compose
