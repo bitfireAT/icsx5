@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.ui.views
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,11 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
@@ -195,7 +198,19 @@ class EditCalendarActivity: AppCompatActivity() {
 
     private fun onDelete() = model.removeSubscription()
 
-    private fun onShare() = model.shareUrl(this)
+    private fun onShare() {
+        lifecycleScope.launch {
+            model.subscriptionWithCredential.value?.let { (subscription, _) ->
+                Log.i(Constants.TAG, "Sharing URL...")
+                ShareCompat.IntentBuilder(this@EditCalendarActivity)
+                    .setSubject(subscription.displayName)
+                    .setText(subscription.url.toString())
+                    .setType("text/plain")
+                    .setChooserTitle(R.string.edit_calendar_send_url)
+                    .startChooser()
+            } ?: Log.w(Constants.TAG, "There's no subscription to share")
+        }
+    }
 
     /* Composables */
 
