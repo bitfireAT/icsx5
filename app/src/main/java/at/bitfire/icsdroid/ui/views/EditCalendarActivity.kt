@@ -56,8 +56,6 @@ class EditCalendarActivity: AppCompatActivity() {
 
     companion object {
         const val EXTRA_SUBSCRIPTION_ID = "subscriptionId"
-        const val EXTRA_ERROR_MESSAGE = "errorMessage"
-        const val EXTRA_THROWABLE = "errorThrowable"
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
@@ -141,17 +139,6 @@ class EditCalendarActivity: AppCompatActivity() {
         }
 
         setContentThemed {
-            // show error message from calling intent, if available
-            var showingErrorMessage by remember {
-                mutableStateOf(inState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))
-            }
-            if (showingErrorMessage)
-                intent.getStringExtra(EXTRA_ERROR_MESSAGE)?.let { error ->
-                    AlertDialog(error, intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable) {
-                        showingErrorMessage = false
-                    }
-                }
-
             EditCalendarComposable()
         }
     }
