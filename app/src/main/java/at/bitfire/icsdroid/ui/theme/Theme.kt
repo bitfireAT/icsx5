@@ -16,6 +16,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -120,8 +121,8 @@ fun AppTheme(
 fun ComponentActivity.setContentThemed(
     parent: CompositionContext? = null,
     darkTheme: @Composable () -> Boolean = {
-        val forceDarkTheme by Settings(this).forceDarkModeLive().observeAsState()
-        forceDarkTheme == true || isSystemInDarkTheme()
+        val forceDarkTheme by Settings(this).forceDarkModeFlow().collectAsState(false)
+        forceDarkTheme || isSystemInDarkTheme()
     },
     content: @Composable () -> Unit
 ) {

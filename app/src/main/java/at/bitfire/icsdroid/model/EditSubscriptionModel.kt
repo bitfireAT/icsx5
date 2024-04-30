@@ -1,16 +1,21 @@
 package at.bitfire.icsdroid.model
 
 import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ShareCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class EditSubscriptionModel(
@@ -29,7 +34,7 @@ class EditSubscriptionModel(
     var uiState by mutableStateOf(UiState())
         private set
 
-    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
+    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
 
     /**
      * Updates the loaded subscription from the data provided by the view models.
@@ -39,7 +44,7 @@ class EditSubscriptionModel(
         credentialsModel: CredentialsModel
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
+            subscriptionWithCredential.firstOrNull()?.let { subscriptionWithCredentials ->
                 val subscription = subscriptionWithCredentials.subscription
 
                 val newSubscription = subscription.copy(
@@ -65,7 +70,7 @@ class EditSubscriptionModel(
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication(), forceResync = true)
-            }
+            } ?: Log.w(Constants.TAG, "There's no subscription to update")
         }
     }
 
@@ -74,7 +79,7 @@ class EditSubscriptionModel(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
+            subscriptionWithCredential.firstOrNull()?.let { subscriptionWithCredentials ->
                 subscriptionsDao.delete(subscriptionWithCredentials.subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
@@ -82,8 +87,20 @@ class EditSubscriptionModel(
 
                 // notify UI about success
                 uiState = uiState.copy(successMessage = getApplication<Application>().getString(R.string.edit_calendar_deleted))
-            }
+            } ?: Log.w(Constants.TAG, "There's no subscription to remove")
         }
+    }
+
+    fun shareUrl(activityContext: Context) = viewModelScope.launch {
+        subscriptionWithCredential.firstOrNull()?.let { (subscription, _) ->
+            Log.i(Constants.TAG, "Sharing URL...")
+            ShareCompat.IntentBuilder(activityContext)
+                .setSubject(subscription.displayName)
+                .setText(subscription.url.toString())
+                .setType("text/plain")
+                .setChooserTitle(R.string.edit_calendar_send_url)
+                .startChooser()
+        } ?: Log.w(Constants.TAG, "There's no subscription to share")
     }
 
 }

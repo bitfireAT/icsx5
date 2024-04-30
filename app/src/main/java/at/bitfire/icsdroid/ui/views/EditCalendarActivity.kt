@@ -34,10 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
@@ -49,6 +50,7 @@ import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -122,9 +124,10 @@ class EditCalendarActivity: AppCompatActivity() {
         super.onCreate(inState)
 
         // Initialise view models and save their initial state
-        model.subscriptionWithCredential.observe(this) { data ->
-            if (data != null)
+        lifecycleScope.launch {
+            model.subscriptionWithCredential.flowWithLifecycle(lifecycle).collect { data ->
                 onSubscriptionLoaded(data)
+            }
         }
 
         setContentThemed {
@@ -191,14 +194,7 @@ class EditCalendarActivity: AppCompatActivity() {
 
     private fun onDelete() = model.removeSubscription()
 
-    private fun onShare() = model.subscriptionWithCredential.value?.let { (subscription, _) ->
-        ShareCompat.IntentBuilder(this)
-            .setSubject(subscription.displayName)
-            .setText(subscription.url.toString())
-            .setType("text/plain")
-            .setChooserTitle(R.string.edit_calendar_send_url)
-            .startChooser()
-    }
+    private fun onShare() = model.shareUrl(this)
 
     /* Composables */
 
