@@ -127,7 +127,7 @@ class EditCalendarActivity: AppCompatActivity() {
         }
 
         setContentThemed {
-            val successMessage by model.successMessage
+            val successMessage = model.uiState.successMessage
             // show success message
             successMessage?.let {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
