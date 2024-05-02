@@ -37,7 +37,7 @@ class EditSubscriptionModel(
         private set
 
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     /**
      * Updates the loaded subscription from the data provided by the view models.
