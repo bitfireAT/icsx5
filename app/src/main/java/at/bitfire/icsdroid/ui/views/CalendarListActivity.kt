@@ -82,6 +82,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.ServiceLoader
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -108,7 +110,6 @@ class CalendarListActivity: AppCompatActivity() {
     }
 
     private val model by viewModels<SubscriptionsModel>()
-    val settings by lazy { Settings(this) }
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
     private lateinit var requestCalendarPermissions: () -> Unit
@@ -202,7 +203,7 @@ class CalendarListActivity: AppCompatActivity() {
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
-        val syncing by model.isRefreshing.collectAsState(initial = true)
+        val syncing by model.isRefreshing.collectAsState(initial = false)
         val pullRefreshState = rememberPullToRefreshState()
         if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
             pullRefreshState.startRefresh()
@@ -392,7 +393,7 @@ class CalendarListActivity: AppCompatActivity() {
             )
             DropdownMenuItem(
                 text = {
-                    val forceDarkMode by settings.forceDarkModeFlow().collectAsState(false)
+                    val forceDarkMode by model.forceDarkMode.collectAsState(false)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.settings_force_dark_theme))
                         Checkbox(
@@ -438,6 +439,8 @@ class CalendarListActivity: AppCompatActivity() {
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
+        private val settings = Settings(application)
+
         data class UiState(
             val askForCalendarPermission: Boolean = false,
             val askForNotificationPermission: Boolean = false,
@@ -457,6 +460,9 @@ class CalendarListActivity: AppCompatActivity() {
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
             .getAllFlow()
+
+        val forceDarkMode = settings.forceDarkModeFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
         init {
             // When initialized, update the ask* fields
