@@ -18,11 +18,11 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import at.bitfire.icsdroid.Settings
+import androidx.lifecycle.viewmodel.compose.viewModel
+import at.bitfire.icsdroid.model.ThemeModel
 
 private val DarkColors = darkColorScheme(
     primary = lightblue,
@@ -121,7 +121,8 @@ fun AppTheme(
 fun ComponentActivity.setContentThemed(
     parent: CompositionContext? = null,
     darkTheme: @Composable () -> Boolean = {
-        val forceDarkTheme by Settings(this).forceDarkModeFlow().collectAsState(false)
+        val model = viewModel<ThemeModel>()
+        val forceDarkTheme by model.forceDarkMode.collectAsState(false)
         forceDarkTheme || isSystemInDarkTheme()
     },
     content: @Composable () -> Unit
