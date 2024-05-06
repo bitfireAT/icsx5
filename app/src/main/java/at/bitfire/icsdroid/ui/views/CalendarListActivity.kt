@@ -43,8 +43,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
@@ -80,6 +79,9 @@ import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.ServiceLoader
 
@@ -108,7 +110,6 @@ class CalendarListActivity: AppCompatActivity() {
     }
 
     private val model by viewModels<SubscriptionsModel>()
-    val settings by lazy { Settings(this) }
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
     private lateinit var requestCalendarPermissions: () -> Unit
@@ -202,7 +203,7 @@ class CalendarListActivity: AppCompatActivity() {
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
-        val syncing by model.isRefreshing.observeAsState(initial = true)
+        val syncing by model.isRefreshing.collectAsState()
         val pullRefreshState = rememberPullToRefreshState()
         if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
             pullRefreshState.startRefresh()
@@ -213,7 +214,7 @@ class CalendarListActivity: AppCompatActivity() {
             pullRefreshState.endRefresh()
         }
 
-        val subscriptions by model.subscriptions.observeAsState()
+        val subscriptions by model.subscriptions.collectAsState()
 
         val uiState = model.uiState
 
@@ -324,7 +325,7 @@ class CalendarListActivity: AppCompatActivity() {
                     }
                 }
 
-                if (subscriptions?.isEmpty() == true) {
+                if (subscriptions.isEmpty()) {
                     item(key = "empty") {
                         Text(
                             text = stringResource(R.string.calendar_list_empty_info),
@@ -338,7 +339,7 @@ class CalendarListActivity: AppCompatActivity() {
                     }
                 }
 
-                items(subscriptions ?: emptyList()) { subscription ->
+                items(subscriptions) { subscription ->
                     CalendarListItem(subscription = subscription, onClick = {
                         val intent = Intent(context, EditCalendarActivity::class.java)
                         intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
@@ -392,7 +393,7 @@ class CalendarListActivity: AppCompatActivity() {
             )
             DropdownMenuItem(
                 text = {
-                    val forceDarkMode by settings.forceDarkModeLive().observeAsState(false)
+                    val forceDarkMode by model.forceDarkMode.collectAsState()
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.settings_force_dark_theme))
                         Checkbox(
@@ -438,6 +439,8 @@ class CalendarListActivity: AppCompatActivity() {
 
     class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
+        private val settings = Settings(application)
+
         data class UiState(
             val askForCalendarPermission: Boolean = false,
             val askForNotificationPermission: Boolean = false,
@@ -449,14 +452,18 @@ class CalendarListActivity: AppCompatActivity() {
             private set
 
         /** whether there are running sync workers */
-        val isRefreshing = SyncWorker.liveStatus(application).map { workInfos ->
+        val isRefreshing = SyncWorker.statusFlow(application).map { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
-        }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
         /** LiveData watching the subscriptions */
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
-            .getAllLive()
+            .getAllFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        val forceDarkMode = settings.forceDarkModeFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
         init {
             // When initialized, update the ask* fields

@@ -22,28 +22,6 @@ class Settings(context: Context) {
 
     fun forceDarkMode(): Boolean = prefs.getBoolean(FORCE_DARK_MODE, false)
 
-    @Deprecated(
-        message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("forceDarkModeFlow()")
-    )
-    fun forceDarkModeLive(): LiveData<Boolean> = object: LiveData<Boolean>() {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            if (key == FORCE_DARK_MODE) {
-                val forceDarkMode = prefs.getBoolean(key, false)
-                postValue(forceDarkMode)
-            }
-        }
-
-        override fun onActive() {
-            prefs.registerOnSharedPreferenceChangeListener(listener)
-            listener.onSharedPreferenceChanged(prefs, FORCE_DARK_MODE)
-        }
-
-        override fun onInactive() {
-            prefs.unregisterOnSharedPreferenceChangeListener(listener)
-        }
-    }
-
     fun forceDarkModeFlow(): Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (key == FORCE_DARK_MODE) {

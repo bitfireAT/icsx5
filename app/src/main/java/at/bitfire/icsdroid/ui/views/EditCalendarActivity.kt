@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.ui.views
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +39,11 @@ import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
@@ -48,7 +54,10 @@ import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class EditCalendarActivity: AppCompatActivity() {
 
@@ -78,7 +87,7 @@ class EditCalendarActivity: AppCompatActivity() {
                     true
             }
             titleOK && authOK
-        }
+        }.stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), false)
     }
 
     // Whether unsaved changes exist
@@ -105,8 +114,9 @@ class EditCalendarActivity: AppCompatActivity() {
                 } ?: false
             }) { credentialsDirty, subscriptionsDirty ->
             credentialsDirty || subscriptionsDirty
-        }
+        }.stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), false)
     }
+
 
     private val model by viewModels<EditSubscriptionModel> {
         object: ViewModelProvider.Factory {
@@ -122,9 +132,11 @@ class EditCalendarActivity: AppCompatActivity() {
         super.onCreate(inState)
 
         // Initialise view models and save their initial state
-        model.subscriptionWithCredential.observe(this) { data ->
-            if (data != null)
-                onSubscriptionLoaded(data)
+        lifecycleScope.launch {
+            model.subscriptionWithCredential.flowWithLifecycle(lifecycle).collect { data ->
+                if (data != null)
+                    onSubscriptionLoaded(data)
+            }
         }
 
         setContentThemed {
@@ -191,13 +203,17 @@ class EditCalendarActivity: AppCompatActivity() {
 
     private fun onDelete() = model.removeSubscription()
 
-    private fun onShare() = model.subscriptionWithCredential.value?.let { (subscription, _) ->
-        ShareCompat.IntentBuilder(this)
-            .setSubject(subscription.displayName)
-            .setText(subscription.url.toString())
-            .setType("text/plain")
-            .setChooserTitle(R.string.edit_calendar_send_url)
-            .startChooser()
+    private fun onShare() {
+        lifecycleScope.launch {
+            model.subscriptionWithCredential.value?.let { (subscription, _) ->
+                ShareCompat.IntentBuilder(this@EditCalendarActivity)
+                    .setSubject(subscription.displayName)
+                    .setText(subscription.url.toString())
+                    .setType("text/plain")
+                    .setChooserTitle(R.string.edit_calendar_send_url)
+                    .startChooser()
+            }
+        }
     }
 
     /* Composables */
@@ -211,8 +227,8 @@ class EditCalendarActivity: AppCompatActivity() {
         val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsStateWithLifecycle()
         val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsStateWithLifecycle()
         val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsStateWithLifecycle()
-        val inputValid by inputValid.collectAsStateWithLifecycle(false)
-        val modelsDirty by modelsDirty.collectAsStateWithLifecycle(false)
+        val inputValid by inputValid.collectAsStateWithLifecycle()
+        val modelsDirty by modelsDirty.collectAsStateWithLifecycle()
         Scaffold(
             topBar = { AppBarComposable(inputValid, modelsDirty) }
         ) { paddingValues ->

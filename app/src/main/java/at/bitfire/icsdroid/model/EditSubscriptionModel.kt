@@ -1,16 +1,23 @@
 package at.bitfire.icsdroid.model
 
 import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ShareCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EditSubscriptionModel(
@@ -29,7 +36,8 @@ class EditSubscriptionModel(
     var uiState by mutableStateOf(UiState())
         private set
 
-    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdLive(subscriptionId)
+    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     /**
      * Updates the loaded subscription from the data provided by the view models.
@@ -65,7 +73,7 @@ class EditSubscriptionModel(
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication(), forceResync = true)
-            }
+            } ?: Log.w(Constants.TAG, "There's no subscription to update")
         }
     }
 
@@ -82,7 +90,7 @@ class EditSubscriptionModel(
 
                 // notify UI about success
                 uiState = uiState.copy(successMessage = getApplication<Application>().getString(R.string.edit_calendar_deleted))
-            }
+            } ?: Log.w(Constants.TAG, "There's no subscription to remove")
         }
     }
 

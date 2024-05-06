@@ -22,13 +22,6 @@ interface SubscriptionsDao {
     @Delete
     suspend fun delete(vararg subscriptions: Subscription)
 
-    @Deprecated(
-        message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getAllFlow()")
-    )
-    @Query("SELECT * FROM subscriptions")
-    fun getAllLive(): LiveData<List<Subscription>>
-
     @Query("SELECT * FROM subscriptions")
     fun getAllFlow(): Flow<List<Subscription>>
 
@@ -44,22 +37,8 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE url=:url")
     suspend fun getByUrl(url: String): Subscription?
 
-    @Deprecated(
-        message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getWithCredentialsByIdFlow(id)")
-    )
-    @Query("SELECT * FROM subscriptions WHERE id=:id")
-    fun getWithCredentialsByIdLive(id: Long): LiveData<SubscriptionWithCredential>
-
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     fun getWithCredentialsByIdFlow(id: Long): Flow<SubscriptionWithCredential>
-
-    @Deprecated(
-        message = "Replace LiveData by Flows",
-        replaceWith = ReplaceWith("getErrorMessageFlow(id)")
-    )
-    @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
-    fun getErrorMessageLive(id: Long): LiveData<String?>
 
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageFlow(id: Long): Flow<String?>
