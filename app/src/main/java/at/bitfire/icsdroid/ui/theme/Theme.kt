@@ -122,7 +122,7 @@ fun ComponentActivity.setContentThemed(
     parent: CompositionContext? = null,
     darkTheme: @Composable () -> Boolean = {
         val model = viewModel<ThemeModel>()
-        val forceDarkTheme by model.forceDarkMode.collectAsState(false)
+        val forceDarkTheme by model.forceDarkMode.collectAsState()
         forceDarkTheme || isSystemInDarkTheme()
     },
     content: @Composable () -> Unit

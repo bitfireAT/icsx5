@@ -393,7 +393,7 @@ class CalendarListActivity: AppCompatActivity() {
             )
             DropdownMenuItem(
                 text = {
-                    val forceDarkMode by model.forceDarkMode.collectAsState(false)
+                    val forceDarkMode by model.forceDarkMode.collectAsState()
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.settings_force_dark_theme))
                         Checkbox(
