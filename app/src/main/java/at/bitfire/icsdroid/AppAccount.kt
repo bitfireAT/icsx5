@@ -8,12 +8,15 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.provider.CalendarContract
 import android.util.Log
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 
 object AppAccount {
 
-    private const val DEFAULT_SYNC_INTERVAL = 24*3600L   // 1 day
+    const val DEFAULT_SYNC_INTERVAL = 24*3600L   // 1 day
     const val SYNC_INTERVAL_MANUALLY = -1L
 
     private const val PREF_ACCOUNT = "account"
@@ -54,6 +57,20 @@ object AppAccount {
 
     fun syncInterval(context: Context) =
         preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY)
+
+    fun syncIntervalFlow(context: Context) = callbackFlow {
+        val preferences = preferences(context)
+        val listener = OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_SYNC_INTERVAL) {
+                trySend(preferences.getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY))
+            }
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+
+        awaitClose {
+            preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
 
     fun syncInterval(context: Context, syncInterval: Long) {
         // don't use the sync framework anymore (legacy)
