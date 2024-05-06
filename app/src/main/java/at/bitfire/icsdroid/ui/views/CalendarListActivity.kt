@@ -79,11 +79,11 @@ import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.ServiceLoader
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalFoundationApi::class)
 class CalendarListActivity: AppCompatActivity() {
@@ -203,7 +203,7 @@ class CalendarListActivity: AppCompatActivity() {
     fun ActivityContent(paddingValues: PaddingValues) {
         val context = LocalContext.current
 
-        val syncing by model.isRefreshing.collectAsState(initial = false)
+        val syncing by model.isRefreshing.collectAsState()
         val pullRefreshState = rememberPullToRefreshState()
         if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
             pullRefreshState.startRefresh()
@@ -214,7 +214,7 @@ class CalendarListActivity: AppCompatActivity() {
             pullRefreshState.endRefresh()
         }
 
-        val subscriptions by model.subscriptions.collectAsState(initial = emptyList())
+        val subscriptions by model.subscriptions.collectAsState()
 
         val uiState = model.uiState
 
@@ -454,12 +454,13 @@ class CalendarListActivity: AppCompatActivity() {
         /** whether there are running sync workers */
         val isRefreshing = SyncWorker.statusFlow(application).map { workInfos ->
             workInfos.any { it.state == WorkInfo.State.RUNNING }
-        }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
         /** LiveData watching the subscriptions */
         val subscriptions = AppDatabase.getInstance(application)
             .subscriptionsDao()
             .getAllFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
         val forceDarkMode = settings.forceDarkModeFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
