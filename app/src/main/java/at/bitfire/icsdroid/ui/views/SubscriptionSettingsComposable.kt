@@ -30,11 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.ui.partials.ColorPickerDialog
 import at.bitfire.icsdroid.ui.partials.SwitchSetting
+import at.bitfire.icsdroid.ui.theme.AppTheme
 
 @Composable
 fun SubscriptionSettingsComposable(
@@ -184,8 +186,31 @@ fun SubscriptionSettingsComposable(
         SwitchSetting(
             title = stringResource(R.string.add_calendar_description_title),
             description = stringResource(R.string.add_calendar_description_summary),
-            checked = ignoreDescription ?: false,
+            checked = ignoreDescription,
             onCheckedChange = onIgnoreDescriptionChanged
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SubscriptionSettingsComposable_Preview() {
+    AppTheme {
+        SubscriptionSettingsComposable(
+            url = "url",
+            title = "title",
+            titleChanged = {},
+            color = 0,
+            colorChanged = {},
+            ignoreAlerts = true,
+            ignoreAlertsChanged = {},
+            defaultAlarmMinutes = 20L,
+            defaultAlarmMinutesChanged = {},
+            defaultAllDayAlarmMinutes = 10L,
+            defaultAllDayAlarmMinutesChanged = {},
+            ignoreDescription = false,
+            onIgnoreDescriptionChanged = {},
+            isCreating = true
         )
     }
 }
