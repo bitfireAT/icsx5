@@ -1,6 +1,9 @@
 package at.bitfire.icsdroid.model
 
 import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.HttpUtils
@@ -13,40 +16,76 @@ import kotlinx.coroutines.flow.stateIn
 import java.net.URISyntaxException
 
 class SubscriptionSettingsModel : ViewModel() {
-    val url = MutableStateFlow<String?>(null)
-    val fileName = MutableStateFlow<String?>(null)
-    val urlError = MutableStateFlow<String?>(null)
-    val title = MutableStateFlow<String?>(null)
-    val color = MutableStateFlow<Int?>(null)
-    val ignoreAlerts = MutableStateFlow(false)
-    val defaultAlarmMinutes = MutableStateFlow<Long?>(null)
-    val defaultAllDayAlarmMinutes = MutableStateFlow<Long?>(null)
-
-    // advanced settings
-    val ignoreDescription = MutableStateFlow(false)
-
-    // computed settings
-    val supportsAuthentication: StateFlow<Boolean> = url.map { url ->
-        val uri = try {
+    data class UiState(
+        val url: String? = null,
+        val fileName: String? = null,
+        val urlError: String? = null,
+        val title: String? = null,
+        val color: Int? = null,
+        val ignoreAlerts: Boolean = false,
+        val defaultAlarmMinutes: Long? = null,
+        val defaultAllDayAlarmMinutes: Long? = null,
+        // advanced settings
+        val ignoreDescription: Boolean = false
+    ) {
+        // computed settings
+        val supportsAuthentication: Boolean = url.let {
+            val uri = try {
                 Uri.parse(url)
             } catch (e: URISyntaxException) {
-                return@map false
+                return@let false
             } catch (_: NullPointerException) {
-                return@map false
+                return@let false
+            }
+            HttpUtils.supportsAuthentication(uri)
         }
-        return@map HttpUtils.supportsAuthentication(uri)
-    }.stateIn(
-        initialValue = false,
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+    }
+
+    var uiState by mutableStateOf(UiState())
+        private set
+
+    fun setUrl(value: String?) {
+        uiState = uiState.copy(url = value)
+    }
+
+    fun setFileName(value: String?) {
+        uiState = uiState.copy(fileName = value)
+    }
+
+    fun setUrlError(value: String?) {
+        uiState = uiState.copy(urlError = value)
+    }
+
+    fun setTitle(value: String) {
+        uiState = uiState.copy(title = value)
+    }
+
+    fun setColor(value: Int?) {
+        uiState = uiState.copy(color = value)
+    }
+
+    fun setIgnoreAlerts(value: Boolean) {
+        uiState = uiState.copy(ignoreAlerts = value)
+    }
+
+    fun setDefaultAlarmMinutes(value: String?) {
+        uiState = uiState.copy(defaultAlarmMinutes = value?.toLongOrNull())
+    }
+
+    fun setDefaultAllDayAlarmMinutes(value: String?) {
+        uiState = uiState.copy(defaultAllDayAlarmMinutes = value?.toLongOrNull())
+    }
+
+    fun setIgnoreDescription(value: Boolean) {
+        uiState = uiState.copy(ignoreDescription = value)
+    }
 
     fun equalsSubscription(subscription: Subscription) =
-        url.value == subscription.url.toString()
-            && title.value == subscription.displayName
-            && color.value == subscription.color
-            && ignoreAlerts.value == subscription.ignoreEmbeddedAlerts
-            && defaultAlarmMinutes.value == subscription.defaultAlarmMinutes
-            && defaultAllDayAlarmMinutes.value == subscription.defaultAllDayAlarmMinutes
-            && ignoreDescription.value == subscription.ignoreDescription
+        uiState.url == subscription.url.toString()
+            && uiState.title == subscription.displayName
+            && uiState.color == subscription.color
+            && uiState.ignoreAlerts == subscription.ignoreEmbeddedAlerts
+            && uiState.defaultAlarmMinutes == subscription.defaultAlarmMinutes
+            && uiState.defaultAllDayAlarmMinutes == subscription.defaultAllDayAlarmMinutes
+            && uiState.ignoreDescription == subscription.ignoreDescription
 }

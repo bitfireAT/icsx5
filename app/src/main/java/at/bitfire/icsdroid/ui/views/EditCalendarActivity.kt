@@ -72,50 +72,36 @@ class EditCalendarActivity: AppCompatActivity() {
     private var initialRequiresAuthValue: Boolean? = null
 
     // Whether user made changes are legal
-    private val inputValid by lazy {
-        combine(
-            subscriptionSettingsModel.title,
-            credentialsModel.requiresAuth,
-            credentialsModel.username,
-            credentialsModel.password
-        ) { title, requiresAuth, username, password ->
+    private val inputValid: Boolean
+        @Composable
+        get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
+            val title = subscriptionSettingsModel.uiState.title
+            val requiresAuth = credentialsModel.uiState.requiresAuth
+            val username = credentialsModel.uiState.username
+            val password = credentialsModel.uiState.password
+
             val titleOK = !title.isNullOrBlank()
-            val authOK = credentialsModel.run {
-                if (requiresAuth)
-                    !username.isNullOrBlank() && !password.isNullOrBlank()
-                else
-                    true
-            }
+            val authOK = if (requiresAuth)
+                !username.isNullOrBlank() && !password.isNullOrBlank()
+            else
+                true
             titleOK && authOK
-        }.stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), false)
-    }
+        }
 
     // Whether unsaved changes exist
-    private val modelsDirty by lazy {
-        combine(
-            combine(
-                credentialsModel.requiresAuth,
-                credentialsModel.username,
-                credentialsModel.password
-            ) { requiresAuth, _, _ ->
-                initialRequiresAuthValue != requiresAuth ||
-                        initialCredential?.let { !credentialsModel.equalsCredential(it) } ?: false
-            },
-            combine(
-                subscriptionSettingsModel.title,
-                subscriptionSettingsModel.color,
-                subscriptionSettingsModel.ignoreAlerts,
-                subscriptionSettingsModel.defaultAlarmMinutes,
-                subscriptionSettingsModel.defaultAllDayAlarmMinutes,
-                subscriptionSettingsModel.ignoreDescription
-            ) {
-                initialSubscription?.let {
-                    !subscriptionSettingsModel.equalsSubscription(it)
-                } ?: false
-            }) { credentialsDirty, subscriptionsDirty ->
+    private val modelsDirty: Boolean
+        @Composable
+        get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
+            val requiresAuth = credentialsModel.uiState.requiresAuth
+
+            val credentialsDirty = initialRequiresAuthValue != requiresAuth ||
+                    initialCredential?.let { !credentialsModel.equalsCredential(it) } ?: false
+            val subscriptionsDirty = initialSubscription?.let {
+                !subscriptionSettingsModel.equalsSubscription(it)
+            } ?: false
+
             credentialsDirty || subscriptionsDirty
-        }.stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), false)
-    }
+        }
 
 
     private val model by viewModels<EditSubscriptionModel> {
@@ -128,8 +114,8 @@ class EditCalendarActivity: AppCompatActivity() {
         }
     }
 
-    override fun onCreate(inState: Bundle?) {
-        super.onCreate(inState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         // Initialise view models and save their initial state
         lifecycleScope.launch {
@@ -157,43 +143,29 @@ class EditCalendarActivity: AppCompatActivity() {
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
         val subscription = subscriptionWithCredential.subscription
 
-        subscriptionSettingsModel.url.value = subscription.url.toString()
+        subscriptionSettingsModel.setUrl(subscription.url.toString())
         subscription.displayName.let {
-            subscriptionSettingsModel.title.value = it
+            subscriptionSettingsModel.setTitle(it)
         }
-        subscription.color.let {
-            subscriptionSettingsModel.color.value = it
-        }
-        subscription.ignoreEmbeddedAlerts.let {
-            subscriptionSettingsModel.ignoreAlerts.value = it
-        }
-        subscription.defaultAlarmMinutes.let {
-            subscriptionSettingsModel.defaultAlarmMinutes.value = it
-        }
-        subscription.defaultAllDayAlarmMinutes.let {
-            subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = it
-        }
-        subscription.ignoreDescription.let {
-            subscriptionSettingsModel.ignoreDescription.value = it
-        }
+        subscription.color.let(subscriptionSettingsModel::setColor)
+        subscription.ignoreEmbeddedAlerts.let(subscriptionSettingsModel::setIgnoreAlerts)
+        subscription.defaultAlarmMinutes?.toString().let(subscriptionSettingsModel::setDefaultAlarmMinutes)
+        subscription.defaultAllDayAlarmMinutes?.toString()?.let(subscriptionSettingsModel::setDefaultAllDayAlarmMinutes)
+        subscription.ignoreDescription.let(subscriptionSettingsModel::setIgnoreDescription)
 
         val credential = subscriptionWithCredential.credential
         val requiresAuth = credential != null
-        credentialsModel.requiresAuth.value = requiresAuth
+        credentialsModel.setRequiresAuth(requiresAuth)
 
         if (credential != null) {
-            credential.username.let { username ->
-                credentialsModel.username.value = username
-            }
-            credential.password.let { password ->
-                credentialsModel.password.value = password
-            }
+            credential.username.let(credentialsModel::setUsername)
+            credential.password.let(credentialsModel::setPassword)
         }
 
         // Save state, before user makes changes
         initialSubscription = subscription
         initialCredential = credential
-        initialRequiresAuthValue = credentialsModel.requiresAuth.value
+        initialRequiresAuthValue = credentialsModel.uiState.requiresAuth
     }
 
 
@@ -220,15 +192,13 @@ class EditCalendarActivity: AppCompatActivity() {
 
     @Composable
     private fun EditCalendarComposable() {
-        val url by subscriptionSettingsModel.url.collectAsStateWithLifecycle()
-        val title by subscriptionSettingsModel.title.collectAsStateWithLifecycle()
-        val color by subscriptionSettingsModel.color.collectAsStateWithLifecycle()
-        val ignoreAlerts by subscriptionSettingsModel.ignoreAlerts.collectAsStateWithLifecycle()
-        val defaultAlarmMinutes by subscriptionSettingsModel.defaultAlarmMinutes.collectAsStateWithLifecycle()
-        val defaultAllDayAlarmMinutes by subscriptionSettingsModel.defaultAllDayAlarmMinutes.collectAsStateWithLifecycle()
-        val ignoreDescription by subscriptionSettingsModel.ignoreDescription.collectAsStateWithLifecycle()
-        val inputValid by inputValid.collectAsStateWithLifecycle()
-        val modelsDirty by modelsDirty.collectAsStateWithLifecycle()
+        val url = subscriptionSettingsModel.uiState.url
+        val title = subscriptionSettingsModel.uiState.title
+        val color = subscriptionSettingsModel.uiState.color
+        val ignoreAlerts = subscriptionSettingsModel.uiState.ignoreAlerts
+        val defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes
+        val defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes
+        val ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription
         Scaffold(
             topBar = { AppBarComposable(inputValid, modelsDirty) }
         ) { paddingValues ->
@@ -241,38 +211,32 @@ class EditCalendarActivity: AppCompatActivity() {
                 SubscriptionSettingsComposable(
                     url = url,
                     title = title,
-                    titleChanged = { subscriptionSettingsModel.title.value = it },
+                    titleChanged = subscriptionSettingsModel::setTitle,
                     color = color,
-                    colorChanged = { subscriptionSettingsModel.color.value = it },
+                    colorChanged = subscriptionSettingsModel::setColor,
                     ignoreAlerts = ignoreAlerts,
-                    ignoreAlertsChanged = { subscriptionSettingsModel.ignoreAlerts.value = it },
+                    ignoreAlertsChanged = subscriptionSettingsModel::setIgnoreAlerts,
                     defaultAlarmMinutes = defaultAlarmMinutes,
-                    defaultAlarmMinutesChanged = {
-                        subscriptionSettingsModel.defaultAlarmMinutes.value = it.toLongOrNull()
-                    },
+                    defaultAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAlarmMinutes,
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
-                    defaultAllDayAlarmMinutesChanged = {
-                        subscriptionSettingsModel.defaultAllDayAlarmMinutes.value = it.toLongOrNull()
-                    },
+                    defaultAllDayAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
                     ignoreDescription = ignoreDescription,
-                    onIgnoreDescriptionChanged = {
-                        subscriptionSettingsModel.ignoreDescription.value = it
-                    },
+                    onIgnoreDescriptionChanged = subscriptionSettingsModel::setIgnoreDescription,
                     isCreating = false,
                     modifier = Modifier.fillMaxWidth()
                 )
-                val supportsAuthentication by subscriptionSettingsModel.supportsAuthentication.collectAsStateWithLifecycle()
-                val requiresAuth: Boolean by credentialsModel.requiresAuth.collectAsStateWithLifecycle()
-                val username: String? by credentialsModel.username.collectAsStateWithLifecycle()
-                val password: String? by credentialsModel.password.collectAsStateWithLifecycle()
+                val supportsAuthentication = subscriptionSettingsModel.uiState.supportsAuthentication
+                val requiresAuth: Boolean = credentialsModel.uiState.requiresAuth
+                val username: String? = credentialsModel.uiState.username
+                val password: String? = credentialsModel.uiState.password
                 AnimatedVisibility(visible = supportsAuthentication) {
                     LoginCredentialsComposable(
                         requiresAuth,
                         username,
                         password,
-                        onRequiresAuthChange = { credentialsModel.requiresAuth.value = it },
-                        onUsernameChange = { credentialsModel.username.value = it },
-                        onPasswordChange = { credentialsModel.password.value = it }
+                        onRequiresAuthChange = credentialsModel::setRequiresAuth,
+                        onUsernameChange = credentialsModel::setUsername,
+                        onPasswordChange = credentialsModel::setPassword
                     )
                 }
             }
