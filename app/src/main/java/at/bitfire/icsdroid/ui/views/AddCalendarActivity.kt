@@ -97,8 +97,8 @@ class AddCalendarActivity : AppCompatActivity() {
             }
         }
 
-    override fun onCreate(inState: Bundle?) {
-        super.onCreate(inState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentThemed {
             val context = LocalContext.current
             val pagerState = rememberPagerState { 2 }
@@ -140,7 +140,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // If launched by intent
             LaunchedEffect(intent) {
-                if (inState == null) {
+                if (savedInstanceState == null) {
                     intent?.apply {
                         try {
                             (data ?: getStringExtra(Intent.EXTRA_TEXT))
