@@ -51,18 +51,18 @@ class EditSubscriptionModel(
                 val subscription = subscriptionWithCredentials.subscription
 
                 val newSubscription = subscription.copy(
-                    displayName = subscriptionSettingsModel.title.value ?: subscription.displayName,
-                    color = subscriptionSettingsModel.color.value,
-                    defaultAlarmMinutes = subscriptionSettingsModel.defaultAlarmMinutes.value,
-                    defaultAllDayAlarmMinutes = subscriptionSettingsModel.defaultAllDayAlarmMinutes.value,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.ignoreAlerts.value,
-                    ignoreDescription = subscriptionSettingsModel.ignoreDescription.value
+                    displayName = subscriptionSettingsModel.uiState.title ?: subscription.displayName,
+                    color = subscriptionSettingsModel.uiState.color,
+                    defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
+                    defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
+                    ignoreEmbeddedAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
+                    ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription
                 )
                 subscriptionsDao.update(newSubscription)
 
-                if (credentialsModel.requiresAuth.value) {
-                    val username = credentialsModel.username.value
-                    val password = credentialsModel.password.value
+                if (credentialsModel.uiState.requiresAuth) {
+                    val username = credentialsModel.uiState.username
+                    val password = credentialsModel.uiState.password
                     if (username != null && password != null)
                         credentialsDao.upsert(Credential(subscriptionId, username, password))
                 } else
