@@ -32,11 +32,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.ColorPickerDialog
 import at.bitfire.icsdroid.ui.partials.SwitchSetting
 import at.bitfire.icsdroid.ui.theme.AppTheme
+
+@Composable
+fun SubscriptionSettingsComposable(
+    model: SubscriptionSettingsModel = viewModel(),
+    isCreating: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    SubscriptionSettingsComposable(
+        url = model.uiState.url,
+        title = model.uiState.title,
+        titleChanged = model::setTitle,
+        color = model.uiState.color,
+        colorChanged = model::setColor,
+        ignoreAlerts = model.uiState.ignoreAlerts,
+        ignoreAlertsChanged = model::setIgnoreAlerts,
+        defaultAlarmMinutes = model.uiState.defaultAlarmMinutes,
+        defaultAlarmMinutesChanged = model::setDefaultAlarmMinutes,
+        defaultAllDayAlarmMinutes = model.uiState.defaultAllDayAlarmMinutes,
+        defaultAllDayAlarmMinutesChanged = model::setDefaultAllDayAlarmMinutes,
+        ignoreDescription = model.uiState.ignoreDescription,
+        onIgnoreDescriptionChanged = model::setIgnoreDescription,
+        isCreating = isCreating,
+        modifier = modifier
+    )
+}
 
 @Composable
 fun SubscriptionSettingsComposable(

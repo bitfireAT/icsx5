@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
@@ -46,29 +47,10 @@ fun EditCalendarScreen(
     onExit: () -> Unit
 ) {
     EditCalendarScreen(
-        credentialsModel.uiState.username,
-        credentialsModel.uiState.password,
-        credentialsModel.uiState.requiresAuth,
-
-        credentialsModel::setRequiresAuth,
-        credentialsModel::setUsername,
-        credentialsModel::setPassword,
-
+        subscriptionSettingsModel,
         subscriptionSettingsModel.uiState.supportsAuthentication,
-        subscriptionSettingsModel.uiState.url,
-        subscriptionSettingsModel.uiState.title,
-        subscriptionSettingsModel.uiState.color,
-        subscriptionSettingsModel.uiState.ignoreAlerts,
-        subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-        subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-        subscriptionSettingsModel.uiState.ignoreDescription,
 
-        subscriptionSettingsModel::setTitle,
-        subscriptionSettingsModel::setColor,
-        subscriptionSettingsModel::setIgnoreAlerts,
-        subscriptionSettingsModel::setDefaultAlarmMinutes,
-        subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
-        subscriptionSettingsModel::setIgnoreDescription,
+        credentialsModel,
 
         inputValid,
         modelsDirty,
@@ -82,29 +64,10 @@ fun EditCalendarScreen(
 
 @Composable
 private fun EditCalendarScreen(
-    username: String?,
-    password: String?,
-    requiresAuth: Boolean,
-
-    setRequiresAuth: (Boolean) -> Unit,
-    setUsername: (String) -> Unit,
-    setPassword: (String) -> Unit,
-
+    subscriptionSettingsModel: SubscriptionSettingsModel,
     supportsAuthentication: Boolean,
-    url: String?,
-    title: String?,
-    color: Int?,
-    ignoreAlerts: Boolean,
-    defaultAlarmMinutes: Long?,
-    defaultAllDayAlarmMinutes: Long?,
-    ignoreDescription: Boolean,
 
-    setTitle: (String) -> Unit,
-    setColor: (Int) -> Unit,
-    setIgnoreAlerts: (Boolean) -> Unit,
-    setDefaultAlarmMinutes: (String) -> Unit,
-    setDefaultAllDayAlarmMinutes: (String) -> Unit,
-    setIgnoreDescription: (Boolean) -> Unit,
+    credentialsModel: CredentialsModel,
 
     inputValid: Boolean,
     modelsDirty: Boolean,
@@ -131,30 +94,13 @@ private fun EditCalendarScreen(
                 .padding(16.dp)
         ) {
             SubscriptionSettingsComposable(
-                url = url,
-                title = title,
-                titleChanged = setTitle,
-                color = color,
-                colorChanged = setColor,
-                ignoreAlerts = ignoreAlerts,
-                ignoreAlertsChanged = setIgnoreAlerts,
-                defaultAlarmMinutes = defaultAlarmMinutes,
-                defaultAlarmMinutesChanged = setDefaultAlarmMinutes,
-                defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
-                defaultAllDayAlarmMinutesChanged = setDefaultAllDayAlarmMinutes,
-                ignoreDescription = ignoreDescription,
-                onIgnoreDescriptionChanged = setIgnoreDescription,
+                subscriptionSettingsModel,
                 isCreating = false,
                 modifier = Modifier.fillMaxWidth()
             )
             AnimatedVisibility(visible = supportsAuthentication) {
                 LoginCredentialsComposable(
-                    requiresAuth,
-                    username,
-                    password,
-                    onRequiresAuthChange = setRequiresAuth,
-                    onUsernameChange = setUsername,
-                    onPasswordChange = setPassword
+                    credentialsModel
                 )
             }
         }
@@ -238,27 +184,10 @@ private fun AppBarComposable(
 fun EditCalendarScreen_Preview() {
     AppTheme {
         EditCalendarScreen(
-            username = "username",
-            password = "password",
-            requiresAuth = true,
-            setRequiresAuth = {},
-            setUsername = {},
-            setPassword = {},
-
+            subscriptionSettingsModel = viewModel(),
             supportsAuthentication = true,
-            url = "url",
-            title = "title",
-            color = 0,
-            ignoreAlerts = true,
-            defaultAlarmMinutes = 5L,
-            defaultAllDayAlarmMinutes = 10L,
-            ignoreDescription = false,
-            setTitle = {},
-            setColor = {},
-            setIgnoreAlerts = {},
-            setDefaultAlarmMinutes = {},
-            setDefaultAllDayAlarmMinutes = {},
-            setIgnoreDescription = {},
+
+            credentialsModel = viewModel(),
 
             inputValid = true,
             modelsDirty = true,
