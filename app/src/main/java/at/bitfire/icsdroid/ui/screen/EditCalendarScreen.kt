@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.screen
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
@@ -25,23 +26,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditCalendarModel
+import at.bitfire.icsdroid.model.EditSubscriptionModel
+import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
-import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
 @Composable
 fun EditCalendarScreen(
-    editCalendarModel: EditCalendarModel = viewModel(),
-    onShare: () -> Unit,
+    application: Application,
+    subscriptionId: Long,
+    onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit
 ) {
+    val credentialsModel: CredentialsModel = viewModel()
+    val subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
+    val editSubscriptionModel: EditSubscriptionModel = viewModel {
+        EditSubscriptionModel(application, subscriptionId)
+    }
+    val editCalendarModel: EditCalendarModel = viewModel {
+        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)
+    }
+
     // show success message
     editCalendarModel.editSubscriptionModel.uiState.successMessage?.let { successMessage ->
         Toast.makeText(LocalContext.current, successMessage, Toast.LENGTH_LONG).show()
@@ -53,7 +66,11 @@ fun EditCalendarScreen(
             editCalendarModel.modelsDirty,
             editCalendarModel::onDelete,
             editCalendarModel::onSave,
-            onShare,
+            {
+                editSubscriptionModel.subscriptionWithCredential.value?.let {
+                    onShare(it.subscription)
+                }
+            },
             onExit
         )}
     ) { paddingValues ->
@@ -151,14 +168,15 @@ private fun AppBarComposable(
     )
 }
 
-@Preview
-@Composable
-fun EditCalendarScreen_Preview() {
-    AppTheme {
-        EditCalendarScreen(
-            editCalendarModel = viewModel(),
-            onShare = {},
-            onExit = {}
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun EditCalendarScreen_Preview() {
+//    AppTheme {
+//        EditCalendarScreen(
+//            ,
+//            editCalendarModel = viewModel(),
+//            onShare = {},
+//            onExit = {}
+//        )
+//    }
+//}
