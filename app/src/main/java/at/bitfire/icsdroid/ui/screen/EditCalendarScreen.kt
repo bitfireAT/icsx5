@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
@@ -36,6 +37,7 @@ import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
+import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
@@ -44,7 +46,7 @@ fun EditCalendarScreen(
     application: Application,
     subscriptionId: Long,
     onShare: (subscription: Subscription) -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit = {}
 ) {
     val credentialsModel: CredentialsModel = viewModel()
     val subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
@@ -54,25 +56,55 @@ fun EditCalendarScreen(
     val editCalendarModel: EditCalendarModel = viewModel {
         EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)
     }
-
+    EditCalendarScreen(
+        inputValid = editCalendarModel.inputValid,
+        modelsDirty = editCalendarModel.modelsDirty,
+        successMessage = editCalendarModel.editSubscriptionModel.uiState.successMessage,
+        onDelete = editSubscriptionModel::removeSubscription,
+        onSave = {
+            editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
+        },
+        {
+            editSubscriptionModel.subscriptionWithCredential.value?.let {
+                onShare(it.subscription)
+            }
+        },
+        onExit,
+        editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
+        editCalendarModel.subscriptionSettingsModel,
+        editCalendarModel.credentialsModel
+    )
+}
+@Composable
+fun EditCalendarScreen(
+    inputValid: Boolean,
+    modelsDirty: Boolean,
+    successMessage: String?,
+    onDelete: () -> Unit,
+    onSave: () -> Unit,
+    onShare: () -> Unit,
+    onExit: () -> Unit,
+    supportsAuthentication: Boolean,
+    subscriptionSettingsModel: SubscriptionSettingsModel,
+    credentialsModel: CredentialsModel
+) {
     // show success message
-    editCalendarModel.editSubscriptionModel.uiState.successMessage?.let { successMessage ->
+    successMessage?.let {
         Toast.makeText(LocalContext.current, successMessage, Toast.LENGTH_LONG).show()
         onExit()
     }
+
     Scaffold(
-        topBar = { AppBarComposable(
-            editCalendarModel.inputValid,
-            editCalendarModel.modelsDirty,
-            editCalendarModel::onDelete,
-            editCalendarModel::onSave,
-            {
-                editSubscriptionModel.subscriptionWithCredential.value?.let {
-                    onShare(it.subscription)
-                }
-            },
-            onExit
-        )}
+        topBar = {
+            AppBarComposable(
+                inputValid,
+                modelsDirty,
+                onDelete,
+                onSave,
+                onShare,
+                onExit
+            )
+        }
     ) { paddingValues ->
         Column(
             Modifier
@@ -82,14 +114,14 @@ fun EditCalendarScreen(
         ) {
             SubscriptionSettingsComposable(
                 modifier = Modifier.fillMaxWidth(),
-                editCalendarModel.subscriptionSettingsModel,
+                subscriptionSettingsModel,
                 isCreating = false
             )
             AnimatedVisibility(
-                visible = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication
+                visible = supportsAuthentication
             ) {
                 LoginCredentialsComposable(
-                    editCalendarModel.credentialsModel
+                    credentialsModel
                 )
             }
         }
@@ -168,15 +200,21 @@ private fun AppBarComposable(
     )
 }
 
-//@Preview
-//@Composable
-//fun EditCalendarScreen_Preview() {
-//    AppTheme {
-//        EditCalendarScreen(
-//            ,
-//            editCalendarModel = viewModel(),
-//            onShare = {},
-//            onExit = {}
-//        )
-//    }
-//}
+@Preview
+@Composable
+fun EditCalendarScreen_Preview() {
+    AppTheme {
+        EditCalendarScreen(
+            inputValid = true,
+            modelsDirty = false,
+            successMessage = "yay!",
+            onDelete = {},
+            onSave = {},
+            onShare = {},
+            onExit = {},
+            supportsAuthentication = true,
+            subscriptionSettingsModel = viewModel(),
+            credentialsModel = viewModel()
+        )
+    }
+}

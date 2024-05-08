@@ -62,7 +62,7 @@ class EditCalendarModel(
     /**
      * Initialise view models and remember their initial state
      */
-    fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
+    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
         val subscription = subscriptionWithCredential.subscription
 
         subscriptionSettingsModel.setUrl(subscription.url.toString())
@@ -90,7 +90,4 @@ class EditCalendarModel(
         initialRequiresAuthValue = credentialsModel.uiState.requiresAuth
     }
 
-    fun onSave() = editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
-
-    fun onDelete() = editSubscriptionModel.removeSubscription()
 }
