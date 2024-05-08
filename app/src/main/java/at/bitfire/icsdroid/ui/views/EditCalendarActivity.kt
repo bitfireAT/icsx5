@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid.ui.views
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
@@ -42,15 +41,7 @@ class EditCalendarActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentThemed {
-            val successMessage = editSubscriptionModel.uiState.successMessage
-            // show success message
-            successMessage?.let {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                finish()
-            }
-
             EditCalendarScreen(
                 EditCalendarModel(
                     editSubscriptionModel,
