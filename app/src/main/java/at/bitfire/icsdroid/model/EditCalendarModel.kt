@@ -29,6 +29,9 @@ class EditCalendarModel(
         }
     }
 
+    /**
+     * Whether user input is error free
+     */
     val inputValid: Boolean
         @Composable
         get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
@@ -45,6 +48,9 @@ class EditCalendarModel(
             titleOK && authOK
         }
 
+    /**
+     * Whether there are unsaved user changes
+     */
     val modelsDirty: Boolean
         @Composable
         get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
