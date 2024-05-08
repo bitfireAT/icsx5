@@ -55,6 +55,8 @@ abstract class BaseSyncWorker(
                 return Result.failure()
             }
 
+        var syncFailed = false
+
         try {
             // migrate old calendar-based subscriptions to database
             migrateLegacyCalendars()
@@ -74,7 +76,17 @@ abstract class BaseSyncWorker(
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
-                ProcessEventsTask(applicationContext, subscription, calendar, forceReSync).sync()
+                val success = ProcessEventsTask(
+                    applicationContext,
+                    subscription,
+                    calendar,
+                    forceReSync
+                ).sync()
+                // If the task has failed, set the flag
+                if (!success) {
+                    Log.e(Constants.TAG, "Task sync not successful")
+                    syncFailed = true
+                }
             }
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
@@ -83,7 +95,10 @@ abstract class BaseSyncWorker(
             provider.closeCompat()
         }
 
-        return Result.success()
+        return if (syncFailed)
+            Result.failure()
+        else
+            Result.success()
     }
 
     /**

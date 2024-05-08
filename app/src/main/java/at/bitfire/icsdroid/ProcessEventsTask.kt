@@ -54,7 +54,7 @@ class ProcessEventsTask(
 
     private var exception: Throwable? = null
 
-    suspend fun sync() {
+    suspend fun sync(): Boolean {
         Thread.currentThread().contextClassLoader = context.classLoader
 
         try {
@@ -67,6 +67,8 @@ class ProcessEventsTask(
             notifyError()
         }
         Log.i(Constants.TAG, "iCalendar file completely processed")
+
+        return exception == null
     }
 
     /**
