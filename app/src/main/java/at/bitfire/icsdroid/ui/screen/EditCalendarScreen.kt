@@ -27,8 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.model.CredentialsModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
+import at.bitfire.icsdroid.model.EditCalendarModel
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.AppTheme
@@ -37,52 +36,16 @@ import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
 @Composable
 fun EditCalendarScreen(
-    subscriptionSettingsModel: SubscriptionSettingsModel,
-    credentialsModel: CredentialsModel,
-    inputValid: Boolean,
-    modelsDirty: Boolean,
-    onDelete: () -> Unit,
-    onSave: () -> Unit,
-    onShare: () -> Unit,
-    onExit: () -> Unit
-) {
-    EditCalendarScreen(
-        subscriptionSettingsModel,
-        subscriptionSettingsModel.uiState.supportsAuthentication,
-
-        credentialsModel,
-
-        inputValid,
-        modelsDirty,
-
-        onDelete,
-        onSave,
-        onShare,
-        onExit
-    )
-}
-
-@Composable
-private fun EditCalendarScreen(
-    subscriptionSettingsModel: SubscriptionSettingsModel,
-    supportsAuthentication: Boolean,
-
-    credentialsModel: CredentialsModel,
-
-    inputValid: Boolean,
-    modelsDirty: Boolean,
-
-    onDelete: () -> Unit,
-    onSave: () -> Unit,
+    editCalendarModel: EditCalendarModel = viewModel(),
     onShare: () -> Unit,
     onExit: () -> Unit
 ) {
     Scaffold(
         topBar = { AppBarComposable(
-            inputValid,
-            modelsDirty,
-            onDelete,
-            onSave,
+            editCalendarModel.inputValid,
+            editCalendarModel.modelsDirty,
+            editCalendarModel::onDelete,
+            editCalendarModel::onSave,
             onShare,
             onExit
         )}
@@ -95,12 +58,14 @@ private fun EditCalendarScreen(
         ) {
             SubscriptionSettingsComposable(
                 modifier = Modifier.fillMaxWidth(),
-                subscriptionSettingsModel,
+                editCalendarModel.subscriptionSettingsModel,
                 isCreating = false
             )
-            AnimatedVisibility(visible = supportsAuthentication) {
+            AnimatedVisibility(
+                visible = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication
+            ) {
                 LoginCredentialsComposable(
-                    credentialsModel
+                    editCalendarModel.credentialsModel
                 )
             }
         }
@@ -184,16 +149,7 @@ private fun AppBarComposable(
 fun EditCalendarScreen_Preview() {
     AppTheme {
         EditCalendarScreen(
-            subscriptionSettingsModel = viewModel(),
-            supportsAuthentication = true,
-
-            credentialsModel = viewModel(),
-
-            inputValid = true,
-            modelsDirty = true,
-
-            onDelete = {},
-            onSave = {},
+            editCalendarModel = viewModel(),
             onShare = {},
             onExit = {}
         )
