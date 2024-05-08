@@ -64,15 +64,15 @@ fun EditCalendarScreen(
         onSave = {
             editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
         },
-        {
+        onShare = {
             editSubscriptionModel.subscriptionWithCredential.value?.let {
                 onShare(it.subscription)
             }
         },
-        onExit,
-        editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
-        editCalendarModel.subscriptionSettingsModel,
-        editCalendarModel.credentialsModel
+        onExit = onExit,
+        supportsAuthentication = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
+        subscriptionSettingsModel = editCalendarModel.subscriptionSettingsModel,
+        credentialsModel = editCalendarModel.credentialsModel
     )
 }
 @Composable
@@ -97,12 +97,12 @@ fun EditCalendarScreen(
     Scaffold(
         topBar = {
             AppBarComposable(
-                inputValid,
-                modelsDirty,
-                onDelete,
-                onSave,
-                onShare,
-                onExit
+                valid = inputValid,
+                modelsDirty = modelsDirty,
+                onDelete = onDelete,
+                onSave = onSave,
+                onShare = onShare,
+                onExit = onExit
             )
         }
     ) { paddingValues ->
