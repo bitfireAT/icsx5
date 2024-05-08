@@ -42,9 +42,9 @@ import at.bitfire.icsdroid.ui.theme.AppTheme
 
 @Composable
 fun SubscriptionSettingsComposable(
+    modifier: Modifier = Modifier,
     model: SubscriptionSettingsModel = viewModel(),
-    isCreating: Boolean = false,
-    modifier: Modifier = Modifier
+    isCreating: Boolean = false
 ) {
     SubscriptionSettingsComposable(
         url = model.uiState.url,

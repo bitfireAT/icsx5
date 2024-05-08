@@ -94,9 +94,9 @@ private fun EditCalendarScreen(
                 .padding(16.dp)
         ) {
             SubscriptionSettingsComposable(
+                modifier = Modifier.fillMaxWidth(),
                 subscriptionSettingsModel,
-                isCreating = false,
-                modifier = Modifier.fillMaxWidth()
+                isCreating = false
             )
             AnimatedVisibility(visible = supportsAuthentication) {
                 LoginCredentialsComposable(
