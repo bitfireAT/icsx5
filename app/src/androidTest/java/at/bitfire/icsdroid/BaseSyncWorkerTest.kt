@@ -5,11 +5,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequestBuilder
@@ -21,30 +19,24 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
 import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
-import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.migration.CalendarToRoomMigrationTest
 import at.bitfire.icsdroid.test.BuildConfig
-import java.io.File
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeout
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import at.bitfire.icsdroid.test.R
-import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.ClassRule
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class BaseSyncWorkerTest {
