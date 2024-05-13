@@ -71,8 +71,30 @@ fun EditCalendarScreen(
         },
         onExit = onExit,
         supportsAuthentication = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
-        subscriptionSettingsModel = editCalendarModel.subscriptionSettingsModel,
-        credentialsModel = editCalendarModel.credentialsModel
+
+        // Subscription settings model
+        url = subscriptionSettingsModel.uiState.url,
+        title = subscriptionSettingsModel.uiState.title,
+        titleChanged = subscriptionSettingsModel::setTitle,
+        color = subscriptionSettingsModel.uiState.color,
+        colorChanged = subscriptionSettingsModel::setColor,
+        ignoreAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
+        ignoreAlertsChanged = subscriptionSettingsModel::setIgnoreAlerts,
+        defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
+        defaultAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAlarmMinutes,
+        defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
+        defaultAllDayAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
+        ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
+        onIgnoreDescriptionChanged = subscriptionSettingsModel::setIgnoreDescription,
+        isCreating = false,
+
+        // Credentials model
+        requiresAuth = credentialsModel.uiState.requiresAuth,
+        username = credentialsModel.uiState.username,
+        password = credentialsModel.uiState.password,
+        onRequiresAuthChange = credentialsModel::setRequiresAuth,
+        onUsernameChange = credentialsModel::setUsername,
+        onPasswordChange = credentialsModel::setPassword,
     )
 }
 @Composable
@@ -85,8 +107,30 @@ fun EditCalendarScreen(
     onShare: () -> Unit,
     onExit: () -> Unit,
     supportsAuthentication: Boolean,
-    subscriptionSettingsModel: SubscriptionSettingsModel,
-    credentialsModel: CredentialsModel
+
+    // Subscription settings model
+    url: String?,
+    title: String?,
+    titleChanged: (String) -> Unit,
+    color: Int?,
+    colorChanged: (Int) -> Unit,
+    ignoreAlerts: Boolean,
+    ignoreAlertsChanged: (Boolean) -> Unit,
+    defaultAlarmMinutes: Long?,
+    defaultAlarmMinutesChanged: (String) -> Unit,
+    defaultAllDayAlarmMinutes: Long?,
+    defaultAllDayAlarmMinutesChanged: (String) -> Unit,
+    ignoreDescription: Boolean,
+    onIgnoreDescriptionChanged: (Boolean) -> Unit,
+    isCreating: Boolean,
+
+    // Credentials model
+    requiresAuth: Boolean,
+    username: String? = null,
+    password: String? = null,
+    onRequiresAuthChange: (Boolean) -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit
 ) {
     // show success message
     successMessage?.let {
@@ -114,14 +158,31 @@ fun EditCalendarScreen(
         ) {
             SubscriptionSettingsComposable(
                 modifier = Modifier.fillMaxWidth(),
-                subscriptionSettingsModel,
-                isCreating = false
+                url = url,
+                title = title,
+                titleChanged = titleChanged,
+                color = color,
+                colorChanged = colorChanged,
+                ignoreAlerts = ignoreAlerts,
+                ignoreAlertsChanged = ignoreAlertsChanged,
+                defaultAlarmMinutes = defaultAlarmMinutes,
+                defaultAlarmMinutesChanged = defaultAlarmMinutesChanged,
+                defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                defaultAllDayAlarmMinutesChanged = defaultAllDayAlarmMinutesChanged,
+                ignoreDescription = ignoreDescription,
+                onIgnoreDescriptionChanged = onIgnoreDescriptionChanged,
+                isCreating = isCreating
             )
             AnimatedVisibility(
                 visible = supportsAuthentication
             ) {
                 LoginCredentialsComposable(
-                    credentialsModel
+                    requiresAuth = requiresAuth,
+                    username = username,
+                    password = password,
+                    onRequiresAuthChange = onRequiresAuthChange,
+                    onUsernameChange = onUsernameChange,
+                    onPasswordChange = onPasswordChange
                 )
             }
         }
@@ -213,8 +274,30 @@ fun EditCalendarScreen_Preview() {
             onShare = {},
             onExit = {},
             supportsAuthentication = true,
-            subscriptionSettingsModel = viewModel(),
-            credentialsModel = viewModel()
+
+            // Subscription settings model
+            url = "url",
+            title = "title",
+            titleChanged = {},
+            color = 0,
+            colorChanged = {},
+            ignoreAlerts = true,
+            ignoreAlertsChanged = {},
+            defaultAlarmMinutes = 20L,
+            defaultAlarmMinutesChanged = {},
+            defaultAllDayAlarmMinutes = 10L,
+            defaultAllDayAlarmMinutesChanged = {},
+            ignoreDescription = false,
+            onIgnoreDescriptionChanged = {},
+            isCreating = true,
+
+            // Credentials model
+            requiresAuth = true,
+            username = "",
+            password = "",
+            onRequiresAuthChange = {},
+            onUsernameChange = {},
+            onPasswordChange = {}
         )
     }
 }

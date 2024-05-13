@@ -33,21 +33,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.model.CredentialsModel
-
-@Composable
-fun LoginCredentialsComposable(
-    model: CredentialsModel
-) {
-    LoginCredentialsComposable(
-        model.uiState.requiresAuth,
-        model.uiState.username,
-        model.uiState.password,
-        onRequiresAuthChange = model::setRequiresAuth,
-        onUsernameChange = model::setUsername,
-        onPasswordChange = model::setPassword
-    )
-}
 
 @Composable
 fun LoginCredentialsComposable(
