@@ -6,6 +6,7 @@ androidx-appCompat = "1.6.1"
 androidx-archCore = "2.2.0"
 androidx-core = "1.13.1"
 androidx-lifecycle = "2.7.0"
+androidx-test-junit = "1.1.5"
 androidx-test-rules = "1.5.0"
 androidx-test-runner = "1.5.2"
 androidx-work = "2.9.0"
@@ -26,7 +27,7 @@ desugaring = "2.0.4"
 joda-time = "2.12.7"
 junit = "4.13.2"
 kotlin = "1.9.24"
-kotlinx-coroutines = "1.8.0"
+kotlinx-coroutines = "1.8.1"
 ksp = "1.9.24-1.0.20"
 okhttp = "4.12.0"
 room = "2.6.1"
@@ -40,6 +41,7 @@ androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-cor
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
