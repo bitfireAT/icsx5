@@ -16,7 +16,7 @@ commons-io = "2.6"
 #noinspection GradleDependency
 commons-lang3 = "3.8.1"
 # Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-compose-compiler = "1.5.11"
+compose-compiler = "1.5.14"
 compose-dialogs = "1.3.0"
 compose-material = "1.6.7"
 compose-material3 = "1.2.1"
