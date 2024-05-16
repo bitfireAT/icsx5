@@ -27,6 +27,7 @@ import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.time.Duration
+import java.util.LinkedList
 
 /**
  * Fetches the .ics for a given Webcal subscription and stores the events
@@ -72,6 +73,25 @@ class ProcessEventsTask(
     }
 
     /**
+     * Adds an alarm to the given list of alarms, with the given [alarmMinutes] before the event.
+     */
+    private fun addAlarm(alarms: LinkedList<VAlarm>, alarmMinutes: Long) {
+        alarms.add(
+            // Create the new VAlarm
+            VAlarm.Factory().createComponent(
+                // Set all the properties for the alarm
+                PropertyList<Property>().apply {
+                    // Set action to DISPLAY
+                    add(Action.DISPLAY)
+                    // Add the trigger x minutes before
+                    val duration = Duration.ofMinutes(-alarmMinutes)
+                    add(Trigger(duration))
+                }
+            )
+        )
+    }
+
+    /**
      * Updates the alarms of the given event according to the [subscription]'s
      * [Subscription.defaultAlarmMinutes], [Subscription.defaultAllDayAlarmMinutes] and
      * [Subscription.ignoreEmbeddedAlerts]
@@ -83,7 +103,7 @@ class ProcessEventsTask(
     private fun updateAlarms(event: Event): Event = event.apply {
         if (subscription.ignoreEmbeddedAlerts) {
             // Remove all alerts
-            Log.d(Constants.TAG, "Removing all alarms from ${uid}")
+            Log.d(Constants.TAG, "Removing all alarms from $uid")
             alarms.clear()
         }
         val isAllDay = DateUtils.isDate(dtStart)
@@ -94,19 +114,12 @@ class ProcessEventsTask(
         if (alarmMinutes != null) {
             // Add the default alarm to the event
             Log.d(Constants.TAG, "Adding the default alarm to ${uid}.")
-            alarms.add(
-                // Create the new VAlarm
-                VAlarm.Factory().createComponent(
-                    // Set all the properties for the alarm
-                    PropertyList<Property>().apply {
-                        // Set action to DISPLAY
-                        add(Action.DISPLAY)
-                        // Add the trigger x minutes before
-                        val duration = Duration.ofMinutes(-alarmMinutes)
-                        add(Trigger(duration))
-                    }
-                )
-            )
+            // Add the alarm to the event
+            addAlarm(alarms, alarmMinutes)
+            // and also to all the exceptions
+            for (exception in exceptions) {
+                addAlarm(exception.alarms, alarmMinutes)
+            }
         }
     }
 
