@@ -5,8 +5,12 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
-import android.util.Log
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import java.time.Duration
 
 class PeriodicSyncWorker(
@@ -26,7 +30,7 @@ class PeriodicSyncWorker(
                         .setRequiredNetworkType(NetworkType.CONNECTED)      // network connection is usually required for synchronization
                         .build())
                     .build()
-                wm.enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
+                wm.enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, request)
             } else
                 wm.cancelUniqueWork(NAME)
         }
