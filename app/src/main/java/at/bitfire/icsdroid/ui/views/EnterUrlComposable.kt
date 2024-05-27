@@ -108,7 +108,6 @@ fun EnterUrlComposable(
             modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
         ) {
             AnimatedVisibility(isVerifyingUrl) {
@@ -118,7 +117,10 @@ fun EnterUrlComposable(
             val scope = rememberCoroutineScope()
             val state = rememberPagerState(pageCount = { 2 })
 
-            TabRow(state.currentPage) {
+            TabRow(
+                state.currentPage,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
                 Tab(state.currentPage == 0, onClick = {
                     onUrlChange(null)
                     scope.launch { state.scrollToPage(0) }},
@@ -169,6 +171,7 @@ fun EnterUrlComposable(
                 state,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
                     .weight(1f),
                 verticalAlignment = Alignment.Top
             ) { index ->
