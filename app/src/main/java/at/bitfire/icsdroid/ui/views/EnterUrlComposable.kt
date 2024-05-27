@@ -104,9 +104,6 @@ fun EnterUrlComposable(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        AnimatedVisibility(isVerifyingUrl) {
-            LinearProgressIndicator(Modifier.fillMaxWidth())
-        }
         Column(
             modifier = Modifier
                     .fillMaxSize()
@@ -114,6 +111,10 @@ fun EnterUrlComposable(
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
         ) {
+            AnimatedVisibility(isVerifyingUrl) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
+
             val scope = rememberCoroutineScope()
             val state = rememberPagerState(pageCount = { 2 })
 
