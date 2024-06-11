@@ -32,4 +32,23 @@ object UriUtils {
 
         return false
     }
+
+    /**
+     * Strips the URL from a string. For example, the following string:
+     * ```
+     * "This is a URL: https://example.com"
+     * ```
+     * will return:
+     * ```
+     * "https://example.com"
+     * ```
+     * _Quotes are not included_
+     * @return The URL found in the string
+     * @throws IllegalArgumentException if no URL is found in the string
+     */
+    fun String.stripUrl(): String? {
+        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[/\\w*]*".toRegex()
+            .find(this)
+            ?.value
+    }
 }
