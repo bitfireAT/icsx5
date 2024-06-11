@@ -47,7 +47,7 @@ object UriUtils {
      * @throws IllegalArgumentException if no URL is found in the string
      */
     fun String.stripUrl(): String? {
-        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[/\\w*]*".toRegex()
+        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[\\w.&?=*]*".toRegex()
             .find(this)
             ?.value
     }

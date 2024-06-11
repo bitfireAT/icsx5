@@ -7,8 +7,8 @@ import org.junit.Test
 class UrlUtilsTest {
     @Test
     fun testStripUrl() {
-        val url = "This is a URL: https://example.com/more/and/more?query=true.&param=test.more"
+        val url = "This is a URL: https://example.com/more/and/more?query=true.&par_am=test.more"
         val strippedUrl = url.stripUrl()
-        assertEquals("https://example.com/more/and/more?query=true_&param=test.more", strippedUrl)
+        assertEquals("https://example.com/more/and/more?query=true.&par_am=test.more", strippedUrl)
     }
 }
