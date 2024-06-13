@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.UriUtils.stripUrl
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.CredentialsModel
@@ -146,25 +147,6 @@ class AddCalendarActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         HttpClient.setForeground(true)
-    }
-
-    /**
-     * Strips the URL from a string. For example, the following string:
-     * ```
-     * "This is a URL: https://example.com"
-     * ```
-     * will return:
-     * ```
-     * "https://example.com"
-     * ```
-     * _Quotes are not included_
-     * @return The URL found in the string
-     * @throws IllegalArgumentException if no URL is found in the string
-     */
-    private fun String.stripUrl(): String? {
-        return "([a-zA-Z]+)://(\\w+)(.\\w+)*[/\\w*]*".toRegex()
-            .find(this)
-            ?.value
     }
 
 }
