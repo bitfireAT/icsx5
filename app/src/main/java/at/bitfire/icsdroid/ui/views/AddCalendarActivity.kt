@@ -15,9 +15,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
@@ -68,6 +72,9 @@ class AddCalendarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContentThemed {
             val context = LocalContext.current
 
@@ -121,21 +128,23 @@ class AddCalendarActivity : AppCompatActivity() {
                 }
             }
 
-            AddCalendarScreen(
-                createSubscriptionModel = createSubscriptionModel,
-                subscriptionSettingsModel = subscriptionSettingsModel,
-                credentialsModel = credentialsModel,
-                validationModel = validationModel,
-                onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
-                finish = ::finish,
-                checkUrlIntroductionPage = {
-                    createSubscriptionModel.checkUrlIntroductionPage(
-                        subscriptionSettingsModel,
-                        validationModel,
-                        credentialsModel
-                    )
-                }
-            )
+            Box(modifier = Modifier.imePadding()) {
+                AddCalendarScreen(
+                    createSubscriptionModel = createSubscriptionModel,
+                    subscriptionSettingsModel = subscriptionSettingsModel,
+                    credentialsModel = credentialsModel,
+                    validationModel = validationModel,
+                    onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
+                    finish = ::finish,
+                    checkUrlIntroductionPage = {
+                        createSubscriptionModel.checkUrlIntroductionPage(
+                            subscriptionSettingsModel,
+                            validationModel,
+                            credentialsModel
+                        )
+                    }
+                )
+            }
         }
     }
 

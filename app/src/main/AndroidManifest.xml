@@ -78,6 +78,7 @@
             android:name=".ui.views.AddCalendarActivity"
             android:parentActivityName=".ui.views.CalendarListActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             tools:ignore="UnusedAttribute">
             <intent-filter>
                 <!-- intent filter for resources with text/calendar MIME type -->
