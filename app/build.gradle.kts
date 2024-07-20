@@ -144,12 +144,6 @@ dependencies {
     // FIXME - Add when OkHttp 5.0.0 is stable
     // implementation(libs.okhttp.coroutines)
 
-    // latest commons that don"t require Java 8
-    //noinspection GradleDependency
-    implementation(libs.commons.io)
-    //noinspection GradleDependency
-    implementation(libs.commons.lang3)
-
     // Room Database
     implementation(libs.room.base)
     ksp(libs.room.compiler)

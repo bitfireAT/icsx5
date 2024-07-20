@@ -48,8 +48,6 @@ androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidx-work" }
 bitfire-cert4android = { module = "com.github.bitfireAT:cert4android", version.ref = "bitfire-cert4android" }
 bitfire-ical4android = { module = "com.github.bitfireAT:ical4android", version.ref = "bitfire-ical4android" }
-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
-commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 compose-dialogs-color = { module = "com.maxkeppeler.sheets-compose-dialogs:color", version.ref = "compose-dialogs" }
 compose-dialogs-core = { module = "com.maxkeppeler.sheets-compose-dialogs:core", version.ref = "compose-dialogs" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
