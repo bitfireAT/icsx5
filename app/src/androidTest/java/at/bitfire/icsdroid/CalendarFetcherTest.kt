@@ -11,20 +11,21 @@ import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.icsdroid.HttpUtils.toAndroidUri
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
-import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.util.LinkedList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.apache.commons.io.IOUtils
 import org.junit.AfterClass
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
+import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.util.LinkedList
 
 class CalendarFetcherTest {
 
@@ -56,7 +57,7 @@ class CalendarFetcherTest {
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
+                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
             }
         }
         runBlocking {
@@ -64,7 +65,7 @@ class CalendarFetcherTest {
         }
 
         testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
-            val referenceData = IOUtils.toString(streamCorrect, Charsets.UTF_8)
+            val referenceData = streamCorrect.readAllBytes().toString(Charsets.UTF_8)
             assertEquals(referenceData, ical)
         }
     }
@@ -74,7 +75,7 @@ class CalendarFetcherTest {
         val etagCorrect = "33a64df551425fcc55e4d42a148795d9f25f89d4"
         val lastModifiedCorrect = "Wed, 21 Oct 2015 07:28:00 GMT"       // UNIX timestamp 1445405280
         val icalCorrect = testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
-            IOUtils.toString(streamCorrect, Charsets.UTF_8)
+            streamCorrect.readAllBytes().toString(Charsets.UTF_8)
         }
 
         // create mock response
@@ -90,7 +91,7 @@ class CalendarFetcherTest {
         var lastmod: Long? = null
         val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
+                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
                 etag = eTag
                 lastmod = lastModified
             }
@@ -131,7 +132,7 @@ class CalendarFetcherTest {
                 super.onRedirect(httpCode, target)
             }
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = IOUtils.toString(data, Charsets.UTF_8)
+                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
             }
         }
         runBlocking {
