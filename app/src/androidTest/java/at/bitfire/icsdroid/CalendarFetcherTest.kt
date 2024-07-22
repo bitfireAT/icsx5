@@ -57,7 +57,7 @@ class CalendarFetcherTest {
         var ical: String? = null
         val fetcher = object: CalendarFetcher(appContext, uri) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
+                ical = data.bufferedReader().use { it.readText() }
             }
         }
         runBlocking {
@@ -65,7 +65,7 @@ class CalendarFetcherTest {
         }
 
         testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
-            val referenceData = streamCorrect.readAllBytes().toString(Charsets.UTF_8)
+            val referenceData = streamCorrect.bufferedReader().use { it.readText() }
             assertEquals(referenceData, ical)
         }
     }
@@ -75,7 +75,7 @@ class CalendarFetcherTest {
         val etagCorrect = "33a64df551425fcc55e4d42a148795d9f25f89d4"
         val lastModifiedCorrect = "Wed, 21 Oct 2015 07:28:00 GMT"       // UNIX timestamp 1445405280
         val icalCorrect = testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
-            streamCorrect.readAllBytes().toString(Charsets.UTF_8)
+            streamCorrect.bufferedReader().use { it.readText() }
         }
 
         // create mock response
@@ -91,7 +91,7 @@ class CalendarFetcherTest {
         var lastmod: Long? = null
         val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
+                ical = data.bufferedReader().use { it.readText() }
                 etag = eTag
                 lastmod = lastModified
             }
@@ -132,7 +132,7 @@ class CalendarFetcherTest {
                 super.onRedirect(httpCode, target)
             }
             override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
-                ical = withContext(Dispatchers.IO) { data.readAllBytes() }.toString(Charsets.UTF_8)
+                ical = data.bufferedReader().use { it.readText() }
             }
         }
         runBlocking {
