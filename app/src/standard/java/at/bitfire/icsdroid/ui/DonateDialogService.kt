@@ -18,6 +18,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.service.ComposableStartupService
+import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +51,8 @@ class DonateDialogService: ComposableStartupService {
          */
         const val SHOW_EVERY_MILLIS_DISMISS = ONE_DAY_MILLIS * 14
     }
+
+    override val flags: Int = FLAG_DONATION_DIALOG
 
     @Composable
     private fun getActivity(): AppCompatActivity? = LocalContext.current as? AppCompatActivity

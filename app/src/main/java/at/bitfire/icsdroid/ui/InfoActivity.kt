@@ -51,6 +51,7 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.service.ComposableStartupService
+import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
@@ -72,7 +73,9 @@ class InfoActivity: AppCompatActivity() {
 
         // Init and collect all ComposableStartupServices
         val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
-            .also { srv -> hasDonateDialogService = srv.any { it is DonateDialogService } }
+            .also { srv ->
+                hasDonateDialogService = srv.any { it.flags or FLAG_DONATION_DIALOG == FLAG_DONATION_DIALOG }
+            }
 
         setContentThemed {
             compStartupServices.forEach { service ->

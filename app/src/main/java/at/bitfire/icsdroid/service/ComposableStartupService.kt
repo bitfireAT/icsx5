@@ -15,6 +15,16 @@ import androidx.compose.runtime.State
  * is met.
  */
 interface ComposableStartupService {
+    companion object {
+        /**
+         * Tag services with this flag to tell the application that they are a donation dialog, and
+         * they will be considered in `InfoActivity` to donate for example.
+         */
+        const val FLAG_DONATION_DIALOG = 1
+    }
+
+    val flags: Int
+
     /**
      * Provides a stateful response to whether this composable should be shown or not.
      * @return A [State] that can be observed, and will make [Content] visible when `true`.
