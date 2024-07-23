@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.getSystemService
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
@@ -21,6 +23,7 @@ import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings
 import at.bitfire.icsdroid.SyncWorker
+import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,8 +63,26 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppAccount.DEFAULT_SYNC_INTERVAL)
 
     init {
+        // Migrate existing SharedPreferences to DataStore
+        migrateSharedPreferencesToDataStore()
         // When initialized, update the ask* fields
         checkSyncSettings()
+    }
+
+    private fun migrateSharedPreferencesToDataStore() = viewModelScope.launch(Dispatchers.IO) {
+        val context = getApplication<Application>()
+        val dataStore = context.dataStore
+        // These preferences are the ones used in Settings. DonateDialogService in OSE use another
+        // storage. Since it's only used for showing a dialog, we don't migrate it for simplicity.
+        val prefs: SharedPreferences = context.getSharedPreferences("icsx5", 0)
+        @Suppress("DEPRECATION")
+        dataStore.edit {
+            if (prefs.contains(Settings.FORCE_DARK_MODE)) {
+                it[Settings.ForceDarkMode] = prefs.getBoolean(Settings.FORCE_DARK_MODE, false)
+            }
+        }
+        // Clear everything
+        prefs.edit().clear().apply()
     }
 
     /**
@@ -97,11 +118,9 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         SyncWorker.run(getApplication(), true)
     }
 
-    fun onToggleDarkMode() {
+    fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         val settings = Settings(getApplication())
-        val newMode = !settings.forceDarkMode()
-
-        settings.forceDarkMode(newMode)
+        settings.forceDarkMode(forceDarkMode)
     }
 
     fun onSyncIntervalChange(interval: Long) {

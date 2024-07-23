@@ -16,12 +16,6 @@ import androidx.compose.runtime.State
  */
 interface ComposableStartupService {
     /**
-     * Will be called every time the main activity is created.
-     * @param activity The calling activity
-     */
-    fun initialize(activity: AppCompatActivity)
-
-    /**
      * Provides a stateful response to whether this composable should be shown or not.
      * @return A [State] that can be observed, and will make [Content] visible when `true`.
      */
