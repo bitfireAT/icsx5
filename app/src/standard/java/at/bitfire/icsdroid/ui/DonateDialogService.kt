@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -63,10 +64,14 @@ class DonateDialogService: ComposableStartupService {
      * *true* if the preference value lies in the past, or *false* otherwise.
      */
     @Composable
-    override fun shouldShow(): State<Boolean> = LocalContext.current.dataStore
-        .data
-        .map { (it[PrefNextReminder] ?: 0) < System.currentTimeMillis() }
-        .collectAsState(initial = false)
+    override fun shouldShow(): State<Boolean> {
+        val context = LocalContext.current
+        val dataStore = context.dataStore
+        val flow = remember(dataStore) {
+            dataStore.data.map { (it[PrefNextReminder] ?: 0) < System.currentTimeMillis() }
+        }
+        return flow.collectAsState(initial = false)
+    }
 
     /**
      * Dismisses the dialog for the given amount of milliseconds by updating the preference.
