@@ -10,8 +10,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -43,30 +44,51 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat
+import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
+import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
+import at.bitfire.icsdroid.dataStore
+import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
+import kotlinx.coroutines.runBlocking
+import java.util.ServiceLoader
 
-class InfoActivity: ComponentActivity() {
+class InfoActivity: AppCompatActivity() {
+
+    /**
+     * Will get updated when the activity is created.
+     * Stores whether the donate dialog should be shown or not.
+     */
+    private var hasDonateDialogService: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Init and collect all ComposableStartupServices
+        val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
+            .also { srv -> hasDonateDialogService = srv.any { it is DonateDialogService } }
+
         setContentThemed {
+            compStartupServices.forEach { service ->
+                val show: Boolean by service.shouldShow()
+                if (show) service.Content()
+            }
+
             MainLayout()
         }
     }
 
-    fun showWebSite() {
+    private fun showWebSite() {
         launchUri(Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity"))
     }
 
-    fun showMastodon() {
+    private fun showMastodon() {
         launchUri(Uri.parse("https://fosstodon.org/@davx5app"))
     }
 
@@ -172,7 +194,9 @@ class InfoActivity: ComponentActivity() {
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             )
         }
     }
@@ -197,7 +221,15 @@ class InfoActivity: ComponentActivity() {
                 Text(stringResource(R.string.app_info_gplv3))
             }
             OutlinedButton(
-                onClick = { showDonateDialog.value = true },
+                onClick = {
+                    if (hasDonateDialogService) runBlocking {
+                        // If there's a donate dialog service, show the dialog
+                        dataStore.edit { it[PrefNextReminder] = 0 }
+                    } else {
+                        // If there's no service, show the donate dialog directly
+                        showDonateDialog.value = true
+                    }
+                },
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 4.dp)
