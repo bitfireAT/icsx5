@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
 import at.bitfire.icsdroid.dataStore

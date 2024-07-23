@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid.service
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 
