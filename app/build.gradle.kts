@@ -121,6 +121,7 @@ dependencies {
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.datastore)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
