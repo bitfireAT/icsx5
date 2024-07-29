@@ -3,6 +3,7 @@ import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 plugins {
     alias(libs.plugins.aboutLibs)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
@@ -42,10 +43,6 @@ android {
         compose = true
         dataBinding = true
         viewBinding = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     flavorDimensions += "distribution"
