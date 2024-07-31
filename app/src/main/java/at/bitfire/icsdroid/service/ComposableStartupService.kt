@@ -19,7 +19,7 @@ interface ComposableStartupService {
          * Tag services with this flag to tell the application that they are a donation dialog, and
          * they will be considered in `InfoActivity` to donate for example.
          */
-        const val FLAG_DONATION_DIALOG = 1
+        const val FLAG_DONATION_DIALOG = 0b1
     }
 
     val flags: Int
