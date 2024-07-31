@@ -57,8 +57,8 @@ import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
-import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
+import kotlinx.coroutines.runBlocking
 
 class InfoActivity: AppCompatActivity() {
 
@@ -74,7 +74,7 @@ class InfoActivity: AppCompatActivity() {
         // Init and collect all ComposableStartupServices
         val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
             .also { srv ->
-                hasDonateDialogService = srv.any { it.flags or FLAG_DONATION_DIALOG == FLAG_DONATION_DIALOG }
+                hasDonateDialogService = srv.any { it.flags and FLAG_DONATION_DIALOG == FLAG_DONATION_DIALOG }
             }
 
         setContentThemed {
