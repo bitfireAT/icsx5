@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
+import at.bitfire.icsdroid.Settings.Companion.nextReminder
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
@@ -60,7 +60,7 @@ class DonateDialogService: ComposableStartupService {
     /**
      * Whether [Content] should be displayed or not.
      *
-     * Observes the value of the preference with key [PrefNextReminder] and sets its value to
+     * Observes the value of the preference with key [nextReminder] and sets its value to
      * *true* if the preference value lies in the past, or *false* otherwise.
      */
     @Composable
@@ -68,7 +68,7 @@ class DonateDialogService: ComposableStartupService {
         val context = LocalContext.current
         val dataStore = context.dataStore
         val flow = remember(dataStore) {
-            dataStore.data.map { (it[PrefNextReminder] ?: 0) < System.currentTimeMillis() }
+            dataStore.data.map { (it[nextReminder] ?: 0) < System.currentTimeMillis() }
         }
         return flow.collectAsState(initial = false)
     }
@@ -77,7 +77,7 @@ class DonateDialogService: ComposableStartupService {
      * Dismisses the dialog for the given amount of milliseconds by updating the preference.
      */
     private suspend fun dismissDialogForMillis(activity: AppCompatActivity, millis: Long) =
-        activity.dataStore.edit { it[PrefNextReminder] = System.currentTimeMillis() + millis }
+        activity.dataStore.edit { it[nextReminder] = System.currentTimeMillis() + millis }
 
     @Composable
     override fun Content() {
