@@ -78,7 +78,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         @Suppress("DEPRECATION")
         dataStore.edit {
             if (prefs.contains(Settings.FORCE_DARK_MODE)) {
-                it[Settings.ForceDarkMode] = prefs.getBoolean(Settings.FORCE_DARK_MODE, false)
+                it[Settings.forceDarkMode] = prefs.getBoolean(Settings.FORCE_DARK_MODE, false)
             }
         }
         // Clear everything

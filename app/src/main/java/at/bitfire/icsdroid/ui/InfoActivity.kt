@@ -48,7 +48,7 @@ import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.Settings.Companion.PrefNextReminder
+import at.bitfire.icsdroid.Settings.Companion.nextReminder
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
@@ -227,7 +227,7 @@ class InfoActivity: AppCompatActivity() {
                 onClick = {
                     if (hasDonateDialogService) runBlocking {
                         // If there's a donate dialog service, show the dialog
-                        dataStore.edit { it[PrefNextReminder] = 0 }
+                        dataStore.edit { it[nextReminder] = 0 }
                     } else {
                         // If there's no service, show the donate dialog directly
                         showDonateDialog.value = true
