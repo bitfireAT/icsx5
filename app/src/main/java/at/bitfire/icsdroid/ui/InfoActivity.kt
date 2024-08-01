@@ -74,7 +74,7 @@ class InfoActivity: AppCompatActivity() {
         // Init and collect all ComposableStartupServices
         val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
             .also { srv ->
-                hasDonateDialogService = srv.any { it.flags and FLAG_DONATION_DIALOG == FLAG_DONATION_DIALOG }
+                hasDonateDialogService = srv.any { it.hasFlag(FLAG_DONATION_DIALOG) }
             }
 
         setContentThemed {
