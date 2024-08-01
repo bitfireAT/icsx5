@@ -22,6 +22,10 @@ interface ComposableStartupService {
         const val FLAG_DONATION_DIALOG = 0b1
     }
 
+    /**
+     * A bitwise flag that can be used to identify this service.
+     * Currently only [FLAG_DONATION_DIALOG] is supported.
+     */
     val flags: Int
 
     /**
@@ -37,4 +41,9 @@ interface ComposableStartupService {
      */
     @Composable
     fun Content()
+
+    /**
+     * Checks whether [flags] contains the given [flag] using bitwise operations.
+     */
+    fun hasFlag(flag: Int) = (flags and flag) == flag
 }
