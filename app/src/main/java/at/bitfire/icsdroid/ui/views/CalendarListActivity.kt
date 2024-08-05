@@ -76,7 +76,6 @@ class CalendarListActivity: AppCompatActivity() {
 
         // Init and collect all ComposableStartupServices
         val compStartupServices = ServiceLoader.load(ComposableStartupService::class.java)
-            .onEach { it.initialize(this) }
 
         setContentThemed {
             compStartupServices.forEach { service ->

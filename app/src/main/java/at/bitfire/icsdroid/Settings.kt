@@ -5,45 +5,31 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import kotlinx.coroutines.channels.awaitClose
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 
 class Settings(context: Context) {
 
     companion object {
-        private const val FORCE_DARK_MODE = "forceDarkMode"
+        @Deprecated("Use DataStore")
+        const val FORCE_DARK_MODE = "forceDarkMode"
+
+        val forceDarkMode = booleanPreferencesKey("forceDarkMode")
+
+        val nextReminder = longPreferencesKey("nextDonationReminder")
     }
 
+    private val dataStore = context.dataStore
 
-    private val prefs: SharedPreferences = context.getSharedPreferences("icsx5", 0)
 
-    fun forceDarkMode(): Boolean = prefs.getBoolean(FORCE_DARK_MODE, false)
+    fun forceDarkModeFlow(): Flow<Boolean> = dataStore.data.map { it[forceDarkMode] ?: false }
 
-    fun forceDarkModeFlow(): Flow<Boolean> = callbackFlow {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            if (key == FORCE_DARK_MODE) {
-                val forceDarkMode = prefs.getBoolean(key, false)
-                trySend(forceDarkMode)
-            }
-        }
-
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        listener.onSharedPreferenceChanged(prefs, FORCE_DARK_MODE)
-
-        awaitClose {
-            // Remove listener
-            prefs.unregisterOnSharedPreferenceChangeListener(listener)
-        }
-    }
-
-    fun forceDarkMode(force: Boolean) {
+    suspend fun forceDarkMode(force: Boolean) {
         // save setting
-        prefs.edit()
-            .putBoolean(FORCE_DARK_MODE, force)
-            .apply()
+        dataStore.edit { it[forceDarkMode] = force }
     }
 
 }

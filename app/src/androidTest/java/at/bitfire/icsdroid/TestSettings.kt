@@ -26,7 +26,7 @@ class TestSettings {
             settings.forceDarkModeFlow().collect { forceDarkMode = it }
         }
         // Set the preference to true
-        settings.forceDarkMode(true)
+        runBlocking { settings.forceDarkMode(true) }
         // Wait for the flow to update, or throw timeout
         runBlocking {
             withTimeout(1000) {

@@ -104,7 +104,7 @@ fun CalendarListScreen(
     onBatteryOptimizationWhitelist: () -> Unit = {},
     onAutoRevokePermission: () -> Unit = {},
     onSyncIntervalChange: (Long) -> Unit = {},
-    onToggleDarkMode: () -> Unit = {},
+    onToggleDarkMode: (forceDarkMode: Boolean) -> Unit = {},
     onAboutRequested: () -> Unit = {},
     onItemSelected: (Subscription) -> Unit = {}
 ) {
@@ -292,7 +292,7 @@ fun ActionOverflowMenu(
     forceDarkMode: Boolean,
     syncInterval: Long,
     onSyncIntervalChange: (Long) -> Unit = {},
-    onToggleDarkMode: () -> Unit = {},
+    onToggleDarkMode: (forceDarkMode: Boolean) -> Unit = {},
     onAboutRequested: () -> Unit = {},
     onRefreshRequested: () -> Unit = {}
 ) {
@@ -336,13 +336,13 @@ fun ActionOverflowMenu(
                     Text(stringResource(R.string.settings_force_dark_theme))
                     Checkbox(
                         checked = forceDarkMode,
-                        onCheckedChange = { onToggleDarkMode() }
+                        onCheckedChange = { onToggleDarkMode(!forceDarkMode) }
                     )
                 }
             },
             onClick =  {
                 showMenu = false
-                onToggleDarkMode()
+                onToggleDarkMode(!forceDarkMode)
             }
         )
         DropdownMenuItem(
