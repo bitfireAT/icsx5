@@ -11,7 +11,7 @@ androidx-test-rules = "1.6.1"
 androidx-test-runner = "1.6.1"
 androidx-work = "2.9.0"
 bitfire-cert4android = "f0964cb"
-bitfire-ical4android = "505f747"
+bitfire-ical4android = "505f74771e"
 # Keep in sync with Kotlin version: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 compose-compiler = "1.5.14"
 compose-dialogs = "1.3.0"
