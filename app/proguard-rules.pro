@@ -10,6 +10,10 @@
 # ical4j: keep all iCalendar properties/parameters (used via reflection)
 -keep class net.fortuna.ical4j.** { *; }
 
+# we are not using those optional features of ical4j
+-dontwarn org.jparsec.** # parser for filter expressions
+-dontwarn javax.cache.** # timezone caching
+
 # we use enum classes (https://www.guardsquare.com/en/products/proguard/manual/examples#enumerations)
 -keepclassmembers,allowoptimization enum * {
     public static **[] values();
@@ -27,3 +31,8 @@
 -dontwarn org.joda.**
 -dontwarn org.json.*
 -dontwarn org.xmlpull.**
+
+# Seems to be incorrectly detected in https://github.com/ical4j/ical4j/blob/176fc84a4785d6f87be5dd18a20c6f83c6287b35/src/main/java/net/fortuna/ical4j/validate/schema/JsonSchemaValidator.java#L36C1-L36C39
+# Should be fixed eventually by ical4j
+# Commented in https://github.com/ical4j/ical4j/blob/176fc84a4785d6f87be5dd18a20c6f83c6287b35/build.gradle#L76
+-dontwarn com.github.erosb.jsonsKema.*
