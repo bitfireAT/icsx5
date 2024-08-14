@@ -18,6 +18,7 @@ import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import kotlinx.coroutines.runBlocking
 
 /**
  * The database for storing all the ICSx5 subscriptions and other data. Use [getInstance] for getting access to the database.
@@ -78,7 +79,7 @@ abstract class AppDatabase : RoomDatabase() {
                     .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
-                            SyncWorker.run(context, onlyMigrate = true)
+                            runBlocking { SyncWorker.run(context, onlyMigrate = true) }
                         }
                     })
                     .build()

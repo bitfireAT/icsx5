@@ -114,7 +114,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         uiState = uiState.copy(askForAutoRevoke = !isAutoRevokeWhitelisted)
     }
 
-    fun onRefreshRequested() {
+    fun onRefreshRequested() = viewModelScope.launch(Dispatchers.IO) {
         SyncWorker.run(getApplication(), true)
     }
 
