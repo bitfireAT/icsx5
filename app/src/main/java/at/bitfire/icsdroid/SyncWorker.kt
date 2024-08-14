@@ -55,7 +55,7 @@ class SyncWorker(
                 val appDatabase = AppDatabase.getInstance(context)
                 appDatabase.subscriptionsDao()
                     .getAll()
-                    .any { it.url.scheme?.startsWith("http", true) == false }
+                    .all { it.url.scheme?.startsWith("http", true) == false }
             }
 
             val policy: ExistingWorkPolicy = if (force) {
