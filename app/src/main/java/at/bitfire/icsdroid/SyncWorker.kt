@@ -14,6 +14,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.db.AppDatabase
 
 class SyncWorker(
     context: Context,
@@ -34,7 +35,7 @@ class SyncWorker(
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
          * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
-        fun run(
+        suspend fun run(
             context: Context,
             force: Boolean = false,
             forceResync: Boolean = false,
@@ -48,18 +49,29 @@ class SyncWorker(
                     )
                 )
 
+            val allLocal = if (onlyMigrate) {
+                null
+            } else {
+                val appDatabase = AppDatabase.getInstance(context)
+                appDatabase.subscriptionsDao()
+                    .getAll()
+                    .any { it.url.scheme?.startsWith("http", true) == false }
+            }
+
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")
 
                 // overwrite existing syncs (which may have unwanted constraints)
                 ExistingWorkPolicy.REPLACE
             } else {
-                // regular sync, requires network
-                request.setConstraints(
-                    Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                )
+                // regular sync, requires network if allLocal is false
+                if (allLocal == false) {
+                    request.setConstraints(
+                        Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                }
 
                 // don't overwrite previous syncs (whether regular or manual)
                 ExistingWorkPolicy.KEEP
