@@ -23,18 +23,15 @@ class LocalSyncWorker(
          *
          * @param context      required for managing work
          * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
-         * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
         fun run(
             context: Context,
-            forceResync: Boolean = false,
-            onlyMigrate: Boolean = false
+            forceResync: Boolean = false
         ) {
             val request = OneTimeWorkRequestBuilder<LocalSyncWorker>()
                 .setInputData(
                     workDataOf(
                         FORCE_RESYNC to forceResync,
-                        ONLY_MIGRATE to onlyMigrate,
                     )
                 )
 

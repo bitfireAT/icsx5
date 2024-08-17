@@ -52,7 +52,10 @@ open class BaseSyncWorker(
             onlyMigrate: Boolean = false
         ) {
             SyncWorker.run(context, force, forceResync, onlyMigrate)
-            LocalSyncWorker.run(context, forceResync, onlyMigrate)
+            if (!onlyMigrate) {
+                // Migration is performed by SyncWorker. Do not schedule LocalSyncWorker if onlyMigrate is true.
+                LocalSyncWorker.run(context, forceResync)
+            }
         }
 
         /**
