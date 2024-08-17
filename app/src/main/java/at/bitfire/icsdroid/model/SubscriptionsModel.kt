@@ -18,11 +18,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
+import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings
-import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +46,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         private set
 
     /** whether there are running sync workers */
-    val isRefreshing = SyncWorker.statusFlow(application).map { workInfos ->
+    val isRefreshing = BaseSyncWorker.statusFlow(application).map { workInfos ->
         workInfos.any { it.state == WorkInfo.State.RUNNING }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -114,9 +114,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         uiState = uiState.copy(askForAutoRevoke = !isAutoRevokeWhitelisted)
     }
 
-    fun onRefreshRequested() = viewModelScope.launch(Dispatchers.IO) {
-        SyncWorker.run(getApplication(), true)
-    }
+    fun onRefreshRequested() = BaseSyncWorker.run(getApplication(), true)
 
     fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         val settings = Settings(getApplication())
