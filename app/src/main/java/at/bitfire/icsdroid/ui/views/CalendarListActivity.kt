@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.service.ComposableStartupService
@@ -59,7 +60,8 @@ class CalendarListActivity: AppCompatActivity() {
         // Register the calendar permission request
         requestCalendarPermissions = PermissionUtils.registerCalendarPermissionRequest(this) {
             model.checkSyncSettings()
-            model.onRefreshRequested()
+
+            BaseSyncWorker.run(this)
         }
 
         // Register the notifications permission request
