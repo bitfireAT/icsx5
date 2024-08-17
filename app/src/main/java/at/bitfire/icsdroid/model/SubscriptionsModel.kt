@@ -114,7 +114,9 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         uiState = uiState.copy(askForAutoRevoke = !isAutoRevokeWhitelisted)
     }
 
-    fun onRefreshRequested() = BaseSyncWorker.run(getApplication(), true)
+    fun onRefreshRequested() {
+        BaseSyncWorker.run(getApplication(), true)
+    }
 
     fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         val settings = Settings(getApplication())
