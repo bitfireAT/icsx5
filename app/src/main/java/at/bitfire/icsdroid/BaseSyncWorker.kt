@@ -10,6 +10,8 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
+import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
+import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -18,6 +20,17 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
 import kotlinx.coroutines.flow.combine
 
+/**
+ * Base class for synchronization workers. It provides the basic functionality for synchronizing
+ * subscriptions with their respective servers and local calendars.
+ *
+ * @param context       required for managing work
+ * @param workerParams  any additional parameters for the worker. See their respective kdocs for
+ * more information. Options:
+ * - [FORCE_RESYNC]
+ * - [ONLY_MIGRATE]
+ * @param filter        a filter function that determines which subscriptions should be synchronized
+ */
 open class BaseSyncWorker(
     context: Context,
     workerParams: WorkerParameters,

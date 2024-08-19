@@ -7,6 +7,10 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 
+/**
+ * Synchronizes all subscriptions from local fs.
+ * Always runs, regardless of current network condition, and filters local URLs (not http(s)).
+ */
 class LocalSyncWorker(
     context: Context,
     workerParams: WorkerParameters

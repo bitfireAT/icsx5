@@ -15,6 +15,10 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
 
+/**
+ * Synchronizes all subscriptions with their respective servers.
+ * Only runs if the network is available, and filters remote URLs (http(s)).
+ */
 class NetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
