@@ -51,7 +51,7 @@ open class BaseSyncWorker(
             forceResync: Boolean = false,
             onlyMigrate: Boolean = false
         ) {
-            SyncWorker.run(context, force, forceResync, onlyMigrate)
+            NetworkSyncWorker.run(context, force, forceResync, onlyMigrate)
             if (!onlyMigrate) {
                 // Migration is performed by SyncWorker. Do not schedule LocalSyncWorker if onlyMigrate is true.
                 LocalSyncWorker.run(context, forceResync)
@@ -59,10 +59,10 @@ open class BaseSyncWorker(
         }
 
         /**
-         * Obtains the combined status flows of [SyncWorker] and [LocalSyncWorker].
+         * Obtains the combined status flows of [NetworkSyncWorker] and [LocalSyncWorker].
          */
         fun statusFlow(context: Context) = combine(
-            SyncWorker.statusFlow(context),
+            NetworkSyncWorker.statusFlow(context),
             LocalSyncWorker.statusFlow(context)
         ) { sync, local -> sync + local }
 
@@ -71,7 +71,7 @@ open class BaseSyncWorker(
          */
         fun cancel(context: Context) {
             val wm = WorkManager.getInstance(context)
-            wm.cancelUniqueWork(SyncWorker.NAME)
+            wm.cancelUniqueWork(NetworkSyncWorker.NAME)
             wm.cancelUniqueWork(LocalSyncWorker.NAME)
         }
     }

@@ -15,7 +15,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
 
-class SyncWorker(
+class NetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseSyncWorker(context, workerParams, { it.url.scheme?.startsWith("http") == true }) {
@@ -40,7 +40,7 @@ class SyncWorker(
             forceResync: Boolean = false,
             onlyMigrate: Boolean = false
         ) {
-            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+            val request = OneTimeWorkRequestBuilder<NetworkSyncWorker>()
                 .setInputData(
                     workDataOf(
                         FORCE_RESYNC to forceResync,
