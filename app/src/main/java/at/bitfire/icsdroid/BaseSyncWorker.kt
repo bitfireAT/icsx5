@@ -34,7 +34,7 @@ import kotlinx.coroutines.flow.combine
 open class BaseSyncWorker(
     context: Context,
     workerParams: WorkerParameters,
-    private val filter: (Subscription) -> Boolean = { true }
+    private val filter: (Subscription) -> Boolean
 ) : CoroutineWorker(context, workerParams) {
     companion object {
         /**
@@ -88,6 +88,14 @@ open class BaseSyncWorker(
             wm.cancelUniqueWork(LocalSyncWorker.NAME)
         }
     }
+
+    /**
+     * Constructs a new BaseSyncWorker without any filter.
+     */
+    constructor(
+        context: Context,
+        workerParams: WorkerParameters
+    ): this(context, workerParams, { true })
 
     private val database = AppDatabase.getInstance(applicationContext)
     private val subscriptionsDao = database.subscriptionsDao()
