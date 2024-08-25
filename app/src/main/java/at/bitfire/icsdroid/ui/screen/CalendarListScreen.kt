@@ -77,6 +77,7 @@ fun CalendarListScreen(
         forceDarkMode = forceDarkMode,
         syncInterval = syncInterval,
         onRefreshRequested = model::onRefreshRequested,
+        onForceRefreshRequested = model::onForceRefreshRequested,
         onAddRequested = onAddRequested,
         onRequestCalendarPermissions = onRequestCalendarPermissions,
         onRequestNotificationPermission = onRequestNotificationPermission,
@@ -98,6 +99,7 @@ fun CalendarListScreen(
     forceDarkMode: Boolean,
     syncInterval: Long,
     onRefreshRequested: () -> Unit = {},
+    onForceRefreshRequested: () -> Unit = {},
     onAddRequested: () -> Unit = {},
     onRequestCalendarPermissions: () -> Unit = {},
     onRequestNotificationPermission: () -> Unit = {},
@@ -131,7 +133,7 @@ fun CalendarListScreen(
                         onSyncIntervalChange = onSyncIntervalChange,
                         onToggleDarkMode = onToggleDarkMode,
                         onAboutRequested = onAboutRequested,
-                        onRefreshRequested = onRefreshRequested
+                        onRefreshRequested = onForceRefreshRequested
                     )
                 }
             )
@@ -324,7 +326,7 @@ fun ActionOverflowMenu(
             }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.calendar_list_synchronize)) },
+            text = { Text(stringResource(R.string.calendar_list_force_sync)) },
             onClick = {
                 showMenu = false
                 onRefreshRequested()

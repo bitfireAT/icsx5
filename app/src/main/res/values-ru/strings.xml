@@ -18,8 +18,7 @@
   <string name="calendar_list_info">О ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">еще не синхронизировано</string>
   <string name="calendar_list_set_sync_interval">Задать интервал синхронизации</string>
-  <string name="calendar_list_synchronize">Синхронизировать сейчас</string>
-  <string name="calendar_list_battery_whitelist_title">Оптимизация батареи</string>
+    <string name="calendar_list_battery_whitelist_title">Оптимизация батареи</string>
   <string name="calendar_list_battery_whitelist_text">Оптимизация батареи может предотвратить интервалы синхронизации короче одного дня. Установите %s на \"Не оптимизировано\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Открыть настройки</string>
   <string name="calendar_list_autorevoke_permissions_title">Автоотзыв разрешений</string>

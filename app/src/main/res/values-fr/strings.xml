@@ -18,8 +18,7 @@
   <string name="calendar_list_info">À propos d\'ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">pas encore synchronisé</string>
   <string name="calendar_list_set_sync_interval">Définir l\'intervalle de synchro.</string>
-  <string name="calendar_list_synchronize">Synchroniser maintenant</string>
-  <string name="calendar_list_battery_whitelist_title">Optimisation de la batterie</string>
+    <string name="calendar_list_battery_whitelist_title">Optimisation de la batterie</string>
   <string name="calendar_list_battery_whitelist_text">L\'optimisation de la batterie peut empêcher des intervalles de synchronisation inférieurs à une journée. Configurez %s à  \"Non optimisées\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Ouvrir les paramètres</string>
   <!--settings, currently in CalendarListActivity-->

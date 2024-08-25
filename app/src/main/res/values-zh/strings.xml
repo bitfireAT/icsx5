@@ -18,8 +18,7 @@
   <string name="calendar_list_info">关于ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">尚未同步</string>
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
-  <string name="calendar_list_synchronize">立即同步</string>
-  <string name="calendar_list_battery_whitelist_title">电池优化</string>
+    <string name="calendar_list_battery_whitelist_title">电池优化</string>
   <string name="calendar_list_battery_whitelist_text">电池优化功能可能阻止小于一天的同步间隔。请将 %s 设为“不优化”</string>
   <string name="calendar_list_battery_whitelist_open_settings">打开设置</string>
   <string name="calendar_list_autorevoke_permissions_title">自动撤销权限</string>
