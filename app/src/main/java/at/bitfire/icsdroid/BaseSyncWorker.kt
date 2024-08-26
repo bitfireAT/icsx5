@@ -5,19 +5,36 @@ import android.content.ContentUris
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
+import androidx.work.NetworkType
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
+import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
+import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import kotlinx.coroutines.flow.combine
 
+/**
+ * Base class for synchronization workers. It provides the basic functionality for synchronizing
+ * subscriptions with their respective servers and local calendars.
+ *
+ * @param context       required for managing work
+ * @param workerParams  any additional parameters for the worker. See their respective kdocs for
+ * more information. Options:
+ * - [FORCE_RESYNC]
+ * - [ONLY_MIGRATE]
+ * @param filter        a filter function that determines which subscriptions should be synchronized
+ */
 open class BaseSyncWorker(
     context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
+    private val filter: (Subscription) -> Boolean
 ) : CoroutineWorker(context, workerParams) {
     companion object {
         /**
@@ -31,7 +48,54 @@ open class BaseSyncWorker(
          * fetching data.
          */
         const val ONLY_MIGRATE = "onlyMigration"
+
+        /**
+         * Enqueues a sync job for immediate execution, both for local and network subscriptions.
+         * If the sync is forced, the "requires network connection" constraint won't be set.
+         *
+         * @param context      required for managing work
+         * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
+         * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
+         * @param onlyMigrate  *true* only runs synchronization, without fetching data.
+         */
+        fun run(
+            context: Context,
+            force: Boolean = false,
+            forceResync: Boolean = false,
+            onlyMigrate: Boolean = false
+        ) {
+            NetworkSyncWorker.run(context, force, forceResync, onlyMigrate)
+            if (!onlyMigrate) {
+                // Migration is performed by SyncWorker. Do not schedule LocalSyncWorker if onlyMigrate is true.
+                LocalSyncWorker.run(context, forceResync)
+            }
+        }
+
+        /**
+         * Obtains the combined status flows of [NetworkSyncWorker] and [LocalSyncWorker].
+         */
+        fun statusFlow(context: Context) = combine(
+            NetworkSyncWorker.statusFlow(context),
+            LocalSyncWorker.statusFlow(context)
+        ) { sync, local -> sync + local }
+
+        /**
+         * Cancels all the synchronization jobs.
+         */
+        fun cancel(context: Context) {
+            val wm = WorkManager.getInstance(context)
+            wm.cancelUniqueWork(NetworkSyncWorker.NAME)
+            wm.cancelUniqueWork(LocalSyncWorker.NAME)
+        }
     }
+
+    /**
+     * Constructs a new BaseSyncWorker without any filter.
+     */
+    constructor(
+        context: Context,
+        workerParams: WorkerParameters
+    ): this(context, workerParams, { true })
 
     private val database = AppDatabase.getInstance(applicationContext)
     private val subscriptionsDao = database.subscriptionsDao()
@@ -72,7 +136,8 @@ open class BaseSyncWorker(
             AndroidCalendar.insertColors(provider, account)
 
             // sync local calendars
-            for (subscription in subscriptionsDao.getAll()) {
+            val subscriptions = subscriptionsDao.getAll().filter(filter)
+            for (subscription in subscriptions) {
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)

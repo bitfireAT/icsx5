@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
@@ -79,7 +79,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 }
 
                 // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication())
+                BaseSyncWorker.run(getApplication())
 
                 uiState = uiState.copy(success = true)
             } catch (e: Exception) {

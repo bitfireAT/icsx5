@@ -12,7 +12,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import at.bitfire.icsdroid.SyncWorker
+import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.db.AppDatabase.Companion.getInstance
 import at.bitfire.icsdroid.db.dao.CredentialsDao
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
@@ -78,7 +78,7 @@ abstract class AppDatabase : RoomDatabase() {
                     .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
-                            SyncWorker.run(context, onlyMigrate = true)
+                            BaseSyncWorker.run(context, onlyMigrate = true)
                         }
                     })
                     .build()

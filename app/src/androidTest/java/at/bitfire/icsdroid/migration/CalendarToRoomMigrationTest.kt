@@ -26,7 +26,7 @@ import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.Constants.TAG
-import at.bitfire.icsdroid.SyncWorker
+import at.bitfire.icsdroid.NetworkSyncWorker
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
@@ -139,7 +139,7 @@ class CalendarToRoomMigrationTest {
         try {
             runBlocking {
                 // run worker
-                val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
+                val result = TestListenableWorkerBuilder<NetworkSyncWorker>(appContext)
                     .setInputData(Data.Builder()
                         .putBoolean(ONLY_MIGRATE, true)
                         .build())
@@ -177,7 +177,7 @@ class CalendarToRoomMigrationTest {
         try {
             runBlocking {
                 // run worker
-                val result = TestListenableWorkerBuilder<SyncWorker>(appContext)
+                val result = TestListenableWorkerBuilder<NetworkSyncWorker>(appContext)
                     .setInputData(Data.Builder()
                         .putBoolean(ONLY_MIGRATE, true)
                         .build())

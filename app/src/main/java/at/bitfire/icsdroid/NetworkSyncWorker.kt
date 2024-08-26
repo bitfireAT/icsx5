@@ -15,10 +15,14 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
 
-class SyncWorker(
+/**
+ * Synchronizes all subscriptions with their respective servers.
+ * Only runs if the network is available, and filters remote URLs (http(s)).
+ */
+class NetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
-) : BaseSyncWorker(context, workerParams) {
+) : BaseSyncWorker(context, workerParams, { it.url.scheme?.startsWith("http") == true }) {
 
     companion object {
 
@@ -40,7 +44,7 @@ class SyncWorker(
             forceResync: Boolean = false,
             onlyMigrate: Boolean = false
         ) {
-            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+            val request = OneTimeWorkRequestBuilder<NetworkSyncWorker>()
                 .setInputData(
                     workDataOf(
                         FORCE_RESYNC to forceResync,
