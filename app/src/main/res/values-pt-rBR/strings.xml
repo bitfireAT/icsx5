@@ -14,8 +14,7 @@
   <string name="calendar_list_info">Sobre o ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">ainda não sincronizado</string>
   <string name="calendar_list_set_sync_interval">Definir intervalo de sincronização</string>
-  <string name="calendar_list_synchronize">Sincronizar agora</string>
-  <!--settings, currently in CalendarListActivity-->
+    <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Política de privacidade</string>
   <string name="set_sync_interval_title">Definir intervalo de sincronização:</string>
   <string-array name="set_sync_interval_names">

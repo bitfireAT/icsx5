@@ -21,8 +21,8 @@ open class BaseSyncWorker(
 ) : CoroutineWorker(context, workerParams) {
     companion object {
         /**
-         * An input data (Boolean) for the Worker that tells whether the synchronization should be performed
-         * without taking into account the current network condition.
+         * An input data (Boolean) for the Worker that tells whether the synchronization should
+         * ignore the lastModified timestamp and fetch everything from the server again.
          */
         const val FORCE_RESYNC = "forceResync"
 

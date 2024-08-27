@@ -115,7 +115,11 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onRefreshRequested() {
-        SyncWorker.run(getApplication(), true)
+        SyncWorker.run(getApplication(), force = true)
+    }
+
+    fun onForceRefreshRequested() {
+        SyncWorker.run(getApplication(), force =true, forceResync = true)
     }
 
     fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {

@@ -18,8 +18,7 @@
   <string name="calendar_list_info">Despre ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">încă nu este sincronizat</string>
   <string name="calendar_list_set_sync_interval">Setează intervalul de sincronizare</string>
-  <string name="calendar_list_synchronize">Sincronizează acum</string>
-  <string name="calendar_list_battery_whitelist_title">Optimizarea bateriei</string>
+    <string name="calendar_list_battery_whitelist_title">Optimizarea bateriei</string>
   <string name="calendar_list_battery_whitelist_text">Optimizările bateriei pot împiedica intervalele de sincronizare mai scurte de o zi. Setează %s la „Neoptimizată”.</string>
   <string name="calendar_list_battery_whitelist_open_settings">Deschide setările</string>
   <string name="calendar_list_autorevoke_permissions_title">Revocare automată a permisiunilor</string>

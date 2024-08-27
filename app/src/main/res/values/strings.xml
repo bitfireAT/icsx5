@@ -23,7 +23,7 @@
     <string name="calendar_list_info">About ICSx⁵</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
-    <string name="calendar_list_synchronize">Synchronize now</string>
+    <string name="calendar_list_force_sync">Force sync</string>
     <string name="calendar_list_battery_whitelist_title">Battery optimization</string>
     <string name="calendar_list_battery_whitelist_text">Battery optimizations may prevent sync intervals shorter than a day. Set %s to \"Not optimized\".</string>
     <string name="calendar_list_battery_whitelist_open_settings">Open settings</string>

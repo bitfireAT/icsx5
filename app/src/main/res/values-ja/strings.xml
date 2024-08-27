@@ -18,8 +18,7 @@
   <string name="calendar_list_info">ICSx⁵ について</string>
   <string name="calendar_list_not_synced_yet">まだ同期されていません</string>
   <string name="calendar_list_set_sync_interval">同期間隔を設定</string>
-  <string name="calendar_list_synchronize">今すぐ同期</string>
-  <string name="calendar_list_battery_whitelist_title">バッテリー最適化</string>
+    <string name="calendar_list_battery_whitelist_title">バッテリー最適化</string>
   <string name="calendar_list_battery_whitelist_text">バッテリー最適化により、1 日以下の同期間隔で動作しなくなる可能性があります。%s を「最適化しない」に設定してください。</string>
   <string name="calendar_list_battery_whitelist_open_settings">設定を開く</string>
   <string name="calendar_list_autorevoke_permissions_title">権限の自動停止</string>
