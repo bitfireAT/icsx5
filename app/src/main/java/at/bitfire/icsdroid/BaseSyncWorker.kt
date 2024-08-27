@@ -22,7 +22,7 @@ open class BaseSyncWorker(
     companion object {
         /**
          * An input data (Boolean) for the Worker that tells whether the synchronization should be performed
-         * without taking into account the current network condition.
+         * ignoring all locally stored data and fetching everything from the server again.
          */
         const val FORCE_RESYNC = "forceResync"
 
