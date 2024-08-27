@@ -40,8 +40,7 @@ import java.util.LinkedList
  *
  * @param context      context to work in
  * @param subscription represents the subscription to be checked
- * @param forceResync  enforces that the calendar is fetched and all events are fully processed
- *                     (useful when subscription settings have been changed)
+ * @param forceResync  ignores lastModified timestamp and fetches everything from the server
  */
 class ProcessEventsTask(
     val context: Context,
