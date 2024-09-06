@@ -3,7 +3,6 @@ package at.bitfire.icsdroid.ui.screen
 import android.net.Uri
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -156,8 +155,7 @@ fun CalendarListScreen(
 
 @Composable
 @OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class
 )
 private fun CalendarListContent(
     paddingValues: PaddingValues,
