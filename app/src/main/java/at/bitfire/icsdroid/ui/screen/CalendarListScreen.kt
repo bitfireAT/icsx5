@@ -214,7 +214,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestCalendarPermissions
                     )
                 }
@@ -230,7 +230,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestNotificationPermission
                     )
                 }
@@ -246,7 +246,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onBatteryOptimizationWhitelist
                     )
                 }
@@ -262,7 +262,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onAutoRevokePermission
                     )
                 }
@@ -277,7 +277,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp, 16.dp, 8.dp, 8.dp)
-                            .animateItemPlacement()
+                            .animateItem()
                     )
                 }
             }
