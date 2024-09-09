@@ -3,7 +3,6 @@ package at.bitfire.icsdroid.ui.screen
 import android.net.Uri
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -151,8 +150,7 @@ fun CalendarListScreen(
 
 @Composable
 @OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class
 )
 private fun CalendarListContent(
     paddingValues: PaddingValues,
@@ -194,7 +192,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestCalendarPermissions
                     )
                 }
@@ -210,7 +208,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestNotificationPermission
                     )
                 }
@@ -226,7 +224,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onBatteryOptimizationWhitelist
                     )
                 }
@@ -242,7 +240,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onAutoRevokePermission
                     )
                 }
@@ -257,7 +255,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp, 16.dp, 8.dp, 8.dp)
-                            .animateItemPlacement()
+                            .animateItem()
                     )
                 }
             }
