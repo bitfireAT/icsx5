@@ -18,7 +18,7 @@
   <string name="calendar_list_info">O aplikacji ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">jeszcze nie zsynchronizowane</string>
   <string name="calendar_list_set_sync_interval">Ustaw interwał synchronizacji</string>
-    <string name="calendar_list_battery_whitelist_title">Optymalizacja baterii</string>
+  <string name="calendar_list_battery_whitelist_title">Optymalizacja baterii</string>
   <string name="calendar_list_battery_whitelist_text">Optymalizacja baterii może uniemożliwić synchronizację w odstępach krótszych niż jeden dzień. Ustaw %s na \"Nie zoptymalizowano\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Otwórz ustawienia</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatyczne odbieranie uprawnień</string>

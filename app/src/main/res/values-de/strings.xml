@@ -18,7 +18,8 @@
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
-    <string name="calendar_list_battery_whitelist_title">Akku optimieren</string>
+  <string name="calendar_list_force_sync">Synchronisation erzwingen</string>
+  <string name="calendar_list_battery_whitelist_title">Akku optimieren</string>
   <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatischer Berechtigungsentzug</string>
@@ -61,7 +62,7 @@
   <string name="add_calendar_alarms_title">Alarme</string>
   <string name="add_calendar_alarms_ignore_title">Ignoriere eingebettete Alarme im Kalender</string>
   <string name="add_calendar_alarms_ignore_description">Falls eingeschaltet, werden alle eingehenden Benachrichtigungen vom Server verworfen.</string>
-  <string name="add_calendar_alarms_default_all_day_title">Füge eine Standard-Benachrichtigung für ganztätige Termine hinzu</string>
+  <string name="add_calendar_alarms_default_all_day_title">Füge eine Standard-Benachrichtigung für ganztägige Termine hinzu</string>
   <string name="default_alarm_dialog_title">Füge eine Standard-Benachrichtigung hinzu</string>
   <string name="default_alarm_dialog_message">Dies wird eine Benachrichtigung für alle Termine erstellen</string>
   <string name="default_alarm_dialog_hint">Minuten vor dem Termin</string>

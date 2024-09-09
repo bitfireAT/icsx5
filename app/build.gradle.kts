@@ -10,14 +10,14 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 35
 
     namespace = "at.bitfire.icsdroid"
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
 
         versionCode = 80
         versionName = "2.2.4"
@@ -83,6 +83,9 @@ android {
         disable.addAll(
             listOf("ExtraTranslation", "MissingTranslation", "InvalidPackage", "OnClick")
         )
+        // TODO: Remove on the next Compose release, should be fixed
+        // Maybe related to https://issuetracker.google.com/issues/298483892
+        disable += "CoroutineCreationDuringComposition"
     }
 
     packaging {
