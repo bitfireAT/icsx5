@@ -3,8 +3,6 @@ package at.bitfire.icsdroid.ui.screen
 import android.net.Uri
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
