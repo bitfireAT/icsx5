@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import at.bitfire.icsdroid.ui.theme.AppTheme
 
 /**
  * Provides a generic [AlertDialog] with some utilities.
@@ -43,14 +44,14 @@ fun GenericAlertDialog(
 @Preview
 @Composable
 fun GenericAlertDialog_Preview() {
-    GenericAlertDialog(
-        confirmButton = "OK" to {},
-        dismissButton =  "Cancel" to {},
-        title = "Hello!",
-        content = {
-            Text("Hello again!")
-        }
-    ) {
-
+    AppTheme {
+        GenericAlertDialog(
+            confirmButton = "OK" to {},
+            dismissButton =  "Cancel" to {},
+            title = "Hello!",
+            content = {
+                Text("Hello again!")
+            }
+        ) { }
     }
 }
