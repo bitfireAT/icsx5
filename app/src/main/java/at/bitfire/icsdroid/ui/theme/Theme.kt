@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,8 +54,32 @@ private val LightColors = lightColorScheme(
     tertiaryContainer = lightblue,
     onTertiaryContainer = offwhite,
     background = offwhite,
+    surfaceContainer = superlightblue,
+    surface = superlightblue,
+    surfaceContainerLowest = superlightblue,
+    surfaceContainerLow = superlightblue,
+    surfaceContainerHigh = superlightblue,
+    surfaceContainerHighest = superlightblue,
     surfaceVariant = lightgrey,
 )
+
+private operator fun Color.plus(color: Color): Color {
+    return Color(
+        red = (this.red + color.red).coerceIn(0f, 1f),
+        green = (this.green + color.green).coerceIn(0f, 1f),
+        blue = (this.blue + color.blue).coerceIn(0f, 1f),
+        alpha = (this.alpha + color.alpha).coerceIn(0f, 1f)
+    )
+}
+
+private operator fun Color.minus(color: Color): Color {
+    return Color(
+        red = (this.red - color.red).coerceIn(0f, 1f),
+        green = (this.green - color.green).coerceIn(0f, 1f),
+        blue = (this.blue - color.blue).coerceIn(0f, 1f),
+        alpha = (this.alpha - color.alpha).coerceIn(0f, 1f)
+    )
+}
 
 
 @Composable
