@@ -1,6 +1,7 @@
 package at.bitfire.icsdroid.ui.partials
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
@@ -19,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ActionCard(
     title: String,
-    message: String,
+    message: String?,
     actionText: String,
     modifier: Modifier = Modifier,
     onAction: () -> Unit
@@ -32,23 +33,27 @@ fun ActionCard(
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            Text(
-                text = title,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = message,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            TextButton(
-                onClick = onAction,
-                modifier = Modifier.align(Alignment.End)
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = actionText.uppercase())
+                Text(
+                    text = title,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                TextButton(
+                    onClick = onAction
+                ) {
+                    Text(text = actionText.uppercase())
+                }
+            }
+            if (message != null) {
+                Text(
+                    text = message,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }
