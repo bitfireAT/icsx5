@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ActionCard(
     title: String,
-    message: String?,
+    message: String,
     actionText: String,
     modifier: Modifier = Modifier,
     onAction: () -> Unit
@@ -49,13 +49,11 @@ fun ActionCard(
                     Text(text = actionText.uppercase())
                 }
             }
-            if (message != null) {
-                Text(
-                    text = message,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            Text(
+                text = message,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
