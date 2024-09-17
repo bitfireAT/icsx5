@@ -26,6 +26,7 @@ fun ActionCard(
     onAction: () -> Unit
 ) {
     ElevatedCard(
+        onClick = onAction,
         modifier = modifier
     ) {
         Column(
