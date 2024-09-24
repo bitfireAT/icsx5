@@ -3,10 +3,10 @@
   <string name="account_name">Подписки на календари</string>
   <!--common strings-->
   <string name="action_more">Больше</string>
-  <string name="calendar_permissions_required">Необходимы разрешения для работы с календарем</string>
-  <string name="calendar_permissions_required_text">Требуется для локального хранения загруженных событий.</string>
-  <string name="notification_permissions_required">Требуются разрешения на отправку уведомлений</string>
-  <string name="notification_permissions_required_text">Для отображения уведомлений при возникновении таких состояний синхронизации, как ошибки.</string>
+  <string name="calendar_permissions_required">Доступ к календарю</string>
+  <string name="calendar_permissions_required_text">Позволяет получить доступ к базе данных.</string>
+  <string name="notification_permissions_required">Разрешения на уведомления</string>
+  <string name="notification_permissions_required_text">Уведомляет вас об ошибках.</string>
   <string name="no_browser">Браузер не установлен</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <string name="permissions_grant">Предоставить</string>
@@ -23,7 +23,7 @@
   <string name="calendar_list_battery_whitelist_text">Оптимизация батареи может предотвратить интервалы синхронизации короче одного дня. Установите %s на \"Не оптимизировано\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Открыть настройки</string>
   <string name="calendar_list_autorevoke_permissions_title">Автоотзыв разрешений</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android отзывает разрешения у редко используемых приложений. Пожалуйста, отключите отзыв разрешений для %s.</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android отзывает разрешения у редко открываемых приложений. Поэтому отключите эту опцию для %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Нажмите \"Разрешения\" &gt; снимите флажок \"Удалять разрешения, если приложение не используется\".</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Политика конфиденциальности</string>
