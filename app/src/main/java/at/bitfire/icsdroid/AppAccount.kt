@@ -11,7 +11,9 @@ import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.provider.CalendarContract
 import android.util.Log
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 
 object AppAccount {
@@ -47,7 +49,7 @@ object AppAccount {
         if (am.addAccountExplicitly(newAccount, null, null)) {
             account = newAccount
             ContentResolver.setIsSyncable(newAccount, CalendarContract.AUTHORITY, 1)
-            syncInterval(context, DEFAULT_SYNC_INTERVAL)
+            setSyncInterval(context, DEFAULT_SYNC_INTERVAL)
             return newAccount
         }
 
@@ -55,31 +57,28 @@ object AppAccount {
     }
 
 
-    fun syncInterval(context: Context) =
-        preferences(context).getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY)
-
-    fun syncIntervalFlow(context: Context) = callbackFlow {
-        val preferences = preferences(context)
+    fun getSyncIntervalFlow(context: Context) = callbackFlow {
+        val preferences = getPreferences(context)
         val listener = OnSharedPreferenceChangeListener { _, key ->
-            if (key == KEY_SYNC_INTERVAL) {
-                trySend(preferences.getLong(KEY_SYNC_INTERVAL, SYNC_INTERVAL_MANUALLY))
-            }
+            if (key == KEY_SYNC_INTERVAL)
+                trySend(preferences.getLong(KEY_SYNC_INTERVAL, DEFAULT_SYNC_INTERVAL))
         }
         preferences.registerOnSharedPreferenceChangeListener(listener)
-
+        if (preferences.contains(KEY_SYNC_INTERVAL))
+            send(preferences.getLong(KEY_SYNC_INTERVAL, DEFAULT_SYNC_INTERVAL))
         awaitClose {
             preferences.unregisterOnSharedPreferenceChangeListener(listener)
         }
-    }
+    }.buffer(Channel.UNLIMITED)
 
-    fun syncInterval(context: Context, syncInterval: Long) {
+    fun setSyncInterval(context: Context, syncInterval: Long) {
         // don't use the sync framework anymore (legacy)
         ContentResolver.setSyncAutomatically(get(context), CalendarContract.AUTHORITY, false)
 
         // remember sync interval so that it can be checked/restored later
-        preferences(context).edit()
-                .putLong(KEY_SYNC_INTERVAL, syncInterval)
-                .apply()
+        getPreferences(context).edit()
+            .putLong(KEY_SYNC_INTERVAL, syncInterval)
+            .apply()
 
         // set up periodic worker
         PeriodicSyncWorker.setInterval(
@@ -94,7 +93,7 @@ object AppAccount {
 
     // helpers
 
-    private fun preferences(context: Context) =
-            context.getSharedPreferences(PREF_ACCOUNT, 0)
+    private fun getPreferences(context: Context) =
+        context.getSharedPreferences(PREF_ACCOUNT, 0)
 
 }
