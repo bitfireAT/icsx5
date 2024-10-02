@@ -59,7 +59,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     val forceDarkMode = settings.forceDarkModeFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val syncInterval = AppAccount.syncIntervalFlow(application)
+    val syncInterval = AppAccount.getSyncIntervalFlow(application)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppAccount.DEFAULT_SYNC_INTERVAL)
 
     init {
@@ -128,7 +128,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onSyncIntervalChange(interval: Long) {
-        AppAccount.syncInterval(getApplication(), interval)
+        AppAccount.setSyncInterval(getApplication(), interval)
     }
 
     @SuppressLint("BatteryLife")
