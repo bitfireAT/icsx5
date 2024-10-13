@@ -2,8 +2,6 @@
 <resources>
   <string name="account_name">Kalenderabonnementen</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Kalenderrechten nodig</string>
-  <string name="notification_permissions_required">Meldingsrechten vereist</string>
   <string name="no_browser">Geen browser geïnstalleerd</string>
   <string name="notification_channel_sync_problem">Sync-problemen</string>
   <string name="permissions_grant">Toekenning</string>

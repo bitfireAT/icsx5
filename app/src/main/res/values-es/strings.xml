@@ -2,7 +2,6 @@
 <resources>
   <string name="account_name">Suscripciones de calendario</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Se necesitan permisos para el calendario</string>
   <string name="notification_channel_sync_problem">Problemas de sincronización</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Mis suscripciones</string>

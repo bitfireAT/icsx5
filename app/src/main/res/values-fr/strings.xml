@@ -3,10 +3,6 @@
   <string name="account_name">Abonnements à des calendriers</string>
   <!--common strings-->
   <string name="action_more">Plus</string>
-  <string name="calendar_permissions_required">Autorisations d\'agenda nécessaires</string>
-  <string name="calendar_permissions_required_text">Nécessaire pour stocker localement les évènements téléchargés.</string>
-  <string name="notification_permissions_required">Autorisations de notification nécessaires</string>
-  <string name="notification_permissions_required_text">Pour afficher des notifications en cas de problèmes, tels que des erreurs de synchro. </string>
   <string name="no_browser">Aucun navigateur installé</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <string name="permissions_grant">Accorder</string>
@@ -23,7 +19,6 @@
   <string name="calendar_list_battery_whitelist_text">L\'optimisation de la batterie peut empêcher des intervalles de synchronisation inférieurs à une journée. Configurez %s à  \"Non optimisées\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Ouvrir les paramètres</string>
   <string name="calendar_list_autorevoke_permissions_title">Retrait Auto. des Permissions</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android retire les autorisations des applications rarement ouvertes.  Veuillez désactiver le retrait des permissions pour %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Cliquer Autorisations &gt; décocher \"Suspendre l\'activité si inutilisée\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Politique de confidentialité</string>

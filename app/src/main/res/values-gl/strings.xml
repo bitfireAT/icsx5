@@ -3,10 +3,6 @@
   <string name="account_name">Subscricións a calendarios</string>
   <!--common strings-->
   <string name="action_more">Máis</string>
-  <string name="calendar_permissions_required">Precísase permiso para o calendario</string>
-  <string name="calendar_permissions_required_text">Requerido para gardar en local os eventos descargados.</string>
-  <string name="notification_permissions_required">Requírese permiso para notificacións</string>
-  <string name="notification_permissions_required_text">Para mostrar notificacións da sincr., por ex. se hai erros.</string>
   <string name="no_browser">Non hai navegador instalado</string>
   <string name="notification_channel_sync_problem">Problemas de Sincr</string>
   <string name="permissions_grant">Conceder</string>
