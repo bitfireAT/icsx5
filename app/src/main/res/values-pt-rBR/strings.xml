@@ -2,8 +2,6 @@
 <resources>
   <string name="account_name">Inscrições de calendários</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">É necessário permissões de calendário</string>
-  <string name="notification_permissions_required">É necessário permissão para notificações</string>
   <string name="no_browser">Nenhum navegador instalado</string>
   <string name="notification_channel_sync_problem">Problemas de sincronização</string>
   <string name="permissions_grant">Conceder</string>
