@@ -1,6 +1,6 @@
 [versions]
 aboutLibs = "11.2.3"
-agp = "8.6.1"
+agp = "8.7.1"
 androidx-activityCompose = "1.9.3"
 androidx-appCompat = "1.7.0"
 androidx-archCore = "2.2.0"
