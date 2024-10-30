@@ -27,6 +27,7 @@ import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -101,7 +102,7 @@ class BaseSyncWorkerTest {
         withTimeout(5_000) {
             try {
                 runBlocking {
-                    workManager.getWorkInfoByIdFlow(uuid).collect {
+                    workManager.getWorkInfoByIdFlow(uuid).filterNotNull().collect {
                         if (it.state.isFinished) {
                             workInfo = it
                             cancel()
