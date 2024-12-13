@@ -3,23 +3,28 @@
   <string name="account_name">Subscricións a calendarios</string>
   <!--common strings-->
   <string name="action_more">Máis</string>
-  <string name="calendar_permissions_required">Precísase permiso para o calendario</string>
-  <string name="calendar_permissions_required_text">Requerido para gardar en local os eventos descargados.</string>
-  <string name="notification_permissions_required">Requírese permiso para notificacións</string>
-  <string name="notification_permissions_required_text">Para mostrar notificacións da sincr., por ex. se hai erros.</string>
+  <string name="calendar_permissions_required">Acceso ao calendario</string>
+  <string name="calendar_permissions_required_text">Permite o acceso á base de datos.</string>
+  <string name="notification_permissions_required">Permisos das notificacións</string>
+  <string name="notification_permissions_required_text">Infórmate sobre os erros.</string>
   <string name="no_browser">Non hai navegador instalado</string>
   <string name="notification_channel_sync_problem">Problemas de Sincr</string>
   <string name="permissions_grant">Conceder</string>
   <string name="install_browser">Instala un Navegador web</string>
+  <string name="required_annotation">Requerido</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Subscricións</string>
   <string name="calendar_list_empty_info">Para subscribirte a unha fonte Webcal, utiliza o botón + ou abre un URL Webcal.</string>
   <string name="calendar_list_info">Acerca de ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">aínda non sincronizaches</string>
   <string name="calendar_list_set_sync_interval">Establece intervalo de sincr.</string>
+  <string name="calendar_list_force_sync">Forzar sincr</string>
   <string name="calendar_list_battery_whitelist_title">Optimización da batería</string>
   <string name="calendar_list_battery_whitelist_text">As optimizacións da batería poden impedir intervalos de sincr. menores dun día. Establece %s como \"Non optimizado\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Abrir axustes</string>
+  <string name="calendar_list_autorevoke_permissions_title">Retirada automática de permisos</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android retira os permisos das apps que se usan moi pouco. Desactiva para %s.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Preme en Permisos &gt; desmarca \"Retirar permisos da app se non se usa\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Política de privacidade</string>
   <string name="set_sync_interval_title">Establece intervalo de sincr.:</string>
@@ -35,22 +40,35 @@
   <string name="settings_force_dark_theme">Forzar decorado escuro</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Subscribir a calendario</string>
+  <string name="activity_add_calendar_subscribe">Subscribir</string>
+  <string name="add_calendar_subscribe_url">Subscribirse ao URL</string>
+  <string name="add_calendar_subscribe_file">Subscribirse ao ficheiro</string>
   <string name="add_calendar_need_valid_uri">Require URI válido</string>
+  <string name="add_calendar_authentication_title">Autenticación</string>
   <string name="add_calendar_authentication_without_https_warning">Terceiras partes poden interceptar facilmente as túas credenciais. Usa HTTPS para autenticación segura.</string>
   <string name="add_calendar_created">Subscrición correcta</string>
   <string name="add_calendar_password">Contrasinal</string>
+  <string name="add_calendar_password_hide">Agochar contrasinal</string>
+  <string name="add_calendar_password_show">Mostrar contrasinal</string>
   <string name="add_calendar_requires_authentication">Require autenticación</string>
   <string name="add_calendar_title">Título e Cor</string>
   <string name="add_calendar_title_hint">Nome do calendario</string>
+  <string name="add_calendar_pick_color">Elixir cor</string>
+  <string name="add_calendar_pick_url_label">Enderezo Webcal</string>
+  <string name="add_calendar_pick_file_label">Ruta ao ficheiro</string>
   <string name="add_calendar_pick_file">Escolle o ficheiro</string>
   <string name="add_calendar_user_name">Nome de usuaria</string>
   <string name="add_calendar_validating">Validando fonte do calendario...</string>
   <string name="add_calendar_alarms_title">Alarmas</string>
+  <string name="add_calendar_alarms_ignore_title">Ignorar alertas incluídas no calendario</string>
   <string name="add_calendar_alarms_ignore_description">Se o activas, todas as alarmas procedentes do servidor serán ignoradas.</string>
   <string name="add_calendar_alarms_default_all_day_title">Engadir unha alarma por defecto para os eventos de todo o día</string>
   <string name="default_alarm_dialog_title">Engadir alarma por defecto</string>
   <string name="default_alarm_dialog_message">Engadirá unha alarma para todos os eventos</string>
   <string name="default_alarm_dialog_hint">Minutos antos do evento</string>
+  <string name="add_calendar_advanced_title">Avanzado</string>
+  <string name="add_calendar_description_title">Ignorar campo DESCRICIÓN</string>
+  <string name="add_calendar_description_summary">Se o activas, vaise retirar dos eventos o campo DESCRICIÓN. Isto é útil se contén información irrelevante.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Comparte detalles</string>
   <!--EditCalendarActivity-->
@@ -60,6 +78,10 @@
   <string name="edit_calendar_deleted">Retirada correctamente</string>
   <string name="edit_calendar_dismiss">Desbotar</string>
   <string name="edit_calendar_really_delete">Tes a certeza de que queres retirar a subscrición a este calendario?</string>
+  <string name="edit_calendar_edit">Editar</string>
+  <string name="edit_calendar_need_valid_credentials">Require tanto Identificador como Contrasinal</string>
+  <string name="edit_calendar_need_username">Require Identificador</string>
+  <string name="edit_calendar_need_password">Require o Contrasinal</string>
   <string name="edit_calendar_save">Gardar</string>
   <string name="edit_calendar_saved">Cambios gardados</string>
   <string name="edit_calendar_send_url">Enviar URL</string>
@@ -72,6 +94,7 @@
   <!--InfoActivity-->
   <string name="activity_app_info">Info da app</string>
   <string name="app_info_version">Versión %1$s - %2$s</string>
+  <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) e colaboradoras</string>
   <string name="app_info_gplv3_note"><![CDATA[
 Este programa é software libre: podes distribuílo e/ou modificalo
 seguindo os termos de GNU General Public License tal como a publica a Free Software Foundation na versión 3 da Licenza ou

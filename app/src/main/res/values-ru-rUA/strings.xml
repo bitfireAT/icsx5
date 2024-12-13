@@ -2,7 +2,6 @@
 <resources>
   <string name="account_name">Подписки на календари</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Разрешить доступ к календарю</string>
   <string name="notification_channel_sync_problem">Проблемы с синхронизацией</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Мои подписки</string>

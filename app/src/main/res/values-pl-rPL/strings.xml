@@ -3,10 +3,6 @@
   <string name="account_name">Subskrypcje kalendarzy</string>
   <!--common strings-->
   <string name="action_more">Więcej</string>
-  <string name="calendar_permissions_required">Wymagane uprawnienia kalendarza</string>
-  <string name="calendar_permissions_required_text">Wymagane do lokalnego przechowywania pobranych zdarzeń.</string>
-  <string name="notification_permissions_required">Wymagane uprawnienia do powiadomień</string>
-  <string name="notification_permissions_required_text">Aby wyświetlać powiadomienia w przypadku warunków synchronizacji, takich jak błędy.</string>
   <string name="no_browser">Brak zainstalowanej przeglądarki</string>
   <string name="notification_channel_sync_problem">Problemy z synchronizacją</string>
   <string name="permissions_grant">Udziel</string>
@@ -22,7 +18,6 @@
   <string name="calendar_list_battery_whitelist_text">Optymalizacja baterii może uniemożliwić synchronizację w odstępach krótszych niż jeden dzień. Ustaw %s na \"Nie zoptymalizowano\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Otwórz ustawienia</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatyczne odbieranie uprawnień</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android cofa uprawnienia rzadko otwieranych aplikacji. Wyłącz odbieranie uprawnień dla %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Kliknij Uprawnienia &gt; odznacz \"Usuń uprawnienia, jeśli aplikacja nie jest używana\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Polityka prywatności</string>

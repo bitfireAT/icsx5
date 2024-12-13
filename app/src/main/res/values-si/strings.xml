@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--common strings-->
-  <string name="calendar_permissions_required">දින දසුන් අවසරය අවශ්‍යයයි</string>
   <string name="notification_channel_sync_problem">සමමුහූර්ත ගැටලු</string>
   <!--CalendarListActivity-->
   <string name="calendar_list_info">ICSx⁵ පිළිබඳව</string>
