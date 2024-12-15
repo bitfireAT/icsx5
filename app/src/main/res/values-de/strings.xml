@@ -3,10 +3,6 @@
   <string name="account_name">Kalender-Abos</string>
   <!--common strings-->
   <string name="action_more">Mehr</string>
-  <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
-  <string name="calendar_permissions_required_text">Benötigt, um heruntergeladene Termine lokal zu speichern.</string>
-  <string name="notification_permissions_required">Benachrichtigungs-Berechtigung benötigt</string>
-  <string name="notification_permissions_required_text">Um im Falle von Synchronisierungs-Bedingungen wie Fehlern Benachrichtigungen anzuzeigen</string>
   <string name="no_browser">Kein Browser installiert</string>
   <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <string name="permissions_grant">Gewähren</string>
@@ -23,7 +19,6 @@
   <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatischer Berechtigungsentzug</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android entzieht wenig benutzten Apps die Berechtigungen. Bitte deaktiviere diese Einstellung für %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Klicke Berechtigungen &gt; deaktiviere \"App-Aktivität bei Nichtnutzung stoppen\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Datenschutzrichtlinie</string>

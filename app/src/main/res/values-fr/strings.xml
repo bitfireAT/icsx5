@@ -3,10 +3,10 @@
   <string name="account_name">Abonnements à des calendriers</string>
   <!--common strings-->
   <string name="action_more">Plus</string>
-  <string name="calendar_permissions_required">Autorisations d\'agenda nécessaires</string>
-  <string name="calendar_permissions_required_text">Nécessaire pour stocker localement les évènements téléchargés.</string>
-  <string name="notification_permissions_required">Autorisations de notification nécessaires</string>
-  <string name="notification_permissions_required_text">Pour afficher des notifications en cas de problèmes, tels que des erreurs de synchro. </string>
+  <string name="calendar_permissions_required">Autorisations d\'agenda</string>
+  <string name="calendar_permissions_required_text">Autoriser l\'accès à la base de données. </string>
+  <string name="notification_permissions_required">Autorisations de notification</string>
+  <string name="notification_permissions_required_text">Notifie en cas d\'erreurs. </string>
   <string name="no_browser">Aucun navigateur installé</string>
   <string name="notification_channel_sync_problem">Problèmes de synchro.</string>
   <string name="permissions_grant">Accorder</string>
@@ -23,7 +23,7 @@
   <string name="calendar_list_battery_whitelist_text">L\'optimisation de la batterie peut empêcher des intervalles de synchronisation inférieurs à une journée. Configurez %s à  \"Non optimisées\".</string>
   <string name="calendar_list_battery_whitelist_open_settings">Ouvrir les paramètres</string>
   <string name="calendar_list_autorevoke_permissions_title">Retrait Auto. des Permissions</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android retire les autorisations des applications rarement ouvertes.  Veuillez désactiver le retrait des permissions pour %s.</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android retire les autorisations des applications rarement ouvertes. Veuillez désactiver pour %s. </string>
   <string name="calendar_list_autorevoke_permissions_instruction">Cliquer Autorisations &gt; décocher \"Suspendre l\'activité si inutilisée\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Politique de confidentialité</string>
@@ -95,6 +95,9 @@
   <string name="activity_app_info">Infos sur l\'application</string>
   <string name="app_info_version">Version %1$s-%2$s</string>
   <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) et les contributeurs</string>
+  <string name="app_info_gplv3_note"><![CDATA[\"Ce programme est un logiciel libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la GNU General Public License telle que publiée par la Free Software Foundation ; soit la version 3 de la licence, soit (à votre gré) toute version ultérieure.
+Ce programme est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; sans même la garantie tacite de QUALITÉ MARCHANDE ou d\'ADÉQUATION à UN BUT PARTICULIER. Consultez la GNU General Public License pour plus de détails.
+Vous devez avoir reçu une copie de la GNU General Public License en même temps que ce programme ; si ce n\'est pas le cas, consultez <http://www.gnu.org/licenses>.\"]]></string>
   <string name="app_info_donate">Faire un don</string>
   <string name="app_info_web_site">Site web</string>
   <string name="donate_title">Information Open Source</string>
