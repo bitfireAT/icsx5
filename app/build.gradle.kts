@@ -34,8 +34,12 @@ android {
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
     }
 
     buildFeatures {
@@ -83,9 +87,6 @@ android {
         disable.addAll(
             listOf("ExtraTranslation", "MissingTranslation", "InvalidPackage", "OnClick")
         )
-        // TODO: Remove on the next Compose release, should be fixed
-        // Maybe related to https://issuetracker.google.com/issues/298483892
-        disable += "CoroutineCreationDuringComposition"
     }
 
     packaging {
