@@ -55,6 +55,7 @@ class CalendarListActivity: AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        configureEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         // Register the calendar permission request
