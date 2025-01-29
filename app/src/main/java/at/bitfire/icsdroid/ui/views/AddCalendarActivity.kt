@@ -9,20 +9,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.OpenableColumns
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.UriUtils.stripUrl
@@ -32,11 +28,7 @@ import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.screen.AddCalendarScreen
-import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import java.net.URI
-import java.net.URISyntaxException
 
 class AddCalendarActivity : AppCompatActivity() {
 
@@ -71,6 +63,7 @@ class AddCalendarActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        configureEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
