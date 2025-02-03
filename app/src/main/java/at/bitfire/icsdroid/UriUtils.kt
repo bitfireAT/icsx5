@@ -47,8 +47,8 @@ object UriUtils {
      * @throws IllegalArgumentException if no URL is found in the string
      */
     fun String.stripUrl(): String? {
-        //      schema             host          port         path           query
-        return ("([a-zA-Z]+://)" + "([\\w.]+)" + "(:\\d+)?" + "([\\w/]+)?" + "(\\?[\\w.&=*]*)?")
+        //      schema             host             port         path               query
+        return ("([a-zA-Z]+://)" + "([\\w\\-.]+)" + "(:\\d+)?" + "([\\w\\-./]+)?" + "(\\?[\\w.&=*]*)?")
             .toRegex()
             .find(this)
             ?.value
