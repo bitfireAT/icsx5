@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.UriUtils.stripUrl
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.CredentialsModel
@@ -88,7 +87,7 @@ class AddCalendarActivity : AppCompatActivity() {
                         try {
                             (data ?: getStringExtra(Intent.EXTRA_TEXT))
                                 ?.toString()
-                                ?.stripUrl()
+                                ?.trim()
                                 ?.let(subscriptionSettingsModel::setUrl)
                                 ?.also {
                                     createSubscriptionModel.checkUrlIntroductionPage(
