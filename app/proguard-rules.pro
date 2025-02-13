@@ -10,6 +10,10 @@
 # ical4j: keep all iCalendar properties/parameters (used via reflection)
 -keep class net.fortuna.ical4j.** { *; }
 
+# ical4j needs this
+-keep class org.apache.commons.validator.routines.** { *; }
+-dontwarn org.apache.commons.validator.routines.**
+
 # we are not using those optional features of ical4j
 -dontwarn org.jparsec.** # parser for filter expressions
 -dontwarn javax.cache.** # timezone caching
