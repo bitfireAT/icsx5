@@ -14,6 +14,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
+import at.bitfire.icsdroid.db.entity.Subscription
 
 /**
  * Synchronizes all subscriptions with their respective servers.
@@ -22,12 +23,12 @@ import at.bitfire.icsdroid.Constants.TAG
 class NetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
-) : BaseSyncWorker(context, workerParams, { it.url.scheme?.startsWith("http") == true }) {
+) : BaseSyncWorker(context, workerParams) {
 
     companion object {
 
         /** The name of the worker. Tags the unique work. */
-        const val NAME = "SyncWorker"
+        const val NAME = "NetworkSyncWorker"
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
@@ -77,6 +78,10 @@ class NetworkSyncWorker(
         fun statusFlow(context: Context) =
             WorkManager.getInstance(context).getWorkInfosForUniqueWorkFlow(NAME)
 
+    }
+
+    override fun filter(subscription: Subscription): Boolean {
+        return subscription.url.scheme?.startsWith("http") == true
     }
 
 }

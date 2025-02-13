@@ -29,12 +29,10 @@ import kotlinx.coroutines.flow.combine
  * more information. Options:
  * - [FORCE_RESYNC]
  * - [ONLY_MIGRATE]
- * @param filter        a filter function that determines which subscriptions should be synchronized
  */
 open class BaseSyncWorker(
     context: Context,
-    workerParams: WorkerParameters,
-    private val filter: (Subscription) -> Boolean
+    workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
     companion object {
         /**
@@ -89,14 +87,6 @@ open class BaseSyncWorker(
         }
     }
 
-    /**
-     * Constructs a new BaseSyncWorker without any filter.
-     */
-    constructor(
-        context: Context,
-        workerParams: WorkerParameters
-    ): this(context, workerParams, { true })
-
     private val database = AppDatabase.getInstance(applicationContext)
     private val subscriptionsDao = database.subscriptionsDao()
     private val credentialsDao = database.credentialsDao()
@@ -136,7 +126,7 @@ open class BaseSyncWorker(
             AndroidCalendar.insertColors(provider, account)
 
             // sync local calendars
-            val subscriptions = subscriptionsDao.getAll().filter(filter)
+            val subscriptions = subscriptionsDao.getAll().filter(::filter)
             for (subscription in subscriptions) {
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
@@ -267,4 +257,10 @@ open class BaseSyncWorker(
             calendar.delete()
         }
     }
+
+    /**
+     * Can be overridden to filter which subscriptions should be synchronized.
+     * By default accept all subscriptions.
+     */
+    open fun filter(subscription: Subscription): Boolean = true
 }

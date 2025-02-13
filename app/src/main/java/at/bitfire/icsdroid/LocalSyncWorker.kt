@@ -6,6 +6,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import at.bitfire.icsdroid.db.entity.Subscription
 
 /**
  * Synchronizes all subscriptions from local fs.
@@ -14,7 +15,7 @@ import androidx.work.workDataOf
 class LocalSyncWorker(
     context: Context,
     workerParams: WorkerParameters
-) : BaseSyncWorker(context, workerParams, { it.url.scheme?.startsWith("http") == false }) {
+) : BaseSyncWorker(context, workerParams) {
 
     companion object {
 
@@ -47,6 +48,10 @@ class LocalSyncWorker(
         fun statusFlow(context: Context) =
             WorkManager.getInstance(context).getWorkInfosForUniqueWorkFlow(NAME)
 
+    }
+
+    override fun filter(subscription: Subscription): Boolean {
+        return subscription.url.scheme?.startsWith("http") != true
     }
 
 }
