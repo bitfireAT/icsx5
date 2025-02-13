@@ -92,7 +92,7 @@ open class BaseSyncWorker(
             /* May happen when the remote process dies or (since Android 14) when IPC (for instance
             with the calendar provider) is suddenly forbidden because our sync process was demoted
             from a "service process" to a "cached process". */
-            Log.e(Constants.TAG, "Received DeadObjectException, treating as soft error", e)
+            Log.e(Constants.TAG, "Received DeadObjectException, retrying.", e)
             return Result.retry()
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
