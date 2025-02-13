@@ -30,12 +30,12 @@ fun ExtendedTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     TopAppBar(
-        title,
-        modifier,
-        navigationIcon,
-        actions,
-        windowInsets,
-        colors,
-        scrollBehavior
+        title = title,
+        modifier = modifier,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        windowInsets = windowInsets,
+        colors = colors,
+        scrollBehavior = scrollBehavior
     )
 }

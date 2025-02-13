@@ -2,7 +2,6 @@
 <resources>
   <string name="account_name">Naptár-feliratkozások</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Naptár engedélyre van szükség</string>
   <string name="notification_channel_sync_problem">Szinkronizációs problémák</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Feliratkozások</string>

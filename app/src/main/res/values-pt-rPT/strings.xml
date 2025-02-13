@@ -2,7 +2,6 @@
 <resources>
   <string name="account_name">Calendários subscritos</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Necessárias permissões de calendário</string>
   <string name="notification_channel_sync_problem">Problemas de sincronização</string>
   <!--CalendarListActivity-->
   <string name="title_activity_calendar_list">Os meus calendários</string>

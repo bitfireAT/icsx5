@@ -6,7 +6,6 @@
   <string name="calendar_list_info">O aplikaci ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">zatím nesynchromizováno</string>
   <string name="calendar_list_set_sync_interval">Nastavit interval synchronizace</string>
-  <string name="calendar_list_synchronize">Synchronizovat nyní</string>
   <!--settings, currently in CalendarListActivity-->
   <string-array name="set_sync_interval_names">
     <item>Pouze ručně</item>

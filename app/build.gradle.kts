@@ -10,17 +10,17 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 35
 
     namespace = "at.bitfire.icsdroid"
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
 
-        versionCode = 80
-        versionName = "2.2.4"
+        versionCode = 82
+        versionName = "2.2.6"
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
@@ -34,8 +34,12 @@ android {
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
     }
 
     buildFeatures {

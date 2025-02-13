@@ -19,6 +19,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BaseSyncWorker
+import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
@@ -59,7 +60,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     val forceDarkMode = settings.forceDarkModeFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val syncInterval = AppAccount.syncIntervalFlow(application)
+    val syncInterval = AppAccount.getSyncIntervalFlow(application)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppAccount.DEFAULT_SYNC_INTERVAL)
 
     init {
@@ -115,7 +116,11 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onRefreshRequested() {
-        BaseSyncWorker.run(getApplication(), true)
+        BaseSyncWorker.run(getApplication(), force = true)
+    }
+
+    fun onForceRefreshRequested() {
+        BaseSyncWorker.run(getApplication(), force =true, forceResync = true)
     }
 
     fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {
@@ -124,7 +129,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onSyncIntervalChange(interval: Long) {
-        AppAccount.syncInterval(getApplication(), interval)
+        AppAccount.setSyncInterval(getApplication(), interval)
     }
 
     @SuppressLint("BatteryLife")

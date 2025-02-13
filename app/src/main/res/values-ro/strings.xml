@@ -3,10 +3,10 @@
   <string name="account_name">Abonamente calendar</string>
   <!--common strings-->
   <string name="action_more">Mai mult</string>
-  <string name="calendar_permissions_required">Sunt necesare permisiuni pentru calendar</string>
-  <string name="calendar_permissions_required_text">Necesar pentru stocarea locală a evenimentelor descărcate.</string>
-  <string name="notification_permissions_required">Sunt necesare permisiuni de notificare</string>
-  <string name="notification_permissions_required_text">Pentru a afișa notificări în cazul condițiilor de sincronizare, cum ar fi erorile.</string>
+  <string name="calendar_permissions_required">Acces la calendar</string>
+  <string name="calendar_permissions_required_text">Permite accesarea bazei de date.</string>
+  <string name="notification_permissions_required">Permisiuni de notificare</string>
+  <string name="notification_permissions_required_text">Notifică despre erori.</string>
   <string name="no_browser">Niciun browser instalat</string>
   <string name="notification_channel_sync_problem">Probleme de sincronizare</string>
   <string name="permissions_grant">Acordă</string>
@@ -18,12 +18,12 @@
   <string name="calendar_list_info">Despre ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">încă nu este sincronizat</string>
   <string name="calendar_list_set_sync_interval">Setează intervalul de sincronizare</string>
-  <string name="calendar_list_synchronize">Sincronizează acum</string>
+  <string name="calendar_list_force_sync">Sincronizare forțată</string>
   <string name="calendar_list_battery_whitelist_title">Optimizarea bateriei</string>
   <string name="calendar_list_battery_whitelist_text">Optimizările bateriei pot împiedica intervalele de sincronizare mai scurte de o zi. Setează %s la „Neoptimizată”.</string>
   <string name="calendar_list_battery_whitelist_open_settings">Deschide setările</string>
   <string name="calendar_list_autorevoke_permissions_title">Revocare automată a permisiunilor</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android elimină permisiunile aplicațiilor rar deschise. Dezactivează revocarea permisiunilor pentru %s.</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android elimină permisiunile aplicațiilor rar deschise. Dezactivează pentru %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Clic pe Permisiuni &gt; debifează „Elimină permisiunile dacă aplicația nu este utilizată”</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Politica de confidențialitate</string>

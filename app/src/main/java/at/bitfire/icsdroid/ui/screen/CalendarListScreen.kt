@@ -3,8 +3,6 @@ package at.bitfire.icsdroid.ui.screen
 import android.net.Uri
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,10 +24,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,12 +35,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.entity.Subscription
@@ -53,7 +48,6 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
-import kotlinx.coroutines.delay
 
 @Composable
 fun CalendarListScreen(
@@ -77,6 +71,7 @@ fun CalendarListScreen(
         forceDarkMode = forceDarkMode,
         syncInterval = syncInterval,
         onRefreshRequested = model::onRefreshRequested,
+        onForceRefreshRequested = model::onForceRefreshRequested,
         onAddRequested = onAddRequested,
         onRequestCalendarPermissions = onRequestCalendarPermissions,
         onRequestNotificationPermission = onRequestNotificationPermission,
@@ -98,6 +93,7 @@ fun CalendarListScreen(
     forceDarkMode: Boolean,
     syncInterval: Long,
     onRefreshRequested: () -> Unit = {},
+    onForceRefreshRequested: () -> Unit = {},
     onAddRequested: () -> Unit = {},
     onRequestCalendarPermissions: () -> Unit = {},
     onRequestNotificationPermission: () -> Unit = {},
@@ -131,7 +127,7 @@ fun CalendarListScreen(
                         onSyncIntervalChange = onSyncIntervalChange,
                         onToggleDarkMode = onToggleDarkMode,
                         onAboutRequested = onAboutRequested,
-                        onRefreshRequested = onRefreshRequested
+                        onRefreshRequested = onForceRefreshRequested
                     )
                 }
             )
@@ -154,8 +150,7 @@ fun CalendarListScreen(
 
 @Composable
 @OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class
 )
 private fun CalendarListContent(
     paddingValues: PaddingValues,
@@ -170,29 +165,14 @@ private fun CalendarListContent(
     onItemSelected: (Subscription) -> Unit = {}
 ) {
     val pullRefreshState = rememberPullToRefreshState()
-    if (pullRefreshState.isRefreshing) LaunchedEffect(true) {
-        pullRefreshState.startRefresh()
-        onRefreshRequested()
-    }
-    if (!isRefreshing) LaunchedEffect(true) {
-        delay(1000) // So we can see the spinner shortly, when sync finishes super fast
-        pullRefreshState.endRefresh()
-    }
 
-    Box(
+    PullToRefreshBox(
         modifier = Modifier
-            .padding(paddingValues)
-            .nestedScroll(pullRefreshState.nestedScrollConnection)
+            .padding(paddingValues),
+        state = pullRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefreshRequested
     ) {
-        PullToRefreshContainer(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .zIndex(1f),
-            state = pullRefreshState,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
-
         // progress indicator
         AnimatedVisibility(isRefreshing) {
             LinearProgressIndicator(
@@ -212,7 +192,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestCalendarPermissions
                     )
                 }
@@ -228,7 +208,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onRequestNotificationPermission
                     )
                 }
@@ -244,7 +224,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onBatteryOptimizationWhitelist
                     )
                 }
@@ -260,7 +240,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         onAction = onAutoRevokePermission
                     )
                 }
@@ -275,7 +255,7 @@ private fun CalendarListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp, 16.dp, 8.dp, 8.dp)
-                            .animateItemPlacement()
+                            .animateItem()
                     )
                 }
             }
@@ -324,7 +304,7 @@ fun ActionOverflowMenu(
             }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.calendar_list_synchronize)) },
+            text = { Text(stringResource(R.string.calendar_list_force_sync)) },
             onClick = {
                 showMenu = false
                 onRefreshRequested()

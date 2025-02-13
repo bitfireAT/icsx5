@@ -4,6 +4,7 @@
 
 package at.bitfire.icsdroid.ui
 
+import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,7 +56,7 @@ class DonateDialogService: ComposableStartupService {
     override val flags: Int = FLAG_DONATION_DIALOG
 
     @Composable
-    private fun getActivity(): AppCompatActivity? = LocalContext.current as? AppCompatActivity
+    private fun getActivity(): AppCompatActivity? = LocalActivity.current as? AppCompatActivity?
 
     /**
      * Whether [Content] should be displayed or not.

@@ -31,11 +31,11 @@ class NetworkSyncWorker(
 
         /**
          * Enqueues a sync job for immediate execution. If the sync is forced,
-         * the "requires network connection" constraint won't be set.
+         * the lastModified timestamp will be ignored and everything is fetched from the server again.
          *
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
-         * @param forceResync  *true* ignores all locally stored data and fetched everything from the server again
+         * @param forceResync  *true* ignores lastModified timestamp and fetches everything from the server
          * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
         fun run(

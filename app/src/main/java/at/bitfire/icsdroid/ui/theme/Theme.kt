@@ -53,9 +53,14 @@ private val LightColors = lightColorScheme(
     tertiaryContainer = lightblue,
     onTertiaryContainer = offwhite,
     background = offwhite,
+    surfaceContainer = superlightblue,
+    surface = superlightblue,
+    surfaceContainerLowest = superlightblue,
+    surfaceContainerLow = superlightblue,
+    surfaceContainerHigh = superlightblue,
+    surfaceContainerHighest = superlightblue,
     surfaceVariant = lightgrey,
 )
-
 
 @Composable
 fun AppTheme(

@@ -3,10 +3,10 @@
   <string name="account_name">日历订阅</string>
   <!--common strings-->
   <string name="action_more">更多</string>
-  <string name="calendar_permissions_required">请授予访问日历的权限</string>
-  <string name="calendar_permissions_required_text">对于在本地存储已下载的活动是必需的</string>
-  <string name="notification_permissions_required">需要通知权限</string>
-  <string name="notification_permissions_required_text">在同步出错等情况下显示通知</string>
+  <string name="calendar_permissions_required">日历权限</string>
+  <string name="calendar_permissions_required_text">允许访问数据库</string>
+  <string name="notification_permissions_required">通知权限</string>
+  <string name="notification_permissions_required_text">错误通知</string>
   <string name="no_browser">未安装浏览器</string>
   <string name="notification_channel_sync_problem">同步问题</string>
   <string name="permissions_grant">授予</string>
@@ -18,12 +18,12 @@
   <string name="calendar_list_info">关于ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">尚未同步</string>
   <string name="calendar_list_set_sync_interval">设置同步间隔时间</string>
-  <string name="calendar_list_synchronize">立即同步</string>
+  <string name="calendar_list_force_sync">强制同步</string>
   <string name="calendar_list_battery_whitelist_title">电池优化</string>
   <string name="calendar_list_battery_whitelist_text">电池优化功能可能阻止小于一天的同步间隔。请将 %s 设为“不优化”</string>
   <string name="calendar_list_battery_whitelist_open_settings">打开设置</string>
   <string name="calendar_list_autorevoke_permissions_title">自动撤销权限</string>
-  <string name="calendar_list_autorevoke_permissions_text">新版本安卓系统会撤销很少打开的应用的权限。请停用针对 %s 的权限撤销。</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android 撤销了很少打开的应用的权限。请为 %s 停用此功能。</string>
   <string name="calendar_list_autorevoke_permissions_instruction">单击“权限”&gt; 取消勾选“如果不使用应用就删除权限”</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">隐私政策</string>

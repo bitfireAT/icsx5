@@ -7,10 +7,10 @@
 
     <!-- common strings -->
     <string name="action_more">More</string>
-    <string name="calendar_permissions_required">Calendar permissions required</string>
-    <string name="calendar_permissions_required_text">Required for storing downloaded events locally.</string>
-    <string name="notification_permissions_required">Notification permissions required</string>
-    <string name="notification_permissions_required_text">To show notifications in case of sync conditions like errors.</string>
+    <string name="calendar_permissions_required">Calendar access</string>
+    <string name="calendar_permissions_required_text">Allows accessing the database.</string>
+    <string name="notification_permissions_required">Notification permissions</string>
+    <string name="notification_permissions_required_text">Notifies you about errors.</string>
     <string name="no_browser">No browser installed</string>
     <string name="notification_channel_sync_problem">Sync problems</string>
     <string name="permissions_grant">Grant</string>
@@ -23,12 +23,12 @@
     <string name="calendar_list_info">About ICSx⁵</string>
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
-    <string name="calendar_list_synchronize">Synchronize now</string>
+    <string name="calendar_list_force_sync">Force sync</string>
     <string name="calendar_list_battery_whitelist_title">Battery optimization</string>
     <string name="calendar_list_battery_whitelist_text">Battery optimizations may prevent sync intervals shorter than a day. Set %s to \"Not optimized\".</string>
     <string name="calendar_list_battery_whitelist_open_settings">Open settings</string>
     <string name="calendar_list_autorevoke_permissions_title">Auto-Revoke Permissions</string>
-    <string name="calendar_list_autorevoke_permissions_text">Android revokes permissions of rarely opened apps. Please disable permission revokes for %s.</string>
+    <string name="calendar_list_autorevoke_permissions_text">Android revokes permissions of rarely opened apps. Please disable for %s.</string>
     <string name="calendar_list_autorevoke_permissions_instruction">Click Permissions > uncheck \"Remove permissions if app isn\'t used\"</string>
     <!-- settings, currently in CalendarListActivity -->
     <string name="calendar_list_privacy_policy">Privacy policy</string>

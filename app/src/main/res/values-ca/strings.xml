@@ -3,10 +3,6 @@
   <string name="account_name">Subscripcions a calendaris</string>
   <!--common strings-->
   <string name="action_more">Més</string>
-  <string name="calendar_permissions_required">Cal permís d\'accés al calendari</string>
-  <string name="calendar_permissions_required_text">Necessari per a desar localment els esdeveniments descarregats.</string>
-  <string name="notification_permissions_required">Cal el permís de notificacions</string>
-  <string name="notification_permissions_required_text">Per a mostrar notificacions en cas de problemes de sincronització com errors.</string>
   <string name="no_browser">Cap explorador instal·lat</string>
   <string name="notification_channel_sync_problem">Problemes de sincronització</string>
   <string name="permissions_grant">Concedir</string>
@@ -18,12 +14,11 @@
   <string name="calendar_list_info">Sobre ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">encara no sincronitzat</string>
   <string name="calendar_list_set_sync_interval">Període de sincronització</string>
-  <string name="calendar_list_synchronize">Sincronitza ara</string>
+  <string name="calendar_list_force_sync">Sincr. forçada</string>
   <string name="calendar_list_battery_whitelist_title">Optimització de bateria</string>
   <string name="calendar_list_battery_whitelist_text">Les optimitzacions de bateria poden prevenir intervals de sincronització més curts d\'un dia. Estableix %s a \"No optimitzat\"</string>
   <string name="calendar_list_battery_whitelist_open_settings">Obrir configuració</string>
   <string name="calendar_list_autorevoke_permissions_title">Revoca els permisos automàticament</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android suprimeix els permisos d\'aplicacions que no s\'obren molt a sovint. Per favor, desactiva aquesta opció per a %s.</string>
   <string name="calendar_list_autorevoke_permissions_instruction">Desactiva \"Posa en pausa l\'activitat a l\'aplicació quan no s\'utilitza\"</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Política de privacitat</string>

@@ -2,8 +2,6 @@
 <resources>
   <string name="account_name">Kalenderabonnementen</string>
   <!--common strings-->
-  <string name="calendar_permissions_required">Kalenderrechten nodig</string>
-  <string name="notification_permissions_required">Meldingsrechten vereist</string>
   <string name="no_browser">Geen browser geïnstalleerd</string>
   <string name="notification_channel_sync_problem">Sync-problemen</string>
   <string name="permissions_grant">Toekenning</string>
@@ -14,7 +12,6 @@
   <string name="calendar_list_info">Over ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">nog niet gesynchroniseerd</string>
   <string name="calendar_list_set_sync_interval">Sync-interval instellen</string>
-  <string name="calendar_list_synchronize">Synchroniseer nu</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Privacybeleid</string>
   <string name="set_sync_interval_title">Stel sync-interval in:</string>

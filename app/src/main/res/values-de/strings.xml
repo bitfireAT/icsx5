@@ -3,10 +3,10 @@
   <string name="account_name">Kalender-Abos</string>
   <!--common strings-->
   <string name="action_more">Mehr</string>
-  <string name="calendar_permissions_required">Kalender-Berechtigungen benötigt</string>
-  <string name="calendar_permissions_required_text">Benötigt, um heruntergeladene Termine lokal zu speichern.</string>
-  <string name="notification_permissions_required">Benachrichtigungs-Berechtigung benötigt</string>
-  <string name="notification_permissions_required_text">Um im Falle von Synchronisierungs-Bedingungen wie Fehlern Benachrichtigungen anzuzeigen</string>
+  <string name="calendar_permissions_required">Kalenderzugriff</string>
+  <string name="calendar_permissions_required_text">Ermöglicht den Zugriff auf die Datenbank</string>
+  <string name="notification_permissions_required">Benachrichtigungsberechtigungen</string>
+  <string name="notification_permissions_required_text">Informiert über Fehler</string>
   <string name="no_browser">Kein Browser installiert</string>
   <string name="notification_channel_sync_problem">Sync-Probleme</string>
   <string name="permissions_grant">Gewähren</string>
@@ -18,13 +18,13 @@
   <string name="calendar_list_info">Über ICSx⁵</string>
   <string name="calendar_list_not_synced_yet">noch nicht übertragen</string>
   <string name="calendar_list_set_sync_interval">Aktualisierungsintervall festlegen</string>
-  <string name="calendar_list_synchronize">Jetzt synchronisieren</string>
-  <string name="calendar_list_battery_whitelist_title">Akku optimieren</string>
-  <string name="calendar_list_battery_whitelist_text">Akku Optimierung kann Synchronisierungs-Intervalle von weniger als einem Tag verhindern. Gewähre %s \"nicht optimieren\".</string>
-  <string name="calendar_list_battery_whitelist_open_settings">Öffne Einstellungen</string>
+  <string name="calendar_list_force_sync">Synchronisation erzwingen</string>
+  <string name="calendar_list_battery_whitelist_title">Akku-Optimierung</string>
+  <string name="calendar_list_battery_whitelist_text">Akku-Optimierungen können Synchronisierungsintervalle von weniger als einem Tag verhindern. %s auf \"Uneingeschränkt\" stellen.</string>
+  <string name="calendar_list_battery_whitelist_open_settings">Einstellungen öffnen</string>
   <string name="calendar_list_autorevoke_permissions_title">Automatischer Berechtigungsentzug</string>
-  <string name="calendar_list_autorevoke_permissions_text">Android entzieht wenig benutzten Apps die Berechtigungen. Bitte deaktiviere diese Einstellung für %s.</string>
-  <string name="calendar_list_autorevoke_permissions_instruction">Klicke Berechtigungen &gt; deaktiviere \"App-Aktivität bei Nichtnutzung stoppen\"</string>
+  <string name="calendar_list_autorevoke_permissions_text">Android entfernt Berechtigungen bei selten geöffneten Apps. Für %s bitte deaktivieren.</string>
+  <string name="calendar_list_autorevoke_permissions_instruction">Berechtigungen antippen &gt; \"App-Aktivität bei Nichtnutzung stoppen\" deaktivieren</string>
   <!--settings, currently in CalendarListActivity-->
   <string name="calendar_list_privacy_policy">Datenschutzrichtlinie</string>
   <string name="set_sync_interval_title">Aktualisierungsintervall festlegen:</string>
@@ -40,9 +40,9 @@
   <string name="settings_force_dark_theme">Dunklen Stil verwenden</string>
   <!--AddCalendarActivity-->
   <string name="activity_add_calendar">Kalender abonnieren</string>
-  <string name="activity_add_calendar_subscribe">Abonieren</string>
-  <string name="add_calendar_subscribe_url">URL abonieren</string>
-  <string name="add_calendar_subscribe_file">Datei abonieren</string>
+  <string name="activity_add_calendar_subscribe">Abonnieren</string>
+  <string name="add_calendar_subscribe_url">URL abonnieren</string>
+  <string name="add_calendar_subscribe_file">Datei abonnieren</string>
   <string name="add_calendar_need_valid_uri">Ungültige Adresse</string>
   <string name="add_calendar_authentication_title">Authentifizierung</string>
   <string name="add_calendar_authentication_without_https_warning">Ihre Zugangsinformation können von Dritten leicht abgefangen werden. Verwenden Sie HTTPS für sichere Übertragung.</string>
@@ -60,15 +60,15 @@
   <string name="add_calendar_user_name">Benutzername</string>
   <string name="add_calendar_validating">Überprüfe Kalender…</string>
   <string name="add_calendar_alarms_title">Alarme</string>
-  <string name="add_calendar_alarms_ignore_title">Ignoriere eingebettete Alarme im Kalender</string>
-  <string name="add_calendar_alarms_ignore_description">Falls eingeschaltet, werden alle eingehenden Benachrichtigungen vom Server verworfen.</string>
-  <string name="add_calendar_alarms_default_all_day_title">Füge eine Standard-Benachrichtigung für ganztätige Termine hinzu</string>
-  <string name="default_alarm_dialog_title">Füge eine Standard-Benachrichtigung hinzu</string>
-  <string name="default_alarm_dialog_message">Dies wird eine Benachrichtigung für alle Termine erstellen</string>
-  <string name="default_alarm_dialog_hint">Minuten vor dem Termin</string>
+  <string name="add_calendar_alarms_ignore_title">Im Kalender eingebettete Alarme ignorieren</string>
+  <string name="add_calendar_alarms_ignore_description">Falls eingeschaltet, werden alle vom Server eingehenden Benachrichtigungen verworfen.</string>
+  <string name="add_calendar_alarms_default_all_day_title">Standard-Benachrichtigung für ganztägige Ereignisse hinzufügen</string>
+  <string name="default_alarm_dialog_title">Standard-Benachrichtigung hinzufügen</string>
+  <string name="default_alarm_dialog_message">Dies wird eine Benachrichtigung für alle Ereignisse erstellen</string>
+  <string name="default_alarm_dialog_hint">Minuten vor dem Ereignis</string>
   <string name="add_calendar_advanced_title">Erweitert</string>
-  <string name="add_calendar_description_title">Ignoriere DESCRIPTION-Feld</string>
-  <string name="add_calendar_description_summary">Wenn aktiviert, wird das DESCRIPTION-Feld in den Events entfernt. Hilfreich wenn es Spam ähnliche Informationen enthält.</string>
+  <string name="add_calendar_description_title">DESCRIPTION-Feld ignorieren</string>
+  <string name="add_calendar_description_summary">Wenn aktiviert, wird das DESCRIPTION-Feld in den Events entfernt. Hilfreich wenn es spam-ähnliche Informationen enthält.</string>
   <!--AlertFragment-->
   <string name="alert_share_details">Details teilen</string>
   <!--EditCalendarActivity-->
