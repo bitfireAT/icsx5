@@ -19,7 +19,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BaseSyncWorker
-import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
