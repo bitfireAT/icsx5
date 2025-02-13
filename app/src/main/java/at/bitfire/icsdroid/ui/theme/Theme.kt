@@ -1,26 +1,15 @@
 package at.bitfire.icsdroid.ui.theme
 
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.model.ThemeModel
 
@@ -67,40 +56,10 @@ fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
-
-    val colorScheme = if (darkTheme)
-        DarkColors
-    else
-        LightColors
-
-    MaterialTheme(colorScheme = colorScheme) {
-        LaunchedEffect(darkTheme) {
-            (context as? AppCompatActivity)?.let { activity ->
-                val style = if (darkTheme)
-                    SystemBarStyle.dark(
-                        nearlyBlack.toArgb()
-                    )
-                else
-                    SystemBarStyle.dark(
-                        darkblue.toArgb()
-                    )
-                activity.enableEdgeToEdge(
-                    statusBarStyle = style,
-                    navigationBarStyle = style
-                )
-            } ?: Log.e("AppTheme", "Context is not activity!")
-        }
-
-        Box(
-            modifier = Modifier
-                // Required to make sure all paddings are correctly set
-                .systemBarsPadding()
-                .fillMaxSize()
-        ) {
-            content()
-        }
-    }
+    MaterialTheme(
+        colorScheme = if (darkTheme) DarkColors else LightColors,
+        content = content
+    )
 }
 
 /**

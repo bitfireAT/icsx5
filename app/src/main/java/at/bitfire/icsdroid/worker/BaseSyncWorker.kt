@@ -3,6 +3,7 @@ package at.bitfire.icsdroid.worker
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
+import android.os.DeadObjectException
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.NetworkType
@@ -112,13 +113,12 @@ open class BaseSyncWorker(
         val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
         Log.i(Constants.TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
-        provider =
-            try {
-                LocalCalendar.getCalendarProvider(applicationContext)
-            } catch (e: SecurityException) {
-                NotificationUtils.showCalendarPermissionNotification(applicationContext)
-                return Result.failure()
-            }
+        provider = try {
+            LocalCalendar.getCalendarProvider(applicationContext)
+        } catch (_: SecurityException) {
+            NotificationUtils.showCalendarPermissionNotification(applicationContext)
+            return Result.failure()
+        }
 
         var syncFailed = false
 
@@ -154,6 +154,12 @@ open class BaseSyncWorker(
                     syncFailed = true
                 }
             }
+        } catch (e: DeadObjectException) {
+            /* May happen when the remote process dies or (since Android 14) when IPC (for instance
+            with the calendar provider) is suddenly forbidden because our sync process was demoted
+            from a "service process" to a "cached process". */
+            Log.e(Constants.TAG, "Received DeadObjectException, retrying.", e)
+            return Result.retry()
         } catch (e: InterruptedException) {
             Log.e(Constants.TAG, "Thread interrupted", e)
             return Result.retry()
@@ -249,8 +255,7 @@ open class BaseSyncWorker(
                     "Creating local calendar from subscription #${subscription.id}"
                 )
                 // create local calendar
-                val uri =
-                    AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
+                val uri = AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
                 // update calendar ID in DB
                 val newCalendarId = ContentUris.parseId(uri)
                 subscriptionsDao.updateCalendarId(subscription.id, newCalendarId)
