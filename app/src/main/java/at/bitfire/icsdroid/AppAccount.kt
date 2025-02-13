@@ -11,7 +11,7 @@ import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.provider.CalendarContract
 import android.util.Log
-import at.bitfire.icsdroid.worker.PeriodicSyncWorker
+import at.bitfire.icsdroid.worker.BaseSyncWorker
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.buffer
@@ -81,13 +81,10 @@ object AppAccount {
             .putLong(KEY_SYNC_INTERVAL, syncInterval)
             .apply()
 
-        // set up periodic worker
-        PeriodicSyncWorker.setInterval(
+        // set up periodic workers
+        BaseSyncWorker.setInterval(
             context,
-            if (syncInterval == SYNC_INTERVAL_MANUALLY)
-                null
-            else
-                syncInterval
+            syncInterval.takeUnless { syncInterval == SYNC_INTERVAL_MANUALLY }
         )
     }
 

@@ -20,7 +20,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
  * Synchronizes all subscriptions with their respective servers.
  * Only runs if the network is available, and filters remote URLs (http(s)).
  */
-class NetworkSyncWorker(
+open class NetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseSyncWorker(context, workerParams) {

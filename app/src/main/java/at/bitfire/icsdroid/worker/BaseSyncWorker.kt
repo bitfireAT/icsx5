@@ -88,6 +88,14 @@ open class BaseSyncWorker(
             wm.cancelUniqueWork(NetworkSyncWorker.NAME)
             wm.cancelUniqueWork(LocalSyncWorker.NAME)
         }
+
+        /**
+         * Sets the interval of both [PeriodicNetworkSyncWorker] and [PeriodicLocalSyncWorker].
+         */
+        fun setInterval(context: Context, seconds: Long?) {
+            PeriodicNetworkSyncWorker.setInterval(context, seconds)
+            PeriodicLocalSyncWorker.setInterval(context, seconds)
+        }
     }
 
     private val database = AppDatabase.getInstance(applicationContext)

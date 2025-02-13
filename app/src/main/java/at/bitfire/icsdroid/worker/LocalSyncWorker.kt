@@ -12,7 +12,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
  * Synchronizes all subscriptions from local fs.
  * Always runs, regardless of current network condition, and filters local URLs (not http(s)).
  */
-class LocalSyncWorker(
+open class LocalSyncWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : BaseSyncWorker(context, workerParams) {

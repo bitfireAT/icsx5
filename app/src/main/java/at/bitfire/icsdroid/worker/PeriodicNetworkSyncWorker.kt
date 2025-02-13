@@ -13,19 +13,19 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import java.time.Duration
 
-class PeriodicSyncWorker(
+class PeriodicNetworkSyncWorker(
     context: Context,
     workerParams: WorkerParameters
-): BaseSyncWorker(context, workerParams) {
+): NetworkSyncWorker(context, workerParams) {
 
     companion object {
-        private const val NAME = "PeriodicSync"
+        private const val NAME = "PeriodicNetworkSync"
 
         fun setInterval(context: Context, seconds: Long?) {
             val wm = WorkManager.getInstance(context)
 
             if (seconds != null) {
-                val request = PeriodicWorkRequestBuilder<PeriodicSyncWorker>(Duration.ofSeconds(seconds))
+                val request = PeriodicWorkRequestBuilder<PeriodicNetworkSyncWorker>(Duration.ofSeconds(seconds))
                     .setConstraints(Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED)      // network connection is usually required for synchronization
                         .build())
