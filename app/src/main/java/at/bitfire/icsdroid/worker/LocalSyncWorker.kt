@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid
+package at.bitfire.icsdroid.worker
 
 import android.content.Context
 import androidx.work.ExistingWorkPolicy

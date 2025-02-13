@@ -17,14 +17,14 @@ import androidx.work.await
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
-import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
-import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.migration.CalendarToRoomMigrationTest
-import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
+import at.bitfire.icsdroid.worker.BaseSyncWorker
+import at.bitfire.icsdroid.worker.BaseSyncWorker.Companion.FORCE_RESYNC
+import at.bitfire.icsdroid.worker.BaseSyncWorker.Companion.ONLY_MIGRATE
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull

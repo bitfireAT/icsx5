@@ -2,7 +2,7 @@
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
  **************************************************************************************************/
 
-package at.bitfire.icsdroid
+package at.bitfire.icsdroid.worker
 
 import android.content.Context
 import android.util.Log

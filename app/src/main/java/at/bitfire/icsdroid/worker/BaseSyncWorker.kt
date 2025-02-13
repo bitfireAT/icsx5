@@ -1,4 +1,4 @@
-package at.bitfire.icsdroid
+package at.bitfire.icsdroid.worker
 
 import android.content.ContentProviderClient
 import android.content.ContentUris
@@ -10,14 +10,17 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
-import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
-import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
+import at.bitfire.icsdroid.AppAccount
+import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.ProcessEventsTask
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.CalendarCredentials
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import at.bitfire.icsdroid.worker.BaseSyncWorker.Companion.FORCE_RESYNC
+import at.bitfire.icsdroid.worker.BaseSyncWorker.Companion.ONLY_MIGRATE
 import kotlinx.coroutines.flow.combine
 
 /**

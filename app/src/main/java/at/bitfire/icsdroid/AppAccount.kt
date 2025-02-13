@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.provider.CalendarContract
 import android.util.Log
+import at.bitfire.icsdroid.worker.PeriodicSyncWorker
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.buffer

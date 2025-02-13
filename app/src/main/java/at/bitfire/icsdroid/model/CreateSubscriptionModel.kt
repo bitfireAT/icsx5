@@ -8,17 +8,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import java.net.URI
-import java.net.URISyntaxException
+import at.bitfire.icsdroid.worker.BaseSyncWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import java.net.URI
+import java.net.URISyntaxException
 
 class CreateSubscriptionModel(application: Application) : AndroidViewModel(application) {
 

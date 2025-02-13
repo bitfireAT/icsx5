@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.SyncResult
 import android.os.Bundle
 import at.bitfire.icsdroid.ui.NotificationUtils
+import at.bitfire.icsdroid.worker.BaseSyncWorker
 
 class SyncAdapter(
     context: Context

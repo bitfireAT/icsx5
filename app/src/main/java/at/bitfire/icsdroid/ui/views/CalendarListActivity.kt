@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import at.bitfire.icsdroid.BaseSyncWorker
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.service.ComposableStartupService
@@ -20,6 +19,7 @@ import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.CalendarListScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import at.bitfire.icsdroid.worker.BaseSyncWorker
 import java.util.ServiceLoader
 
 class CalendarListActivity: AppCompatActivity() {
