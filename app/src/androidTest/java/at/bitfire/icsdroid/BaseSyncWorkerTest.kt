@@ -139,7 +139,16 @@ class BaseSyncWorkerTest {
         // Insert a local subscription (success)
         subscriptionsDao.add(
             Subscription(
-                url = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.sample}"),
+                url = R.raw.sample.let {
+                    with (applicationContext.resources) {
+                        Uri.Builder()
+                            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                            .authority(getResourcePackageName(it))
+                            .appendPath(getResourceTypeName(it))
+                            .appendPath(getResourceEntryName(it))
+                            .build()
+                    }
+                },
                 displayName = "Local Subscription"
             )
         )
