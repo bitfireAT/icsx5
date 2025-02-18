@@ -312,8 +312,7 @@ private fun ColumnScope.ResourceInput(
             imeAction = ImeAction.Go
         ),
         keyboardActions = KeyboardActions { onSubmit() },
-        maxLines = 1,
-        singleLine = true,
+        maxLines = 8,
         placeholder = { Text(labelText) },
         isError = error != null,
         interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
@@ -346,7 +345,9 @@ fun EnterUrlComposable_Preview() {
         password = "previewUserPassword",
         onPasswordChange = {},
         isInsecure = true,
-        url = "http://previewUrl.com/calendarfile.ics",
+        url = "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics" +
+            "\n\n a\n b\n c\n\n" +
+            "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics",
         fileName = "file name",
         onUrlChange = {},
         urlError = "",
