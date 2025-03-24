@@ -15,14 +15,14 @@ Please see the [ICSx⁵ Web site](https://icsx5.bitfire.at) for comprehensive in
 
 News and updates: [@davx5app@fosstodon.org](https://fosstodon.org/@davx5app)
 
-Help, discussion, ideas, bug reports: [ICSx⁵ forum](https://icsx5.bitfire.at/forums/)
+Help, discussion, ideas, bug reports: [ICSx⁵ discussions](https://github.com/bitfireAT/icsx5/discussions)
 
 
 Contributions
 =======
 
 We're happy about contributions! Just send a pull request for small changes or in case
-of bigger changes, please let us know in the forum before.
+of bigger changes, please let us know in the discussions before.
 
 ## Translations
 ICSx⁵ is available [on Transifex](https://www.transifex.com/bitfireAT/icsx5/). There you can propose
