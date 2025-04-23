@@ -18,11 +18,9 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
-import at.bitfire.icsdroid.BaseSyncWorker.Companion.ONLY_MIGRATE
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.migration.CalendarToRoomMigrationTest
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.CancellationException
@@ -31,7 +29,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
@@ -63,15 +60,13 @@ class BaseSyncWorkerTest {
             .setMinimumLoggingLevel(Log.DEBUG)
             .setExecutor(SynchronousExecutor())
             .build()
-        WorkManagerTestInitHelper.initializeTestWorkManager(CalendarToRoomMigrationTest.appContext, config)
+        WorkManagerTestInitHelper.initializeTestWorkManager(applicationContext, config)
     }
 
     // Initialize the Room database
     @Before
     fun prepareDatabase() {
-        Assert.assertNotNull(CalendarToRoomMigrationTest.appContext)
-
-        db = Room.inMemoryDatabaseBuilder(CalendarToRoomMigrationTest.appContext, AppDatabase::class.java).build()
+        db = Room.inMemoryDatabaseBuilder(applicationContext, AppDatabase::class.java).build()
         subscriptionsDao = db.subscriptionsDao()
 
         AppDatabase.setInstance(db)
@@ -90,9 +85,7 @@ class BaseSyncWorkerTest {
         val uuid = UUID.randomUUID()
         val request = OneTimeWorkRequestBuilder<BaseSyncWorker>()
             .setId(uuid)
-            .setInputData(
-                workDataOf(FORCE_RESYNC to true, ONLY_MIGRATE to false)
-            )
+            .setInputData(workDataOf(FORCE_RESYNC to true))
             .build()
         val workManager = WorkManager.getInstance(applicationContext)
         workManager.enqueue(request).await()

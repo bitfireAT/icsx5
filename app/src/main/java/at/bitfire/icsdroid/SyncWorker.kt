@@ -32,21 +32,14 @@ class SyncWorker(
          * @param context      required for managing work
          * @param force        *true* enqueues the sync regardless of the network state; *false* adds a [NetworkType.CONNECTED] constraint
          * @param forceResync  *true* ignores lastModified timestamp and fetches everything from the server
-         * @param onlyMigrate  *true* only runs synchronization, without fetching data.
          */
         fun run(
             context: Context,
             force: Boolean = false,
-            forceResync: Boolean = false,
-            onlyMigrate: Boolean = false
+            forceResync: Boolean = false
         ) {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setInputData(
-                    workDataOf(
-                        FORCE_RESYNC to forceResync,
-                        ONLY_MIGRATE to onlyMigrate,
-                    )
-                )
+                .setInputData(workDataOf(FORCE_RESYNC to forceResync))
 
             val policy: ExistingWorkPolicy = if (force) {
                 Log.i(TAG, "Manual sync, ignoring network condition")

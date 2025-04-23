@@ -50,13 +50,6 @@ class LocalCalendar private constructor(
         const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
 
         /**
-         * Whether this calendar is managed by the [at.bitfire.icsdroid.db.entity.Subscription] table.
-         * All calendars should be set to `1` except legacy calendars from the time before we had a database.
-         * A `null` value should be considered as _this calendar has not been migrated to the database yet_.
-         */
-        const val COLUMN_MANAGED_BY_DB = Calendars.CAL_SYNC9
-
-        /**
          * Gets the calendar provider for a given context.
          * The caller (you) is responsible for closing the client!
          *
@@ -74,10 +67,7 @@ class LocalCalendar private constructor(
             findByID(account, provider, Factory, id)
 
         fun findManaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NOT NULL", null)
-
-        fun findUnmanaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NULL", null)
+            find(account, provider, Factory, null, null)
 
     }
 
@@ -145,31 +135,10 @@ class LocalCalendar private constructor(
                 }
             }
             return deleted
-        } catch (e: RemoteException) {
+        } catch (_: RemoteException) {
             throw CalendarStorageException("Couldn't delete local events")
         }
     }
-
-    fun isManagedByDB(): Boolean {
-        provider.query(calendarSyncURI(), arrayOf(COLUMN_MANAGED_BY_DB), null, null, null)?.use { cursor ->
-            if (cursor.moveToNext())
-                return !cursor.isNull(0)
-        }
-
-        // row doesn't exist, assume default value
-        return true
-    }
-
-    /**
-     * Updates the entry in the provider to set [COLUMN_MANAGED_BY_DB] to 1.
-     * The calendar is then marked as _managed by the database_ and won't be migrated anymore, for instance.
-     */
-    fun setManagedByDB() {
-        val values = ContentValues(1)
-        values.put(COLUMN_MANAGED_BY_DB, 1)
-        provider.update(calendarSyncURI(), values, null, null)
-    }
-
 
     object Factory : AndroidCalendarFactory<LocalCalendar> {
 

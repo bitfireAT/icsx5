@@ -10,7 +10,6 @@ import androidx.core.content.contentValuesOf
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.bitfire.icsdroid.calendar.LocalCalendar
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -50,30 +49,6 @@ data class Subscription(
     /** The color that represents the subscription. */
     val color: Int? = null
 ) {
-    companion object {
-        /**
-         * Converts a [LocalCalendar] to a [Subscription] data object.
-         * Must only be used for migrating legacy calendars.
-         *
-         * @param calendar The legacy calendar to create the subscription from.
-         * @return A new [Subscription] that has the contents of [calendar].
-         */
-        @Suppress("DEPRECATION")
-        fun fromLegacyCalendar(calendar: LocalCalendar) =
-            Subscription(
-                calendarId = calendar.id,
-                url = Uri.parse(calendar.url ?: "https://invalid-url"),
-                eTag = calendar.eTag,
-                displayName = calendar.displayName ?: calendar.id.toString(),
-                lastModified = calendar.lastModified,
-                lastSync = calendar.lastSync,
-                errorMessage = calendar.errorMessage,
-                ignoreEmbeddedAlerts = calendar.ignoreEmbeddedAlerts ?: false,
-                defaultAlarmMinutes = calendar.defaultAlarmMinutes,
-                color = calendar.color
-            )
-
-    }
 
     /**
      * Converts this subscription's properties to [android.content.ContentValues] that can be
@@ -84,8 +59,7 @@ data class Subscription(
         Calendars.CALENDAR_DISPLAY_NAME to displayName,
         Calendars.CALENDAR_COLOR to color,
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
-        Calendars.SYNC_EVENTS to 1,
-        LocalCalendar.COLUMN_MANAGED_BY_DB to 1
+        Calendars.SYNC_EVENTS to 1
     )
 
 }
