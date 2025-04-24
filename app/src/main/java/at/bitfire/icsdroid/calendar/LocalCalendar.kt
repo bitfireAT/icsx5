@@ -7,11 +7,9 @@ package at.bitfire.icsdroid.calendar
 import android.accounts.Account
 import android.content.ContentProviderClient
 import android.content.ContentUris
-import android.content.ContentValues
 import android.content.Context
 import android.os.RemoteException
 import android.provider.CalendarContract
-import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
@@ -27,34 +25,6 @@ class LocalCalendar private constructor(
     companion object {
 
         const val DEFAULT_COLOR = 0xFF2F80C7.toInt()
-
-        @Deprecated("Use Subscription table")
-        const val COLUMN_ETAG = Calendars.CAL_SYNC1
-        @Deprecated("Use Subscription table")
-        const val COLUMN_LAST_MODIFIED = Calendars.CAL_SYNC4
-        @Deprecated("Use Subscription table")
-        const val COLUMN_LAST_SYNC = Calendars.CAL_SYNC5
-        @Deprecated("Use Subscription table")
-        const val COLUMN_ERROR_MESSAGE = Calendars.CAL_SYNC6
-
-        /**
-         * Stores if the calendar's embedded alerts should be ignored.
-         */
-        @Deprecated("Use Subscription table")
-        const val COLUMN_IGNORE_EMBEDDED = Calendars.CAL_SYNC8
-
-        /**
-         * Stores the default alarm to set to all events in the given calendar.
-         */
-        @Deprecated("Use Subscription table")
-        const val COLUMN_DEFAULT_ALARM = Calendars.CAL_SYNC7
-
-        /**
-         * Whether this calendar is managed by the [at.bitfire.icsdroid.db.entity.Subscription] table.
-         * All calendars should be set to `1` except legacy calendars from the time before we had a database.
-         * A `null` value should be considered as _this calendar has not been migrated to the database yet_.
-         */
-        const val COLUMN_MANAGED_BY_DB = Calendars.CAL_SYNC9
 
         /**
          * Gets the calendar provider for a given context.
@@ -74,53 +44,9 @@ class LocalCalendar private constructor(
             findByID(account, provider, Factory, id)
 
         fun findManaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NOT NULL", null)
-
-        fun findUnmanaged(account: Account, provider: ContentProviderClient) =
-            find(account, provider, Factory, "$COLUMN_MANAGED_BY_DB IS NULL", null)
+            find(account, provider, Factory, null, null)
 
     }
-
-    /** URL of iCalendar file */
-    @Deprecated("Use Subscription table")
-    var url: String? = null
-    /** iCalendar ETag at last successful sync */
-    @Deprecated("Use Subscription table")
-    var eTag: String? = null
-
-    /** iCalendar Last-Modified at last successful sync (or 0 for none) */
-    @Deprecated("Use Subscription table")
-    var lastModified = 0L
-    /** time of last sync (0 if none) */
-    @Deprecated("Use Subscription table")
-    var lastSync = 0L
-    /** error message (HTTP status or exception name) of last sync (or null) */
-    @Deprecated("Use Subscription table")
-    var errorMessage: String? = null
-
-    /** Setting: whether to ignore alarms embedded in the Webcal */
-    @Deprecated("Use Subscription table")
-    var ignoreEmbeddedAlerts: Boolean? = null
-    /** Setting: Shall a default alarm be added to every event in the calendar? If yes, this
-     *  field contains the minutes before the event. If no, it is *null*. */
-    @Deprecated("Use Subscription table")
-    var defaultAlarmMinutes: Long? = null
-
-
-    override fun populate(info: ContentValues) {
-        super.populate(info)
-        url = info.getAsString(Calendars.NAME)
-
-        eTag = info.getAsString(COLUMN_ETAG)
-        info.getAsLong(COLUMN_LAST_MODIFIED)?.let { lastModified = it }
-
-        info.getAsLong(COLUMN_LAST_SYNC)?.let { lastSync = it }
-        errorMessage = info.getAsString(COLUMN_ERROR_MESSAGE)
-
-        info.getAsBoolean(COLUMN_IGNORE_EMBEDDED)?.let { ignoreEmbeddedAlerts = it }
-        info.getAsLong(COLUMN_DEFAULT_ALARM)?.let { defaultAlarmMinutes = it }
-    }
-
 
     fun queryByUID(uid: String) =
         queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
@@ -145,31 +71,10 @@ class LocalCalendar private constructor(
                 }
             }
             return deleted
-        } catch (e: RemoteException) {
+        } catch (_: RemoteException) {
             throw CalendarStorageException("Couldn't delete local events")
         }
     }
-
-    fun isManagedByDB(): Boolean {
-        provider.query(calendarSyncURI(), arrayOf(COLUMN_MANAGED_BY_DB), null, null, null)?.use { cursor ->
-            if (cursor.moveToNext())
-                return !cursor.isNull(0)
-        }
-
-        // row doesn't exist, assume default value
-        return true
-    }
-
-    /**
-     * Updates the entry in the provider to set [COLUMN_MANAGED_BY_DB] to 1.
-     * The calendar is then marked as _managed by the database_ and won't be migrated anymore, for instance.
-     */
-    fun setManagedByDB() {
-        val values = ContentValues(1)
-        values.put(COLUMN_MANAGED_BY_DB, 1)
-        provider.update(calendarSyncURI(), values, null, null)
-    }
-
 
     object Factory : AndroidCalendarFactory<LocalCalendar> {
 

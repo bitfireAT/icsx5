@@ -78,7 +78,7 @@ abstract class AppDatabase : RoomDatabase() {
                     .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
-                            SyncWorker.run(context, onlyMigrate = true)
+                            SyncWorker.run(context)
                         }
                     })
                     .build()

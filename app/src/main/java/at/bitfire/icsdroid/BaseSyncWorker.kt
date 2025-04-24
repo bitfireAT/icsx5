@@ -11,8 +11,6 @@ import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.util.MiscUtils.closeCompat
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.CalendarCredentials
-import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
 
@@ -27,11 +25,6 @@ open class BaseSyncWorker(
          */
         const val FORCE_RESYNC = "forceResync"
 
-        /**
-         * An input data (Boolean) for the Worker that tells if only migration should be performed, without
-         * fetching data.
-         */
-        const val ONLY_MIGRATE = "onlyMigration"
     }
 
     private val database = AppDatabase.getInstance(applicationContext)
@@ -45,8 +38,6 @@ open class BaseSyncWorker(
 
     override suspend fun doWork(): Result {
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
-        val onlyMigrate = inputData.getBoolean(ONLY_MIGRATE, false)
-        Log.i(Constants.TAG, "Synchronizing (forceReSync=$forceReSync,onlyMigrate=$onlyMigrate)")
 
         provider = try {
             LocalCalendar.getCalendarProvider(applicationContext)
@@ -58,12 +49,6 @@ open class BaseSyncWorker(
         var syncFailed = false
 
         try {
-            // migrate old calendar-based subscriptions to database
-            migrateLegacyCalendars()
-
-            // Do not synchronize if onlyMigrate is true
-            if (onlyMigrate) return Result.success()
-
             // update local calendars according to the subscriptions
             updateLocalCalendars()
 
@@ -105,59 +90,6 @@ open class BaseSyncWorker(
             Result.failure()
         else
             Result.success()
-    }
-
-    /**
-     * Migrates all the legacy calendar-based subscriptions to the database. Performs these steps:
-     *
-     * 1. Searches for all the calendars created
-     * 2. Checks that those calendars have a matching [Subscription] in the database.
-     * 3. If there's no matching [Subscription], create it.
-     */
-    private suspend fun migrateLegacyCalendars() {
-        @Suppress("DEPRECATION")
-        val legacyCredentials by lazy { CalendarCredentials(applicationContext) }
-
-        // if there's a provider available, get all the calendars available in the system
-        for (calendar in LocalCalendar.findUnmanaged(account, provider)) {
-            Log.i(Constants.TAG, "Found unmanaged (<= v2.1.1) calendar ${calendar.id}, migrating")
-            @Suppress("DEPRECATION")
-            val url = calendar.url ?: continue
-
-            // Special case v2.1: it created subscriptions, but did not set the COLUMN_MANAGED_BY_DB flag.
-            val subscription = subscriptionsDao.getByUrl(url)
-            if (subscription != null) {
-                // So we already have a subscription and only net to set its calendar_id.
-                Log.i(
-                    Constants.TAG,
-                    "Migrating from v2.1: updating subscription ${subscription.id} with calendar ID"
-                )
-                subscriptionsDao.updateCalendarId(subscription.id, calendar.id)
-
-            } else {
-                // before v2.1: if there's no subscription with the same URL
-                val newSubscription = Subscription.fromLegacyCalendar(calendar)
-                Log.i(
-                    Constants.TAG,
-                    "Migrating from < v2.1: creating subscription $newSubscription"
-                )
-                val subscriptionId = subscriptionsDao.add(newSubscription)
-
-                // migrate credentials, too (if available)
-                val (legacyUsername, legacyPassword) = legacyCredentials.get(calendar)
-                if (legacyUsername != null && legacyPassword != null)
-                    credentialsDao.create(
-                        Credential(
-                            subscriptionId,
-                            legacyUsername,
-                            legacyPassword
-                        )
-                    )
-            }
-
-            // set MANAGED_BY_DB=1 so that the calendar won't be migrated anymore
-            calendar.setManagedByDB()
-        }
     }
 
     /**
