@@ -37,7 +37,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
 import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
@@ -247,7 +246,7 @@ fun AddCalendarScreen(
                     validationResult = validationResult,
                     onValidationResultDismiss = onResetResult,
                     onPickFileRequested = onPickFileRequested,
-                    onSubmit = { onNextRequested(1) }
+                    onSubmit = { onNextRequested(0) }
                 )
 
                 1 -> SubscriptionSettingsComposable(
