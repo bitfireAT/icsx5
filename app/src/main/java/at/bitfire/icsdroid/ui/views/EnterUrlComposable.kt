@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,9 +23,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Link
@@ -33,6 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -102,7 +103,9 @@ fun EnterUrlComposable(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        // The WindowInsets are already applied on the Scaffold of AddCalendarScreen
+        contentWindowInsets = WindowInsets(0),
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -117,10 +120,7 @@ fun EnterUrlComposable(
             val scope = rememberCoroutineScope()
             val state = rememberPagerState(pageCount = { 2 })
 
-            TabRow(
-                state.currentPage,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
+            TabRow(state.currentPage) {
                 Tab(state.currentPage == 0, onClick = {
                     onUrlChange(null)
                     scope.launch { state.scrollToPage(0) }},
