@@ -46,7 +46,6 @@ import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 import kotlinx.coroutines.launch
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun AddCalendarScreen(
     createSubscriptionModel: CreateSubscriptionModel,
     subscriptionSettingsModel: SubscriptionSettingsModel,
