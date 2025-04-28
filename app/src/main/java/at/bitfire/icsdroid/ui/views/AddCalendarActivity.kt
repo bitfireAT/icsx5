@@ -7,7 +7,6 @@ package at.bitfire.icsdroid.ui.views
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
@@ -100,7 +100,7 @@ class AddCalendarActivity : AppCompatActivity() {
                             // Data does not have a valid url
                         }
 
-                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)
+                        IntentCompat.getParcelableExtra<Uri>(intent, Intent.EXTRA_STREAM, Uri::class.java)
                             ?.toString()
                             ?.let(subscriptionSettingsModel::setUrl)
                             ?.also {
