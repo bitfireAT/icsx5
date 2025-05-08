@@ -1,5 +1,5 @@
 [versions]
-aboutLibs = "12.1.0"
+aboutLibs = "12.1.2"
 agp = "8.10.0"
 androidx-activityCompose = "1.10.1"
 androidx-appCompat = "1.7.0"
