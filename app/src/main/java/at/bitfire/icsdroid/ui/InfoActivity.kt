@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.BuildConfig
@@ -54,7 +55,6 @@ import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
-import at.bitfire.icsdroid.ui.theme.setContentThemed
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.coroutines.runBlocking
@@ -88,18 +88,18 @@ class InfoActivity: AppCompatActivity() {
     }
 
     private fun showWebSite() {
-        launchUri(Uri.parse("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity"))
+        launchUri("https://icsx5.bitfire.at/?pk_campaign=icsx5-app&pk_kwd=info-activity".toUri())
     }
 
     private fun showMastodon() {
-        launchUri(Uri.parse("https://fosstodon.org/@davx5app"))
+        launchUri("https://fosstodon.org/@davx5app".toUri())
     }
 
     private fun launchUri(uri: Uri) {
         val intent = Intent(Intent.ACTION_VIEW, uri)
         try {
             startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(this, getString(R.string.no_browser), Toast.LENGTH_LONG).show()
             Log.w(Constants.TAG, "No browser to view $uri")
         }
