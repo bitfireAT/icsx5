@@ -56,9 +56,8 @@ import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONAT
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
-import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
-import com.mikepenz.aboutlibraries.ui.compose.libraryColors
+import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
+import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
 
@@ -145,16 +144,17 @@ class InfoActivity: AppCompatActivity() {
                 )
             }
         ) { contentPadding ->
+            val libraries by rememberLibraries {
+                resources.openRawResource(R.raw.aboutlibraries).bufferedReader().use { input ->
+                    input.readText()
+                }
+            }
+
             Column(Modifier.padding(contentPadding)) {
                 Header()
                 License()
                 LibrariesContainer(
-                    colors = LibraryDefaults.libraryColors(
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                        badgeBackgroundColor = MaterialTheme.colorScheme.primary,
-                        badgeContentColor = MaterialTheme.colorScheme.onPrimary,
-                    )
+                    libraries = libraries
                 )
             }
         }

@@ -28,7 +28,7 @@ okhttp = "4.12.0"
 room = "2.7.1"
 
 [libraries]
-aboutLibs-compose = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutLibs" }
+aboutLibs-compose = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibs" }
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appCompat" }
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidx-archCore" }

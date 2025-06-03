@@ -163,6 +163,6 @@ dependencies {
 }
 
 aboutLibraries {
-    duplicationMode = DuplicateMode.MERGE
-    includePlatform = false
+    library.duplicationMode = DuplicateMode.MERGE
+    collect.includePlatform = false
 }
