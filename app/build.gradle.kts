@@ -117,7 +117,7 @@ dependencies {
     coreLibraryDesugaring(libs.desugaring)
 
     implementation(libs.bitfire.cert4android)
-    implementation(libs.bitfire.ical4android)
+    implementation(libs.bitfire.synctools)
 
     implementation(libs.compose.dialogs.color)
     implementation(libs.compose.dialogs.core)

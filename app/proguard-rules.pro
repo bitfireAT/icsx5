@@ -24,7 +24,7 @@
     public static ** valueOf(java.lang.String);
 }
 
-# keep ICSx⁵ and ical4android
+# keep ICSx⁵ and synctools
 -keep class at.bitfire.** { *; }	# all ICSx⁵ code is required
 
 # Additional rules which are now required since missing classes can't be ignored in R8 anymore.
