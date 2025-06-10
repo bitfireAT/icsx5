@@ -5,32 +5,36 @@
 
     <!-- fetch iCalendar files -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- allows sending notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <!-- manage ICSx⁵ accounts -->
-    <uses-permission
-        android:name="android.permission.AUTHENTICATE_ACCOUNTS"
-        android:maxSdkVersion="22" />
-    <uses-permission
-        android:name="android.permission.GET_ACCOUNTS"
-        android:maxSdkVersion="22" />
-    <!-- add/update/delete events -->
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="22" />
+
     <!-- view/change the sync interval and whether the account is synchronizing -->
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+
     <!-- check/repair sync interval after boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- remove task permissions from ical4android -->
-    <uses-permission
-        android:name="org.dmfs.permission.READ_TASKS"
-        tools:node="remove" />
-    <uses-permission
-        android:name="org.dmfs.permission.WRITE_TASKS"
-        tools:node="remove" />
-    <!-- allows sending notifications -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- add/update/delete events -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
+    <!-- remove contacts and tasks permission from synctools -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" tools:node="remove" />
+    <uses-permission android:name="org.dmfs.permission.READ_TASKS" tools:node="remove" />
+    <uses-permission android:name="org.dmfs.permission.WRITE_TASKS" tools:node="remove" />
+    <uses-permission android:name="org.tasks.permission.READ_TASKS" tools:node="remove" />
+    <uses-permission android:name="org.tasks.permission.WRITE_TASKS" tools:node="remove" />
+    <uses-permission android:name="at.techbee.jtx.permission.READ" tools:node="remove" />
+    <uses-permission android:name="at.techbee.jtx.permission.WRITE" tools:node="remove" />
 
     <application
         android:allowBackup="true"
