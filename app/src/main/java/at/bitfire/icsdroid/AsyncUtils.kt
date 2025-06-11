@@ -26,7 +26,7 @@ suspend fun Call.executeAsync(): Response = suspendCancellableCoroutine { contin
         }
 
         override fun onResponse(call: Call, response: Response) {
-            continuation.resume(value = response, onCancellation = { call.cancel() })
+            continuation.resume(value = response, onCancellation = { _, _, _ -> call.cancel() })
         }
     })
 }
