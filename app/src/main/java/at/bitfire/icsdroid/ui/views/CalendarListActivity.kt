@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.content.IntentCompat
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.model.SubscriptionsModel
@@ -20,6 +21,8 @@ import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.CalendarListScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_ERROR_MESSAGE
+import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_THROWABLE
 import java.util.ServiceLoader
 
 class CalendarListActivity: AppCompatActivity() {
@@ -91,7 +94,7 @@ class CalendarListActivity: AppCompatActivity() {
             if (showingErrorMessage) {
                 AlertDialog(
                     intent.getStringExtra(EXTRA_ERROR_MESSAGE)!!,
-                    intent.getSerializableExtra(EXTRA_THROWABLE) as? Throwable
+                    IntentCompat.getSerializableExtra(intent, EXTRA_THROWABLE, Throwable::class.java)
                 ) { showingErrorMessage = false }
             }
 
