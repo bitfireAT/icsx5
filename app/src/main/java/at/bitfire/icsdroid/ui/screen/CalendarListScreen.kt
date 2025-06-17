@@ -322,8 +322,13 @@ fun ActionOverflowMenu(
     if (showImportWarningDialog)
         GenericAlertDialog(
             title = stringResource(R.string.backup_warning_title),
-            confirmButton = stringResource(android.R.string.ok) to onBackupImportRequested,
-            dismissButton = stringResource(android.R.string.cancel) to { showImportWarningDialog = false },
+            confirmButton = stringResource(android.R.string.ok) to {
+                showImportWarningDialog = false
+                onBackupImportRequested()
+            },
+            dismissButton = stringResource(android.R.string.cancel) to {
+                showImportWarningDialog = false
+                                                                       },
             onDismissRequest = { showImportWarningDialog = false },
             content = { Text(stringResource(R.string.backup_warning_message)) }
         )

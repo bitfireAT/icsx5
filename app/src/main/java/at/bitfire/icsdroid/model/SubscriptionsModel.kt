@@ -233,7 +233,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                 toast.cancel()
                 Toast.makeText(
                     context,
-                    context.getString(R.string.backup_imported, newSubscriptions.size),
+                    context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
                     Toast.LENGTH_SHORT
                 ).show()
             }
