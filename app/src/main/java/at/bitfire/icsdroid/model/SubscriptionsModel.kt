@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,6 +39,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
@@ -174,10 +176,10 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     fun onBackupExportRequested(uri: Uri) {
         val context: Context = getApplication()
         viewModelScope.launch(Dispatchers.IO) {
-            val toast = withContext(Dispatchers.Main) {
-                Toast.makeText(context, R.string.backup_exporting, Toast.LENGTH_LONG)
-                    .also { it.show() }
-            }
+            val toast = toastAsync(
+                messageResId = R.string.backup_exporting,
+                duration = Toast.LENGTH_LONG
+            )
 
             val subscriptions = subscriptions.value
             Log.i(TAG, "Exporting ${subscriptions.size} subscriptions...")
@@ -187,15 +189,23 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                     put(subscription.toJSON())
                 }
             }
-            context.contentResolver.openFileDescriptor(uri, "w")?.use { fd ->
-                FileOutputStream(fd.fileDescriptor).bufferedWriter().use { output ->
-                    output.write(json.toString())
+            try {
+                context.contentResolver.openFileDescriptor(uri, "w")?.use { fd ->
+                    FileOutputStream(fd.fileDescriptor).bufferedWriter().use { output ->
+                        output.write(json.toString())
+                    }
                 }
-            }
 
-            withContext(Dispatchers.Main) {
-                toast.cancel()
-                Toast.makeText(context, R.string.backup_exported, Toast.LENGTH_SHORT).show()
+                toastAsync(
+                    messageResId = R.string.backup_exported,
+                    cancelToast = toast
+                )
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not read imported file.", e)
+                toastAsync(
+                    messageResId = R.string.backup_import_error_io,
+                    duration = Toast.LENGTH_LONG
+                )
             }
         }
     }
@@ -203,10 +213,10 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     fun onBackupImportRequested(uri: Uri) {
         val context: Context = getApplication()
         viewModelScope.launch(Dispatchers.IO) {
-            val toast = withContext(Dispatchers.Main) {
-                Toast.makeText(context, R.string.backup_importing, Toast.LENGTH_LONG)
-                    .also { it.show() }
-            }
+            val toast = toastAsync(
+                messageResId = R.string.backup_importing,
+                duration = Toast.LENGTH_LONG
+            )
 
             try {
                 val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
@@ -214,6 +224,15 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                         input.readText()
                     }
                 }
+                if (jsonString == null) {
+                    toastAsync(
+                        messageResId = R.string.backup_import_error_io,
+                        cancelToast = toast,
+                        duration = Toast.LENGTH_LONG
+                    )
+                    return@launch
+                }
+
                 val jsonArray = JSONArray(jsonString)
                 val newSubscriptions = (0 until jsonArray.length())
                     .map { jsonArray.getJSONObject(it) }
@@ -240,27 +259,50 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
 
-                withContext(Dispatchers.Main) {
-                    toast.cancel()
-                    Toast.makeText(
-                        context,
-                        context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                toastAsync(
+                    message = {
+                        resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size)
+                    },
+                    cancelToast = toast
+                )
             } catch (e: JSONException) {
                 Log.e(TAG, "Could not load JSON: $e")
-                withContext(Dispatchers.Main) {
-                    toast.cancel()
-                    Toast.makeText(context, R.string.backup_import_error_json, Toast.LENGTH_LONG).show()
-                }
+                toastAsync(
+                    messageResId = R.string.backup_import_error_json,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
             } catch (e: SecurityException) {
                 Log.e(TAG, "Could not load JSON: $e")
-                withContext(Dispatchers.Main) {
-                    toast.cancel()
-                    Toast.makeText(context, R.string.backup_import_error_security, Toast.LENGTH_LONG).show()
-                }
+                toastAsync(
+                    messageResId = R.string.backup_import_error_security,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                toastAsync(
+                    messageResId = R.string.backup_import_error_io,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
             }
         }
+    }
+
+    private suspend fun toastAsync(
+        message: (Context.() -> String)? = null,
+        @StringRes messageResId: Int? = null,
+        cancelToast: Toast? = null,
+        duration: Int = Toast.LENGTH_SHORT
+    ): Toast = withContext(Dispatchers.Main) {
+        cancelToast?.cancel()
+        val context: Context = getApplication()
+
+        when {
+            message != null -> Toast.makeText(context, message(context), duration)
+            messageResId != null -> Toast.makeText(context, messageResId, duration)
+            else -> throw IllegalArgumentException("Either message or messageResId must be given.")
+        }.also { it.show() }
     }
 }

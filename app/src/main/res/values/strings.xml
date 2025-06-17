@@ -149,6 +149,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     <string name="backup_importing">Importing…</string>
     <string name="backup_import_error_json">Import error! File is corrupted or invalid.</string>
     <string name="backup_import_error_security">Import error! File is not accessible.</string>
+    <string name="backup_import_error_io">Import error! Cannot read file.</string>
     <plurals name="backup_imported">
         <item quantity="one">%d subscription imported</item>
         <item quantity="other">%d subscriptions imported</item>
