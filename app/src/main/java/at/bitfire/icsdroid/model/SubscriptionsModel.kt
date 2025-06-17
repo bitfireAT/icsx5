@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
@@ -207,44 +208,58 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                     .also { it.show() }
             }
 
-            val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
-                FileInputStream(fd.fileDescriptor).bufferedReader().use { input ->
-                    input.readText()
+            try {
+                val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                    FileInputStream(fd.fileDescriptor).bufferedReader().use { input ->
+                        input.readText()
+                    }
                 }
-            }
-            val jsonArray = JSONArray(jsonString)
-            val newSubscriptions = (0 until jsonArray.length())
-                .map { jsonArray.getJSONObject(it) }
-                .map { Subscription(it) }
-            Log.i(TAG, "Importing ${newSubscriptions.size} subscriptions...")
+                val jsonArray = JSONArray(jsonString)
+                val newSubscriptions = (0 until jsonArray.length())
+                    .map { jsonArray.getJSONObject(it) }
+                    .map { Subscription(it) }
+                Log.i(TAG, "Importing ${newSubscriptions.size} subscriptions...")
 
-            val oldSubscriptions = subscriptions.value
+                val oldSubscriptions = subscriptions.value
 
-            var toAdd = arrayOf<Subscription>()
-            var toDelete = arrayOf<Subscription>()
-            for (subscription in newSubscriptions) {
-                val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
-                if (existingSubscription != null) {
-                    Log.w(TAG, "Overriding existing subscription (${existingSubscription.id}): ${existingSubscription.url}")
-                    toDelete += existingSubscription
+                var toAdd = arrayOf<Subscription>()
+                var toDelete = arrayOf<Subscription>()
+                for (subscription in newSubscriptions) {
+                    val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
+                    if (existingSubscription != null) {
+                        Log.w(TAG, "Overriding existing subscription (${existingSubscription.id}): ${existingSubscription.url}")
+                        toDelete += existingSubscription
+                    }
+                    toAdd += subscription
                 }
-                toAdd += subscription
-            }
 
-            // Run the database updates
-            subscriptionsDao.delete(*toDelete)
-            subscriptionsDao.add(*toAdd)
+                // Run the database updates
+                subscriptionsDao.delete(*toDelete)
+                subscriptionsDao.add(*toAdd)
 
-            // sync the subscription to reflect the changes in the calendar provider
-            SyncWorker.run(getApplication())
+                // sync the subscription to reflect the changes in the calendar provider
+                SyncWorker.run(getApplication())
 
-            withContext(Dispatchers.Main) {
-                toast.cancel()
-                Toast.makeText(
-                    context,
-                    context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(
+                        context,
+                        context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: JSONException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(context, R.string.backup_import_error_json, Toast.LENGTH_LONG).show()
+                }
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(context, R.string.backup_import_error_security, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
