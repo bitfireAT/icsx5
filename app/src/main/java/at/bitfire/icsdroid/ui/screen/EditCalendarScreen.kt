@@ -57,7 +57,7 @@ fun EditCalendarScreen(
     val editCalendarModel: EditCalendarModel = viewModel {
         EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)
     }
-    val subscriptionWithCredentials = editSubscriptionModel.subscriptionWithCredential.collectAsStateWithLifecycle(null)
+    val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
     EditCalendarScreen(
         inputValid = editCalendarModel.inputValid,
         modelsDirty = editCalendarModel.modelsDirty,
@@ -67,8 +67,8 @@ fun EditCalendarScreen(
             editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
         },
         onShare = {
-            subscriptionWithCredentials.value?.let {
-                onShare(it.subscription)
+            subscription.value?.let {
+                onShare(it)
             }
         },
         onExit = onExit,

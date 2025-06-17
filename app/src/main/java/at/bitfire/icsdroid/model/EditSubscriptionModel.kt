@@ -32,6 +32,7 @@ class EditSubscriptionModel(
     var uiState by mutableStateOf(UiState())
         private set
 
+    val subscription = db.subscriptionsDao().getByIdFlow(subscriptionId)
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
 
     /**
@@ -42,12 +43,7 @@ class EditSubscriptionModel(
         credentialsModel: CredentialsModel
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val subscriptionWithCredentials = db.subscriptionsDao()
-                .getWithCredentialsByIdFlow(subscriptionId)
-                .firstOrNull()
-
-            subscriptionWithCredentials?.let { subscriptionWithCredentials ->
-                val subscription = subscriptionWithCredentials.subscription
+            subscription.firstOrNull()?.let { subscription ->
                 val newSubscription = subscription.copy(
                     displayName = subscriptionSettingsModel.uiState.title ?: subscription.displayName,
                     color = subscriptionSettingsModel.uiState.color,
@@ -80,11 +76,8 @@ class EditSubscriptionModel(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            val subscriptionWithCredentials = db.subscriptionsDao()
-                .getWithCredentialsByIdFlow(subscriptionId)
-                .firstOrNull()
-            subscriptionWithCredentials?.let { subscriptionWithCredentials ->
-                subscriptionsDao.delete(subscriptionWithCredentials.subscription)
+            subscription.firstOrNull()?.let { subscription ->
+                subscriptionsDao.delete(subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
