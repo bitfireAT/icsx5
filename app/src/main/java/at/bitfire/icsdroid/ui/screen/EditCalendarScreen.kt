@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
@@ -56,6 +57,7 @@ fun EditCalendarScreen(
     val editCalendarModel: EditCalendarModel = viewModel {
         EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)
     }
+    val subscriptionWithCredentials = editSubscriptionModel.subscriptionWithCredential.collectAsStateWithLifecycle(null)
     EditCalendarScreen(
         inputValid = editCalendarModel.inputValid,
         modelsDirty = editCalendarModel.modelsDirty,
@@ -65,7 +67,7 @@ fun EditCalendarScreen(
             editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
         },
         onShare = {
-            editSubscriptionModel.subscriptionWithCredential.value?.let {
+            subscriptionWithCredentials.value?.let {
                 onShare(it.subscription)
             }
         },

@@ -1,12 +1,10 @@
 package at.bitfire.icsdroid.model
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.app.ShareCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -15,9 +13,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EditSubscriptionModel(
@@ -37,7 +33,6 @@ class EditSubscriptionModel(
         private set
 
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     /**
      * Updates the loaded subscription from the data provided by the view models.
@@ -47,9 +42,12 @@ class EditSubscriptionModel(
         credentialsModel: CredentialsModel
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
-                val subscription = subscriptionWithCredentials.subscription
+            val subscriptionWithCredentials = db.subscriptionsDao()
+                .getWithCredentialsByIdFlow(subscriptionId)
+                .firstOrNull()
 
+            subscriptionWithCredentials?.let { subscriptionWithCredentials ->
+                val subscription = subscriptionWithCredentials.subscription
                 val newSubscription = subscription.copy(
                     displayName = subscriptionSettingsModel.uiState.title ?: subscription.displayName,
                     color = subscriptionSettingsModel.uiState.color,
@@ -82,7 +80,10 @@ class EditSubscriptionModel(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.value?.let { subscriptionWithCredentials ->
+            val subscriptionWithCredentials = db.subscriptionsDao()
+                .getWithCredentialsByIdFlow(subscriptionId)
+                .firstOrNull()
+            subscriptionWithCredentials?.let { subscriptionWithCredentials ->
                 subscriptionsDao.delete(subscriptionWithCredentials.subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
