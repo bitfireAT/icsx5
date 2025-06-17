@@ -220,14 +220,20 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
 
             val oldSubscriptions = subscriptions.value
 
+            var toAdd = arrayOf<Subscription>()
+            var toDelete = arrayOf<Subscription>()
             for (subscription in newSubscriptions) {
                 val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
                 if (existingSubscription != null) {
                     Log.w(TAG, "Overriding existing subscription (${existingSubscription.id}): ${existingSubscription.url}")
-                    subscriptionsDao.delete(existingSubscription)
+                    toDelete += existingSubscription
                 }
-                subscriptionsDao.add(subscription)
+                toAdd += subscription
             }
+
+            // Run the database updates
+            subscriptionsDao.delete(*toDelete)
+            subscriptionsDao.add(*toAdd)
 
             // sync the subscription to reflect the changes in the calendar provider
             SyncWorker.run(getApplication())

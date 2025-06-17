@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 interface SubscriptionsDao {
 
     @Insert
-    suspend fun add(subscription: Subscription): Long
+    suspend fun add(vararg subscription: Subscription): Long
 
     @Delete
     suspend fun delete(vararg subscriptions: Subscription)
