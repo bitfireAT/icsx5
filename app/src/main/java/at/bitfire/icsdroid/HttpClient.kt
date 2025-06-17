@@ -49,7 +49,7 @@ class HttpClient private constructor(
         .addNetworkInterceptor(BrotliInterceptor)
         .addNetworkInterceptor(UserAgentInterceptor)
         .followRedirects(false)
-        .connectTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .sslSocketFactory(sslContext.socketFactory, certManager)
         .hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
