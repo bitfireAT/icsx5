@@ -24,6 +24,9 @@
     <string name="calendar_list_not_synced_yet">not synchronized yet</string>
     <string name="calendar_list_set_sync_interval">Set sync. interval</string>
     <string name="calendar_list_force_sync">Force sync</string>
+    <string name="calendar_list_backup">Backup</string>
+    <string name="calendar_list_backup_export">Export Backup</string>
+    <string name="calendar_list_backup_import">Import Backup</string>
     <string name="calendar_list_battery_whitelist_title">Battery optimization</string>
     <string name="calendar_list_battery_whitelist_text">Battery optimizations may prevent sync intervals shorter than a day. Set %s to \"Not optimized\".</string>
     <string name="calendar_list_battery_whitelist_open_settings">Open settings</string>
@@ -138,5 +141,12 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     <string name="donate_message">We\'re happy that you use ICSx⁵, which is open-source software (GPLv3). Because it was and still is much work to develop and maintain ICSx⁵, please consider a donation.</string>
     <string name="donate_now">Show donation page</string>
     <string name="donate_later">Maybe later</string>
+
+    <string name="backup_warning_title">Attention!</string>
+    <string name="backup_warning_message">The import process may override any subscriptions you have currently added. This cannot be undone. Do you want to continue?</string>
+    <string name="backup_exporting">Exporting…</string>
+    <string name="backup_exported">Backup exported!</string>
+    <string name="backup_importing">Importing…</string>
+    <string name="backup_imported">%d subscriptions imported</string>
 
 </resources>

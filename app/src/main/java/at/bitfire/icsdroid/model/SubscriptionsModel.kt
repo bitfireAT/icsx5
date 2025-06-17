@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,17 +20,23 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
@@ -50,9 +57,10 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         workInfos.any { it.state == WorkInfo.State.RUNNING }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val subscriptionsDao = AppDatabase.getInstance(application).subscriptionsDao()
+
     /** LiveData watching the subscriptions */
-    val subscriptions = AppDatabase.getInstance(application)
-        .subscriptionsDao()
+    val subscriptions = subscriptionsDao
         .getAllFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -160,5 +168,75 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
 
         getApplication<Application>().startActivity(intent)
+    }
+
+    fun onBackupExportRequested(uri: Uri) {
+        val context: Context = getApplication()
+        viewModelScope.launch(Dispatchers.IO) {
+            val toast = withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.backup_exporting, Toast.LENGTH_LONG)
+                    .also { it.show() }
+            }
+
+            val subscriptions = subscriptions.value
+            Log.i(TAG, "Exporting ${subscriptions.size} subscriptions...")
+
+            val json = JSONArray().apply {
+                for (subscription in subscriptions) {
+                    put(subscription.toJSON())
+                }
+            }
+            context.contentResolver.openFileDescriptor(uri, "w")?.use { fd ->
+                FileOutputStream(fd.fileDescriptor).bufferedWriter().use { output ->
+                    output.write(json.toString())
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                toast.cancel()
+                Toast.makeText(context, R.string.backup_exported, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun onBackupImportRequested(uri: Uri) {
+        val context: Context = getApplication()
+        viewModelScope.launch(Dispatchers.IO) {
+            val toast = withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.backup_importing, Toast.LENGTH_LONG)
+                    .also { it.show() }
+            }
+
+            val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                FileInputStream(fd.fileDescriptor).bufferedReader().use { input ->
+                    input.readText()
+                }
+            }
+            val jsonArray = JSONArray(jsonString)
+            val newSubscriptions = (0 until jsonArray.length())
+                .map { jsonArray.getJSONObject(it) }
+                .map { Subscription(it) }
+            Log.i(TAG, "Importing ${newSubscriptions.size} subscriptions...")
+
+            val oldSubscriptions = subscriptions.value
+
+            for (subscription in newSubscriptions) {
+                val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
+                if (existingSubscription != null) {
+                    Log.w(TAG, "Overriding existing subscription (${existingSubscription.id}): ${existingSubscription.url}")
+                    subscriptionsDao.delete(existingSubscription)
+                }
+                subscriptionsDao.add(subscription)
+            }
+
+            withContext(Dispatchers.Main) {
+                toast.cancel()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.backup_imported, newSubscriptions.size),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 }

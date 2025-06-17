@@ -7,9 +7,12 @@ package at.bitfire.icsdroid.db.entity
 import android.net.Uri
 import android.provider.CalendarContract.Calendars
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import at.bitfire.icsdroid.getStringOrNull
+import org.json.JSONObject
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -49,6 +52,19 @@ data class Subscription(
     /** The color that represents the subscription. */
     val color: Int? = null
 ) {
+    constructor(json: JSONObject): this(
+        url = json.getString("url").toUri(),
+        eTag = json.getStringOrNull("eTag"),
+        displayName = json.getString("displayName"),
+        lastModified = json.getStringOrNull("lastModified")?.toLongOrNull(),
+        lastSync = json.getStringOrNull("lastSync")?.toLongOrNull(),
+        errorMessage = json.getStringOrNull("errorMessage"),
+        ignoreEmbeddedAlerts = json.getStringOrNull("ignoreEmbeddedAlerts").toBoolean(),
+        defaultAlarmMinutes = json.getStringOrNull("defaultAlarmMinutes")?.toLongOrNull(),
+        defaultAllDayAlarmMinutes = json.getStringOrNull("defaultAllDayAlarmMinutes")?.toLongOrNull(),
+        ignoreDescription = json.getStringOrNull("ignoreDescription").toBoolean(),
+        color = json.getStringOrNull("color")?.toIntOrNull(),
+    )
 
     /**
      * Converts this subscription's properties to [android.content.ContentValues] that can be
@@ -61,5 +77,19 @@ data class Subscription(
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
         Calendars.SYNC_EVENTS to 1
     )
+
+    fun toJSON(): JSONObject = JSONObject().apply {
+        put("url", url)
+        put("eTag", eTag)
+        put("displayName", displayName)
+        put("lastModified", lastModified)
+        put("lastSync", lastSync)
+        put("errorMessage", errorMessage)
+        put("ignoreEmbeddedAlerts", ignoreEmbeddedAlerts)
+        put("defaultAlarmMinutes", defaultAlarmMinutes)
+        put("defaultAllDayAlarmMinutes", defaultAllDayAlarmMinutes)
+        put("ignoreDescription", ignoreDescription)
+        put("color", color)
+    }
 
 }
