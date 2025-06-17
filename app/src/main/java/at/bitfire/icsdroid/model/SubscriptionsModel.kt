@@ -203,7 +203,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
             } catch (e: IOException) {
                 Log.e(TAG, "Could not read imported file.", e)
                 toastAsync(
-                    messageResId = R.string.backup_import_error_io,
+                    messageResId = R.string.backup_export_error_io,
                     duration = Toast.LENGTH_LONG
                 )
             }
