@@ -229,6 +229,9 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                 subscriptionsDao.add(subscription)
             }
 
+            // sync the subscription to reflect the changes in the calendar provider
+            SyncWorker.run(getApplication())
+
             withContext(Dispatchers.Main) {
                 toast.cancel()
                 Toast.makeText(
