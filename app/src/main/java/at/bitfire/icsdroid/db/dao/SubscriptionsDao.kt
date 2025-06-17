@@ -1,7 +1,6 @@
 package at.bitfire.icsdroid.db.dao
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Embedded
@@ -31,6 +30,9 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     suspend fun getById(id: Long): Subscription?
 
+    @Query("SELECT * FROM subscriptions WHERE id=:id")
+    fun getByIdFlow(id: Long): Flow<Subscription?>
+
     @Query("SELECT * FROM subscriptions WHERE calendarId=:calendarId")
     suspend fun getByCalendarId(calendarId: Long?): Subscription?
 
@@ -38,7 +40,7 @@ interface SubscriptionsDao {
     suspend fun getByUrl(url: String): Subscription?
 
     @Query("SELECT * FROM subscriptions WHERE id=:id")
-    fun getWithCredentialsByIdFlow(id: Long): Flow<SubscriptionWithCredential>
+    fun getWithCredentialsByIdFlow(id: Long): Flow<SubscriptionWithCredential?>
 
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageFlow(id: Long): Flow<String?>
