@@ -222,7 +222,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
 
                 val oldSubscriptions = subscriptions.value
 
-                var toAdd = arrayOf<Subscription>()
+                var toAdd = mutableListOf<Subscription>()
                 var toDelete = arrayOf<Subscription>()
                 for (subscription in newSubscriptions) {
                     val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
@@ -235,7 +235,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
 
                 // Run the database updates
                 subscriptionsDao.delete(*toDelete)
-                subscriptionsDao.add(*toAdd)
+                subscriptionsDao.add(toAdd)
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(getApplication())
