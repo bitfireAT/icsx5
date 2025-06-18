@@ -201,7 +201,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                     cancelToast = toast
                 )
             } catch (e: IOException) {
-                Log.e(TAG, "Could not read imported file.", e)
+                Log.e(TAG, "Could not write export file.", e)
                 toastAsync(
                     messageResId = R.string.backup_export_error_io,
                     duration = Toast.LENGTH_LONG
