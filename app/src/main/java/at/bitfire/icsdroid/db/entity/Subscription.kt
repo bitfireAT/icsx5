@@ -53,17 +53,17 @@ data class Subscription(
     val color: Int? = null
 ) {
     constructor(json: JSONObject): this(
-        url = json.getString("url").toUri(),
-        eTag = json.getStringOrNull("eTag"),
-        displayName = json.getString("displayName"),
-        lastModified = json.getStringOrNull("lastModified")?.toLongOrNull(),
-        lastSync = json.getStringOrNull("lastSync")?.toLongOrNull(),
-        errorMessage = json.getStringOrNull("errorMessage"),
-        ignoreEmbeddedAlerts = json.getStringOrNull("ignoreEmbeddedAlerts").toBoolean(),
-        defaultAlarmMinutes = json.getStringOrNull("defaultAlarmMinutes")?.toLongOrNull(),
-        defaultAllDayAlarmMinutes = json.getStringOrNull("defaultAllDayAlarmMinutes")?.toLongOrNull(),
-        ignoreDescription = json.getStringOrNull("ignoreDescription").toBoolean(),
-        color = json.getStringOrNull("color")?.toIntOrNull(),
+        url = json.getString(JSON_URL).toUri(),
+        eTag = json.getStringOrNull(JSON_ETAG),
+        displayName = json.getString(JSON_DISPLAY_NAME),
+        lastModified = json.getStringOrNull(JSON_LAST_MODIFIED)?.toLongOrNull(),
+        lastSync = json.getStringOrNull(JSON_LAST_SYNC)?.toLongOrNull(),
+        errorMessage = json.getStringOrNull(JSON_ERROR_MESSAGE),
+        ignoreEmbeddedAlerts = json.getStringOrNull(JSON_IGNORE_ALERTS).toBoolean(),
+        defaultAlarmMinutes = json.getStringOrNull(JSON_DEFAULT_ALARM)?.toLongOrNull(),
+        defaultAllDayAlarmMinutes = json.getStringOrNull(JSON_DEFAULT_ALL_DAY_ALARM)?.toLongOrNull(),
+        ignoreDescription = json.getStringOrNull(JSON_IGNORE_DESCRIPTION).toBoolean(),
+        color = json.getStringOrNull(JSON_COLOR)?.toIntOrNull(),
     )
 
     /**
@@ -79,17 +79,32 @@ data class Subscription(
     )
 
     fun toJSON(): JSONObject = JSONObject().apply {
-        put("url", url)
-        eTag?.let { put("eTag", it) }
-        put("displayName", displayName)
-        lastModified?.let { put("lastModified", it) }
-        lastSync?.let { put("lastSync", it) }
-        errorMessage?.let { put("errorMessage", it) }
-        put("ignoreEmbeddedAlerts", ignoreEmbeddedAlerts)
-        defaultAlarmMinutes?.let { put("defaultAlarmMinutes", it) }
-        defaultAllDayAlarmMinutes?.let { put("defaultAllDayAlarmMinutes", it) }
-        put("ignoreDescription", ignoreDescription)
-        color?.let { put("color", it) }
+        put(JSON_URL, url)
+        eTag?.let { put(JSON_ETAG, it) }
+        put(JSON_DISPLAY_NAME, displayName)
+        lastModified?.let { put(JSON_LAST_MODIFIED, it) }
+        lastSync?.let { put(JSON_LAST_SYNC, it) }
+        errorMessage?.let { put(JSON_ERROR_MESSAGE, it) }
+        put(JSON_IGNORE_ALERTS, ignoreEmbeddedAlerts)
+        defaultAlarmMinutes?.let { put(JSON_DEFAULT_ALARM, it) }
+        defaultAllDayAlarmMinutes?.let { put(JSON_DEFAULT_ALL_DAY_ALARM, it) }
+        put(JSON_IGNORE_DESCRIPTION, ignoreDescription)
+        color?.let { put(JSON_COLOR, it) }
+    }
+
+
+    companion object {
+        const val JSON_URL = "url"
+        const val JSON_ETAG = "eTag"
+        const val JSON_DISPLAY_NAME = "displayName"
+        const val JSON_LAST_MODIFIED = "lastModified"
+        const val JSON_LAST_SYNC = "lastSync"
+        const val JSON_ERROR_MESSAGE = "errorMessage"
+        const val JSON_IGNORE_ALERTS = "ignoreEmbeddedAlerts"
+        const val JSON_DEFAULT_ALARM = "defaultAlarmMinutes"
+        const val JSON_DEFAULT_ALL_DAY_ALARM = "defaultAllDayAlarmMinutes"
+        const val JSON_IGNORE_DESCRIPTION = "ignoreDescription"
+        const val JSON_COLOR = "color"
     }
 
 }
