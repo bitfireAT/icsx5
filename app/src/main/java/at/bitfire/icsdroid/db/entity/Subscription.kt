@@ -80,16 +80,16 @@ data class Subscription(
 
     fun toJSON(): JSONObject = JSONObject().apply {
         put("url", url)
-        put("eTag", eTag)
+        eTag?.let { put("eTag", it) }
         put("displayName", displayName)
-        put("lastModified", lastModified)
-        put("lastSync", lastSync)
-        put("errorMessage", errorMessage)
+        lastModified?.let { put("lastModified", it) }
+        lastSync?.let { put("lastSync", it) }
+        errorMessage?.let { put("errorMessage", it) }
         put("ignoreEmbeddedAlerts", ignoreEmbeddedAlerts)
-        put("defaultAlarmMinutes", defaultAlarmMinutes)
-        put("defaultAllDayAlarmMinutes", defaultAllDayAlarmMinutes)
+        defaultAlarmMinutes?.let { put("defaultAlarmMinutes", it) }
+        defaultAllDayAlarmMinutes?.let { put("defaultAllDayAlarmMinutes", it) }
         put("ignoreDescription", ignoreDescription)
-        put("color", color)
+        color?.let { put("color", it) }
     }
 
 }
