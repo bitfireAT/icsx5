@@ -295,14 +295,14 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         @StringRes messageResId: Int? = null,
         cancelToast: Toast? = null,
         duration: Int = Toast.LENGTH_SHORT
-    ): Toast = withContext(Dispatchers.Main) {
+    ): Toast? = withContext(Dispatchers.Main) {
         cancelToast?.cancel()
         val context: Context = getApplication()
 
         when {
             message != null -> Toast.makeText(context, message(context), duration)
             messageResId != null -> Toast.makeText(context, messageResId, duration)
-            else -> throw IllegalArgumentException("Either message or messageResId must be given.")
+            else -> return@withContext null
         }.also { it.show() }
     }
 }
