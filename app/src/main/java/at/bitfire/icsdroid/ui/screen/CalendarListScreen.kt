@@ -2,6 +2,8 @@ package at.bitfire.icsdroid.ui.screen
 
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -46,6 +48,7 @@ import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.ui.partials.ActionCard
 import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
+import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
 
@@ -64,6 +67,19 @@ fun CalendarListScreen(
     val forceDarkMode by model.forceDarkMode.collectAsState()
     val syncInterval by model.syncInterval.collectAsState()
 
+    val createFileResultLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { result ->
+        result ?: return@rememberLauncherForActivityResult
+        model.onBackupExportRequested(result)
+    }
+    val loadFileResultLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { result ->
+        result ?: return@rememberLauncherForActivityResult
+        model.onBackupImportRequested(result)
+    }
+
     CalendarListScreen(
         isRefreshing = isRefreshing,
         subscriptions = subscriptions,
@@ -80,6 +96,8 @@ fun CalendarListScreen(
         onSyncIntervalChange = model::onSyncIntervalChange,
         onAboutRequested = onAboutRequested,
         onToggleDarkMode = model::onToggleDarkMode,
+        onBackupExportRequested = { createFileResultLauncher.launch("icsx5-backup.json") },
+        onBackupImportRequested = { loadFileResultLauncher.launch(arrayOf("application/json")) },
         onItemSelected = onItemSelected
     )
 }
@@ -102,6 +120,8 @@ fun CalendarListScreen(
     onSyncIntervalChange: (Long) -> Unit = {},
     onToggleDarkMode: (forceDarkMode: Boolean) -> Unit = {},
     onAboutRequested: () -> Unit = {},
+    onBackupExportRequested: () -> Unit = {},
+    onBackupImportRequested: () -> Unit = {},
     onItemSelected: (Subscription) -> Unit = {}
 ) {
     Scaffold(
@@ -122,12 +142,15 @@ fun CalendarListScreen(
                 },
                 actions = {
                     ActionOverflowMenu(
+                        subscriptionsCount = subscriptions.size,
                         forceDarkMode = forceDarkMode,
                         syncInterval = syncInterval,
                         onSyncIntervalChange = onSyncIntervalChange,
                         onToggleDarkMode = onToggleDarkMode,
                         onAboutRequested = onAboutRequested,
-                        onRefreshRequested = onForceRefreshRequested
+                        onRefreshRequested = onForceRefreshRequested,
+                        onBackupExportRequested = onBackupExportRequested,
+                        onBackupImportRequested = onBackupImportRequested
                     )
                 }
             )
@@ -269,12 +292,15 @@ private fun CalendarListContent(
 
 @Composable
 fun ActionOverflowMenu(
+    subscriptionsCount: Int,
     forceDarkMode: Boolean,
     syncInterval: Long,
     onSyncIntervalChange: (Long) -> Unit = {},
     onToggleDarkMode: (forceDarkMode: Boolean) -> Unit = {},
     onAboutRequested: () -> Unit = {},
-    onRefreshRequested: () -> Unit = {}
+    onRefreshRequested: () -> Unit = {},
+    onBackupExportRequested: () -> Unit = {},
+    onBackupImportRequested: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -290,6 +316,21 @@ fun ActionOverflowMenu(
             currentInterval = syncInterval,
             onSetSyncInterval = onSyncIntervalChange,
             onDismiss = { showSyncIntervalDialog = false }
+        )
+
+    var showImportWarningDialog by rememberSaveable { mutableStateOf(false) }
+    if (showImportWarningDialog)
+        GenericAlertDialog(
+            title = stringResource(R.string.backup_warning_title),
+            confirmButton = stringResource(android.R.string.ok) to {
+                showImportWarningDialog = false
+                onBackupImportRequested()
+            },
+            dismissButton = stringResource(android.R.string.cancel) to {
+                showImportWarningDialog = false
+                                                                       },
+            onDismissRequest = { showImportWarningDialog = false },
+            content = { Text(stringResource(R.string.backup_warning_message)) }
         )
 
     DropdownMenu(
@@ -323,6 +364,25 @@ fun ActionOverflowMenu(
             onClick =  {
                 showMenu = false
                 onToggleDarkMode(!forceDarkMode)
+            }
+        )
+        DropdownMenuItem(
+            enabled = subscriptionsCount > 0,
+            text = { Text(stringResource(R.string.calendar_list_backup_export)) },
+            onClick = {
+                showMenu = false
+                onBackupExportRequested()
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.calendar_list_backup_import)) },
+            onClick = {
+                showMenu = false
+                // If there's already a subscription, show a warning before running import
+                if (subscriptionsCount > 0)
+                    showImportWarningDialog = true
+                else
+                    onBackupImportRequested()
             }
         )
         DropdownMenuItem(

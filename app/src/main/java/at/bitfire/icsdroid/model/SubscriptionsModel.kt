@@ -8,7 +8,9 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.util.Log
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,17 +21,25 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
 import at.bitfire.icsdroid.BuildConfig
+import at.bitfire.icsdroid.Constants.TAG
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.Settings
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.entity.Subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONException
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 
 class SubscriptionsModel(application: Application): AndroidViewModel(application) {
 
@@ -50,9 +60,10 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         workInfos.any { it.state == WorkInfo.State.RUNNING }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val subscriptionsDao = AppDatabase.getInstance(application).subscriptionsDao()
+
     /** LiveData watching the subscriptions */
-    val subscriptions = AppDatabase.getInstance(application)
-        .subscriptionsDao()
+    val subscriptions = subscriptionsDao
         .getAllFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -160,5 +171,138 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
 
         getApplication<Application>().startActivity(intent)
+    }
+
+    fun onBackupExportRequested(uri: Uri) {
+        val context: Context = getApplication()
+        viewModelScope.launch(Dispatchers.IO) {
+            val toast = toastAsync(
+                messageResId = R.string.backup_exporting,
+                duration = Toast.LENGTH_LONG
+            )
+
+            val subscriptions = subscriptions.value
+            Log.i(TAG, "Exporting ${subscriptions.size} subscriptions...")
+
+            val json = JSONArray().apply {
+                for (subscription in subscriptions) {
+                    put(subscription.toJSON())
+                }
+            }
+            try {
+                context.contentResolver.openFileDescriptor(uri, "w")?.use { fd ->
+                    FileOutputStream(fd.fileDescriptor).bufferedWriter().use { output ->
+                        output.write(json.toString())
+                    }
+                }
+
+                toastAsync(
+                    messageResId = R.string.backup_exported,
+                    cancelToast = toast
+                )
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not write export file.", e)
+                toastAsync(
+                    messageResId = R.string.backup_export_error_io,
+                    duration = Toast.LENGTH_LONG
+                )
+            }
+        }
+    }
+
+    fun onBackupImportRequested(uri: Uri) {
+        val context: Context = getApplication()
+        viewModelScope.launch(Dispatchers.IO) {
+            val toast = toastAsync(
+                messageResId = R.string.backup_importing,
+                duration = Toast.LENGTH_LONG
+            )
+
+            try {
+                val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                    FileInputStream(fd.fileDescriptor).bufferedReader().use { input ->
+                        input.readText()
+                    }
+                }
+                if (jsonString == null) {
+                    toastAsync(
+                        messageResId = R.string.backup_import_error_io,
+                        cancelToast = toast,
+                        duration = Toast.LENGTH_LONG
+                    )
+                    return@launch
+                }
+
+                val jsonArray = JSONArray(jsonString)
+                val newSubscriptions = (0 until jsonArray.length())
+                    .map { jsonArray.getJSONObject(it) }
+                    .map { Subscription(it) }
+                Log.i(TAG, "Importing ${newSubscriptions.size} subscriptions...")
+
+                val oldSubscriptions = subscriptions.value
+
+                var toAdd = mutableListOf<Subscription>()
+                var toDelete = arrayOf<Subscription>()
+                for (subscription in newSubscriptions) {
+                    val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
+                    if (existingSubscription != null) {
+                        Log.w(TAG, "Overriding existing subscription (${existingSubscription.id}): ${existingSubscription.url}")
+                        toDelete += existingSubscription
+                    }
+                    toAdd += subscription
+                }
+
+                // Run the database updates
+                subscriptionsDao.delete(*toDelete)
+                subscriptionsDao.add(toAdd)
+
+                // sync the subscription to reflect the changes in the calendar provider
+                SyncWorker.run(getApplication())
+
+                toastAsync(
+                    message = {
+                        resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size)
+                    },
+                    cancelToast = toast
+                )
+            } catch (e: JSONException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                toastAsync(
+                    messageResId = R.string.backup_import_error_json,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                toastAsync(
+                    messageResId = R.string.backup_import_error_security,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not load JSON: $e")
+                toastAsync(
+                    messageResId = R.string.backup_import_error_io,
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_LONG
+                )
+            }
+        }
+    }
+
+    private suspend fun toastAsync(
+        message: (Context.() -> String)? = null,
+        @StringRes messageResId: Int? = null,
+        cancelToast: Toast? = null,
+        duration: Int = Toast.LENGTH_SHORT
+    ): Toast? = withContext(Dispatchers.Main) {
+        cancelToast?.cancel()
+        val context: Context = getApplication()
+
+        when {
+            message != null -> Toast.makeText(context, message(context), duration)
+            messageResId != null -> Toast.makeText(context, messageResId, duration)
+            else -> return@withContext null
+        }.also { it.show() }
     }
 }
