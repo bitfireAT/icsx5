@@ -37,6 +37,7 @@
     <uses-permission android:name="at.techbee.jtx.permission.WRITE" tools:node="remove" />
 
     <application
+        android:name="at.bitfire.icsdroid.App"
         android:allowBackup="true"
         android:fullBackupOnly="true"
         android:fullBackupContent="@xml/backup_rules"
