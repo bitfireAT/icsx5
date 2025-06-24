@@ -25,7 +25,7 @@ android {
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "at.bitfire.icsdroid.HiltTestRunner"
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
