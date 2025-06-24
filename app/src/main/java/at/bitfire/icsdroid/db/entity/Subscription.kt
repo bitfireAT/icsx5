@@ -7,9 +7,12 @@ package at.bitfire.icsdroid.db.entity
 import android.net.Uri
 import android.provider.CalendarContract.Calendars
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import at.bitfire.icsdroid.getStringOrNull
+import org.json.JSONObject
 
 /**
  * Represents the storage of a subscription the user has made.
@@ -49,6 +52,19 @@ data class Subscription(
     /** The color that represents the subscription. */
     val color: Int? = null
 ) {
+    constructor(json: JSONObject): this(
+        url = json.getString(JSON_URL).toUri(),
+        eTag = json.getStringOrNull(JSON_ETAG),
+        displayName = json.getString(JSON_DISPLAY_NAME),
+        lastModified = json.getStringOrNull(JSON_LAST_MODIFIED)?.toLongOrNull(),
+        lastSync = json.getStringOrNull(JSON_LAST_SYNC)?.toLongOrNull(),
+        errorMessage = json.getStringOrNull(JSON_ERROR_MESSAGE),
+        ignoreEmbeddedAlerts = json.getStringOrNull(JSON_IGNORE_ALERTS).toBoolean(),
+        defaultAlarmMinutes = json.getStringOrNull(JSON_DEFAULT_ALARM)?.toLongOrNull(),
+        defaultAllDayAlarmMinutes = json.getStringOrNull(JSON_DEFAULT_ALL_DAY_ALARM)?.toLongOrNull(),
+        ignoreDescription = json.getStringOrNull(JSON_IGNORE_DESCRIPTION).toBoolean(),
+        color = json.getStringOrNull(JSON_COLOR)?.toIntOrNull(),
+    )
 
     /**
      * Converts this subscription's properties to [android.content.ContentValues] that can be
@@ -61,5 +77,34 @@ data class Subscription(
         Calendars.CALENDAR_ACCESS_LEVEL to Calendars.CAL_ACCESS_READ,
         Calendars.SYNC_EVENTS to 1
     )
+
+    fun toJSON(): JSONObject = JSONObject().apply {
+        put(JSON_URL, url)
+        eTag?.let { put(JSON_ETAG, it) }
+        put(JSON_DISPLAY_NAME, displayName)
+        lastModified?.let { put(JSON_LAST_MODIFIED, it) }
+        lastSync?.let { put(JSON_LAST_SYNC, it) }
+        errorMessage?.let { put(JSON_ERROR_MESSAGE, it) }
+        put(JSON_IGNORE_ALERTS, ignoreEmbeddedAlerts)
+        defaultAlarmMinutes?.let { put(JSON_DEFAULT_ALARM, it) }
+        defaultAllDayAlarmMinutes?.let { put(JSON_DEFAULT_ALL_DAY_ALARM, it) }
+        put(JSON_IGNORE_DESCRIPTION, ignoreDescription)
+        color?.let { put(JSON_COLOR, it) }
+    }
+
+
+    companion object {
+        const val JSON_URL = "url"
+        const val JSON_ETAG = "eTag"
+        const val JSON_DISPLAY_NAME = "displayName"
+        const val JSON_LAST_MODIFIED = "lastModified"
+        const val JSON_LAST_SYNC = "lastSync"
+        const val JSON_ERROR_MESSAGE = "errorMessage"
+        const val JSON_IGNORE_ALERTS = "ignoreEmbeddedAlerts"
+        const val JSON_DEFAULT_ALARM = "defaultAlarmMinutes"
+        const val JSON_DEFAULT_ALL_DAY_ALARM = "defaultAllDayAlarmMinutes"
+        const val JSON_IGNORE_DESCRIPTION = "ignoreDescription"
+        const val JSON_COLOR = "color"
+    }
 
 }
