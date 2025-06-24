@@ -1,12 +1,12 @@
 package at.bitfire.icsdroid.model
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
@@ -14,17 +14,20 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import java.net.URI
-import java.net.URISyntaxException
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import java.net.URI
+import java.net.URISyntaxException
+import javax.inject.Inject
 
-class CreateSubscriptionModel(application: Application) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(getApplication())
-    private val subscriptionsDao = database.subscriptionsDao()
-    private val credentialsDao = database.credentialsDao()
+@HiltViewModel
+class CreateSubscriptionModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val db: AppDatabase
+) : ViewModel() {
 
     data class UiState(
         val success: Boolean = false,
@@ -61,7 +64,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 )
 
                 /** A list of all the ids of the inserted rows */
-                val id = subscriptionsDao.add(subscription)
+                val id = db.subscriptionsDao().add(subscription)
 
                 // Create the credential in the IO thread
                 if (credentialsModel.uiState.requiresAuth) {
@@ -74,12 +77,12 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                             username = username,
                             password = password
                         )
-                        credentialsDao.create(credential)
+                        db.credentialsDao().create(credential)
                     }
                 }
 
                 // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication())
+                SyncWorker.run(context)
 
                 uiState = uiState.copy(success = true)
             } catch (e: Exception) {
@@ -156,7 +159,7 @@ class CreateSubscriptionModel(application: Application) : AndroidViewModel(appli
                 }
 
                 else -> {
-                    errorMsg = getApplication<Application>().getString(R.string.add_calendar_need_valid_uri)
+                    errorMsg = context.getString(R.string.add_calendar_need_valid_uri)
                     return null
                 }
             }

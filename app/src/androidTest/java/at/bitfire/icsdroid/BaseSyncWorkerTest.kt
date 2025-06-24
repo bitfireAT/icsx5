@@ -21,7 +21,6 @@ import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
@@ -68,8 +67,6 @@ class BaseSyncWorkerTest {
     fun prepareDatabase() {
         db = Room.inMemoryDatabaseBuilder(applicationContext, AppDatabase::class.java).build()
         subscriptionsDao = db.subscriptionsDao()
-
-        AppDatabase.setInstance(db)
     }
 
     @After
@@ -77,7 +74,6 @@ class BaseSyncWorkerTest {
     fun closeDatabase() {
         db.clearAllTables()
         db.close()
-        AppDatabase.setInstance(null)
     }
 
     private suspend fun runWorkerAndGetResult(): WorkInfo? {
