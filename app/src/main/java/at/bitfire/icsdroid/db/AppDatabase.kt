@@ -56,7 +56,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun provideAppDatabase(
             @ApplicationContext context: Context
         ): AppDatabase = Room
-            .databaseBuilder(context, AppDatabase::class.java, "icsx5.db")
+            .databaseBuilder(context, AppDatabase::class.java, "icsx5")
             .fallbackToDestructiveMigration(true)
             .addCallback(object : Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
