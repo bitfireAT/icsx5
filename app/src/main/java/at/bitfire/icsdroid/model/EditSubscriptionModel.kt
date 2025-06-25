@@ -50,8 +50,7 @@ class EditSubscriptionModel(
      * Updates the loaded subscription from the data provided by the view models.
      */
     fun updateSubscription(
-        subscriptionSettingsModel: SubscriptionSettingsModel,
-        credentialsModel: CredentialsModel
+        subscriptionSettingsModel: SubscriptionSettingsModel
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             subscription.firstOrNull()?.let { subscription ->
@@ -65,9 +64,9 @@ class EditSubscriptionModel(
                 )
                 subscriptionsDao.update(newSubscription)
 
-                if (credentialsModel.uiState.requiresAuth) {
-                    val username = credentialsModel.uiState.username
-                    val password = credentialsModel.uiState.password
+                if (subscriptionSettingsModel.uiState.requiresAuth) {
+                    val username = subscriptionSettingsModel.uiState.username
+                    val password = subscriptionSettingsModel.uiState.password
                     if (username != null && password != null)
                         credentialsDao.upsert(Credential(subscriptionId, username, password))
                 } else

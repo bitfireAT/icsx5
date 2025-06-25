@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.ResourceInfo
@@ -49,7 +48,6 @@ import kotlinx.coroutines.launch
 fun AddCalendarScreen(
     createSubscriptionModel: CreateSubscriptionModel,
     subscriptionSettingsModel: SubscriptionSettingsModel,
-    credentialsModel: CredentialsModel,
     validationModel: ValidationModel,
     onPickFileRequested: () -> Unit,
     checkUrlIntroductionPage: () -> Unit,
@@ -61,9 +59,9 @@ fun AddCalendarScreen(
     // Receive updates for the URL introduction page
     LaunchedEffect(
         subscriptionSettingsModel.uiState.url,
-        credentialsModel.uiState.requiresAuth,
-        credentialsModel.uiState.username,
-        credentialsModel.uiState.password,
+        subscriptionSettingsModel.uiState.requiresAuth,
+        subscriptionSettingsModel.uiState.username,
+        subscriptionSettingsModel.uiState.password,
         validationModel.uiState.isVerifyingUrl
     ) {
         checkUrlIntroductionPage()
@@ -103,13 +101,13 @@ fun AddCalendarScreen(
 
     AddCalendarScreen(
         pagerState = pagerState,
-        requiresAuth = credentialsModel.uiState.requiresAuth,
-        onRequiresAuthChange = credentialsModel::setRequiresAuth,
-        username = credentialsModel.uiState.username,
-        onUsernameChange = credentialsModel::setUsername,
-        password = credentialsModel.uiState.password,
-        onPasswordChange = credentialsModel::setPassword,
-        isInsecure = credentialsModel.uiState.isInsecure,
+        requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
+        onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
+        username = subscriptionSettingsModel.uiState.username,
+        onUsernameChange = subscriptionSettingsModel::setUsername,
+        password = subscriptionSettingsModel.uiState.password,
+        onPasswordChange = subscriptionSettingsModel::setPassword,
+        isInsecure = subscriptionSettingsModel.uiState.isInsecure,
         url = subscriptionSettingsModel.uiState.url,
         onUrlChange = {
             subscriptionSettingsModel.setUrl(it)
@@ -141,24 +139,24 @@ fun AddCalendarScreen(
                 // First page (Enter Url)
                 0 -> {
                     // flush the credentials if auth toggle is disabled
-                    if (!credentialsModel.uiState.requiresAuth) {
-                        credentialsModel.clearCredentials()
+                    if (!subscriptionSettingsModel.uiState.requiresAuth) {
+                        subscriptionSettingsModel.clearCredentials()
                     }
 
                     val uri: Uri? = subscriptionSettingsModel.uiState.url?.let(Uri::parse)
-                    val authenticate = credentialsModel.uiState.requiresAuth
+                    val authenticate = subscriptionSettingsModel.uiState.requiresAuth
 
                     if (uri != null) {
                         validationModel.validate(
                             uri,
-                            if (authenticate) credentialsModel.uiState.username else null,
-                            if (authenticate) credentialsModel.uiState.password else null
+                            if (authenticate) subscriptionSettingsModel.uiState.username else null,
+                            if (authenticate) subscriptionSettingsModel.uiState.password else null
                         )
                     }
                 }
                 // Second page (details and confirm)
                 1 -> {
-                    createSubscriptionModel.create(subscriptionSettingsModel, credentialsModel)
+                    createSubscriptionModel.create(subscriptionSettingsModel)
                 }
             }
         },

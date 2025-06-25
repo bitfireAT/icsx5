@@ -48,7 +48,6 @@ class CreateSubscriptionModel @Inject constructor(
      */
     fun create(
         subscriptionSettingsModel: SubscriptionSettingsModel,
-        credentialsModel: CredentialsModel,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             uiState = uiState.copy(isCreating = true)
@@ -67,10 +66,10 @@ class CreateSubscriptionModel @Inject constructor(
                 val id = db.subscriptionsDao().add(subscription)
 
                 // Create the credential in the IO thread
-                if (credentialsModel.uiState.requiresAuth) {
+                if (subscriptionSettingsModel.uiState.requiresAuth) {
                     // If the subscription requires credentials, create them
-                    val username = credentialsModel.uiState.username
-                    val password = credentialsModel.uiState.password
+                    val username = subscriptionSettingsModel.uiState.username
+                    val password = subscriptionSettingsModel.uiState.password
                     if (username != null && password != null) {
                         val credential = Credential(
                             subscriptionId = id,
@@ -176,8 +175,7 @@ class CreateSubscriptionModel @Inject constructor(
 
     fun checkUrlIntroductionPage(
         subscriptionSettingsModel: SubscriptionSettingsModel,
-        validationModel: ValidationModel,
-        credentialsModel: CredentialsModel
+        validationModel: ValidationModel
     ) {
         if (validationModel.uiState.isVerifyingUrl) {
             setShowNextButton(true)
@@ -186,18 +184,18 @@ class CreateSubscriptionModel @Inject constructor(
                 url = subscriptionSettingsModel.uiState.url,
                 onSetUrl = subscriptionSettingsModel::setUrl,
                 onSetCredentials = { username, password ->
-                    credentialsModel.setUsername(username)
-                    credentialsModel.setPassword(password)
+                    subscriptionSettingsModel.setUsername(username)
+                    subscriptionSettingsModel.setPassword(password)
                 },
-                requiresAuth = credentialsModel.uiState.requiresAuth,
-                onSetRequiresAuth = credentialsModel::setRequiresAuth,
-                onSetIsInsecure = credentialsModel::setIsInsecure,
+                requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
+                onSetRequiresAuth = subscriptionSettingsModel::setRequiresAuth,
+                onSetIsInsecure = subscriptionSettingsModel::setIsInsecure,
                 onSetUrlError = subscriptionSettingsModel::setUrlError
             )
             val authOK =
-                if (credentialsModel.uiState.requiresAuth)
-                    !credentialsModel.uiState.username.isNullOrEmpty() &&
-                            !credentialsModel.uiState.password.isNullOrEmpty()
+                if (subscriptionSettingsModel.uiState.requiresAuth)
+                    !subscriptionSettingsModel.uiState.username.isNullOrEmpty() &&
+                            !subscriptionSettingsModel.uiState.password.isNullOrEmpty()
                 else
                     true
             setShowNextButton(uri != null && authOK)

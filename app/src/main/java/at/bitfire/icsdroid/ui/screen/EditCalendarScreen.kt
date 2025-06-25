@@ -33,7 +33,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.EditCalendarModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
@@ -50,13 +49,12 @@ fun EditCalendarScreen(
     onExit: () -> Unit = {}
 ) {
     val applicationContext = LocalContext.current.applicationContext
-    val credentialsModel: CredentialsModel = hiltViewModel()
     val subscriptionSettingsModel: SubscriptionSettingsModel = hiltViewModel()
     val editSubscriptionModel: EditSubscriptionModel = viewModel {
         EditSubscriptionModel(applicationContext as Application, subscriptionId)
     }
     val editCalendarModel: EditCalendarModel = viewModel {
-        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)
+        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel)
     }
     val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
     EditCalendarScreen(
@@ -65,7 +63,7 @@ fun EditCalendarScreen(
         successMessage = editCalendarModel.editSubscriptionModel.uiState.successMessage,
         onDelete = editSubscriptionModel::removeSubscription,
         onSave = {
-            editSubscriptionModel.updateSubscription(subscriptionSettingsModel, credentialsModel)
+            editSubscriptionModel.updateSubscription(subscriptionSettingsModel)
         },
         onShare = {
             subscription.value?.let {
@@ -92,12 +90,12 @@ fun EditCalendarScreen(
         isCreating = false,
 
         // Credentials model
-        requiresAuth = credentialsModel.uiState.requiresAuth,
-        username = credentialsModel.uiState.username,
-        password = credentialsModel.uiState.password,
-        onRequiresAuthChange = credentialsModel::setRequiresAuth,
-        onUsernameChange = credentialsModel::setUsername,
-        onPasswordChange = credentialsModel::setPassword,
+        requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
+        username = subscriptionSettingsModel.uiState.username,
+        password = subscriptionSettingsModel.uiState.password,
+        onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
+        onUsernameChange = subscriptionSettingsModel::setUsername,
+        onPasswordChange = subscriptionSettingsModel::setPassword,
     )
 }
 @Composable
