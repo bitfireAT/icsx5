@@ -11,7 +11,9 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.screen.EditCalendarScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditCalendarActivity: AppCompatActivity() {
 
     companion object {
@@ -24,7 +26,6 @@ class EditCalendarActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentThemed {
             EditCalendarScreen(
-                application,
                 subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1),
                 { onShare(it) },
                 { finish() }

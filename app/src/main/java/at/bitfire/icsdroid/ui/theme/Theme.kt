@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import at.bitfire.icsdroid.model.ThemeModel
 
 private val DarkColors = darkColorScheme(
@@ -85,7 +85,7 @@ fun AppTheme(
 fun ComponentActivity.setContentThemed(
     parent: CompositionContext? = null,
     darkTheme: @Composable () -> Boolean = {
-        val model = viewModel<ThemeModel>()
+        val model = hiltViewModel<ThemeModel>()
         val forceDarkTheme by model.forceDarkMode.collectAsState()
         forceDarkTheme || isSystemInDarkTheme()
     },

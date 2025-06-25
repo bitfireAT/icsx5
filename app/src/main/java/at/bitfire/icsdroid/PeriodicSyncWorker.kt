@@ -5,17 +5,21 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import java.time.Duration
 
-class PeriodicSyncWorker(
-    context: Context,
-    workerParams: WorkerParameters
+@HiltWorker
+class PeriodicSyncWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters
 ): BaseSyncWorker(context, workerParams) {
 
     companion object {

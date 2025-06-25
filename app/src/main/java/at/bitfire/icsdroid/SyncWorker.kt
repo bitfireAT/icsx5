@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
@@ -14,10 +15,13 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.Constants.TAG
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class SyncWorker(
-    context: Context,
-    workerParams: WorkerParameters
+@HiltWorker
+class SyncWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
 ) : BaseSyncWorker(context, workerParams) {
 
     companion object {

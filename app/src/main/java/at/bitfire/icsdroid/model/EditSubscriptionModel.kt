@@ -12,6 +12,10 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -21,7 +25,14 @@ class EditSubscriptionModel(
     private val subscriptionId: Long
 ): AndroidViewModel(application) {
 
-    private val db = AppDatabase.getInstance(application)
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface EditSubscriptionModelEntryPoint {
+        fun appDatabase(): AppDatabase
+    }
+
+    val db = EntryPointAccessors.fromApplication(application, EditSubscriptionModelEntryPoint::class.java).appDatabase()
+
     private val credentialsDao = db.credentialsDao()
     private val subscriptionsDao = db.subscriptionsDao()
 

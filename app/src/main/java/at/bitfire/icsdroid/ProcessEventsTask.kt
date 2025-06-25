@@ -18,6 +18,10 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
@@ -49,8 +53,13 @@ class ProcessEventsTask(
     val forceResync: Boolean
 ) {
 
-    private val db = AppDatabase.getInstance(context)
-    private val subscriptionsDao = db.subscriptionsDao()
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface ProcessEventsTaskEntryPoint {
+        fun appDatabase(): AppDatabase
+    }
+
+    val db = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java).appDatabase()
 
     private var exception: Throwable? = null
 
@@ -62,7 +71,7 @@ class ProcessEventsTask(
             dismissNotification()
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't sync calendar", e)
-            subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
+            db.subscriptionsDao().updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
             exception = e
             notifyError()
         }
@@ -156,7 +165,7 @@ class ProcessEventsTask(
                         processEvents(events, forceResync)
 
                         Log.i(Constants.TAG, "Calendar sync successful, ETag=$eTag, lastModified=$lastModified")
-                        subscriptionsDao.updateStatusSuccess(subscription.id, eTag, lastModified)
+                        db.subscriptionsDao().updateStatusSuccess(subscription.id, eTag, lastModified)
                     } catch (e: Exception) {
                         Log.e(Constants.TAG, "Couldn't process events", e)
                         exception = e
@@ -166,13 +175,13 @@ class ProcessEventsTask(
 
             override suspend fun onNotModified() {
                 Log.i(Constants.TAG, "Calendar has not been modified since last sync")
-                subscriptionsDao.updateStatusNotModified(subscription.id)
+                db.subscriptionsDao().updateStatusNotModified(subscription.id)
             }
 
             override suspend fun onNewPermanentUrl(target: Uri) {
                 super.onNewPermanentUrl(target)
                 Log.i(Constants.TAG, "Got permanent redirect, saving new URL: $target")
-                subscriptionsDao.updateUrl(subscription.id, target)
+                db.subscriptionsDao().updateUrl(subscription.id, target)
             }
 
             override suspend fun onError(error: Exception) {
@@ -183,8 +192,7 @@ class ProcessEventsTask(
         }
 
         // Get the credentials for the given subscription from the database
-        AppDatabase.getInstance(context)
-            .credentialsDao()
+        db.credentialsDao()
             .getBySubscriptionId(subscription.id)
             ?.let { (_, username, password) ->
                 downloader.username = username
@@ -199,7 +207,7 @@ class ProcessEventsTask(
         downloader.fetch()
 
         exception?.let { e ->
-            subscriptionsDao.updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
+            db.subscriptionsDao().updateStatusError(subscription.id, e.localizedMessage ?: e.toString())
             notifyError()
         }
     }
