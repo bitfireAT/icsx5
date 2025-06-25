@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateSubscriptionModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val db: AppDatabase
 ) : ViewModel() {
 

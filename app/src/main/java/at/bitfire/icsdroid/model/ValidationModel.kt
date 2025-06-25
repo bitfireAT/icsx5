@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ValidationModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ): ViewModel() {
 
     data class UiState(
