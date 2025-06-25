@@ -147,17 +147,16 @@ class SubscriptionsModel @Inject constructor(
 
     @SuppressLint("BatteryLife")
     fun onBatteryOptimizationWhitelist() {
-        val ctx = context
         val intent = Intent()
-        val pm : PowerManager = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (pm.isIgnoringBatteryOptimizations(ctx.packageName)) {
+        val pm : PowerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (pm.isIgnoringBatteryOptimizations(context.packageName)) {
             intent.action = android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
         } else {
             intent.action = android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-            intent.data = Uri.parse("package:${ctx.packageName}")
+            intent.data = Uri.parse("package:${context.packageName}")
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        ctx.startActivity(intent)
+        context.startActivity(intent)
     }
 
     @SuppressLint("InlinedApi")
