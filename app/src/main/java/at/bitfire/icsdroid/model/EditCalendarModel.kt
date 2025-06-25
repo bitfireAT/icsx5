@@ -33,7 +33,7 @@ class EditCalendarModel(
      */
     val inputValid: Boolean
         @Composable
-        get() = remember(subscriptionSettingsModel.uiState, subscriptionSettingsModel.uiState) {
+        get() = remember(subscriptionSettingsModel.uiState) {
             val title = subscriptionSettingsModel.uiState.title
             val requiresAuth = subscriptionSettingsModel.uiState.requiresAuth
             val username = subscriptionSettingsModel.uiState.username
@@ -52,7 +52,7 @@ class EditCalendarModel(
      */
     val modelsDirty: Boolean
         @Composable
-        get() = remember(subscriptionSettingsModel.uiState, subscriptionSettingsModel.uiState) {
+        get() = remember(subscriptionSettingsModel.uiState) {
             val requiresAuth = subscriptionSettingsModel.uiState.requiresAuth
 
             val credentialsDirty = initialRequiresAuthValue != requiresAuth ||
