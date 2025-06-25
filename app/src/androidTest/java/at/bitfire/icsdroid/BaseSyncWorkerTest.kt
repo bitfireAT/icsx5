@@ -5,9 +5,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.test.rule.GrantPermissionRule
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequestBuilder
@@ -19,10 +17,11 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
 import at.bitfire.icsdroid.BaseSyncWorker.Companion.FORCE_RESYNC
 import at.bitfire.icsdroid.db.AppDatabase
-import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull
@@ -30,60 +29,54 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
-import org.junit.ClassRule
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import java.io.IOException
 import java.util.UUID
+import javax.inject.Inject
 
-@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class BaseSyncWorkerTest {
 
-    companion object {
-        @JvmField
-        @ClassRule
-        val calendarPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.READ_CALENDAR,
-            Manifest.permission.WRITE_CALENDAR,
-        )
-    }
-    private val applicationContext: Context get() = ApplicationProvider.getApplicationContext()
+    @Inject @ApplicationContext
+    lateinit var applicationContext: Context
 
-    /** Provides an in-memory interface to the app's database */
-    private lateinit var db: AppDatabase
-    private lateinit var subscriptionsDao: SubscriptionsDao
+    @Inject
+    lateinit var db: AppDatabase
 
-    // Initialize the test WorkManager for scheduling workers
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
+
+    @get:Rule
+    val calendarPermissionRule: GrantPermissionRule? = GrantPermissionRule.grant(
+        Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR
+    )
+
     @Before
-    fun prepareWorkManager() {
+    fun setUp() {
+        hiltRule.inject()
+
+        // Initialize the test WorkManager for scheduling workers
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(Log.DEBUG)
+            .setWorkerFactory(workerFactory)
             .setExecutor(SynchronousExecutor())
             .build()
         WorkManagerTestInitHelper.initializeTestWorkManager(applicationContext, config)
     }
 
-    // Initialize the Room database
-    @Before
-    fun prepareDatabase() {
-        db = Room.inMemoryDatabaseBuilder(applicationContext, AppDatabase::class.java).build()
-        subscriptionsDao = db.subscriptionsDao()
-
-        AppDatabase.setInstance(db)
-    }
-
     @After
-    @Throws(IOException::class)
     fun closeDatabase() {
         db.clearAllTables()
         db.close()
-        AppDatabase.setInstance(null)
     }
 
     private suspend fun runWorkerAndGetResult(): WorkInfo? {
         // Run the worker
         val uuid = UUID.randomUUID()
-        val request = OneTimeWorkRequestBuilder<BaseSyncWorker>()
+        val request = OneTimeWorkRequestBuilder<TestSyncWorker>()
             .setId(uuid)
             .setInputData(workDataOf(FORCE_RESYNC to true))
             .build()
@@ -112,9 +105,9 @@ class BaseSyncWorkerTest {
     @Test
     fun syncSingleLocal() = runBlocking {
         // Insert a sample subscription
-        subscriptionsDao.add(
+        db.subscriptionsDao().add(
             Subscription(
-                url = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.sample}"),
+                url = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}.test/${R.raw.sample}"),
                 displayName = "Local Subscription"
             )
         )
@@ -130,14 +123,14 @@ class BaseSyncWorkerTest {
     @Test
     fun syncLocalAndRemoteNotFound() = runBlocking {
         // Insert a local subscription (success)
-        subscriptionsDao.add(
+        db.subscriptionsDao().add(
             Subscription(
-                url = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.sample}"),
+                url = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}.test/${R.raw.sample}"),
                 displayName = "Local Subscription"
             )
         )
         // Insert a remote subscription that doesn't exist (failure)
-        subscriptionsDao.add(
+        db.subscriptionsDao().add(
             Subscription(
                 url = Uri.parse("https://example.com/invalid.ics"),
                 displayName = "Remote Subscription"

@@ -28,7 +28,9 @@ import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.screen.AddCalendarScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AddCalendarActivity : AppCompatActivity() {
 
     companion object {

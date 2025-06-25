@@ -6,7 +6,6 @@ package at.bitfire.icsdroid.ui.views
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,8 +22,11 @@ import at.bitfire.icsdroid.ui.screen.CalendarListScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_ERROR_MESSAGE
 import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_THROWABLE
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.ServiceLoader
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CalendarListActivity: AppCompatActivity() {
 
     companion object {
@@ -48,7 +50,8 @@ class CalendarListActivity: AppCompatActivity() {
         const val EXTRA_THROWABLE = "errorThrowable"
     }
 
-    private val model by viewModels<SubscriptionsModel>()
+    @Inject
+    lateinit var model: SubscriptionsModel
 
     /** Stores the calendar permission request for asking for calendar permissions during runtime */
     private lateinit var requestCalendarPermissions: () -> Unit

@@ -13,11 +13,16 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import javax.inject.Inject
 
-open class BaseSyncWorker(
+abstract class BaseSyncWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
+
+    @Inject
+    lateinit var db: AppDatabase
+
     companion object {
         /**
          * An input data (Boolean) for the Worker that tells whether the synchronization should
@@ -26,10 +31,6 @@ open class BaseSyncWorker(
         const val FORCE_RESYNC = "forceResync"
 
     }
-
-    private val database = AppDatabase.getInstance(applicationContext)
-    private val subscriptionsDao = database.subscriptionsDao()
-    private val credentialsDao = database.credentialsDao()
 
     private val account = AppAccount.get(applicationContext)
     lateinit var provider: ContentProviderClient
@@ -57,7 +58,7 @@ open class BaseSyncWorker(
             AndroidCalendar.insertColors(provider, account)
 
             // sync local calendars
-            for (subscription in subscriptionsDao.getAll()) {
+            for (subscription in db.subscriptionsDao().getAll()) {
                 // Make sure the subscription has a matching calendar
                 subscription.calendarId ?: continue
                 val calendar = LocalCalendar.findById(account, provider, subscription.calendarId)
@@ -101,7 +102,7 @@ open class BaseSyncWorker(
      */
     private suspend fun updateLocalCalendars() {
         // subscriptions from DB
-        val subscriptions = subscriptionsDao.getAll()
+        val subscriptions = db.subscriptionsDao().getAll()
 
         // local calendars from provider as Map: <Calendar ID, LocalCalendar>
         val calendars =
@@ -124,7 +125,7 @@ open class BaseSyncWorker(
                 val uri = AndroidCalendar.create(account, provider, subscription.toCalendarProperties())
                 // update calendar ID in DB
                 val newCalendarId = ContentUris.parseId(uri)
-                subscriptionsDao.updateCalendarId(subscription.id, newCalendarId)
+                db.subscriptionsDao().updateCalendarId(subscription.id, newCalendarId)
 
             } else {
                 // local calendar already existing, update accordingly

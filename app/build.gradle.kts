@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.aboutLibs)
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt)
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
@@ -24,7 +25,7 @@ android {
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "at.bitfire.icsdroid.HiltTestRunner"
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
@@ -122,6 +123,13 @@ dependencies {
     implementation(libs.compose.dialogs.color)
     implementation(libs.compose.dialogs.core)
 
+    // Hilt
+    implementation(libs.hilt.android.base)
+    ksp(libs.androidx.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
+
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.activityCompose)
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.core)
@@ -158,6 +166,7 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.work.testing)
+    androidTestImplementation(libs.hilt.android.testing)
 
     testImplementation(libs.junit)
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
@@ -44,15 +45,15 @@ import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
 @Composable
 fun EditCalendarScreen(
-    application: Application,
     subscriptionId: Long,
     onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit = {}
 ) {
-    val credentialsModel: CredentialsModel = viewModel()
-    val subscriptionSettingsModel: SubscriptionSettingsModel = viewModel()
+    val applicationContext = LocalContext.current.applicationContext
+    val credentialsModel: CredentialsModel = hiltViewModel()
+    val subscriptionSettingsModel: SubscriptionSettingsModel = hiltViewModel()
     val editSubscriptionModel: EditSubscriptionModel = viewModel {
-        EditSubscriptionModel(application, subscriptionId)
+        EditSubscriptionModel(applicationContext as Application, subscriptionId)
     }
     val editCalendarModel: EditCalendarModel = viewModel {
         EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel, credentialsModel)

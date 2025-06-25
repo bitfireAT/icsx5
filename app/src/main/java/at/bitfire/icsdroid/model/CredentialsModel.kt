@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.db.entity.Credential
-import kotlinx.coroutines.flow.MutableStateFlow
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class CredentialsModel : ViewModel() {
+@HiltViewModel
+class CredentialsModel @Inject constructor(): ViewModel() {
     data class UiState(
         val requiresAuth: Boolean = false,
         val username: String? = null,

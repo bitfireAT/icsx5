@@ -1,7 +1,6 @@
 package at.bitfire.icsdroid.model
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -16,7 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.getSystemService
 import androidx.datastore.preferences.core.edit
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import at.bitfire.icsdroid.AppAccount
@@ -29,6 +28,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -40,10 +40,14 @@ import org.json.JSONException
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import javax.inject.Inject
 
-class SubscriptionsModel(application: Application): AndroidViewModel(application) {
+class SubscriptionsModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val db: AppDatabase,
+): ViewModel() {
 
-    private val settings = Settings(application)
+    private val settings = Settings(context)
 
     data class UiState(
         val askForCalendarPermission: Boolean = false,
@@ -56,21 +60,20 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         private set
 
     /** whether there are running sync workers */
-    val isRefreshing = SyncWorker.statusFlow(application).map { workInfos ->
+    val isRefreshing = SyncWorker.statusFlow(context).map { workInfos ->
         workInfos.any { it.state == WorkInfo.State.RUNNING }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val subscriptionsDao = AppDatabase.getInstance(application).subscriptionsDao()
-
     /** LiveData watching the subscriptions */
-    val subscriptions = subscriptionsDao
+    val subscriptions = db
+        .subscriptionsDao()
         .getAllFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val forceDarkMode = settings.forceDarkModeFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val syncInterval = AppAccount.getSyncIntervalFlow(application)
+    val syncInterval = AppAccount.getSyncIntervalFlow(context)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppAccount.DEFAULT_SYNC_INTERVAL)
 
     init {
@@ -81,7 +84,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     private fun migrateSharedPreferencesToDataStore() = viewModelScope.launch(Dispatchers.IO) {
-        val context = getApplication<Application>()
+        val context = context
         val dataStore = context.dataStore
         // These preferences are the ones used in Settings. DonateDialogService in OSE use another
         // storage. Since it's only used for showing a dialog, we don't migrate it for simplicity.
@@ -102,13 +105,13 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
      * user through a Snackbar.
      */
     fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
-        val haveNotificationPermission = PermissionUtils.haveNotificationPermission(getApplication())
+        val haveNotificationPermission = PermissionUtils.haveNotificationPermission(context)
         uiState = uiState.copy(askForNotificationPermission = !haveNotificationPermission)
 
-        val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(getApplication())
+        val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(context)
         uiState = uiState.copy(askForCalendarPermission = !haveCalendarPermission)
 
-        val powerManager = getApplication<Application>().getSystemService<PowerManager>()
+        val powerManager = context.getSystemService<PowerManager>()
         val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(
             BuildConfig.APPLICATION_ID)
 
@@ -118,7 +121,7 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
 
         // Make sure permissions are not revoked automatically
         val isAutoRevokeWhitelisted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getApplication<Application>().packageManager.isAutoRevokeWhitelisted
+            context.packageManager.isAutoRevokeWhitelisted
         } else {
             true
         }
@@ -126,41 +129,40 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onRefreshRequested() {
-        SyncWorker.run(getApplication(), force = true)
+        SyncWorker.run(context, force = true)
     }
 
     fun onForceRefreshRequested() {
-        SyncWorker.run(getApplication(), force =true, forceResync = true)
+        SyncWorker.run(context, force =true, forceResync = true)
     }
 
     fun onToggleDarkMode(forceDarkMode: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        val settings = Settings(getApplication())
+        val settings = Settings(context)
         settings.forceDarkMode(forceDarkMode)
     }
 
     fun onSyncIntervalChange(interval: Long) {
-        AppAccount.setSyncInterval(getApplication(), interval)
+        AppAccount.setSyncInterval(context, interval)
     }
 
     @SuppressLint("BatteryLife")
     fun onBatteryOptimizationWhitelist() {
-        val ctx = getApplication<Application>()
         val intent = Intent()
-        val pm : PowerManager = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (pm.isIgnoringBatteryOptimizations(ctx.packageName)) {
+        val pm : PowerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (pm.isIgnoringBatteryOptimizations(context.packageName)) {
             intent.action = android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
         } else {
             intent.action = android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-            intent.data = Uri.parse("package:${ctx.packageName}")
+            intent.data = Uri.parse("package:${context.packageName}")
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        ctx.startActivity(intent)
+        context.startActivity(intent)
     }
 
     @SuppressLint("InlinedApi")
     fun onAutoRevoke() {
         Toast.makeText(
-            getApplication(),
+            context,
             R.string.calendar_list_autorevoke_permissions_instruction,
             Toast.LENGTH_LONG
         ).show()
@@ -170,11 +172,10 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
             Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
         ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
 
-        getApplication<Application>().startActivity(intent)
+        context.startActivity(intent)
     }
 
     fun onBackupExportRequested(uri: Uri) {
-        val context: Context = getApplication()
         viewModelScope.launch(Dispatchers.IO) {
             val toast = toastAsync(
                 messageResId = R.string.backup_exporting,
@@ -211,7 +212,6 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
     }
 
     fun onBackupImportRequested(uri: Uri) {
-        val context: Context = getApplication()
         viewModelScope.launch(Dispatchers.IO) {
             val toast = toastAsync(
                 messageResId = R.string.backup_importing,
@@ -253,11 +253,11 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
                 }
 
                 // Run the database updates
-                subscriptionsDao.delete(*toDelete)
-                subscriptionsDao.add(toAdd)
+                db.subscriptionsDao().delete(*toDelete)
+                db.subscriptionsDao().add(toAdd)
 
                 // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication())
+                SyncWorker.run(context)
 
                 toastAsync(
                     message = {
@@ -297,7 +297,6 @@ class SubscriptionsModel(application: Application): AndroidViewModel(application
         duration: Int = Toast.LENGTH_SHORT
     ): Toast? = withContext(Dispatchers.Main) {
         cancelToast?.cancel()
-        val context: Context = getApplication()
 
         when {
             message != null -> Toast.makeText(context, message(context), duration)
