@@ -23,7 +23,6 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.model.CredentialsModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.screen.AddCalendarScreen
@@ -39,7 +38,6 @@ class AddCalendarActivity : AppCompatActivity() {
     }
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
-    private val credentialsModel by viewModels<CredentialsModel>()
     private val validationModel by viewModels<ValidationModel>()
     private val createSubscriptionModel by viewModels<CreateSubscriptionModel>()
 
@@ -94,8 +92,7 @@ class AddCalendarActivity : AppCompatActivity() {
                                 ?.also {
                                     createSubscriptionModel.checkUrlIntroductionPage(
                                         subscriptionSettingsModel,
-                                        validationModel,
-                                        credentialsModel
+                                        validationModel
                                     )
                                 }
                         } catch (_: IllegalArgumentException) {
@@ -108,8 +105,7 @@ class AddCalendarActivity : AppCompatActivity() {
                             ?.also {
                                 createSubscriptionModel.checkUrlIntroductionPage(
                                     subscriptionSettingsModel,
-                                    validationModel,
-                                    credentialsModel
+                                    validationModel
                                 )
                             }
 
@@ -126,15 +122,13 @@ class AddCalendarActivity : AppCompatActivity() {
                 AddCalendarScreen(
                     createSubscriptionModel = createSubscriptionModel,
                     subscriptionSettingsModel = subscriptionSettingsModel,
-                    credentialsModel = credentialsModel,
                     validationModel = validationModel,
                     onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
                     finish = ::finish,
                     checkUrlIntroductionPage = {
                         createSubscriptionModel.checkUrlIntroductionPage(
                             subscriptionSettingsModel,
-                            validationModel,
-                            credentialsModel
+                            validationModel
                         )
                     }
                 )

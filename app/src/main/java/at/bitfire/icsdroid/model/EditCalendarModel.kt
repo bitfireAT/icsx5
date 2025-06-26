@@ -11,8 +11,7 @@ import kotlinx.coroutines.launch
 
 class EditCalendarModel(
     val editSubscriptionModel: EditSubscriptionModel,
-    val subscriptionSettingsModel: SubscriptionSettingsModel,
-    val credentialsModel: CredentialsModel
+    val subscriptionSettingsModel: SubscriptionSettingsModel
 ): ViewModel() {
 
     private var initialSubscription: Subscription? = null
@@ -34,11 +33,11 @@ class EditCalendarModel(
      */
     val inputValid: Boolean
         @Composable
-        get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
+        get() = remember(subscriptionSettingsModel.uiState) {
             val title = subscriptionSettingsModel.uiState.title
-            val requiresAuth = credentialsModel.uiState.requiresAuth
-            val username = credentialsModel.uiState.username
-            val password = credentialsModel.uiState.password
+            val requiresAuth = subscriptionSettingsModel.uiState.requiresAuth
+            val username = subscriptionSettingsModel.uiState.username
+            val password = subscriptionSettingsModel.uiState.password
 
             val titleOK = !title.isNullOrBlank()
             val authOK = if (requiresAuth)
@@ -53,11 +52,11 @@ class EditCalendarModel(
      */
     val modelsDirty: Boolean
         @Composable
-        get() = remember(subscriptionSettingsModel.uiState, credentialsModel.uiState) {
-            val requiresAuth = credentialsModel.uiState.requiresAuth
+        get() = remember(subscriptionSettingsModel.uiState) {
+            val requiresAuth = subscriptionSettingsModel.uiState.requiresAuth
 
             val credentialsDirty = initialRequiresAuthValue != requiresAuth ||
-                    initialCredential?.let { !credentialsModel.equalsCredential(it) } ?: false
+                    initialCredential?.let { !subscriptionSettingsModel.equalsCredential(it) } ?: false
             val subscriptionsDirty = initialSubscription?.let {
                 !subscriptionSettingsModel.equalsSubscription(it)
             } ?: false
@@ -83,17 +82,17 @@ class EditCalendarModel(
 
         val credential = subscriptionWithCredential.credential
         val requiresAuth = credential != null
-        credentialsModel.setRequiresAuth(requiresAuth)
+        subscriptionSettingsModel.setRequiresAuth(requiresAuth)
 
         if (credential != null) {
-            credential.username.let(credentialsModel::setUsername)
-            credential.password.let(credentialsModel::setPassword)
+            credential.username.let(subscriptionSettingsModel::setUsername)
+            credential.password.let(subscriptionSettingsModel::setPassword)
         }
 
         // Save state, before user makes changes
         initialSubscription = subscription
         initialCredential = credential
-        initialRequiresAuthValue = credentialsModel.uiState.requiresAuth
+        initialRequiresAuthValue = subscriptionSettingsModel.uiState.requiresAuth
     }
 
 }
