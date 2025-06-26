@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ICSx⁵</string>
+
+    <string name="account_name">Sottoscrizioni calendario</string>
+    <string name="account_type" translatable="false">at.bitfire.icsdroid</string>
+
+    <!-- stringhe comuni -->
+    <string name="action_more">Altro</string>
+    <string name="calendar_permissions_required">Accesso al calendario</string>
+    <string name="calendar_permissions_required_text">Consente di accedere al database.</string>
+    <string name="notification_permissions_required">Permessi notifiche</string>
+    <string name="notification_permissions_required_text">Ti notifica gli errori.</string>
+    <string name="no_browser">Nessun browser installato</string>
+    <string name="notification_channel_sync_problem">Problemi di sincronizzazione</string>
+    <string name="permissions_grant">Concedi</string>
+    <string name="install_browser">Installa un browser Web</string>
+    <string name="required_annotation">Richiesto</string>
+
+    <!-- CalendarListActivity -->
+    <string name="title_activity_calendar_list">Le mie sottoscrizioni</string>
+    <string name="calendar_list_empty_info">Per sottoscrivere un feed Webcal, usa il pulsante + o apri un URL Webcal.</string>
+    <string name="calendar_list_info">Informazioni su ICSx⁵</string>
+    <string name="calendar_list_not_synced_yet">non ancora sincronizzato</string>
+    <string name="calendar_list_set_sync_interval">Imposta intervallo sincronizzazione</string>
+    <string name="calendar_list_force_sync">Forza sincronizzazione</string>
+    <string name="calendar_list_backup">Backup</string>
+    <string name="calendar_list_backup_export">Esporta backup</string>
+    <string name="calendar_list_backup_import">Importa backup</string>
+    <string name="calendar_list_battery_whitelist_title">Ottimizzazione batteria</string>
+    <string name="calendar_list_battery_whitelist_text">Le ottimizzazioni della batteria possono impedire intervalli di sincronizzazione inferiori a un giorno. Imposta %s su \"Non ottimizzato\".</string>
+    <string name="calendar_list_battery_whitelist_open_settings">Apri impostazioni</string>
+    <string name="calendar_list_autorevoke_permissions_title">Revoca automatica permessi</string>
+    <string name="calendar_list_autorevoke_permissions_text">Android revoca i permessi delle app raramente aperte. Disabilita per %s.</string>
+    <string name="calendar_list_autorevoke_permissions_instruction">Clicca su Permessi > deseleziona \"Rimuovi permessi se l'app non viene utilizzata\"</string>
+    <!-- impostazioni, attualmente in CalendarListActivity -->
+    <string name="calendar_list_privacy_policy">Informativa sulla privacy</string>
+    <string name="set_sync_interval_title">Imposta intervallo sincronizzazione:</string>
+    <string-array name="set_sync_interval_seconds" translatable="false">
+        <item>-1</item>
+        <item>900</item>
+        <item>3600</item>
+        <item>7200</item>
+        <item>14400</item>
+        <item>86400</item>
+        <item>604800</item>
+    </string-array>
+    <string-array name="set_sync_interval_names">
+        <item>Solo manualmente</item>
+        <item>Ogni 15 minuti</item>
+        <item>Ogni ora</item>
+        <item>Ogni 2 ore</item>
+        <item>Ogni 4 ore</item>
+        <item>Una volta al giorno</item>
+        <item>Una volta alla settimana</item>
+    </string-array>
+    <string name="settings_force_dark_theme">Forza tema scuro</string>
+
+    <!-- AddCalendarActivity -->
+    <string name="activity_add_calendar">Sottoscrivi calendario</string>
+    <string name="activity_add_calendar_subscribe">Sottoscrivi</string>
+    <string name="add_calendar_subscribe_url">Sottoscrivi URL</string>
+    <string name="add_calendar_subscribe_file">Sottoscrivi file</string>
+    <string name="add_calendar_need_valid_uri">URI valido richiesto</string>
+    <string name="add_calendar_authentication_title">Autenticazione</string>
+    <string name="add_calendar_authentication_without_https_warning">Terze parti possono intercettare facilmente le tue credenziali. Usa HTTPS per l'autenticazione sicura.</string>
+    <string name="add_calendar_created">Sottoscrizione avvenuta con successo</string>
+    <string name="add_calendar_password">Password</string>
+    <string name="add_calendar_password_hide">Nascondi password</string>
+    <string name="add_calendar_password_show">Mostra password</string>
+    <string name="add_calendar_requires_authentication">Richiede autenticazione</string>
+    <string name="add_calendar_title">Titolo e colore</string>
+    <string name="add_calendar_title_hint">Nome calendario</string>
+    <string name="add_calendar_pick_color">Scegli colore</string>
+    <string name="add_calendar_pick_url_label">Indirizzo Webcal</string>
+    <string name="add_calendar_pick_file_label">Percorso file</string>
+    <string name="add_calendar_url_sample" translatable="false">https://example.com/webcal.ics</string>
+    <string name="add_calendar_pick_file">Scegli file</string>
+    <string name="add_calendar_user_name">Nome utente</string>
+    <string name="add_calendar_validating">Validazione risorsa calendario…</string>
+    <string name="add_calendar_alarms_title">Allarmi</string>
+    <string name="add_calendar_alarms_ignore_title">Ignora avvisi incorporati nel calendario</string>
+    <string name="add_calendar_alarms_ignore_description">Se abilitato, tutti gli allarmi in arrivo dal server saranno ignorati.</string>
+    <string name="add_calendar_alarms_default_all_day_title">Aggiungi un allarme predefinito per eventi tutto il giorno</string>
+    <string name="default_alarm_dialog_title">Aggiungi allarme predefinito</string>
+    <string name="default_alarm_dialog_message">Questo aggiungerà un allarme per tutti gli eventi</string>
+    <string name="default_alarm_dialog_hint">Minuti prima dell'evento</string>
+    <string name="add_calendar_advanced_title">Avanzate</string>
+    <string name="add_calendar_description_title">Ignora campo DESCRIPTION</string>
+    <string name="add_calendar_description_summary">Se abilitato, il campo DESCRIPTION sarà rimosso dagli eventi. Utile se contiene informazioni spam.</string>
+
+    <!-- AlertFragment -->
+    <string name="alert_share_details">Condividi dettagli</string>
+
+    <!-- EditCalendarActivity -->
+    <string name="activity_edit_calendar">Modifica sottoscrizione</string>
+    <string name="edit_calendar_cancel">Annulla</string>
+    <string name="edit_calendar_delete">Annulla sottoscrizione</string>
+    <string name="edit_calendar_deleted">Sottoscrizione annullata con successo</string>
+    <string name="edit_calendar_dismiss">Ignora</string>
+    <string name="edit_calendar_really_delete">Vuoi davvero annullare la sottoscrizione a questo calendario?</string>
+    <string name="edit_calendar_edit">Modifica</string>
+    <string name="edit_calendar_need_valid_credentials">Nome utente e password richiesti</string>
+    <string name="edit_calendar_need_username">Nome utente richiesto</string>
+    <string name="edit_calendar_need_password">Password richiesta</string>
+    <string name="edit_calendar_save">Salva</string>
+    <string name="edit_calendar_saved">Modifiche salvate</string>
+    <string name="edit_calendar_send_url">Invia URL</string>
+    <string name="edit_calendar_unsaved_changes">Ci sono modifiche non salvate.</string>
+
+    <!-- synchronization -->
+    <string name="sync_error_title">Errore di sincronizzazione</string>
+    <string name="sync_permission_required">Permesso richiesto</string>
+    <string name="sync_permission_required_sync_calendar">Necessario il permesso per sincronizzare il calendario</string>
+    <string name="could_not_open_storage_file">Impossibile aprire il file dall'archivio</string>
+
+    <!-- InfoActivity -->
+    <string name="activity_app_info">Informazioni app</string>
+    <string name="app_info_version">Versione %1$s-%2$s</string>
+    <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) e contributori</string>
+    <string name="app_info_gplv3" translatable="false">GPLv3</string>
+    <string name="app_info_gplv3_note"><![CDATA["
+Questo programma è software libero: puoi ridistribuirlo e/o modificarlo
+secondo i termini della Licenza Pubblica Generica GNU come pubblicata
+dalla Free Software Foundation, sia la versione 3 della Licenza, che
+(a tua scelta) qualsiasi versione successiva.
+
+Questo programma è distribuito nella speranza che sia utile,
+ma SENZA ALCUNA GARANZIA; senza nemmeno la garanzia implicita di
+COMMERCIABILITÀ o IDONEITÀ PER UN PARTICOLARE SCOPO. Vedi la
+Licenza Pubblica Generica GNU per maggiori dettagli.
+
+Dovresti aver ricevuto una copia della Licenza Pubblica Generica GNU
+insieme a questo programma. In caso contrario, vedi <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
+    "]]></string>
+    <string name="app_info_donate">Dona</string>
+    <string name="app_info_web_site">Sito web</string>
+    <string name="app_info_mastodon" translatable="false">Mastodon</string>
+
+    <string name="donate_title">Informazioni Open-Source</string>
+    <string name="donate_message">Siamo felici che tu utilizzi ICSx⁵, che è un software open-source (GPLv3). Poiché sviluppare e mantenere ICSx⁵ è stato e continua ad essere molto lavoro, ti chiediamo di considerare una donazione.</string>
+    <string name="donate_now">Mostra pagina donazioni</string>
+    <string name="donate_later">Forse più tardi</string>
+
+    <string name="backup_warning_title">Attenzione!</string>
+    <string name="backup_warning_message">Il processo di importazione potrebbe sovrascrivere le sottoscrizioni attualmente aggiunte. Questa operazione non può essere annullata. Vuoi continuare?</string>
+    <string name="backup_exporting">Esportazione in corso…</string>
+    <string name="backup_exported">Backup esportato!</string>
+    <string name="backup_importing">Importazione in corso…</string>
+    <string name="backup_import_error_json">Errore di importazione! Il file è corrotto o non valido.</string>
+    <string name="backup_import_error_security">Errore di importazione! Il file non è accessibile.</string>
+    <string name="backup_import_error_io">Errore di importazione! Impossibile leggere il file.</string>
+    <string name="backup_export_error_io">Errore di esportazione! Impossibile scrivere il file.</string>
+    <plurals name="backup_imported">
+        <item quantity="one">%d sottoscrizione importata</item>
+        <item quantity="other">%d sottoscrizioni importate</item>
+    </plurals>
+</resources>
