@@ -1,11 +1,14 @@
 package at.bitfire.icsdroid.model
 
 import android.net.Uri
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.HttpUtils
+import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,8 +48,81 @@ class SubscriptionSettingsModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private var initialSubscription: Subscription? = null
+    private var initialCredential: Credential? = null
+    private var initialRequiresAuthValue: Boolean? = null
+
     var uiState by mutableStateOf(UiState())
         private set
+
+    /**
+     * Whether user input is error free
+     */
+    val inputValid: Boolean
+        @Composable
+        get() = remember(uiState) {
+            val title = uiState.title
+            val requiresAuth = uiState.requiresAuth
+            val username = uiState.username
+            val password = uiState.password
+
+            val titleOK = !title.isNullOrBlank()
+            val authOK = if (requiresAuth)
+                !username.isNullOrBlank() && !password.isNullOrBlank()
+            else
+                true
+            titleOK && authOK
+        }
+
+    /**
+     * Whether there are unsaved user changes
+     */
+    val modelsDirty: Boolean
+        @Composable
+        get() = remember(uiState) {
+            val requiresAuth = uiState.requiresAuth
+
+            val credentialsDirty = initialRequiresAuthValue != requiresAuth ||
+                    initialCredential?.let { !equalsCredential(it) } ?: false
+            val subscriptionsDirty = initialSubscription?.let {
+                !equalsSubscription(it)
+            } ?: false
+
+            credentialsDirty || subscriptionsDirty
+        }
+
+    /**
+     * Initialise view models and remember their initial state
+     */
+    fun onSubscriptionLoaded(
+        subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential,
+    ) {
+        val subscription = subscriptionWithCredential.subscription
+
+        setUrl(subscription.url.toString())
+        subscription.displayName.let {
+            setTitle(it)
+        }
+        subscription.color.let(::setColor)
+        subscription.ignoreEmbeddedAlerts.let(::setIgnoreAlerts)
+        subscription.defaultAlarmMinutes?.toString().let(::setDefaultAlarmMinutes)
+        subscription.defaultAllDayAlarmMinutes?.toString()?.let(::setDefaultAllDayAlarmMinutes)
+        subscription.ignoreDescription.let(::setIgnoreDescription)
+
+        val credential = subscriptionWithCredential.credential
+        val requiresAuth = credential != null
+        setRequiresAuth(requiresAuth)
+
+        if (credential != null) {
+            credential.username.let(::setUsername)
+            credential.password.let(::setPassword)
+        }
+
+        // Save state, before user makes changes
+        initialSubscription = subscription
+        initialCredential = credential
+        initialRequiresAuthValue = uiState.requiresAuth
+    }
 
     fun setUrl(value: String?) {
         uiState = uiState.copy(url = value)

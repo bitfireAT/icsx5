@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +34,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.model.EditCalendarModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
@@ -53,14 +53,19 @@ fun EditCalendarScreen(
     val editSubscriptionModel: EditSubscriptionModel = viewModel {
         EditSubscriptionModel(applicationContext as Application, subscriptionId)
     }
-    val editCalendarModel: EditCalendarModel = viewModel {
-        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel)
-    }
     val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
+
+    LaunchedEffect(Unit) {
+        editSubscriptionModel.subscriptionWithCredential.collect { data ->
+            data ?: return@collect
+            subscriptionSettingsModel.onSubscriptionLoaded(data)
+        }
+    }
+
     EditCalendarScreen(
-        inputValid = editCalendarModel.inputValid,
-        modelsDirty = editCalendarModel.modelsDirty,
-        successMessage = editCalendarModel.editSubscriptionModel.uiState.successMessage,
+        inputValid = subscriptionSettingsModel.inputValid,
+        modelsDirty = subscriptionSettingsModel.modelsDirty,
+        successMessage = editSubscriptionModel.uiState.successMessage,
         onDelete = editSubscriptionModel::removeSubscription,
         onSave = {
             editSubscriptionModel.updateSubscription(subscriptionSettingsModel)
@@ -71,7 +76,7 @@ fun EditCalendarScreen(
             }
         },
         onExit = onExit,
-        supportsAuthentication = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
+        supportsAuthentication = subscriptionSettingsModel.uiState.supportsAuthentication,
 
         // Subscription settings model
         url = subscriptionSettingsModel.uiState.url,
