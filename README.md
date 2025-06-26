@@ -25,7 +25,7 @@ We're happy about contributions! Just send a pull request for small changes or i
 of bigger changes, please let us know in the discussions before.
 
 ## Translations
-ICSx⁵ is available [on Transifex](https://www.transifex.com/bitfireAT/icsx5/). There you can propose
+ICSx⁵ is available [on Transifex](https://explore.transifex.com/bitfireAT/icsx5/). There you can propose
 changes to the translations, or create new ones. Feel free to suggest new languages, people will
 love it.
 
