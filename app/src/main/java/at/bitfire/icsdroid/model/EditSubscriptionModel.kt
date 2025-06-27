@@ -45,16 +45,6 @@ class EditSubscriptionModel @AssistedInject constructor(
         fun create(subscriptionId: Long): EditSubscriptionModel
     }
 
-    init {
-        // Initialise view models and save their initial state
-        viewModelScope.launch {
-            subscriptionWithCredential.collect { data ->
-                if (data != null)
-                    onSubscriptionLoaded(data)
-            }
-        }
-    }
-
     val db = EntryPointAccessors.fromApplication(context, EditSubscriptionModelEntryPoint::class.java).appDatabase()
 
     private val credentialsDao = db.credentialsDao()
@@ -106,6 +96,16 @@ class EditSubscriptionModel @AssistedInject constructor(
     val subscription = db.subscriptionsDao().getByIdFlow(subscriptionId)
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
 
+    init {
+        // Initialise view models and save their initial state
+        viewModelScope.launch {
+            subscriptionWithCredential.collect { data ->
+                if (data != null)
+                    onSubscriptionLoaded(data)
+            }
+        }
+    }
+
     /**
      * Initialise view models and remember their initial state
      */
@@ -113,9 +113,7 @@ class EditSubscriptionModel @AssistedInject constructor(
         val subscription = subscriptionWithCredential.subscription
 
         setUrl(subscription.url.toString())
-        subscription.displayName.let {
-            setTitle(it)
-        }
+        setTitle(subscription.displayName)
         subscription.color.let(::setColor)
         subscription.ignoreEmbeddedAlerts.let(::setIgnoreAlerts)
         subscription.defaultAlarmMinutes?.toString().let(::setDefaultAlarmMinutes)
