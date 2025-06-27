@@ -16,6 +16,7 @@ import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -26,8 +27,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class EditSubscriptionModel(
+@HiltViewModel(assistedFactory = EditSubscriptionModel.EditSubscriptionModelFactory::class)
+class EditSubscriptionModel @AssistedInject constructor(
     @param:ApplicationContext val context: Context,
     private val subscriptionId: Long
 ): SubscriptionSettingsModel() {
