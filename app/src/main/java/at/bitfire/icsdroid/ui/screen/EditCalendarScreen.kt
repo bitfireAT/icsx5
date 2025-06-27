@@ -1,6 +1,5 @@
 package at.bitfire.icsdroid.ui.screen
 
-import android.app.Application
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
@@ -30,12 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.model.EditCalendarModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
+import at.bitfire.icsdroid.model.EditSubscriptionModel.EditSubscriptionModelFactory
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.AppTheme
@@ -48,22 +45,17 @@ fun EditCalendarScreen(
     onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit = {}
 ) {
-    val applicationContext = LocalContext.current.applicationContext
-    val subscriptionSettingsModel: SubscriptionSettingsModel = hiltViewModel()
-    val editSubscriptionModel: EditSubscriptionModel = viewModel {
-        EditSubscriptionModel(applicationContext as Application, subscriptionId)
-    }
-    val editCalendarModel: EditCalendarModel = viewModel {
-        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel)
+    val editSubscriptionModel = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
+        factory.create(subscriptionId)
     }
     val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
     EditCalendarScreen(
-        inputValid = editCalendarModel.inputValid,
-        modelsDirty = editCalendarModel.modelsDirty,
-        successMessage = editCalendarModel.editSubscriptionModel.uiState.successMessage,
+        inputValid = editSubscriptionModel.inputValid,
+        modelsDirty = editSubscriptionModel.modelsDirty,
+        successMessage = editSubscriptionModel.successMessage,
         onDelete = editSubscriptionModel::removeSubscription,
         onSave = {
-            editSubscriptionModel.updateSubscription(subscriptionSettingsModel)
+            editSubscriptionModel.updateSubscription()
         },
         onShare = {
             subscription.value?.let {
@@ -71,31 +63,31 @@ fun EditCalendarScreen(
             }
         },
         onExit = onExit,
-        supportsAuthentication = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
+        supportsAuthentication = editSubscriptionModel.uiState.supportsAuthentication,
 
         // Subscription settings model
-        url = subscriptionSettingsModel.uiState.url,
-        title = subscriptionSettingsModel.uiState.title,
-        titleChanged = subscriptionSettingsModel::setTitle,
-        color = subscriptionSettingsModel.uiState.color,
-        colorChanged = subscriptionSettingsModel::setColor,
-        ignoreAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
-        ignoreAlertsChanged = subscriptionSettingsModel::setIgnoreAlerts,
-        defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-        defaultAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAlarmMinutes,
-        defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-        defaultAllDayAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
-        ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
-        onIgnoreDescriptionChanged = subscriptionSettingsModel::setIgnoreDescription,
+        url = editSubscriptionModel.uiState.url,
+        title = editSubscriptionModel.uiState.title,
+        titleChanged = editSubscriptionModel::setTitle,
+        color = editSubscriptionModel.uiState.color,
+        colorChanged = editSubscriptionModel::setColor,
+        ignoreAlerts = editSubscriptionModel.uiState.ignoreAlerts,
+        ignoreAlertsChanged = editSubscriptionModel::setIgnoreAlerts,
+        defaultAlarmMinutes = editSubscriptionModel.uiState.defaultAlarmMinutes,
+        defaultAlarmMinutesChanged = editSubscriptionModel::setDefaultAlarmMinutes,
+        defaultAllDayAlarmMinutes = editSubscriptionModel.uiState.defaultAllDayAlarmMinutes,
+        defaultAllDayAlarmMinutesChanged = editSubscriptionModel::setDefaultAllDayAlarmMinutes,
+        ignoreDescription = editSubscriptionModel.uiState.ignoreDescription,
+        onIgnoreDescriptionChanged = editSubscriptionModel::setIgnoreDescription,
         isCreating = false,
 
         // Credentials model
-        requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
-        username = subscriptionSettingsModel.uiState.username,
-        password = subscriptionSettingsModel.uiState.password,
-        onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
-        onUsernameChange = subscriptionSettingsModel::setUsername,
-        onPasswordChange = subscriptionSettingsModel::setPassword,
+        requiresAuth = editSubscriptionModel.uiState.requiresAuth,
+        username = editSubscriptionModel.uiState.username,
+        password = editSubscriptionModel.uiState.password,
+        onRequiresAuthChange = editSubscriptionModel::setRequiresAuth,
+        onUsernameChange = editSubscriptionModel::setUsername,
+        onPasswordChange = editSubscriptionModel::setPassword,
     )
 }
 @Composable

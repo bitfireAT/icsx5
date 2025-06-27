@@ -13,7 +13,7 @@ import java.net.URISyntaxException
 import javax.inject.Inject
 
 @HiltViewModel
-class SubscriptionSettingsModel @Inject constructor() : ViewModel() {
+open class SubscriptionSettingsModel @Inject constructor() : ViewModel() {
     data class UiState(
         val url: String? = null,
         val fileName: String? = null,
