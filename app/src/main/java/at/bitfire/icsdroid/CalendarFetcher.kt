@@ -155,8 +155,8 @@ open class CalendarFetcher(
                     // 20x
                     response.isSuccessful ->
                         onSuccess(
-                                response.body!!.byteStream(),
-                                response.body!!.contentType(),
+                                response.body.byteStream(),
+                                response.body.contentType(),
                                 response.header("ETag"),
                                 response.header("Last-Modified")?.let {
                                     HttpUtils.parseDate(it)?.time
