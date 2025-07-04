@@ -10,14 +10,15 @@ import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
+import okhttp3.Credentials
+import okhttp3.MediaType
+import okhttp3.Request
+import okhttp3.coroutines.executeAsync
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.util.Date
-import okhttp3.Credentials
-import okhttp3.MediaType
-import okhttp3.Request
 
 open class CalendarFetcher(
         val context: Context,
