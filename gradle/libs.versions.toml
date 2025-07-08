@@ -26,7 +26,7 @@ junit = "4.13.2"
 kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 ksp = "2.2.0-2.0.2"
-okhttp = "5.0.0"
+okhttp = "5.1.0"
 room = "2.7.2"
 
 [libraries]
