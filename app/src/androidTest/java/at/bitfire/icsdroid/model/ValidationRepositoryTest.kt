@@ -20,7 +20,7 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 
-class ValidationModelTest {
+class ValidationRepositoryTest {
 
     companion object {
 
