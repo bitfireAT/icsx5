@@ -26,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val validationRepository: ValidationRepository
 ) : ViewModel() {
 
     data class UiState(
@@ -43,12 +44,19 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(showNextButton = value)
     }
 
+    val validationResult = validationRepository.result
+    val isVerifyingUrl = validationRepository.isVerifyingUrl
+
+    fun resetValidationResult() =
+        validationRepository.resetResult()
+
+    fun validateUrl(originalUri: Uri, username: String? = null, password: String? = null) =
+        validationRepository.validate(originalUri, username, password)
+
     /**
      * Creates a new subscription taking the data from the given models.
      */
-    fun create(
-        subscriptionSettingsModel: SubscriptionSettingsModel,
-    ) {
+    fun create(subscriptionSettingsModel: SubscriptionSettingsModel) {
         viewModelScope.launch(Dispatchers.IO) {
             uiState = uiState.copy(isCreating = true)
             try {
@@ -174,10 +182,9 @@ class AddSubscriptionModel @Inject constructor(
     }
 
     fun checkUrlIntroductionPage(
-        subscriptionSettingsModel: SubscriptionSettingsModel,
-        validationModel: ValidationModel
+        subscriptionSettingsModel: SubscriptionSettingsModel
     ) {
-        if (validationModel.uiState.isVerifyingUrl) {
+        if (isVerifyingUrl.value) {
             setShowNextButton(true)
         } else {
             val uri = validateUri(

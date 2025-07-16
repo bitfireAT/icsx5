@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.AddSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
@@ -48,7 +49,6 @@ import kotlinx.coroutines.launch
 fun AddSubscriptionScreen(
     addSubscriptionModel: AddSubscriptionModel,
     subscriptionSettingsModel: SubscriptionSettingsModel,
-    validationModel: ValidationModel,
     onPickFileRequested: () -> Unit,
     checkUrlIntroductionPage: () -> Unit,
     finish: () -> Unit
@@ -62,7 +62,6 @@ fun AddSubscriptionScreen(
         subscriptionSettingsModel.uiState.requiresAuth,
         subscriptionSettingsModel.uiState.username,
         subscriptionSettingsModel.uiState.password,
-        validationModel.uiState.isVerifyingUrl
     ) {
         checkUrlIntroductionPage()
     }
@@ -80,23 +79,27 @@ fun AddSubscriptionScreen(
         )
     }
 
-    LaunchedEffect(validationModel.uiState.result) {
-        val validationResult = validationModel.uiState.result
+    val isVerifyingUrl by addSubscriptionModel.isVerifyingUrl.collectAsState()
+    val validationResult by addSubscriptionModel.validationResult.collectAsState()
+
+    LaunchedEffect(validationResult) {
         Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
-        if (validationResult == null || validationResult.exception != null) return@LaunchedEffect
-        val info = validationResult
+        validationResult?.let { info ->
+            if (info.exception != null)
+                return@LaunchedEffect
 
-        // When a result has been obtained, and it's neither null nor has an exception,
-        // clean the subscriptionSettingsModel, and move the pager to the next page
-        subscriptionSettingsModel.setUrl(info.uri.toString())
+            // When a result has been obtained, and it's neither null nor has an exception,
+            // clean the subscriptionSettingsModel, and move the pager to the next page
+            subscriptionSettingsModel.setUrl(info.uri.toString())
 
-        if (subscriptionSettingsModel.uiState.color == null)
-            subscriptionSettingsModel.setColor(info.calendarColor ?: lightblue.toArgb())
+            if (subscriptionSettingsModel.uiState.color == null)
+                subscriptionSettingsModel.setColor(info.calendarColor ?: lightblue.toArgb())
 
-        if (subscriptionSettingsModel.uiState.title.isNullOrBlank())
-            subscriptionSettingsModel.setTitle(info.calendarName ?: info.uri.toString())
+            if (subscriptionSettingsModel.uiState.title.isNullOrBlank())
+                subscriptionSettingsModel.setTitle(info.calendarName ?: info.uri.toString())
 
-        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        }
     }
 
     AddSubscriptionScreen(
@@ -129,10 +132,10 @@ fun AddSubscriptionScreen(
         ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
         onIgnoreDescriptionChange = subscriptionSettingsModel::setIgnoreDescription,
         showNextButton = addSubscriptionModel.uiState.showNextButton,
-        isVerifyingUrl = validationModel.uiState.isVerifyingUrl,
+        isVerifyingUrl = isVerifyingUrl,
         isCreating = addSubscriptionModel.uiState.isCreating,
-        validationResult = validationModel.uiState.result,
-        onResetResult = validationModel::resetResult,
+        validationResult = validationResult,
+        onResetResult = addSubscriptionModel::resetValidationResult,
         onPickFileRequested = onPickFileRequested,
         onNextRequested = { page: Int ->
             when (page) {
@@ -147,10 +150,10 @@ fun AddSubscriptionScreen(
                     val authenticate = subscriptionSettingsModel.uiState.requiresAuth
 
                     if (uri != null) {
-                        validationModel.validate(
-                            uri,
-                            if (authenticate) subscriptionSettingsModel.uiState.username else null,
-                            if (authenticate) subscriptionSettingsModel.uiState.password else null
+                        addSubscriptionModel.validateUrl(
+                            originalUri = uri,
+                            username = if (authenticate) subscriptionSettingsModel.uiState.username else null,
+                            password = if (authenticate) subscriptionSettingsModel.uiState.password else null
                         )
                     }
                 }
@@ -166,7 +169,7 @@ fun AddSubscriptionScreen(
             // otherwise, go back a page
             else scope.launch {
                 // Needed for non-first-time validations to trigger following validation result updates
-                validationModel.resetResult()
+                addSubscriptionModel.resetValidationResult()
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
             }
         }

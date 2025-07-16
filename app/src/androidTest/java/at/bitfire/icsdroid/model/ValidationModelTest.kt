@@ -98,13 +98,13 @@ class ValidationModelTest {
     private fun validate(iCal: String): ResourceInfo {
         server.enqueue(MockResponse().setBody(iCal))
 
-        val model = ValidationModel(app)
+        val validationRepository = ValidationRepository(app)
         runBlocking {
             // Wait until the validation completed
-            model.validate(server.url("/").toAndroidUri(), null, null).join()
+            validationRepository.validate(server.url("/").toAndroidUri(), null, null).join()
         }
 
-        return model.uiState.result!!
+        return validationRepository.result.value!!
     }
 
 }

@@ -7,11 +7,6 @@ package at.bitfire.icsdroid.model
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
@@ -20,42 +15,43 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@HiltViewModel
-class ValidationModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-): ViewModel() {
+@Singleton
+class ValidationRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
 
-    data class UiState(
-        val isVerifyingUrl: Boolean = false,
-        val result: ResourceInfo? = null
-    )
+    private val _isValidating = MutableStateFlow(false)
+    val isVerifyingUrl: StateFlow<Boolean> = _isValidating
 
-    var uiState by mutableStateOf(UiState())
-        private set
+    private val _result = MutableStateFlow<ResourceInfo?>(null)
+    val result: StateFlow<ResourceInfo?> = _result
 
     fun resetResult() {
-        uiState = uiState.copy(result = null)
+        _result.value = null
     }
 
     fun validate(
         originalUri: Uri,
         username: String?,
         password: String?
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            uiState = uiState.copy(isVerifyingUrl = true)
+            _isValidating.value = true
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(context, originalUri) {
@@ -88,7 +84,7 @@ class ValidationModel @Inject constructor(
                         info.eventsFound = events.size
                     }
 
-                    uiState = uiState.copy(result = info)
+                    _result.value = info
                 }
 
                 override suspend fun onNewPermanentUrl(target: Uri) {
@@ -100,7 +96,7 @@ class ValidationModel @Inject constructor(
                 override suspend fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
-                    uiState = uiState.copy(result = info)
+                    _result.value = info
                 }
             }
 
@@ -112,7 +108,7 @@ class ValidationModel @Inject constructor(
 
             downloader.fetch()
         } finally {
-            uiState = uiState.copy(isVerifyingUrl = false)
+            _isValidating.value = false
         }
     }
 
