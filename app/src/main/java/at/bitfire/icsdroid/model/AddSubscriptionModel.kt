@@ -24,7 +24,7 @@ import java.net.URISyntaxException
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateSubscriptionModel @Inject constructor(
+class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase
 ) : ViewModel() {

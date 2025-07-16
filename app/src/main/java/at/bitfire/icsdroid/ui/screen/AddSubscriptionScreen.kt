@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.model.CreateSubscriptionModel
+import at.bitfire.icsdroid.model.AddSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
 import at.bitfire.icsdroid.ui.ResourceInfo
@@ -45,8 +45,8 @@ import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddCalendarScreen(
-    createSubscriptionModel: CreateSubscriptionModel,
+fun AddSubscriptionScreen(
+    addSubscriptionModel: AddSubscriptionModel,
     subscriptionSettingsModel: SubscriptionSettingsModel,
     validationModel: ValidationModel,
     onPickFileRequested: () -> Unit,
@@ -75,7 +75,7 @@ fun AddCalendarScreen(
         subscriptionSettingsModel.uiState.defaultAlarmMinutes,
         subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes
     ) {
-        createSubscriptionModel.setShowNextButton(
+        addSubscriptionModel.setShowNextButton(
             !subscriptionSettingsModel.uiState.title.isNullOrBlank()
         )
     }
@@ -99,7 +99,7 @@ fun AddCalendarScreen(
         pagerState.animateScrollToPage(pagerState.currentPage + 1)
     }
 
-    AddCalendarScreen(
+    AddSubscriptionScreen(
         pagerState = pagerState,
         requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
         onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
@@ -128,9 +128,9 @@ fun AddCalendarScreen(
         onDefaultAllDayAlarmMinutesChange = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
         ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
         onIgnoreDescriptionChange = subscriptionSettingsModel::setIgnoreDescription,
-        showNextButton = createSubscriptionModel.uiState.showNextButton,
+        showNextButton = addSubscriptionModel.uiState.showNextButton,
         isVerifyingUrl = validationModel.uiState.isVerifyingUrl,
-        isCreating = createSubscriptionModel.uiState.isCreating,
+        isCreating = addSubscriptionModel.uiState.isCreating,
         validationResult = validationModel.uiState.result,
         onResetResult = validationModel::resetResult,
         onPickFileRequested = onPickFileRequested,
@@ -156,7 +156,7 @@ fun AddCalendarScreen(
                 }
                 // Second page (details and confirm)
                 1 -> {
-                    createSubscriptionModel.create(subscriptionSettingsModel)
+                    addSubscriptionModel.create(subscriptionSettingsModel)
                 }
             }
         },
@@ -175,7 +175,7 @@ fun AddCalendarScreen(
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
-fun AddCalendarScreen(
+fun AddSubscriptionScreen(
     pagerState: PagerState = rememberPagerState { 2 },
     requiresAuth: Boolean,
     onRequiresAuthChange: (Boolean) -> Unit,

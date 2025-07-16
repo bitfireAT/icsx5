@@ -53,7 +53,7 @@ import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.views.CalendarListActivity
 
 @Composable
-fun CalendarListScreen(
+fun SubscriptionsScreen(
     model: SubscriptionsModel,
     onAboutRequested: () -> Unit,
     onAddRequested: () -> Unit,
@@ -80,7 +80,7 @@ fun CalendarListScreen(
         model.onBackupImportRequested(result)
     }
 
-    CalendarListScreen(
+    SubscriptionsScreen(
         isRefreshing = isRefreshing,
         subscriptions = subscriptions,
         uiState = uiState,
@@ -104,7 +104,7 @@ fun CalendarListScreen(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun CalendarListScreen(
+fun SubscriptionsScreen(
     isRefreshing: Boolean,
     subscriptions: List<Subscription>,
     uiState: SubscriptionsModel.UiState,

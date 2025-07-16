@@ -22,10 +22,10 @@ import androidx.core.view.WindowCompat
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
-import at.bitfire.icsdroid.model.CreateSubscriptionModel
+import at.bitfire.icsdroid.model.AddSubscriptionModel
 import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.model.ValidationModel
-import at.bitfire.icsdroid.ui.screen.AddCalendarScreen
+import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,7 +39,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
     private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
     private val validationModel by viewModels<ValidationModel>()
-    private val createSubscriptionModel by viewModels<CreateSubscriptionModel>()
+    private val addSubscriptionModel by viewModels<AddSubscriptionModel>()
 
     private val pickFile =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -71,13 +71,13 @@ class AddCalendarActivity : AppCompatActivity() {
             val context = LocalContext.current
 
             // on success, show notification and close activity
-            if (createSubscriptionModel.uiState.success) {
+            if (addSubscriptionModel.uiState.success) {
                 Toast.makeText(context, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
                 finish()
             }
 
             // on error, show error message
-            createSubscriptionModel.uiState
+            addSubscriptionModel.uiState
                 .errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
 
             // If launched by intent
@@ -90,7 +90,7 @@ class AddCalendarActivity : AppCompatActivity() {
                                 ?.trim()
                                 ?.let(subscriptionSettingsModel::setUrl)
                                 ?.also {
-                                    createSubscriptionModel.checkUrlIntroductionPage(
+                                    addSubscriptionModel.checkUrlIntroductionPage(
                                         subscriptionSettingsModel,
                                         validationModel
                                     )
@@ -103,7 +103,7 @@ class AddCalendarActivity : AppCompatActivity() {
                             ?.toString()
                             ?.let(subscriptionSettingsModel::setUrl)
                             ?.also {
-                                createSubscriptionModel.checkUrlIntroductionPage(
+                                addSubscriptionModel.checkUrlIntroductionPage(
                                     subscriptionSettingsModel,
                                     validationModel
                                 )
@@ -119,14 +119,14 @@ class AddCalendarActivity : AppCompatActivity() {
             }
 
             Box(modifier = Modifier.imePadding()) {
-                AddCalendarScreen(
-                    createSubscriptionModel = createSubscriptionModel,
+                AddSubscriptionScreen(
+                    addSubscriptionModel = addSubscriptionModel,
                     subscriptionSettingsModel = subscriptionSettingsModel,
                     validationModel = validationModel,
                     onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
                     finish = ::finish,
                     checkUrlIntroductionPage = {
-                        createSubscriptionModel.checkUrlIntroductionPage(
+                        addSubscriptionModel.checkUrlIntroductionPage(
                             subscriptionSettingsModel,
                             validationModel
                         )

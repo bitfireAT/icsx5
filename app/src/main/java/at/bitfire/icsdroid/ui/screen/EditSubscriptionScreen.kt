@@ -40,7 +40,7 @@ import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
 @Composable
-fun EditCalendarScreen(
+fun EditSubscriptionScreen(
     subscriptionId: Long,
     onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit = {}
@@ -49,7 +49,7 @@ fun EditCalendarScreen(
         factory.create(subscriptionId)
     }
     val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
-    EditCalendarScreen(
+    EditSubscriptionScreen(
         inputValid = editSubscriptionModel.inputValid,
         modelsDirty = editSubscriptionModel.modelsDirty,
         successMessage = editSubscriptionModel.successMessage,
@@ -91,7 +91,7 @@ fun EditCalendarScreen(
     )
 }
 @Composable
-fun EditCalendarScreen(
+fun EditSubscriptionScreen(
     inputValid: Boolean,
     modelsDirty: Boolean,
     successMessage: String?,
@@ -258,7 +258,7 @@ private fun AppBarComposable(
 @Composable
 fun EditCalendarScreen_Preview() {
     AppTheme {
-        EditCalendarScreen(
+        EditSubscriptionScreen(
             inputValid = true,
             modelsDirty = false,
             successMessage = "yay!",
