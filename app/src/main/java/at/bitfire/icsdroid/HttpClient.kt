@@ -50,7 +50,7 @@ class HttpClient(
 
     val httpClient = HttpClient(engine) {
         @Suppress("UNCHECKED_CAST")
-        if (engine == OkHttp) (this as HttpClientConfig<OkHttpConfig>).engine {
+        if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
             addNetworkInterceptor(UserAgentInterceptor)
             config {
                 addNetworkInterceptor(BrotliInterceptor)
