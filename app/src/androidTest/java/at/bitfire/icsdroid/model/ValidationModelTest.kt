@@ -8,15 +8,12 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
-import at.bitfire.icsdroid.HttpUtils.toAndroidUri
+import at.bitfire.icsdroid.MockEngineWrapper
 import at.bitfire.icsdroid.ui.ResourceInfo
 import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.BeforeClass
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,26 +23,15 @@ class ValidationModelTest {
 
         val app = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as Application
 
-        lateinit var server: MockWebServer
-
-        @BeforeClass
-        @JvmStatic
-        fun setUp() {
-            server = MockWebServer()
-            server.start()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun tearDown() {
-            server.shutdown()
-        }
-
     }
 
     @get:Rule
     val instantTaskExecutor = InstantTaskExecutorRule()
 
+    @Before
+    fun setUp() {
+        MockEngineWrapper.clear()
+    }
 
     @Test
     fun testModelInitialize_CalendarProperties_None() {
@@ -96,12 +82,12 @@ class ValidationModelTest {
     }
 
     private fun validate(iCal: String): ResourceInfo {
-        server.enqueue(MockResponse().setBody(iCal))
+        MockEngineWrapper.enqueue(content = iCal)
 
         val model = ValidationModel(app)
         runBlocking {
             // Wait until the validation completed
-            model.validate(server.url("/").toAndroidUri(), null, null).join()
+            model.validate(MockEngineWrapper.uri(), null, null).join()
         }
 
         return model.uiState.result!!

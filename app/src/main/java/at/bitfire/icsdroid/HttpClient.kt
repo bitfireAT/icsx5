@@ -6,30 +6,33 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.engine.okhttp.OkHttpConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.Interceptor
-import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 import javax.net.ssl.SSLContext
+import at.bitfire.icsdroid.HttpClient as AppHttpClient
 
-class HttpClient private constructor(
-    context: Context
+class HttpClient(
+    context: Context,
+    engine: HttpClientEngine = OkHttp.create()
 ) {
 
     companion object {
-        private var INSTANCE: HttpClient? = null
-
         private val appInForeground = MutableStateFlow(false)
-
-        @Synchronized
-        fun get(context: Context): HttpClient {
-            INSTANCE?.let { return it }
-            return HttpClient(context.applicationContext)
-                .also { INSTANCE = it }
-        }
 
         fun setForeground(foreground: Boolean) {
             appInForeground.tryEmit(foreground)
@@ -45,16 +48,23 @@ class HttpClient private constructor(
         sslContext.init(null, arrayOf(certManager), null)
     }
 
-    val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-        .addNetworkInterceptor(BrotliInterceptor)
-        .addNetworkInterceptor(UserAgentInterceptor)
-        .followRedirects(false)
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .sslSocketFactory(sslContext.socketFactory, certManager)
-        .hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
-        .build()
-
+    val httpClient = HttpClient(engine) {
+        @Suppress("UNCHECKED_CAST")
+        if (engine == OkHttp) (this as HttpClientConfig<OkHttpConfig>).engine {
+            addNetworkInterceptor(UserAgentInterceptor)
+            config {
+                addNetworkInterceptor(BrotliInterceptor)
+                addNetworkInterceptor(UserAgentInterceptor)
+                followRedirects(false)
+                connectTimeout(20, TimeUnit.SECONDS)
+                readTimeout(60, TimeUnit.SECONDS)
+                sslSocketFactory(sslContext.socketFactory, certManager)
+                hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
+            }
+        } else {
+            followRedirects = false
+        }
+    }
 
     object UserAgentInterceptor : Interceptor {
 
@@ -65,6 +75,18 @@ class HttpClient private constructor(
             return chain.proceed(request.build())
         }
 
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object HttpClientModule {
+        @Singleton
+        @Provides
+        fun provideAppHttpClient(
+            @ApplicationContext context: Context
+        ): AppHttpClient {
+            return AppHttpClient(context, OkHttp.create())
+        }
     }
 
 }
