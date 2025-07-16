@@ -26,6 +26,7 @@ junit = "4.13.2"
 kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 ksp = "2.2.0-2.0.2"
+ktor = "3.2.1"
 okhttp = "5.1.0"
 room = "2.7.2"
 
@@ -60,6 +61,9 @@ desugaring = { module = "com.android.tools:desugar_jdk_libs", version.ref = "des
 hilt-android-base = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 jodaTime = { module = "joda-time:joda-time", version.ref = "joda-time" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
