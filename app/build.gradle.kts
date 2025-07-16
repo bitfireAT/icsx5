@@ -151,8 +151,7 @@ dependencies {
 
     implementation(libs.okhttp.base)
     implementation(libs.okhttp.brotli)
-    // FIXME - Add when OkHttp 5.0.0 is stable
-    // implementation(libs.okhttp.coroutines)
+    implementation(libs.okhttp.coroutines)
 
     // Room Database
     implementation(libs.room.base)
