@@ -58,10 +58,13 @@ class ProcessEventsTask(
     @InstallIn(SingletonComponent::class)
     interface ProcessEventsTaskEntryPoint {
         fun appDatabase(): AppDatabase
+
+        fun provideAppHttpClient(): HttpClient
     }
 
-    val db = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java).appDatabase()
-    val httpClient = EntryPointAccessors.fromApplication(context, HttpClient.HttpClientModule::class.java).provideAppHttpClient(context)
+    private val entryPoint = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java)
+    val db = entryPoint.appDatabase()
+    val httpClient = entryPoint.provideAppHttpClient()
 
     private var exception: Throwable? = null
 

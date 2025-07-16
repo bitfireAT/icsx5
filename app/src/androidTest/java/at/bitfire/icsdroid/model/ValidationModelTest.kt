@@ -8,6 +8,7 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
+import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.MockEngineWrapper
 import at.bitfire.icsdroid.ui.ResourceInfo
 import kotlinx.coroutines.runBlocking
@@ -84,7 +85,8 @@ class ValidationModelTest {
     private fun validate(iCal: String): ResourceInfo {
         MockEngineWrapper.enqueue(content = iCal)
 
-        val model = ValidationModel(app)
+        val client = HttpClient(app, MockEngineWrapper.engine)
+        val model = ValidationModel(app, client)
         runBlocking {
             // Wait until the validation completed
             model.validate(MockEngineWrapper.uri(), null, null).join()
