@@ -27,7 +27,7 @@ import javax.inject.Inject
 class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    private val validationRepository: ValidationRepository,
+    val validationRepository: ValidationRepository,
     val subscriptionSettingsRepository: SubscriptionSettingsRepository
 ) : ViewModel() {
 
@@ -37,9 +37,6 @@ class AddSubscriptionModel @Inject constructor(
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
     )
-
-    val validationResult = validationRepository.result
-    val isVerifyingUrl = validationRepository.isVerifyingUrl
 
     var uiState by mutableStateOf(UiState())
         private set
@@ -54,7 +51,7 @@ class AddSubscriptionModel @Inject constructor(
     
     fun checkUrlIntroductionPage() {
         with(subscriptionSettingsRepository) {
-            if (isVerifyingUrl.value) {
+            if (validationRepository.uiState.isVerifyingUrl) {
                 setShowNextButton(true)
             } else {
                 val uri = validateUri(

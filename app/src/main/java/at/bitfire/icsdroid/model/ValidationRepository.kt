@@ -7,6 +7,9 @@ package at.bitfire.icsdroid.model
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
@@ -33,14 +36,16 @@ class ValidationRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
 
-    private val _isValidating = MutableStateFlow(false)
-    val isVerifyingUrl: StateFlow<Boolean> = _isValidating
+    data class UiState(
+        val isVerifyingUrl: Boolean = false,
+        val result: ResourceInfo? = null
+    )
 
-    private val _result = MutableStateFlow<ResourceInfo?>(null)
-    val result: StateFlow<ResourceInfo?> = _result
+    var uiState by mutableStateOf(UiState())
+        private set
 
     fun resetResult() {
-        _result.value = null
+        uiState = uiState.copy(result = null)
     }
 
     fun validate(
@@ -51,7 +56,7 @@ class ValidationRepository @Inject constructor(
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
-            _isValidating.value = true
+            uiState = uiState.copy(isVerifyingUrl = true)
 
             val info = ResourceInfo(originalUri)
             val downloader = object: CalendarFetcher(context, originalUri) {
@@ -84,7 +89,7 @@ class ValidationRepository @Inject constructor(
                         info.eventsFound = events.size
                     }
 
-                    _result.value = info
+                    uiState = uiState.copy(result = info)
                 }
 
                 override suspend fun onNewPermanentUrl(target: Uri) {
@@ -96,7 +101,7 @@ class ValidationRepository @Inject constructor(
                 override suspend fun onError(error: Exception) {
                     Log.e(Constants.TAG, "Couldn't validate calendar", error)
                     info.exception = error
-                    _result.value = info
+                    uiState = uiState.copy(result = info)
                 }
             }
 
@@ -108,7 +113,7 @@ class ValidationRepository @Inject constructor(
 
             downloader.fetch()
         } finally {
-            _isValidating.value = false
+            uiState = uiState.copy(isVerifyingUrl = false)
         }
     }
 

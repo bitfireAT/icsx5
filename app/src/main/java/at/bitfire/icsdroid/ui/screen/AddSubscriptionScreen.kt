@@ -27,8 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,16 +61,15 @@ fun AddSubscriptionScreen(
         }
     }
 
-
-        // Receive updates for the Details page
+    // Receive updates for the Details page
     with(model.subscriptionSettingsRepository.uiState) {
         LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
             model.setShowNextButton(!title.isNullOrBlank())
         }
     }
 
-    val isVerifyingUrl by model.isVerifyingUrl.collectAsState()
-    val validationResult by model.validationResult.collectAsState()
+    val isVerifyingUrl = model.validationRepository.uiState.isVerifyingUrl
+    val validationResult = model.validationRepository.uiState.result
 
     LaunchedEffect(validationResult) {
         Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
