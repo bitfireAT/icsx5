@@ -30,7 +30,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ValidationRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
 
     private val _isValidating = MutableStateFlow(false)
@@ -47,7 +47,7 @@ class ValidationRepository @Inject constructor(
         originalUri: Uri,
         username: String?,
         password: String?
-    ) = CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+    ) = CoroutineScope(Dispatchers.IO).launch {
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 
