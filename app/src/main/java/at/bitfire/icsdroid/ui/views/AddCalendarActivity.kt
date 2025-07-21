@@ -23,7 +23,6 @@ import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.AddSubscriptionModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
 import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +35,6 @@ class AddCalendarActivity : AppCompatActivity() {
         const val EXTRA_COLOR = "color"
     }
 
-    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
     private val addSubscriptionModel by viewModels<AddSubscriptionModel>()
 
     private val pickFile =
@@ -47,7 +45,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                subscriptionSettingsModel.setUrl(uri.toString())
+                addSubscriptionModel.subscriptionSettingsRepository.setUrl(uri.toString())
 
                 // Get file name
                 val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -55,7 +53,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     cursor.getString(name)
                 }
-                subscriptionSettingsModel.setFileName(displayName)
+                addSubscriptionModel.subscriptionSettingsRepository.setFileName(displayName)
             }
         }
 
@@ -80,51 +78,43 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // If launched by intent
             LaunchedEffect(intent) {
-                if (savedInstanceState == null) {
-                    intent?.apply {
-                        try {
-                            (data ?: getStringExtra(Intent.EXTRA_TEXT))
-                                ?.toString()
-                                ?.trim()
-                                ?.let(subscriptionSettingsModel::setUrl)
-                                ?.also {
-                                    addSubscriptionModel.checkUrlIntroductionPage(
-                                        subscriptionSettingsModel
-                                    )
-                                }
-                        } catch (_: IllegalArgumentException) {
-                            // Data does not have a valid url
-                        }
-
-                        IntentCompat.getParcelableExtra<Uri>(intent, Intent.EXTRA_STREAM, Uri::class.java)
-                            ?.toString()
-                            ?.let(subscriptionSettingsModel::setUrl)
-                            ?.also {
-                                addSubscriptionModel.checkUrlIntroductionPage(
-                                    subscriptionSettingsModel
-                                )
+                with(addSubscriptionModel.subscriptionSettingsRepository) {
+                    if (savedInstanceState == null) {
+                        intent?.apply {
+                            try {
+                                (data ?: getStringExtra(Intent.EXTRA_TEXT))
+                                    ?.toString()
+                                    ?.trim()
+                                    ?.let(::setUrl)
+                                    ?.also {
+                                        addSubscriptionModel.checkUrlIntroductionPage()
+                                    }
+                            } catch (_: IllegalArgumentException) {
+                                // Data does not have a valid url
                             }
 
-                        getStringExtra(EXTRA_TITLE)
-                            ?.let(subscriptionSettingsModel::setTitle)
-                        takeIf { hasExtra(EXTRA_COLOR) }
-                            ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
-                            ?.let(subscriptionSettingsModel::setColor)
+                            IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+                                ?.toString()
+                                ?.let(::setUrl)
+                                ?.also {
+                                    addSubscriptionModel.checkUrlIntroductionPage()
+                                }
+
+                            getStringExtra(EXTRA_TITLE)
+                                ?.let(::setTitle)
+                            takeIf { hasExtra(EXTRA_COLOR) }
+                                ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                                ?.let(::setColor)
+                        }
                     }
                 }
             }
 
             Box(modifier = Modifier.imePadding()) {
                 AddSubscriptionScreen(
-                    addSubscriptionModel = addSubscriptionModel,
-                    subscriptionSettingsModel = subscriptionSettingsModel,
                     onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
                     finish = ::finish,
-                    checkUrlIntroductionPage = {
-                        addSubscriptionModel.checkUrlIntroductionPage(
-                            subscriptionSettingsModel
-                        )
-                    }
+                    checkUrlIntroductionPage = addSubscriptionModel::checkUrlIntroductionPage
                 )
             }
         }

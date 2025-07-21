@@ -45,50 +45,48 @@ fun EditSubscriptionScreen(
     onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit = {}
 ) {
-    val editSubscriptionModel = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
+    val model = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
         factory.create(subscriptionId)
     }
-    val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
-    EditSubscriptionScreen(
-        inputValid = editSubscriptionModel.inputValid,
-        modelsDirty = editSubscriptionModel.modelsDirty,
-        successMessage = editSubscriptionModel.successMessage,
-        onDelete = editSubscriptionModel::removeSubscription,
-        onSave = {
-            editSubscriptionModel.updateSubscription()
-        },
-        onShare = {
-            subscription.value?.let {
-                onShare(it)
-            }
-        },
-        onExit = onExit,
-        supportsAuthentication = editSubscriptionModel.uiState.supportsAuthentication,
+    val subscription = model.subscription.collectAsStateWithLifecycle(null)
+    with(model.subscriptionSettingsRepository) {
+        EditSubscriptionScreen(
+            inputValid = model.inputValid,
+            modelsDirty = model.modelsDirty,
+            successMessage = model.successMessage,
+            onDelete = model::removeSubscription,
+            onSave = model::updateSubscription,
+            onShare = {
+                subscription.value?.let {
+                    onShare(it)
+                }
+            },
+            onExit = onExit,
 
-        // Subscription settings model
-        url = editSubscriptionModel.uiState.url,
-        title = editSubscriptionModel.uiState.title,
-        titleChanged = editSubscriptionModel::setTitle,
-        color = editSubscriptionModel.uiState.color,
-        colorChanged = editSubscriptionModel::setColor,
-        ignoreAlerts = editSubscriptionModel.uiState.ignoreAlerts,
-        ignoreAlertsChanged = editSubscriptionModel::setIgnoreAlerts,
-        defaultAlarmMinutes = editSubscriptionModel.uiState.defaultAlarmMinutes,
-        defaultAlarmMinutesChanged = editSubscriptionModel::setDefaultAlarmMinutes,
-        defaultAllDayAlarmMinutes = editSubscriptionModel.uiState.defaultAllDayAlarmMinutes,
-        defaultAllDayAlarmMinutesChanged = editSubscriptionModel::setDefaultAllDayAlarmMinutes,
-        ignoreDescription = editSubscriptionModel.uiState.ignoreDescription,
-        onIgnoreDescriptionChanged = editSubscriptionModel::setIgnoreDescription,
-        isCreating = false,
-
-        // Credentials model
-        requiresAuth = editSubscriptionModel.uiState.requiresAuth,
-        username = editSubscriptionModel.uiState.username,
-        password = editSubscriptionModel.uiState.password,
-        onRequiresAuthChange = editSubscriptionModel::setRequiresAuth,
-        onUsernameChange = editSubscriptionModel::setUsername,
-        onPasswordChange = editSubscriptionModel::setPassword,
-    )
+            // Subscription settings repository
+            supportsAuthentication = uiState.supportsAuthentication,
+            url = uiState.url,
+            title = uiState.title,
+            titleChanged = ::setTitle,
+            color = uiState.color,
+            colorChanged = ::setColor,
+            ignoreAlerts = uiState.ignoreAlerts,
+            ignoreAlertsChanged = ::setIgnoreAlerts,
+            defaultAlarmMinutes = uiState.defaultAlarmMinutes,
+            defaultAlarmMinutesChanged = ::setDefaultAlarmMinutes,
+            defaultAllDayAlarmMinutes = uiState.defaultAllDayAlarmMinutes,
+            defaultAllDayAlarmMinutesChanged = ::setDefaultAllDayAlarmMinutes,
+            ignoreDescription = uiState.ignoreDescription,
+            onIgnoreDescriptionChanged = ::setIgnoreDescription,
+            isCreating = false,
+            requiresAuth = uiState.requiresAuth,
+            username = uiState.username,
+            password = uiState.password,
+            onRequiresAuthChange = ::setRequiresAuth,
+            onUsernameChange = ::setUsername,
+            onPasswordChange = ::setPassword,
+        )
+    }
 }
 @Composable
 fun EditSubscriptionScreen(
@@ -99,9 +97,9 @@ fun EditSubscriptionScreen(
     onSave: () -> Unit,
     onShare: () -> Unit,
     onExit: () -> Unit,
-    supportsAuthentication: Boolean,
 
-    // Subscription settings model
+    // Subscription settings
+    supportsAuthentication: Boolean,
     url: String?,
     title: String?,
     titleChanged: (String) -> Unit,
@@ -116,8 +114,6 @@ fun EditSubscriptionScreen(
     ignoreDescription: Boolean,
     onIgnoreDescriptionChanged: (Boolean) -> Unit,
     isCreating: Boolean,
-
-    // Credentials model
     requiresAuth: Boolean,
     username: String? = null,
     password: String? = null,

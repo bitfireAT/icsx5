@@ -4,16 +4,15 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import dagger.hilt.android.lifecycle.HiltViewModel
 import java.net.URISyntaxException
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@HiltViewModel
-open class SubscriptionSettingsModel @Inject constructor() : ViewModel() {
+@Singleton
+class SubscriptionSettingsRepository @Inject constructor() {
     data class UiState(
         val url: String? = null,
         val fileName: String? = null,

@@ -27,15 +27,19 @@ import javax.inject.Inject
 class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    private val validationRepository: ValidationRepository
+    private val validationRepository: ValidationRepository,
+    val subscriptionSettingsRepository: SubscriptionSettingsRepository
 ) : ViewModel() {
 
     data class UiState(
         val success: Boolean = false,
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
-        val showNextButton: Boolean = false
+        val showNextButton: Boolean = false,
     )
+
+    val validationResult = validationRepository.result
+    val isVerifyingUrl = validationRepository.isVerifyingUrl
 
     var uiState by mutableStateOf(UiState())
         private set
@@ -44,60 +48,81 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(showNextButton = value)
     }
 
-    val validationResult = validationRepository.result
-    val isVerifyingUrl = validationRepository.isVerifyingUrl
-
-    fun resetValidationResult() =
-        validationRepository.resetResult()
-
+    fun resetValidationResult() = validationRepository.resetResult()
     fun validateUrl(originalUri: Uri, username: String? = null, password: String? = null) =
         validationRepository.validate(originalUri, username, password)
+    
+    fun checkUrlIntroductionPage() {
+        with(subscriptionSettingsRepository) {
+            if (isVerifyingUrl.value) {
+                setShowNextButton(true)
+            } else {
+                val uri = validateUri(
+                    url = uiState.url,
+                    onSetUrl = ::setUrl,
+                    onSetCredentials = { username, password ->
+                        setUsername(username)
+                        setPassword(password)
+                    },
+                    requiresAuth = uiState.requiresAuth,
+                    onSetRequiresAuth = ::setRequiresAuth,
+                    onSetIsInsecure = ::setIsInsecure,
+                    onSetUrlError = ::setUrlError
+                )
+                val authOK =
+                    if (uiState.requiresAuth)
+                        !uiState.username.isNullOrEmpty() &&
+                                !uiState.password.isNullOrEmpty()
+                    else
+                        true
+                setShowNextButton(uri != null && authOK)
+            }
+        }
+    }
 
     /**
      * Creates a new subscription taking the data from the given models.
      */
-    fun create(subscriptionSettingsModel: SubscriptionSettingsModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState = uiState.copy(isCreating = true)
-            try {
+    fun createSubscription() = viewModelScope.launch(Dispatchers.IO) {
+        uiState = uiState.copy(isCreating = true)
+        try {
+            with(subscriptionSettingsRepository.uiState) {
                 val subscription = Subscription(
-                    displayName = subscriptionSettingsModel.uiState.title!!,
-                    url = Uri.parse(subscriptionSettingsModel.uiState.url),
-                    color = subscriptionSettingsModel.uiState.color,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
-                    defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-                    defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-                    ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
+                    displayName = title!!,
+                    url = Uri.parse(url),
+                    color = color,
+                    ignoreEmbeddedAlerts = ignoreAlerts,
+                    defaultAlarmMinutes = defaultAlarmMinutes,
+                    defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                    ignoreDescription = ignoreDescription,
                 )
 
                 /** A list of all the ids of the inserted rows */
                 val id = db.subscriptionsDao().add(subscription)
 
                 // Create the credential in the IO thread
-                if (subscriptionSettingsModel.uiState.requiresAuth) {
+                if (requiresAuth) {
                     // If the subscription requires credentials, create them
-                    val username = subscriptionSettingsModel.uiState.username
-                    val password = subscriptionSettingsModel.uiState.password
                     if (username != null && password != null) {
-                        val credential = Credential(
-                            subscriptionId = id,
-                            username = username,
-                            password = password
+                        db.credentialsDao().create(
+                            Credential(
+                                subscriptionId = id,
+                                username = username,
+                                password = password
+                            )
                         )
-                        db.credentialsDao().create(credential)
                     }
                 }
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
-
-                uiState = uiState.copy(success = true)
-            } catch (e: Exception) {
-                Log.e(Constants.TAG, "Couldn't create calendar", e)
-                uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
-            } finally {
-                uiState = uiState.copy(isCreating = false)
             }
+            uiState = uiState.copy(success = true)
+        } catch (e: Exception) {
+            Log.e(Constants.TAG, "Couldn't create calendar", e)
+            uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
+        } finally {
+            uiState = uiState.copy(isCreating = false)
         }
     }
 
@@ -179,33 +204,5 @@ class AddSubscriptionModel @Inject constructor(
             onSetUrlError(errorMsg)
         }
         return uri
-    }
-
-    fun checkUrlIntroductionPage(
-        subscriptionSettingsModel: SubscriptionSettingsModel
-    ) {
-        if (isVerifyingUrl.value) {
-            setShowNextButton(true)
-        } else {
-            val uri = validateUri(
-                url = subscriptionSettingsModel.uiState.url,
-                onSetUrl = subscriptionSettingsModel::setUrl,
-                onSetCredentials = { username, password ->
-                    subscriptionSettingsModel.setUsername(username)
-                    subscriptionSettingsModel.setPassword(password)
-                },
-                requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
-                onSetRequiresAuth = subscriptionSettingsModel::setRequiresAuth,
-                onSetIsInsecure = subscriptionSettingsModel::setIsInsecure,
-                onSetUrlError = subscriptionSettingsModel::setUrlError
-            )
-            val authOK =
-                if (subscriptionSettingsModel.uiState.requiresAuth)
-                    !subscriptionSettingsModel.uiState.username.isNullOrEmpty() &&
-                            !subscriptionSettingsModel.uiState.password.isNullOrEmpty()
-                else
-                    true
-            setShowNextButton(uri != null && authOK)
-        }
     }
 }
