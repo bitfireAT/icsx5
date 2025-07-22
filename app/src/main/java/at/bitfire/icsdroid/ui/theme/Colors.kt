@@ -1,3 +1,7 @@
+/*
+ * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
+ */
+
 package at.bitfire.icsdroid.ui.theme
 
 import androidx.compose.ui.graphics.Color

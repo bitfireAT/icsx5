@@ -1,4 +1,7 @@
-package at.bitfire.icsdroid.db.entity
+/*
+ * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
+ */
+.db.entity
 
 import androidx.core.net.toUri
 import org.junit.Assert.assertEquals
