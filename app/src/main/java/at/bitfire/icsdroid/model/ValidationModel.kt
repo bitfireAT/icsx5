@@ -21,8 +21,6 @@ import at.bitfire.icsdroid.ui.ResourceInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
 import okhttp3.MediaType
@@ -32,7 +30,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ValidationRepository @Inject constructor(
+class ValidationModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
 
