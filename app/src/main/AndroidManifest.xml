@@ -79,7 +79,7 @@
         </service>
 
         <activity
-            android:name=".ui.views.CalendarListActivity"
+            android:name=".ui.views.SubscriptionListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -87,8 +87,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.views.AddCalendarActivity"
-            android:parentActivityName=".ui.views.CalendarListActivity"
+            android:name=".ui.views.AddSubscriptionActivity"
+            android:parentActivityName=".ui.views.SubscriptionListActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="UnusedAttribute">
@@ -119,14 +119,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.views.EditCalendarActivity"
+            android:name=".ui.views.EditSubscriptionActivity"
             android:label="@string/activity_edit_calendar"
-            android:parentActivityName=".ui.views.CalendarListActivity"
+            android:parentActivityName=".ui.views.SubscriptionListActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
-            android:parentActivityName=".ui.views.CalendarListActivity" />
+            android:parentActivityName=".ui.views.SubscriptionListActivity" />
 
     </application>
 

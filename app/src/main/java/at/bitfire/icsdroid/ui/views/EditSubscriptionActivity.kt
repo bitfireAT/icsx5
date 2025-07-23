@@ -14,7 +14,7 @@ import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EditCalendarActivity: AppCompatActivity() {
+class EditSubscriptionActivity: AppCompatActivity() {
 
     companion object {
         // Used by intents only

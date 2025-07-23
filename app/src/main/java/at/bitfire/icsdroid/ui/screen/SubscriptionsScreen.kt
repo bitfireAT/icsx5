@@ -54,7 +54,7 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
-import at.bitfire.icsdroid.ui.views.CalendarListActivity
+import at.bitfire.icsdroid.ui.views.SubscriptionListActivity
 
 @Composable
 fun SubscriptionsScreen(
@@ -393,7 +393,7 @@ fun ActionOverflowMenu(
             text = { Text(stringResource(R.string.calendar_list_privacy_policy)) },
             onClick = {
                 showMenu = false
-                UriUtils.launchUri(context, Uri.parse(CalendarListActivity.PRIVACY_POLICY_URL))
+                UriUtils.launchUri(context, Uri.parse(SubscriptionListActivity.PRIVACY_POLICY_URL))
             }
         )
         DropdownMenuItem(
