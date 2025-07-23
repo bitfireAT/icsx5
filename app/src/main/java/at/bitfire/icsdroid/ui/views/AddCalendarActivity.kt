@@ -45,7 +45,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                addSubscriptionModel.subscriptionSettingsRepository.setUrl(uri.toString())
+                addSubscriptionModel.subscriptionSettingsModel.setUrl(uri.toString())
 
                 // Get file name
                 val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -53,7 +53,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     cursor.getString(name)
                 }
-                addSubscriptionModel.subscriptionSettingsRepository.setFileName(displayName)
+                addSubscriptionModel.subscriptionSettingsModel.setFileName(displayName)
             }
         }
 
@@ -78,7 +78,7 @@ class AddCalendarActivity : AppCompatActivity() {
 
             // If launched by intent
             LaunchedEffect(intent) {
-                with(addSubscriptionModel.subscriptionSettingsRepository) {
+                with(addSubscriptionModel.subscriptionSettingsModel) {
                     if (savedInstanceState == null) {
                         intent?.apply {
                             try {

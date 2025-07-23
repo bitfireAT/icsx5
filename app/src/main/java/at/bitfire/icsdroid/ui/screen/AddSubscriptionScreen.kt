@@ -59,14 +59,14 @@ fun AddSubscriptionScreen(
     val model: AddSubscriptionModel = hiltViewModel()
 
     // Receive updates for the URL introduction page
-    with(model.subscriptionSettingsRepository.uiState) {
+    with(model.subscriptionSettingsModel.uiState) {
         LaunchedEffect(url, requiresAuth, username, password) {
             checkUrlIntroductionPage()
         }
     }
 
     // Receive updates for the Details page
-    with(model.subscriptionSettingsRepository.uiState) {
+    with(model.subscriptionSettingsModel.uiState) {
         LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
             model.setShowNextButton(!title.isNullOrBlank())
         }
@@ -83,7 +83,7 @@ fun AddSubscriptionScreen(
 
             // When a result has been obtained, and it's neither null nor has an exception,
             // clean the subscriptionSettingsModel, and move the pager to the next page
-            with(model.subscriptionSettingsRepository) {
+            with(model.subscriptionSettingsModel) {
                 setUrl(info.uri.toString())
 
                 if (uiState.color == null)
@@ -96,7 +96,7 @@ fun AddSubscriptionScreen(
             pagerState.animateScrollToPage(pagerState.currentPage + 1)
         }
     }
-    with(model.subscriptionSettingsRepository) {
+    with(model.subscriptionSettingsModel) {
         AddSubscriptionScreen(
             pagerState = pagerState,
             requiresAuth = uiState.requiresAuth,

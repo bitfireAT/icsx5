@@ -28,7 +28,7 @@ class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
     val validationModel: ValidationModel,
-    val subscriptionSettingsRepository: SubscriptionSettingsRepository
+    val subscriptionSettingsModel: SubscriptionSettingsModel
 ) : ViewModel() {
 
     data class UiState(
@@ -50,7 +50,7 @@ class AddSubscriptionModel @Inject constructor(
         validationModel.validate(originalUri, username, password)
     
     fun checkUrlIntroductionPage() {
-        with(subscriptionSettingsRepository) {
+        with(subscriptionSettingsModel) {
             if (validationModel.uiState.isVerifyingUrl) {
                 setShowNextButton(true)
             } else {
@@ -83,7 +83,7 @@ class AddSubscriptionModel @Inject constructor(
     fun createSubscription() = viewModelScope.launch(Dispatchers.IO) {
         uiState = uiState.copy(isCreating = true)
         try {
-            with(subscriptionSettingsRepository.uiState) {
+            with(subscriptionSettingsModel.uiState) {
                 val subscription = Subscription(
                     displayName = title!!,
                     url = Uri.parse(url),

@@ -12,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SubscriptionSettingsRepository @Inject constructor() {
+class SubscriptionSettingsModel @Inject constructor() {
     data class UiState(
         val url: String? = null,
         val fileName: String? = null,
