@@ -12,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SubscriptionSettingsModel @Inject constructor() {
+class SubscriptionSettingsUseCase @Inject constructor() {
     data class UiState(
         val url: String? = null,
         val fileName: String? = null,
@@ -35,7 +35,7 @@ class SubscriptionSettingsModel @Inject constructor() {
         val supportsAuthentication: Boolean = url.let {
             val uri = try {
                 Uri.parse(url)
-            } catch (e: URISyntaxException) {
+            } catch (_: URISyntaxException) {
                 return@let false
             } catch (_: NullPointerException) {
                 return@let false

@@ -27,8 +27,8 @@ import javax.inject.Inject
 class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    val validationModel: ValidationModel,
-    val subscriptionSettingsModel: SubscriptionSettingsModel
+    val validationUseCase: ValidationUseCase,
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
 ) : ViewModel() {
 
     data class UiState(
@@ -45,13 +45,13 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(showNextButton = value)
     }
 
-    fun resetValidationResult() = validationModel.resetResult()
+    fun resetValidationResult() = validationUseCase.resetResult()
     fun validateUrl(originalUri: Uri, username: String? = null, password: String? = null) =
-        validationModel.validate(originalUri, username, password)
+        validationUseCase.validate(originalUri, username, password)
     
     fun checkUrlIntroductionPage() {
-        with(subscriptionSettingsModel) {
-            if (validationModel.uiState.isVerifyingUrl) {
+        with(subscriptionSettingsUseCase) {
+            if (validationUseCase.uiState.isVerifyingUrl) {
                 setShowNextButton(true)
             } else {
                 val uri = validateUri(
@@ -83,7 +83,7 @@ class AddSubscriptionModel @Inject constructor(
     fun createSubscription() = viewModelScope.launch(Dispatchers.IO) {
         uiState = uiState.copy(isCreating = true)
         try {
-            with(subscriptionSettingsModel.uiState) {
+            with(subscriptionSettingsUseCase.uiState) {
                 val subscription = Subscription(
                     displayName = title!!,
                     url = Uri.parse(url),

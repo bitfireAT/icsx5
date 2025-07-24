@@ -53,7 +53,7 @@ fun EditSubscriptionScreen(
         factory.create(subscriptionId)
     }
     val subscription = model.subscription.collectAsStateWithLifecycle(null)
-    with(model.subscriptionSettingsModel) {
+    with(model.subscriptionSettingsUseCase) {
         EditSubscriptionScreen(
             inputValid = model.inputValid,
             modelsDirty = model.modelsDirty,

@@ -20,7 +20,7 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 
-class ValidationModelTest {
+class ValidationUseCaseTest {
 
     companion object {
 
@@ -98,7 +98,7 @@ class ValidationModelTest {
     private fun validate(iCal: String): ResourceInfo {
         server.enqueue(MockResponse().setBody(iCal))
 
-        val model = ValidationModel(app)
+        val model = ValidationUseCase(app)
         runBlocking {
             // Wait until the validation completed
             model.validate(server.url("/").toAndroidUri(), null, null).join()

@@ -59,21 +59,21 @@ fun AddSubscriptionScreen(
     val model: AddSubscriptionModel = hiltViewModel()
 
     // Receive updates for the URL introduction page
-    with(model.subscriptionSettingsModel.uiState) {
+    with(model.subscriptionSettingsUseCase.uiState) {
         LaunchedEffect(url, requiresAuth, username, password) {
             checkUrlIntroductionPage()
         }
     }
 
     // Receive updates for the Details page
-    with(model.subscriptionSettingsModel.uiState) {
+    with(model.subscriptionSettingsUseCase.uiState) {
         LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
             model.setShowNextButton(!title.isNullOrBlank())
         }
     }
 
-    val isVerifyingUrl = model.validationModel.uiState.isVerifyingUrl
-    val validationResult = model.validationModel.uiState.result
+    val isVerifyingUrl = model.validationUseCase.uiState.isVerifyingUrl
+    val validationResult = model.validationUseCase.uiState.result
 
     LaunchedEffect(validationResult) {
         Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
@@ -83,7 +83,7 @@ fun AddSubscriptionScreen(
 
             // When a result has been obtained, and it's neither null nor has an exception,
             // clean the subscriptionSettingsModel, and move the pager to the next page
-            with(model.subscriptionSettingsModel) {
+            with(model.subscriptionSettingsUseCase) {
                 setUrl(info.uri.toString())
 
                 if (uiState.color == null)
@@ -96,7 +96,7 @@ fun AddSubscriptionScreen(
             pagerState.animateScrollToPage(pagerState.currentPage + 1)
         }
     }
-    with(model.subscriptionSettingsModel) {
+    with(model.subscriptionSettingsUseCase) {
         AddSubscriptionScreen(
             pagerState = pagerState,
             requiresAuth = uiState.requiresAuth,

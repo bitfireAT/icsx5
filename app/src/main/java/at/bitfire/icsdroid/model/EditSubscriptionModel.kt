@@ -32,7 +32,7 @@ class EditSubscriptionModel @AssistedInject constructor(
     private val db: AppDatabase,
     @param:ApplicationContext val context: Context,
     @Assisted private val subscriptionId: Long,
-    val subscriptionSettingsModel: SubscriptionSettingsModel
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
 ): ViewModel() {
 
     @AssistedFactory
@@ -48,7 +48,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      * Whether user input is error free
      */
     val inputValid: Boolean
-        get() = with(subscriptionSettingsModel) {
+        get() = with(subscriptionSettingsUseCase) {
             val title = uiState.title
             val requiresAuth = uiState.requiresAuth
             val username = uiState.username
@@ -66,7 +66,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      * Whether there are unsaved user changes
      */
     val modelsDirty: Boolean
-        get() = with(subscriptionSettingsModel) {
+        get() = with(subscriptionSettingsUseCase) {
             val requiresAuth = uiState.requiresAuth
 
             val credentialsDirty = initialRequiresAuthValue != requiresAuth || initialCredential?.let {
@@ -99,7 +99,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      * Initialise view models and remember their initial state
      */
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) =
-        with(subscriptionSettingsModel) {
+        with(subscriptionSettingsUseCase) {
             val subscription = subscriptionWithCredential.subscription
 
             setUrl(subscription.url.toString())
@@ -128,7 +128,7 @@ class EditSubscriptionModel @AssistedInject constructor(
     /**
      * Updates the loaded subscription from the data provided by the view models.
      */
-    fun updateSubscription() = with(subscriptionSettingsModel.uiState) {
+    fun updateSubscription() = with(subscriptionSettingsUseCase.uiState) {
         viewModelScope.launch(Dispatchers.IO) {
             subscription.firstOrNull()?.let { subscription ->
                 val newSubscription = subscription.copy(

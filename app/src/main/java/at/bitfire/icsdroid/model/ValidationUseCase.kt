@@ -30,7 +30,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ValidationModel @Inject constructor(
+class ValidationUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
 
