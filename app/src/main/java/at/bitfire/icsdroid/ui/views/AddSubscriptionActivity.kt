@@ -28,7 +28,7 @@ import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddCalendarActivity : AppCompatActivity() {
+class AddSubscriptionActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_TITLE = "title"
