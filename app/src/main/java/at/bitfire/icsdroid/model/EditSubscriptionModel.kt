@@ -4,83 +4,154 @@
 
 package at.bitfire.icsdroid.model
 
-import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
+import at.bitfire.icsdroid.db.dao.SubscriptionsDao
 import at.bitfire.icsdroid.db.entity.Credential
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import at.bitfire.icsdroid.db.entity.Subscription
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class EditSubscriptionModel(
-    application: Application,
-    private val subscriptionId: Long
-): AndroidViewModel(application) {
+@HiltViewModel(assistedFactory = EditSubscriptionModel.EditSubscriptionModelFactory::class)
+class EditSubscriptionModel @AssistedInject constructor(
+    private val db: AppDatabase,
+    @param:ApplicationContext val context: Context,
+    @Assisted private val subscriptionId: Long,
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
+): ViewModel() {
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface EditSubscriptionModelEntryPoint {
-        fun appDatabase(): AppDatabase
+    @AssistedFactory
+    interface EditSubscriptionModelFactory {
+        fun create(subscriptionId: Long): EditSubscriptionModel
     }
 
-    val db = EntryPointAccessors.fromApplication(application, EditSubscriptionModelEntryPoint::class.java).appDatabase()
+    private var initialSubscription: Subscription? = null
+    private var initialCredential: Credential? = null
+    private var initialRequiresAuthValue: Boolean? = null
 
-    private val credentialsDao = db.credentialsDao()
-    private val subscriptionsDao = db.subscriptionsDao()
+    /**
+     * Whether user input is error free
+     */
+    val inputValid: Boolean
+        get() = with(subscriptionSettingsUseCase) {
+            val title = uiState.title
+            val requiresAuth = uiState.requiresAuth
+            val username = uiState.username
+            val password = uiState.password
 
-    data class UiState(
-        val successMessage: String? = null
-    )
+            val titleOK = !title.isNullOrBlank()
+            val authOK = if (requiresAuth)
+                !username.isNullOrBlank() && !password.isNullOrBlank()
+            else
+                true
+            titleOK && authOK
+        }
 
-    var uiState by mutableStateOf(UiState())
+    /**
+     * Whether there are unsaved user changes
+     */
+    val modelsDirty: Boolean
+        get() = with(subscriptionSettingsUseCase) {
+            val requiresAuth = uiState.requiresAuth
+
+            val credentialsDirty = initialRequiresAuthValue != requiresAuth || initialCredential?.let {
+                !equalsCredential(it)
+            } ?: false
+            val subscriptionsDirty = initialSubscription?.let {
+                !equalsSubscription(it)
+            } ?: false
+
+            credentialsDirty || subscriptionsDirty
+        }
+
+    var successMessage: String? by mutableStateOf(null)
         private set
 
     val subscription = db.subscriptionsDao().getByIdFlow(subscriptionId)
     val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
 
+    init {
+        // Initialise view models and save their initial state
+        viewModelScope.launch {
+            subscriptionWithCredential.collect { data ->
+                if (data != null)
+                    onSubscriptionLoaded(data)
+            }
+        }
+    }
+
+    /**
+     * Initialise view models and remember their initial state
+     */
+    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) =
+        with(subscriptionSettingsUseCase) {
+            val subscription = subscriptionWithCredential.subscription
+
+            setUrl(subscription.url.toString())
+            setTitle(subscription.displayName)
+            setColor(subscription.color)
+            setIgnoreAlerts(subscription.ignoreEmbeddedAlerts)
+            setDefaultAlarmMinutes(subscription.defaultAlarmMinutes?.toString())
+            setDefaultAllDayAlarmMinutes(subscription.defaultAllDayAlarmMinutes?.toString())
+            setIgnoreDescription(subscription.ignoreDescription)
+
+            val credential = subscriptionWithCredential.credential
+            val requiresAuth = credential != null
+            setRequiresAuth(requiresAuth)
+
+            if (credential != null) {
+                setUsername(credential.username)
+                setPassword(credential.password)
+            }
+
+            // Save state, before user makes changes
+            initialSubscription = subscription
+            initialCredential = credential
+            initialRequiresAuthValue = uiState.requiresAuth
+        }
+
     /**
      * Updates the loaded subscription from the data provided by the view models.
      */
-    fun updateSubscription(
-        subscriptionSettingsModel: SubscriptionSettingsModel
-    ) {
+    fun updateSubscription() = with(subscriptionSettingsUseCase.uiState) {
         viewModelScope.launch(Dispatchers.IO) {
             subscription.firstOrNull()?.let { subscription ->
                 val newSubscription = subscription.copy(
-                    displayName = subscriptionSettingsModel.uiState.title ?: subscription.displayName,
-                    color = subscriptionSettingsModel.uiState.color,
-                    defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-                    defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-                    ignoreEmbeddedAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
-                    ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription
+                    displayName = title ?: subscription.displayName,
+                    color = color,
+                    defaultAlarmMinutes = defaultAlarmMinutes,
+                    defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
+                    ignoreEmbeddedAlerts = ignoreAlerts,
+                    ignoreDescription = ignoreDescription
                 )
-                subscriptionsDao.update(newSubscription)
+                db.subscriptionsDao().update(newSubscription)
 
-                if (subscriptionSettingsModel.uiState.requiresAuth) {
-                    val username = subscriptionSettingsModel.uiState.username
-                    val password = subscriptionSettingsModel.uiState.password
+                if (requiresAuth) {
                     if (username != null && password != null)
-                        credentialsDao.upsert(Credential(subscriptionId, username, password))
+                        db.credentialsDao().upsert(Credential(subscriptionId, username, password))
                 } else
-                    credentialsDao.removeBySubscriptionId(subscriptionId)
+                    db.credentialsDao().removeBySubscriptionId(subscriptionId)
 
                 // notify UI about success
-                uiState = uiState.copy(successMessage = getApplication<Application>().getString(R.string.edit_calendar_saved))
+                successMessage = context.getString(R.string.edit_calendar_saved)
 
                 // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication(), forceResync = true)
+                SyncWorker.run(context, forceResync = true)
             } ?: Log.w(Constants.TAG, "There's no subscription to update")
         }
     }
@@ -91,13 +162,13 @@ class EditSubscriptionModel(
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
             subscription.firstOrNull()?.let { subscription ->
-                subscriptionsDao.delete(subscription)
+                db.subscriptionsDao().delete(subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(getApplication())
+                SyncWorker.run(context)
 
                 // notify UI about success
-                uiState = uiState.copy(successMessage = getApplication<Application>().getString(R.string.edit_calendar_deleted))
+                successMessage = context.getString(R.string.edit_calendar_deleted)
             } ?: Log.w(Constants.TAG, "There's no subscription to remove")
         }
     }

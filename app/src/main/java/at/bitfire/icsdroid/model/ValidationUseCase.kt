@@ -10,8 +10,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
@@ -20,8 +18,8 @@ import at.bitfire.icsdroid.Constants
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
@@ -29,11 +27,12 @@ import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@HiltViewModel
-class ValidationModel @Inject constructor(
+@Singleton
+class ValidationUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-): ViewModel() {
+) {
 
     data class UiState(
         val isVerifyingUrl: Boolean = false,
@@ -51,7 +50,7 @@ class ValidationModel @Inject constructor(
         originalUri: Uri,
         username: String?,
         password: String?
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = CoroutineScope(Dispatchers.IO).launch {
         try {
             Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
 

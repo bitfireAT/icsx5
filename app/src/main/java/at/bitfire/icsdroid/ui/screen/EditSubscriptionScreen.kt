@@ -4,7 +4,6 @@
 
 package at.bitfire.icsdroid.ui.screen
 
-import android.app.Application
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
@@ -34,12 +33,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.model.EditCalendarModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
+import at.bitfire.icsdroid.model.EditSubscriptionModel.EditSubscriptionModelFactory
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.AppTheme
@@ -47,63 +44,57 @@ import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 
 @Composable
-fun EditCalendarScreen(
+fun EditSubscriptionScreen(
     subscriptionId: Long,
     onShare: (subscription: Subscription) -> Unit,
     onExit: () -> Unit = {}
 ) {
-    val applicationContext = LocalContext.current.applicationContext
-    val subscriptionSettingsModel: SubscriptionSettingsModel = hiltViewModel()
-    val editSubscriptionModel: EditSubscriptionModel = viewModel {
-        EditSubscriptionModel(applicationContext as Application, subscriptionId)
+    val model = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
+        factory.create(subscriptionId)
     }
-    val editCalendarModel: EditCalendarModel = viewModel {
-        EditCalendarModel(editSubscriptionModel, subscriptionSettingsModel)
+    val subscription = model.subscription.collectAsStateWithLifecycle(null)
+    with(model.subscriptionSettingsUseCase) {
+        EditSubscriptionScreen(
+            inputValid = model.inputValid,
+            modelsDirty = model.modelsDirty,
+            successMessage = model.successMessage,
+            onDelete = model::removeSubscription,
+            onSave = model::updateSubscription,
+            onShare = {
+                subscription.value?.let {
+                    onShare(it)
+                }
+            },
+            onExit = onExit,
+
+            // Subscription settings repository
+            supportsAuthentication = uiState.supportsAuthentication,
+            url = uiState.url,
+            title = uiState.title,
+            titleChanged = ::setTitle,
+            color = uiState.color,
+            colorChanged = ::setColor,
+            ignoreAlerts = uiState.ignoreAlerts,
+            ignoreAlertsChanged = ::setIgnoreAlerts,
+            defaultAlarmMinutes = uiState.defaultAlarmMinutes,
+            defaultAlarmMinutesChanged = ::setDefaultAlarmMinutes,
+            defaultAllDayAlarmMinutes = uiState.defaultAllDayAlarmMinutes,
+            defaultAllDayAlarmMinutesChanged = ::setDefaultAllDayAlarmMinutes,
+            ignoreDescription = uiState.ignoreDescription,
+            onIgnoreDescriptionChanged = ::setIgnoreDescription,
+            isCreating = false,
+            requiresAuth = uiState.requiresAuth,
+            username = uiState.username,
+            password = uiState.password,
+            onRequiresAuthChange = ::setRequiresAuth,
+            onUsernameChange = ::setUsername,
+            onPasswordChange = ::setPassword,
+        )
     }
-    val subscription = editSubscriptionModel.subscription.collectAsStateWithLifecycle(null)
-    EditCalendarScreen(
-        inputValid = editCalendarModel.inputValid,
-        modelsDirty = editCalendarModel.modelsDirty,
-        successMessage = editCalendarModel.editSubscriptionModel.uiState.successMessage,
-        onDelete = editSubscriptionModel::removeSubscription,
-        onSave = {
-            editSubscriptionModel.updateSubscription(subscriptionSettingsModel)
-        },
-        onShare = {
-            subscription.value?.let {
-                onShare(it)
-            }
-        },
-        onExit = onExit,
-        supportsAuthentication = editCalendarModel.subscriptionSettingsModel.uiState.supportsAuthentication,
-
-        // Subscription settings model
-        url = subscriptionSettingsModel.uiState.url,
-        title = subscriptionSettingsModel.uiState.title,
-        titleChanged = subscriptionSettingsModel::setTitle,
-        color = subscriptionSettingsModel.uiState.color,
-        colorChanged = subscriptionSettingsModel::setColor,
-        ignoreAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
-        ignoreAlertsChanged = subscriptionSettingsModel::setIgnoreAlerts,
-        defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-        defaultAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAlarmMinutes,
-        defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-        defaultAllDayAlarmMinutesChanged = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
-        ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
-        onIgnoreDescriptionChanged = subscriptionSettingsModel::setIgnoreDescription,
-        isCreating = false,
-
-        // Credentials model
-        requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
-        username = subscriptionSettingsModel.uiState.username,
-        password = subscriptionSettingsModel.uiState.password,
-        onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
-        onUsernameChange = subscriptionSettingsModel::setUsername,
-        onPasswordChange = subscriptionSettingsModel::setPassword,
-    )
 }
+
 @Composable
-fun EditCalendarScreen(
+fun EditSubscriptionScreen(
     inputValid: Boolean,
     modelsDirty: Boolean,
     successMessage: String?,
@@ -111,9 +102,9 @@ fun EditCalendarScreen(
     onSave: () -> Unit,
     onShare: () -> Unit,
     onExit: () -> Unit,
-    supportsAuthentication: Boolean,
 
-    // Subscription settings model
+    // Subscription settings
+    supportsAuthentication: Boolean,
     url: String?,
     title: String?,
     titleChanged: (String) -> Unit,
@@ -128,8 +119,6 @@ fun EditCalendarScreen(
     ignoreDescription: Boolean,
     onIgnoreDescriptionChanged: (Boolean) -> Unit,
     isCreating: Boolean,
-
-    // Credentials model
     requiresAuth: Boolean,
     username: String? = null,
     password: String? = null,
@@ -270,7 +259,7 @@ private fun AppBarComposable(
 @Composable
 fun EditCalendarScreen_Preview() {
     AppTheme {
-        EditCalendarScreen(
+        EditSubscriptionScreen(
             inputValid = true,
             modelsDirty = false,
             successMessage = "yay!",

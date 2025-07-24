@@ -18,7 +18,7 @@ import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.AlertDialog
-import at.bitfire.icsdroid.ui.screen.CalendarListScreen
+import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_ERROR_MESSAGE
 import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_THROWABLE
@@ -101,7 +101,7 @@ class CalendarListActivity: AppCompatActivity() {
                 ) { showingErrorMessage = false }
             }
 
-            CalendarListScreen(
+            SubscriptionsScreen(
                 model = model,
                 onAboutRequested = {
                     startActivity(Intent(this, InfoActivity::class.java))
