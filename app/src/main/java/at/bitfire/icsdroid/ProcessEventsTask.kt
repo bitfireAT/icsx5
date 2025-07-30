@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid
 
@@ -17,7 +17,7 @@ import at.bitfire.icsdroid.calendar.LocalEvent
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
-import at.bitfire.icsdroid.ui.views.CalendarListActivity
+import at.bitfire.icsdroid.ui.views.SubscriptionListActivity
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -273,9 +273,9 @@ class ProcessEventsTask(
     private fun notifyError() {
         val exception = exception ?: return
         val message = exception.localizedMessage ?: exception.message ?: exception.toString()
-        val errorIntent = Intent(context, CalendarListActivity::class.java).apply {
-            putExtra(CalendarListActivity.EXTRA_ERROR_MESSAGE, message)
-            putExtra(CalendarListActivity.EXTRA_THROWABLE, exception)
+        val errorIntent = Intent(context, SubscriptionListActivity::class.java).apply {
+            putExtra(SubscriptionListActivity.EXTRA_ERROR_MESSAGE, message)
+            putExtra(SubscriptionListActivity.EXTRA_THROWABLE, exception)
         }
 
         val notificationManager = NotificationUtils.createChannels(context)

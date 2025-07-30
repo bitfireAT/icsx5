@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid.ui.views
 
@@ -22,24 +22,20 @@ import androidx.core.view.WindowCompat
 import at.bitfire.icsdroid.HttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
-import at.bitfire.icsdroid.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.model.ValidationModel
-import at.bitfire.icsdroid.ui.screen.AddCalendarScreen
+import at.bitfire.icsdroid.model.AddSubscriptionModel
+import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddCalendarActivity : AppCompatActivity() {
+class AddSubscriptionActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_TITLE = "title"
         const val EXTRA_COLOR = "color"
     }
 
-    private val subscriptionSettingsModel by viewModels<SubscriptionSettingsModel>()
-    private val validationModel by viewModels<ValidationModel>()
-    private val createSubscriptionModel by viewModels<CreateSubscriptionModel>()
+    private val addSubscriptionModel by viewModels<AddSubscriptionModel>()
 
     private val pickFile =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -49,7 +45,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                subscriptionSettingsModel.setUrl(uri.toString())
+                addSubscriptionModel.subscriptionSettingsUseCase.setUrl(uri.toString())
 
                 // Get file name
                 val displayName = contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -57,7 +53,7 @@ class AddCalendarActivity : AppCompatActivity() {
                     val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     cursor.getString(name)
                 }
-                subscriptionSettingsModel.setFileName(displayName)
+                addSubscriptionModel.subscriptionSettingsUseCase.setFileName(displayName)
             }
         }
 
@@ -71,66 +67,54 @@ class AddCalendarActivity : AppCompatActivity() {
             val context = LocalContext.current
 
             // on success, show notification and close activity
-            if (createSubscriptionModel.uiState.success) {
+            if (addSubscriptionModel.uiState.success) {
                 Toast.makeText(context, getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
                 finish()
             }
 
             // on error, show error message
-            createSubscriptionModel.uiState
+            addSubscriptionModel.uiState
                 .errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
 
             // If launched by intent
             LaunchedEffect(intent) {
-                if (savedInstanceState == null) {
-                    intent?.apply {
-                        try {
-                            (data ?: getStringExtra(Intent.EXTRA_TEXT))
-                                ?.toString()
-                                ?.trim()
-                                ?.let(subscriptionSettingsModel::setUrl)
-                                ?.also {
-                                    createSubscriptionModel.checkUrlIntroductionPage(
-                                        subscriptionSettingsModel,
-                                        validationModel
-                                    )
-                                }
-                        } catch (_: IllegalArgumentException) {
-                            // Data does not have a valid url
-                        }
-
-                        IntentCompat.getParcelableExtra<Uri>(intent, Intent.EXTRA_STREAM, Uri::class.java)
-                            ?.toString()
-                            ?.let(subscriptionSettingsModel::setUrl)
-                            ?.also {
-                                createSubscriptionModel.checkUrlIntroductionPage(
-                                    subscriptionSettingsModel,
-                                    validationModel
-                                )
+                with(addSubscriptionModel.subscriptionSettingsUseCase) {
+                    if (savedInstanceState == null) {
+                        intent?.apply {
+                            try {
+                                (data ?: getStringExtra(Intent.EXTRA_TEXT))
+                                    ?.toString()
+                                    ?.trim()
+                                    ?.let(::setUrl)
+                                    ?.also {
+                                        addSubscriptionModel.checkUrlIntroductionPage()
+                                    }
+                            } catch (_: IllegalArgumentException) {
+                                // Data does not have a valid url
                             }
 
-                        getStringExtra(EXTRA_TITLE)
-                            ?.let(subscriptionSettingsModel::setTitle)
-                        takeIf { hasExtra(EXTRA_COLOR) }
-                            ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
-                            ?.let(subscriptionSettingsModel::setColor)
+                            IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+                                ?.toString()
+                                ?.let(::setUrl)
+                                ?.also {
+                                    addSubscriptionModel.checkUrlIntroductionPage()
+                                }
+
+                            getStringExtra(EXTRA_TITLE)
+                                ?.let(::setTitle)
+                            takeIf { hasExtra(EXTRA_COLOR) }
+                                ?.getIntExtra(EXTRA_COLOR, LocalCalendar.DEFAULT_COLOR)
+                                ?.let(::setColor)
+                        }
                     }
                 }
             }
 
             Box(modifier = Modifier.imePadding()) {
-                AddCalendarScreen(
-                    createSubscriptionModel = createSubscriptionModel,
-                    subscriptionSettingsModel = subscriptionSettingsModel,
-                    validationModel = validationModel,
+                AddSubscriptionScreen(
                     onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
                     finish = ::finish,
-                    checkUrlIntroductionPage = {
-                        createSubscriptionModel.checkUrlIntroductionPage(
-                            subscriptionSettingsModel,
-                            validationModel
-                        )
-                    }
+                    checkUrlIntroductionPage = addSubscriptionModel::checkUrlIntroductionPage
                 )
             }
         }

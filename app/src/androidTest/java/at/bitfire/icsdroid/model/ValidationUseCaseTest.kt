@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid.model
 
@@ -18,7 +18,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class ValidationModelTest {
+class ValidationUseCaseTest {
 
     companion object {
 
@@ -86,7 +86,7 @@ class ValidationModelTest {
         MockEngineWrapper.enqueue(content = iCal)
 
         val client = HttpClient(app, MockEngineWrapper.engine)
-        val model = ValidationModel(app, client)
+        val model = ValidationUseCase(app, client)
         runBlocking {
             // Wait until the validation completed
             model.validate(MockEngineWrapper.uri(), null, null).join()

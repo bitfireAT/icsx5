@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid.ui
 
@@ -12,7 +12,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.ui.views.CalendarListActivity
+import at.bitfire.icsdroid.ui.views.SubscriptionListActivity
 
 object NotificationUtils {
 
@@ -37,8 +37,8 @@ object NotificationUtils {
      */
     fun showCalendarPermissionNotification(context: Context) {
         val nm = createChannels(context)
-        val askPermissionsIntent = Intent(context, CalendarListActivity::class.java).apply {
-            putExtra(CalendarListActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
+        val askPermissionsIntent = Intent(context, SubscriptionListActivity::class.java).apply {
+            putExtra(SubscriptionListActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
         }
         val notification = NotificationCompat.Builder(context, CHANNEL_SYNC)
             .setSmallIcon(R.drawable.ic_sync_problem_white)

@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid.ui.views
 
@@ -18,16 +18,16 @@ import at.bitfire.icsdroid.model.SubscriptionsModel
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.AlertDialog
-import at.bitfire.icsdroid.ui.screen.CalendarListScreen
+import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
-import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_ERROR_MESSAGE
-import at.bitfire.icsdroid.ui.views.CalendarListActivity.Companion.EXTRA_THROWABLE
+import at.bitfire.icsdroid.ui.views.SubscriptionListActivity.Companion.EXTRA_ERROR_MESSAGE
+import at.bitfire.icsdroid.ui.views.SubscriptionListActivity.Companion.EXTRA_THROWABLE
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.ServiceLoader
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CalendarListActivity: AppCompatActivity() {
+class SubscriptionListActivity: AppCompatActivity() {
 
     companion object {
         /**
@@ -101,19 +101,19 @@ class CalendarListActivity: AppCompatActivity() {
                 ) { showingErrorMessage = false }
             }
 
-            CalendarListScreen(
+            SubscriptionsScreen(
                 model = model,
                 onAboutRequested = {
                     startActivity(Intent(this, InfoActivity::class.java))
                 },
                 onAddRequested = {
-                    startActivity(Intent(this, AddCalendarActivity::class.java))
+                    startActivity(Intent(this, AddSubscriptionActivity::class.java))
                 },
                 onRequestCalendarPermissions = requestCalendarPermissions,
                 onRequestNotificationPermission = requestNotificationPermission,
                 onItemSelected = { subscription ->
-                    val intent = Intent(this, EditCalendarActivity::class.java)
-                    intent.putExtra(EditCalendarActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
+                    val intent = Intent(this, EditSubscriptionActivity::class.java)
+                    intent.putExtra(EditSubscriptionActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
                     startActivity(intent)
                 }
             )

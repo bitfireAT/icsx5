@@ -1,6 +1,6 @@
-/***************************************************************************************************
+/*
  * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
- **************************************************************************************************/
+ */
 
 package at.bitfire.icsdroid.ui.views
 
@@ -9,12 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
-import at.bitfire.icsdroid.ui.screen.EditCalendarScreen
+import at.bitfire.icsdroid.ui.screen.EditSubscriptionScreen
 import at.bitfire.icsdroid.ui.theme.setContentThemed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EditCalendarActivity: AppCompatActivity() {
+class EditSubscriptionActivity: AppCompatActivity() {
 
     companion object {
         // Used by intents only
@@ -25,7 +25,7 @@ class EditCalendarActivity: AppCompatActivity() {
         configureEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentThemed {
-            EditCalendarScreen(
+            EditSubscriptionScreen(
                 subscriptionId = intent.getLongExtra(EXTRA_SUBSCRIPTION_ID, -1),
                 { onShare(it) },
                 { finish() }

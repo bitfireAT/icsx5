@@ -1,3 +1,7 @@
+/*
+ * Copyright © All Contributors. See LICENSE and AUTHORS in the root directory for details.
+ */
+
 package at.bitfire.icsdroid.ui.screen
 
 import android.net.Uri
@@ -33,10 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.model.CreateSubscriptionModel
-import at.bitfire.icsdroid.model.SubscriptionSettingsModel
-import at.bitfire.icsdroid.model.ValidationModel
+import at.bitfire.icsdroid.model.AddSubscriptionModel
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.theme.lightblue
@@ -45,10 +48,7 @@ import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddCalendarScreen(
-    createSubscriptionModel: CreateSubscriptionModel,
-    subscriptionSettingsModel: SubscriptionSettingsModel,
-    validationModel: ValidationModel,
+fun AddSubscriptionScreen(
     onPickFileRequested: () -> Unit,
     checkUrlIntroductionPage: () -> Unit,
     finish: () -> Unit
@@ -56,126 +56,124 @@ fun AddCalendarScreen(
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
 
+    val model: AddSubscriptionModel = hiltViewModel()
+
     // Receive updates for the URL introduction page
-    LaunchedEffect(
-        subscriptionSettingsModel.uiState.url,
-        subscriptionSettingsModel.uiState.requiresAuth,
-        subscriptionSettingsModel.uiState.username,
-        subscriptionSettingsModel.uiState.password,
-        validationModel.uiState.isVerifyingUrl
-    ) {
-        checkUrlIntroductionPage()
+    with(model.subscriptionSettingsUseCase.uiState) {
+        LaunchedEffect(url, requiresAuth, username, password) {
+            checkUrlIntroductionPage()
+        }
     }
 
     // Receive updates for the Details page
-    LaunchedEffect(
-        subscriptionSettingsModel.uiState.title,
-        subscriptionSettingsModel.uiState.color,
-        subscriptionSettingsModel.uiState.ignoreAlerts,
-        subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-        subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes
-    ) {
-        createSubscriptionModel.setShowNextButton(
-            !subscriptionSettingsModel.uiState.title.isNullOrBlank()
+    with(model.subscriptionSettingsUseCase.uiState) {
+        LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
+            model.setShowNextButton(!title.isNullOrBlank())
+        }
+    }
+
+    val isVerifyingUrl = model.validationUseCase.uiState.isVerifyingUrl
+    val validationResult = model.validationUseCase.uiState.result
+
+    LaunchedEffect(validationResult) {
+        Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
+        validationResult?.let { info ->
+            if (info.exception != null)
+                return@LaunchedEffect
+
+            // When a result has been obtained, and it's neither null nor has an exception,
+            // clean the subscriptionSettingsModel, and move the pager to the next page
+            with(model.subscriptionSettingsUseCase) {
+                setUrl(info.uri.toString())
+
+                if (uiState.color == null)
+                    setColor(info.calendarColor ?: lightblue.toArgb())
+
+                if (uiState.title.isNullOrBlank())
+                    setTitle(info.calendarName ?: info.uri.toString())
+            }
+
+            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        }
+    }
+    with(model.subscriptionSettingsUseCase) {
+        AddSubscriptionScreen(
+            pagerState = pagerState,
+            requiresAuth = uiState.requiresAuth,
+            onRequiresAuthChange = ::setRequiresAuth,
+            username = uiState.username,
+            onUsernameChange = ::setUsername,
+            password = uiState.password,
+            onPasswordChange = ::setPassword,
+            isInsecure = uiState.isInsecure,
+            url = uiState.url,
+            onUrlChange = {
+                setUrl(it)
+                setFileName(null)
+            },
+            fileName = uiState.fileName,
+            urlError = uiState.urlError,
+            supportsAuthentication = uiState.supportsAuthentication,
+            title = uiState.title,
+            onTitleChange = ::setTitle,
+            color = uiState.color,
+            onColorChange = ::setColor,
+            ignoreAlerts = uiState.ignoreAlerts,
+            onIgnoreAlertsChange = ::setIgnoreAlerts,
+            defaultAlarmMinutes = uiState.defaultAlarmMinutes,
+            onDefaultAlarmMinutesChange = ::setDefaultAlarmMinutes,
+            defaultAllDayAlarmMinutes = uiState.defaultAllDayAlarmMinutes,
+            onDefaultAllDayAlarmMinutesChange = ::setDefaultAllDayAlarmMinutes,
+            ignoreDescription = uiState.ignoreDescription,
+            onIgnoreDescriptionChange = ::setIgnoreDescription,
+            showNextButton = model.uiState.showNextButton,
+            isVerifyingUrl = isVerifyingUrl,
+            isCreating = model.uiState.isCreating,
+            validationResult = validationResult,
+            onResetResult = model::resetValidationResult,
+            onPickFileRequested = onPickFileRequested,
+            onNextRequested = { page: Int ->
+                when (page) {
+                    // First page (Enter Url)
+                    0 -> {
+                        // flush the credentials if auth toggle is disabled
+                        if (!uiState.requiresAuth)
+                            clearCredentials()
+
+                        val uri: Uri? = uiState.url?.let(Uri::parse)
+                        val authenticate = uiState.requiresAuth
+
+                        if (uri != null) {
+                            model.validateUrl(
+                                originalUri = uri,
+                                username = if (authenticate) uiState.username else null,
+                                password = if (authenticate) uiState.password else null
+                            )
+                        }
+                    }
+                    // Second page (details and confirm)
+                    1 -> {
+                        model.createSubscription()
+                    }
+                }
+            },
+            onNavigationClicked = {
+                // If first page, close activity
+                if (pagerState.currentPage <= 0) finish()
+                // otherwise, go back a page
+                else scope.launch {
+                    // Needed for non-first-time validations to trigger following validation result updates
+                    model.resetValidationResult()
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
+            }
         )
     }
-
-    LaunchedEffect(validationModel.uiState.result) {
-        val validationResult = validationModel.uiState.result
-        Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
-        if (validationResult == null || validationResult.exception != null) return@LaunchedEffect
-        val info = validationResult
-
-        // When a result has been obtained, and it's neither null nor has an exception,
-        // clean the subscriptionSettingsModel, and move the pager to the next page
-        subscriptionSettingsModel.setUrl(info.uri.toString())
-
-        if (subscriptionSettingsModel.uiState.color == null)
-            subscriptionSettingsModel.setColor(info.calendarColor ?: lightblue.toArgb())
-
-        if (subscriptionSettingsModel.uiState.title.isNullOrBlank())
-            subscriptionSettingsModel.setTitle(info.calendarName ?: info.uri.toString())
-
-        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-    }
-
-    AddCalendarScreen(
-        pagerState = pagerState,
-        requiresAuth = subscriptionSettingsModel.uiState.requiresAuth,
-        onRequiresAuthChange = subscriptionSettingsModel::setRequiresAuth,
-        username = subscriptionSettingsModel.uiState.username,
-        onUsernameChange = subscriptionSettingsModel::setUsername,
-        password = subscriptionSettingsModel.uiState.password,
-        onPasswordChange = subscriptionSettingsModel::setPassword,
-        isInsecure = subscriptionSettingsModel.uiState.isInsecure,
-        url = subscriptionSettingsModel.uiState.url,
-        onUrlChange = {
-            subscriptionSettingsModel.setUrl(it)
-            subscriptionSettingsModel.setFileName(null)
-        },
-        fileName = subscriptionSettingsModel.uiState.fileName,
-        urlError = subscriptionSettingsModel.uiState.urlError,
-        supportsAuthentication = subscriptionSettingsModel.uiState.supportsAuthentication,
-        title = subscriptionSettingsModel.uiState.title,
-        onTitleChange = subscriptionSettingsModel::setTitle,
-        color = subscriptionSettingsModel.uiState.color,
-        onColorChange = subscriptionSettingsModel::setColor,
-        ignoreAlerts = subscriptionSettingsModel.uiState.ignoreAlerts,
-        onIgnoreAlertsChange = subscriptionSettingsModel::setIgnoreAlerts,
-        defaultAlarmMinutes = subscriptionSettingsModel.uiState.defaultAlarmMinutes,
-        onDefaultAlarmMinutesChange = subscriptionSettingsModel::setDefaultAlarmMinutes,
-        defaultAllDayAlarmMinutes = subscriptionSettingsModel.uiState.defaultAllDayAlarmMinutes,
-        onDefaultAllDayAlarmMinutesChange = subscriptionSettingsModel::setDefaultAllDayAlarmMinutes,
-        ignoreDescription = subscriptionSettingsModel.uiState.ignoreDescription,
-        onIgnoreDescriptionChange = subscriptionSettingsModel::setIgnoreDescription,
-        showNextButton = createSubscriptionModel.uiState.showNextButton,
-        isVerifyingUrl = validationModel.uiState.isVerifyingUrl,
-        isCreating = createSubscriptionModel.uiState.isCreating,
-        validationResult = validationModel.uiState.result,
-        onResetResult = validationModel::resetResult,
-        onPickFileRequested = onPickFileRequested,
-        onNextRequested = { page: Int ->
-            when (page) {
-                // First page (Enter Url)
-                0 -> {
-                    // flush the credentials if auth toggle is disabled
-                    if (!subscriptionSettingsModel.uiState.requiresAuth) {
-                        subscriptionSettingsModel.clearCredentials()
-                    }
-
-                    val uri: Uri? = subscriptionSettingsModel.uiState.url?.let(Uri::parse)
-                    val authenticate = subscriptionSettingsModel.uiState.requiresAuth
-
-                    if (uri != null) {
-                        validationModel.validate(
-                            uri,
-                            if (authenticate) subscriptionSettingsModel.uiState.username else null,
-                            if (authenticate) subscriptionSettingsModel.uiState.password else null
-                        )
-                    }
-                }
-                // Second page (details and confirm)
-                1 -> {
-                    createSubscriptionModel.create(subscriptionSettingsModel)
-                }
-            }
-        },
-        onNavigationClicked = {
-            // If first page, close activity
-            if (pagerState.currentPage <= 0) finish()
-            // otherwise, go back a page
-            else scope.launch {
-                // Needed for non-first-time validations to trigger following validation result updates
-                validationModel.resetResult()
-                pagerState.animateScrollToPage(pagerState.currentPage - 1)
-            }
-        }
-    )
 }
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
-fun AddCalendarScreen(
+fun AddSubscriptionScreen(
     pagerState: PagerState = rememberPagerState { 2 },
     requiresAuth: Boolean,
     onRequiresAuthChange: (Boolean) -> Unit,
