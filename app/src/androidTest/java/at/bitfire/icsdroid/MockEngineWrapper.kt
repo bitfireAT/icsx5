@@ -21,8 +21,12 @@ object MockEngineWrapper {
     private val queue = mutableListOf<Response>()
 
     val engine = MockEngine {
-        val response = lock.withLock { queue.removeFirst() }
-        respond(response.content, response.status, response.headers)
+        if (queue.isNotEmpty()) {
+            val response = lock.withLock { queue.removeAt(0) }
+            respond(response.content, response.status, response.headers)
+        } else {
+            respond("No more responses", HttpStatusCode.NotImplemented)
+        }
     }
 
     fun clear() {
