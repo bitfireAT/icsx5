@@ -48,8 +48,6 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
-        dataBinding = true
-        viewBinding = true
     }
 
     flavorDimensions += "distribution"
