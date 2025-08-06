@@ -11,14 +11,14 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     namespace = "at.bitfire.icsdroid"
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 36
 
         versionCode = 88
         versionName = "2.3.1"
