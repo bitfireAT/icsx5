@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import java.net.MalformedURLException
+import java.net.URL
 
 object UriUtils {
     /**
@@ -36,4 +38,10 @@ object UriUtils {
 
         return false
     }
+
+    /**
+     * Creates a URL object from the String representation.
+     * @throws MalformedURLException if no protocol is specified, or an unknown protocol is found.
+     */
+    fun Uri.toURL() = URL(this.toString())
 }

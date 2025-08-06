@@ -10,6 +10,7 @@ import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
+import at.bitfire.icsdroid.UriUtils.toURL
 import io.ktor.client.request.basicAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -139,7 +140,7 @@ open class CalendarFetcher(
     internal suspend fun fetchNetwork() {
         Log.i(Constants.TAG, "Fetching remote file $uri")
         try {
-            client.httpClient.get(uri.toURI().toURL()) {
+            client.httpClient.get(uri.toURL()) {
                 header(HttpHeaders.Accept, MIME_CALENDAR_OR_OTHER)
 
                 val currentUsername = username
