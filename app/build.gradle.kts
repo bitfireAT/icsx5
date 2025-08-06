@@ -7,18 +7,19 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.ksp)
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     namespace = "at.bitfire.icsdroid"
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 36
 
         versionCode = 88
         versionName = "2.3.1"
@@ -136,7 +137,10 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.work.runtime)
 
     // Jetpack Compose
@@ -156,6 +160,8 @@ dependencies {
     // Room Database
     implementation(libs.room.base)
     ksp(libs.room.compiler)
+
+    implementation(libs.kotlinx.serialization.core)
 
     // for tests
     androidTestImplementation(libs.androidx.test.junit)
