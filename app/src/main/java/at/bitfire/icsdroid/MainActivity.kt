@@ -6,6 +6,7 @@ import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_ERROR_MESSAGE
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.ui.nav.MainApp
 import at.bitfire.icsdroid.ui.theme.setContentThemed
+import at.bitfire.icsdroid.ui.views.configureEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        configureEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         setContentThemed {
