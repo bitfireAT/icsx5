@@ -62,12 +62,12 @@ import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
-import at.bitfire.icsdroid.ui.views.AddSubscriptionActivity
 import at.bitfire.icsdroid.ui.views.EditSubscriptionActivity
 
 @Composable
 fun SubscriptionsScreen(
     requestPermissions: Boolean,
+    onAddRequested: () -> Unit,
     model: SubscriptionsModel = hiltViewModel()
 ) {
     val activity = LocalActivity.current
@@ -96,9 +96,7 @@ fun SubscriptionsScreen(
         onAboutRequested = {
             activity?.startActivity(Intent(context, InfoActivity::class.java))
         },
-        onAddRequested = {
-            activity?.startActivity(Intent(context, AddSubscriptionActivity::class.java))
-        },
+        onAddRequested = onAddRequested,
         onRequestCalendarPermissions = requestCalendarPermissions,
         onRequestNotificationPermission = requestNotificationPermission,
         onItemSelected = { subscription ->

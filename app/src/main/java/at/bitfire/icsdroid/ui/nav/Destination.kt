@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui.nav
 
+import androidx.annotation.ColorInt
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
@@ -7,4 +8,10 @@ import kotlinx.serialization.Serializable
 sealed interface Destination : NavKey {
     @Serializable
     object SubscriptionList : Destination
+
+    @Serializable
+    data class AddSubscription(
+        val title: String? = null,
+        @param:ColorInt val color: Int? = null,
+    ): Destination
 }
