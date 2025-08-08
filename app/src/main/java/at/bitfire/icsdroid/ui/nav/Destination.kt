@@ -7,4 +7,9 @@ import kotlinx.serialization.Serializable
 sealed interface Destination : NavKey {
     @Serializable
     object SubscriptionList : Destination
+
+    @Serializable
+    data class EditSubscription(
+        val subscriptionId: Long
+    ) : Destination
 }

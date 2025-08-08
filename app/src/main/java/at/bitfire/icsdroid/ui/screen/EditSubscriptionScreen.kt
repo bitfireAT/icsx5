@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ShareCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.bitfire.icsdroid.R
@@ -42,6 +43,27 @@ import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
+
+@Composable
+fun EditSubscriptionScreen(
+    subscriptionId: Long,
+    onBackRequested: () -> Unit,
+) {
+    val context = LocalContext.current
+
+    EditSubscriptionScreen(
+        subscriptionId,
+        onShare = { subscription ->
+            ShareCompat.IntentBuilder(context)
+                .setSubject(subscription.displayName)
+                .setText(subscription.url.toString())
+                .setType("text/plain")
+                .setChooserTitle(R.string.edit_calendar_send_url)
+                .startChooser()
+        },
+        onExit = onBackRequested
+    )
+}
 
 @Composable
 fun EditSubscriptionScreen(

@@ -19,6 +19,7 @@ import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISS
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.AlertDialog
+import at.bitfire.icsdroid.ui.screen.EditSubscriptionScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
 
@@ -62,8 +63,19 @@ fun MainApp(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
-            entry(Destination.SubscriptionList) {
-                SubscriptionsScreen(requestPermissions)
+            entry<Destination.SubscriptionList> {
+                SubscriptionsScreen(
+                    requestPermissions,
+                    onItemSelected = {
+                        backStack.add(Destination.EditSubscription(it.id))
+                    }
+                )
+            }
+            entry<Destination.EditSubscription> { destination ->
+                EditSubscriptionScreen(
+                    subscriptionId = destination.subscriptionId,
+                    onBackRequested = { backStack.removeLastOrNull() }
+                )
             }
         }
     )
