@@ -117,6 +117,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     coreLibraryDesugaring(libs.desugaring)
 
+    // Force this Conscrypt version for 16Kb page size
+    // This is not-needed after upgrading to the latest synctools version
+    implementation("org.conscrypt:conscrypt-android:2.5.3")
+
     implementation(libs.bitfire.cert4android)
     implementation(libs.bitfire.synctools)
 
