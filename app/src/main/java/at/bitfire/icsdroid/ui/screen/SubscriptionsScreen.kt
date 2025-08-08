@@ -85,9 +85,7 @@ fun SubscriptionsScreen(
     LaunchedEffect(Unit) {
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(context))
             requestCalendarPermissions()
-    }
 
-    LaunchedEffect(Unit) {
         model.checkSyncSettings()
     }
 
