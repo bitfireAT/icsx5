@@ -81,8 +81,10 @@ fun AddSubscriptionScreen(
     LaunchedEffect(Unit) {
         title?.let(model.subscriptionSettingsUseCase::setTitle)
         color?.let(model.subscriptionSettingsUseCase::setColor)
-        url?.let(model.subscriptionSettingsUseCase::setUrl)
-            .let { model.checkUrlIntroductionPage() }
+        url?.let {
+            model.subscriptionSettingsUseCase.setUrl(it)
+            model.checkUrlIntroductionPage()
+        }
     }
 
     val pickFile = rememberLauncherForActivityResult(
