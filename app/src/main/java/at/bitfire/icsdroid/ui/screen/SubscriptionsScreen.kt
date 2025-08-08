@@ -6,7 +6,6 @@ package at.bitfire.icsdroid.ui.screen
 
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,34 +47,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import at.bitfire.icsdroid.MainActivity
-import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_ERROR_MESSAGE
-import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISSION
-import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.SubscriptionsModel
-import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.ActionCard
-import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import at.bitfire.icsdroid.ui.partials.SyncIntervalDialog
 import at.bitfire.icsdroid.ui.views.AddSubscriptionActivity
 import at.bitfire.icsdroid.ui.views.EditSubscriptionActivity
-import java.util.ServiceLoader
 
 @Composable
 fun SubscriptionsScreen(
-    savedInstanceState: Bundle?,
+    requestPermissions: Boolean,
     model: SubscriptionsModel = hiltViewModel()
 ) {
     val activity = LocalActivity.current
@@ -91,33 +83,12 @@ fun SubscriptionsScreen(
     }
 
     LaunchedEffect(Unit) {
-        // If EXTRA_PERMISSION is true, request the calendar permissions
-        val requestPermissions = intent?.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
-        if (requestPermissions == true && !PermissionUtils.haveCalendarPermissions(context))
+        if (requestPermissions && !PermissionUtils.haveCalendarPermissions(context))
             requestCalendarPermissions()
     }
 
     LaunchedEffect(Unit) {
         model.checkSyncSettings()
-    }
-
-    // Init and collect all ComposableStartupServices
-    val compStartupServices = remember { ServiceLoader.load(ComposableStartupService::class.java) }
-
-    compStartupServices.forEach { service ->
-        val show: Boolean by service.shouldShow()
-        if (show) service.Content()
-    }
-
-    // show error message from calling intent, if available
-    var showingErrorMessage by remember {
-        mutableStateOf(savedInstanceState == null && intent?.hasExtra(EXTRA_ERROR_MESSAGE) == true)
-    }
-    if (showingErrorMessage && intent != null) {
-        AlertDialog(
-            intent.getStringExtra(EXTRA_ERROR_MESSAGE)!!,
-            IntentCompat.getSerializableExtra(intent, EXTRA_THROWABLE, Throwable::class.java)
-        ) { showingErrorMessage = false }
     }
 
     SubscriptionsScreen(
@@ -131,9 +102,10 @@ fun SubscriptionsScreen(
         onRequestCalendarPermissions = requestCalendarPermissions,
         onRequestNotificationPermission = requestNotificationPermission,
         onItemSelected = { subscription ->
-            val intent = Intent(context, EditSubscriptionActivity::class.java)
-            intent.putExtra(EditSubscriptionActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
-            activity?.startActivity(intent)
+            activity?.startActivity(
+                Intent(context, EditSubscriptionActivity::class.java)
+                    .putExtra(EditSubscriptionActivity.EXTRA_SUBSCRIPTION_ID, subscription.id)
+            )
         }
     )
 }

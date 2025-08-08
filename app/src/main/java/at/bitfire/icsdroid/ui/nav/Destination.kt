@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface Destination : NavKey {
+    @Serializable
     object SubscriptionList : Destination
 }
