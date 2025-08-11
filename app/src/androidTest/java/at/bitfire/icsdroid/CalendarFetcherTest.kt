@@ -8,7 +8,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import at.bitfire.icsdroid.MockEngineWrapper.engine
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
 import io.ktor.client.utils.buildHeaders
@@ -40,7 +39,7 @@ class CalendarFetcherTest {
     fun setUp() {
         MockEngineWrapper.clear()
 
-        client = HttpClient(appContext, engine)
+        client = MockEngineWrapper.httpClient(appContext)
     }
 
     @Test
