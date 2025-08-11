@@ -32,11 +32,6 @@ open class CalendarFetcher(
     val client: AppHttpClient
 ) {
 
-    companion object {
-        const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
-        const val MAX_REDIRECT_COUNT = 5
-    }
-
     private var redirectCount = 0
     private var hasFollowedTempRedirect = false
 
@@ -188,6 +183,11 @@ open class CalendarFetcher(
         } catch (e: Exception) {
             onError(e)
         }
+    }
+
+    companion object {
+        const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
+        const val MAX_REDIRECT_COUNT = 5
     }
 
 }
