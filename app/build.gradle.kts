@@ -11,14 +11,14 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     namespace = "at.bitfire.icsdroid"
 
     defaultConfig {
         applicationId = "at.bitfire.icsdroid"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 36
 
         versionCode = 88
         versionName = "2.3.1"
@@ -39,15 +39,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "21"
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     buildFeatures {
         buildConfig = true
         compose = true
-        dataBinding = true
-        viewBinding = true
     }
 
     flavorDimensions += "distribution"
@@ -116,6 +116,10 @@ configurations {
 dependencies {
     implementation(libs.kotlinx.coroutines)
     coreLibraryDesugaring(libs.desugaring)
+
+    // Force this Conscrypt version for 16Kb page size
+    // This is not-needed after upgrading to the latest synctools version
+    implementation("org.conscrypt:conscrypt-android:2.5.3")
 
     implementation(libs.bitfire.cert4android)
     implementation(libs.bitfire.synctools)
