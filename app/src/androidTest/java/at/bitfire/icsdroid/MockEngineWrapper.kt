@@ -14,8 +14,6 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 object MockEngineWrapper {
-    class Response(val content: String, val status: HttpStatusCode, val headers: Headers)
-
     private val lock = ReentrantLock()
 
     private val queue = mutableListOf<Response>()
@@ -33,7 +31,7 @@ object MockEngineWrapper {
         queue.clear()
     }
 
-    fun enqueue(response: Response) {
+    private fun enqueue(response: Response) {
         lock.withLock {
             queue.add(response)
         }
@@ -52,4 +50,6 @@ object MockEngineWrapper {
         .toUri()
 
     fun httpClient(context: Context) = HttpClient(context, engine)
+
+    private class Response(val content: String, val status: HttpStatusCode, val headers: Headers)
 }
