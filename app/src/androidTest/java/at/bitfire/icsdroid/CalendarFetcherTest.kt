@@ -37,9 +37,9 @@ class CalendarFetcherTest {
 
     @Before
     fun setUp() {
-        MockEngineWrapper.clear()
+        MockServer.clear()
 
-        client = MockEngineWrapper.httpClient(appContext)
+        client = MockServer.httpClient(appContext)
     }
 
     @Test
@@ -71,7 +71,7 @@ class CalendarFetcherTest {
         }
 
         // create mock response
-        MockEngineWrapper.enqueue(
+        MockServer.enqueue(
             content = icalCorrect,
             status = HttpStatusCode.OK,
             headers = buildHeaders {
@@ -84,7 +84,7 @@ class CalendarFetcherTest {
         var ical: String? = null
         var etag: String? = null
         var lastmod: Long? = null
-        val fetcher = object: CalendarFetcher(appContext, MockEngineWrapper.uri(), client) {
+        val fetcher = object: CalendarFetcher(appContext, MockServer.uri(), client) {
             override suspend fun onSuccess(data: InputStream, contentType: ContentType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = data.bufferedReader().use { it.readText() }
                 etag = eTag
@@ -105,29 +105,29 @@ class CalendarFetcherTest {
     fun testFetchNetwork_onRedirectWithLocation() {
         // create mock responses:
         // 1. redirect with absolute target URL
-        MockEngineWrapper.enqueue(
+        MockServer.enqueue(
             status = HttpStatusCode.TemporaryRedirect,
             headers = headers {
                 append(
-                    HttpHeaders.Location, MockEngineWrapper.uri("new-location", "vienna-evolution.ics").toString()
+                    HttpHeaders.Location, MockServer.uri("new-location", "vienna-evolution.ics").toString()
                 )
             }
         )
         // 2. redirect with relative target URL
-        MockEngineWrapper.enqueue(
+        MockServer.enqueue(
             status = HttpStatusCode.TemporaryRedirect,
             headers = headers {
                 append(HttpHeaders.Location, "the-file-is-here")
             }
         )
         // 3. finally the real resource
-        MockEngineWrapper.enqueue(
+        MockServer.enqueue(
             content = "icalCorrect",
             status = HttpStatusCode.OK
         )
 
         // make initial request to local mock server
-        val baseUrl = MockEngineWrapper.uri()
+        val baseUrl = MockServer.uri()
         var ical: String? = null
         val redirects = LinkedList<Uri>()
         val fetcher = object: CalendarFetcher(appContext, baseUrl, client) {
@@ -161,11 +161,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onRedirectWithoutLocation() {
-        MockEngineWrapper.enqueue(status = HttpStatusCode.TemporaryRedirect)
+        MockServer.enqueue(status = HttpStatusCode.TemporaryRedirect)
 
         var e: Exception? = null
         runBlocking {
-            object : CalendarFetcher(appContext, MockEngineWrapper.uri(), client) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onError(error: Exception) {
                     e = error
                 }
@@ -177,11 +177,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onNotModified() {
-        MockEngineWrapper.enqueue(status = HttpStatusCode.NotModified)
+        MockServer.enqueue(status = HttpStatusCode.NotModified)
 
         var notModified = false
         runBlocking {
-            object : CalendarFetcher(appContext, MockEngineWrapper.uri(), client) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onNotModified() {
                     notModified = true
                 }
@@ -193,11 +193,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onError() {
-        MockEngineWrapper.enqueue(status = HttpStatusCode.NotFound)
+        MockServer.enqueue(status = HttpStatusCode.NotFound)
 
         var e: Exception? = null
         runBlocking {
-            object : CalendarFetcher(appContext, MockEngineWrapper.uri(), client) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onError(error: Exception) {
                     e = error
                 }

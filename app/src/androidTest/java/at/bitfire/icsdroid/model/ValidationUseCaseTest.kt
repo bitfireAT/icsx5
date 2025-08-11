@@ -9,7 +9,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.icsdroid.HttpClient
-import at.bitfire.icsdroid.MockEngineWrapper
+import at.bitfire.icsdroid.MockServer
 import at.bitfire.icsdroid.ui.ResourceInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -31,7 +31,7 @@ class ValidationUseCaseTest {
 
     @Before
     fun setUp() {
-        MockEngineWrapper.clear()
+        MockServer.clear()
     }
 
     @Test
@@ -83,13 +83,13 @@ class ValidationUseCaseTest {
     }
 
     private fun validate(iCal: String): ResourceInfo {
-        MockEngineWrapper.enqueue(content = iCal)
+        MockServer.enqueue(content = iCal)
 
-        val client = HttpClient(app, MockEngineWrapper.engine)
+        val client = HttpClient(app, MockServer.engine)
         val model = ValidationUseCase(app, client)
         runBlocking {
             // Wait until the validation completed
-            model.validate(MockEngineWrapper.uri(), null, null).join()
+            model.validate(MockServer.uri(), null, null).join()
         }
 
         return model.uiState.result!!

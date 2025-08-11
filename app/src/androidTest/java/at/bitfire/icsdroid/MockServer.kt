@@ -13,7 +13,7 @@ import io.ktor.http.toURI
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-object MockEngineWrapper {
+object MockServer {
     private val lock = ReentrantLock()
 
     private val queue = mutableListOf<Response>()
