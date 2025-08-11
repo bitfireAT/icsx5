@@ -34,14 +34,17 @@ class CalendarFetcherTest {
 
     }
 
+    private lateinit var client: HttpClient
+
     @Before
     fun setUp() {
         MockEngineWrapper.clear()
+
+        client = HttpClient(appContext, engine)
     }
 
     @Test
     fun testFetchLocal_readsCorrectly() {
-        val client = HttpClient(appContext, engine)
         val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.vienna_evolution}")
 
         var ical: String? = null
@@ -62,7 +65,6 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_success() {
-        val client = HttpClient(appContext, engine)
         val etagCorrect = "33a64df551425fcc55e4d42a148795d9f25f89d4"
         val lastModifiedCorrect = "Wed, 21 Oct 2015 07:28:00 GMT"       // UNIX timestamp 1445405280
         val icalCorrect = testContext.resources.openRawResource(R.raw.vienna_evolution).use { streamCorrect ->
@@ -102,8 +104,6 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onRedirectWithLocation() {
-        val client = HttpClient(appContext, engine)
-
         // create mock responses:
         // 1. redirect with absolute target URL
         MockEngineWrapper.enqueue(
@@ -162,8 +162,6 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onRedirectWithoutLocation() {
-        val client = HttpClient(appContext, engine)
-
         MockEngineWrapper.enqueue(status = HttpStatusCode.TemporaryRedirect)
 
         var e: Exception? = null
@@ -180,7 +178,6 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onNotModified() {
-        val client = HttpClient(appContext, engine)
         MockEngineWrapper.enqueue(status = HttpStatusCode.NotModified)
 
         var notModified = false
@@ -197,7 +194,6 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onError() {
-        val client = HttpClient(appContext, engine)
         MockEngineWrapper.enqueue(status = HttpStatusCode.NotFound)
 
         var e: Exception? = null
