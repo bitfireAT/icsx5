@@ -59,7 +59,7 @@ class ProcessEventsTask(
     interface ProcessEventsTaskEntryPoint {
         fun appDatabase(): AppDatabase
 
-        fun provideAppHttpClient(): HttpClient
+        fun provideAppHttpClient(): AppHttpClient
     }
 
     private val entryPoint = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java)

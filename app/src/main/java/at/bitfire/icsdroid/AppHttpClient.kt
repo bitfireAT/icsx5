@@ -25,9 +25,8 @@ import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import javax.net.ssl.SSLContext
-import at.bitfire.icsdroid.HttpClient as AppHttpClient
 
-class HttpClient(
+class AppHttpClient(
     context: Context,
     engine: HttpClientEngine = OkHttp.create()
 ) {

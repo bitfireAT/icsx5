@@ -29,7 +29,7 @@ import java.util.Date
 open class CalendarFetcher(
     val context: Context,
     var uri: Uri,
-    val client: HttpClient
+    val client: AppHttpClient
 ) {
 
     companion object {

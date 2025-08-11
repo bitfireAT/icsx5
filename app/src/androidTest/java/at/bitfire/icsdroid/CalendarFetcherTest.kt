@@ -33,7 +33,7 @@ class CalendarFetcherTest {
 
     }
 
-    private lateinit var client: HttpClient
+    private lateinit var client: AppHttpClient
 
     @Before
     fun setUp() {

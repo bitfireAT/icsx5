@@ -15,7 +15,7 @@ import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.HttpClient
+import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
@@ -34,7 +34,7 @@ import javax.inject.Singleton
 @Singleton
 class ValidationUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val httpClient: HttpClient,
+    private val appHttpClient: AppHttpClient,
 ) {
 
     data class UiState(
@@ -60,7 +60,7 @@ class ValidationUseCase @Inject constructor(
             uiState = uiState.copy(isVerifyingUrl = true)
 
             val info = ResourceInfo(originalUri)
-            val downloader = object: CalendarFetcher(context, originalUri, httpClient) {
+            val downloader = object: CalendarFetcher(context, originalUri, appHttpClient) {
                 override suspend fun onSuccess(
                     data: InputStream,
                     contentType: ContentType?,

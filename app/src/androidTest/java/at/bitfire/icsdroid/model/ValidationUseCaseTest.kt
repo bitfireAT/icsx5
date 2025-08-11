@@ -8,7 +8,7 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
-import at.bitfire.icsdroid.HttpClient
+import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.MockServer
 import at.bitfire.icsdroid.ui.ResourceInfo
 import kotlinx.coroutines.runBlocking
@@ -85,7 +85,7 @@ class ValidationUseCaseTest {
     private fun validate(iCal: String): ResourceInfo {
         MockServer.enqueue(content = iCal)
 
-        val client = HttpClient(app, MockServer.engine)
+        val client = AppHttpClient(app, MockServer.engine)
         val model = ValidationUseCase(app, client)
         runBlocking {
             // Wait until the validation completed
