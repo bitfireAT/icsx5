@@ -64,7 +64,6 @@ fun MainApp(
             rememberViewModelStoreNavEntryDecorator()
         ),
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
             entry(Destination.SubscriptionList) {
                 SubscriptionsScreen(requestPermissions)
