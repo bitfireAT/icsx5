@@ -15,6 +15,16 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        configureEdgeToEdge()
+        super.onCreate(savedInstanceState)
+
+        setContentThemed {
+            MainApp(savedInstanceState, intent.extras)
+        }
+    }
+
     companion object {
         /**
          * Set this extra to request calendar permission when the activity starts.
@@ -36,12 +46,4 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_THROWABLE = "errorThrowable"
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        configureEdgeToEdge()
-        super.onCreate(savedInstanceState)
-
-        setContentThemed {
-            MainApp(savedInstanceState, intent.extras)
-        }
-    }
 }
