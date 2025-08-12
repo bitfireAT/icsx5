@@ -10,25 +10,27 @@ import android.provider.DocumentsContract
 import android.util.Log
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
-import okhttp3.Credentials
-import okhttp3.MediaType
-import okhttp3.Request
-import okhttp3.coroutines.executeAsync
+import at.bitfire.icsdroid.UriUtils.toURL
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
-import java.net.HttpURLConnection
 import java.util.Date
 
 open class CalendarFetcher(
-        val context: Context,
-        var uri: Uri
+    val context: Context,
+    var uri: Uri,
+    val client: AppHttpClient
 ) {
-
-    companion object {
-        const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
-        const val MAX_REDIRECT_COUNT = 5
-    }
 
     private var redirectCount = 0
     private var hasFollowedTempRedirect = false
@@ -49,13 +51,13 @@ open class CalendarFetcher(
             fetchLocal()
     }
 
-    open suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+    open suspend fun onSuccess(data: InputStream, contentType: ContentType?, eTag: String?, lastModified: Long?, displayName: String?) {
     }
 
     open suspend fun onNotModified() {
     }
 
-    open suspend fun onRedirect(httpCode: Int, target: Uri) {
+    open suspend fun onRedirect(httpCode: HttpStatusCode, target: Uri) {
         Log.v(Constants.TAG, "Get redirect $httpCode to $target")
 
         // only network resources can be redirected
@@ -73,8 +75,8 @@ open class CalendarFetcher(
         if (!hasFollowedTempRedirect) {
             when (httpCode) {
                 // 301: Moved Permanently, 308: Permanent Redirect
-                HttpURLConnection.HTTP_NOT_MODIFIED,
-                HttpUtils.HTTP_PERMANENT_REDIRECT ->
+                HttpStatusCode.NotModified,
+                HttpStatusCode.PermanentRedirect ->
                     onNewPermanentUrl(target)
                 else ->
                     hasFollowedTempRedirect = true
@@ -116,10 +118,10 @@ open class CalendarFetcher(
             }
         } catch (e: FileNotFoundException) {
             // file not there (anymore)
-            onError(IOException(context.getString(R.string.could_not_open_storage_file)))
+            onError(IOException(context.getString(R.string.could_not_open_storage_file), e))
         } catch (e: SecurityException) {
             // no access to file (anymore)
-            onError(IOException(context.getString(R.string.could_not_open_storage_file)))
+            onError(IOException(context.getString(R.string.could_not_open_storage_file), e))
         } catch (e: Exception) {
             // other error
             Log.e(Constants.TAG, "Couldn't open SAF document", e)
@@ -132,57 +134,60 @@ open class CalendarFetcher(
      */
     internal suspend fun fetchNetwork() {
         Log.i(Constants.TAG, "Fetching remote file $uri")
-        val request = Request.Builder()
-                .addHeader("Accept", MIME_CALENDAR_OR_OTHER)
-                .url(uri.toString())
-
-        val currentUsername = username
-        val currentPassword = password
-        if (currentUsername != null && currentPassword != null)
-            request.addHeader("Authorization", Credentials.basic(currentUsername, currentPassword, Charsets.UTF_8))
-
-        ifModifiedSince?.let {
-            request.addHeader("If-Modified-Since", HttpUtils.formatDate(Date(it)))
-        }
-        ifNoneMatch?.let {
-            request.addHeader("If-None-Match", it)
-        }
-
         try {
-            val call = HttpClient.get(context).okHttpClient.newCall(request.build())
-            call.executeAsync().use { response ->
+            client.httpClient.get(uri.toURL()) {
+                header(HttpHeaders.Accept, MIME_CALENDAR_OR_OTHER)
+
+                val currentUsername = username
+                val currentPassword = password
+                if (currentUsername != null && currentPassword != null)
+                    basicAuth(currentUsername, currentPassword)
+
+                ifModifiedSince?.let {
+                    header(HttpHeaders.IfModifiedSince, HttpUtils.formatDate(Date(it)))
+                }
+                ifNoneMatch?.let {
+                    header(HttpHeaders.IfNoneMatch, it)
+                }
+            }.let { response ->
+                val statusCode = response.status
                 when {
                     // 20x
-                    response.isSuccessful ->
+                    statusCode.isSuccess() ->
                         onSuccess(
-                                response.body.byteStream(),
-                                response.body.contentType(),
-                                response.header("ETag"),
-                                response.header("Last-Modified")?.let {
-                                    HttpUtils.parseDate(it)?.time
-                                },
+                            response.bodyAsChannel().toInputStream(),
+                            response.contentType(),
+                            response.headers[HttpHeaders.ETag],
+                            response.headers[HttpHeaders.LastModified]?.let {
+                                HttpUtils.parseDate(it)?.time
+                            },
                             null
                         )
 
                     // 30x
-                    response.isRedirect -> {
-                        val location = response.header("Location")
+                    statusCode == HttpStatusCode.NotModified -> onNotModified()
+                    statusCode.value in 300..399 -> {
+                        val location = response.headers[HttpHeaders.Location]
                         if (location != null) {
                             val newUri = uri.toURI().resolve(location)
-                            onRedirect(response.code, newUri.toUri())
+                            onRedirect(statusCode, newUri.toUri())
                         }
                         else
-                            throw IOException("Got ${response.code} ${response.message} without Location")
+                            throw IOException("Got ${statusCode.value} ${statusCode.description} without Location")
                     }
-                    response.code == HttpURLConnection.HTTP_NOT_MODIFIED -> onNotModified()
 
                     // HTTP error
-                    else -> throw IOException("HTTP ${response.code} ${response.message}")
+                    else -> throw IOException("HTTP ${statusCode.value} ${statusCode.description}")
                 }
             }
         } catch (e: Exception) {
             onError(e)
         }
+    }
+
+    companion object {
+        const val MIME_CALENDAR_OR_OTHER = "text/calendar, */*;q=0.9"
+        const val MAX_REDIRECT_COUNT = 5
     }
 
 }

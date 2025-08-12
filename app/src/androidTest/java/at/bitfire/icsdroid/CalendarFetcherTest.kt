@@ -8,23 +8,20 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import at.bitfire.icsdroid.HttpUtils.toAndroidUri
 import at.bitfire.icsdroid.test.BuildConfig
 import at.bitfire.icsdroid.test.R
-import kotlinx.coroutines.Dispatchers
+import io.ktor.client.utils.buildHeaders
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.AfterClass
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
-import org.junit.BeforeClass
+import org.junit.Before
 import org.junit.Test
 import java.io.IOException
 import java.io.InputStream
-import java.net.HttpURLConnection
 import java.util.LinkedList
 
 class CalendarFetcherTest {
@@ -34,20 +31,15 @@ class CalendarFetcherTest {
         val appContext: Context by lazy { InstrumentationRegistry.getInstrumentation().targetContext }
         val testContext: Context by lazy { InstrumentationRegistry.getInstrumentation().context }
 
-        val server = MockWebServer()
+    }
 
-        @BeforeClass
-        @JvmStatic
-        fun setUp() {
-            server.start()
-        }
+    private lateinit var client: AppHttpClient
 
-        @AfterClass
-        @JvmStatic
-        fun tearDown() {
-            server.shutdown()
-        }
+    @Before
+    fun setUp() {
+        MockServer.clear()
 
+        client = MockServer.httpClient(appContext)
     }
 
     @Test
@@ -55,8 +47,8 @@ class CalendarFetcherTest {
         val uri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${BuildConfig.APPLICATION_ID}/${R.raw.vienna_evolution}")
 
         var ical: String? = null
-        val fetcher = object: CalendarFetcher(appContext, uri) {
-            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+        val fetcher = object: CalendarFetcher(appContext, uri, client) {
+            override suspend fun onSuccess(data: InputStream, contentType: ContentType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = data.bufferedReader().use { it.readText() }
             }
         }
@@ -79,18 +71,21 @@ class CalendarFetcherTest {
         }
 
         // create mock response
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_OK)
-            .addHeader("ETag", etagCorrect)
-            .addHeader("Last-Modified", lastModifiedCorrect)
-            .setBody(icalCorrect))
+        MockServer.enqueue(
+            content = icalCorrect,
+            status = HttpStatusCode.OK,
+            headers = buildHeaders {
+                append(HttpHeaders.ETag, etagCorrect)
+                append(HttpHeaders.LastModified, lastModifiedCorrect)
+            }
+        )
 
         // make request to local mock server
         var ical: String? = null
         var etag: String? = null
         var lastmod: Long? = null
-        val fetcher = object: CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
-            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+        val fetcher = object: CalendarFetcher(appContext, MockServer.uri(), client) {
+            override suspend fun onSuccess(data: InputStream, contentType: ContentType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = data.bufferedReader().use { it.readText() }
                 etag = eTag
                 lastmod = lastModified
@@ -110,28 +105,37 @@ class CalendarFetcherTest {
     fun testFetchNetwork_onRedirectWithLocation() {
         // create mock responses:
         // 1. redirect with absolute target URL
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-            .addHeader("Location", server.url("new-location/vienna-evolution.ics")))
+        MockServer.enqueue(
+            status = HttpStatusCode.TemporaryRedirect,
+            headers = headers {
+                append(
+                    HttpHeaders.Location, MockServer.uri("new-location", "vienna-evolution.ics").toString()
+                )
+            }
+        )
         // 2. redirect with relative target URL
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-            .addHeader("Location", "the-file-is-here"))
+        MockServer.enqueue(
+            status = HttpStatusCode.TemporaryRedirect,
+            headers = headers {
+                append(HttpHeaders.Location, "the-file-is-here")
+            }
+        )
         // 3. finally the real resource
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_OK)
-            .setBody("icalCorrect"))
+        MockServer.enqueue(
+            content = "icalCorrect",
+            status = HttpStatusCode.OK
+        )
 
         // make initial request to local mock server
-        val baseUrl = server.url("/").toAndroidUri()
+        val baseUrl = MockServer.uri()
         var ical: String? = null
         val redirects = LinkedList<Uri>()
-        val fetcher = object: CalendarFetcher(appContext, baseUrl) {
-            override suspend fun onRedirect(httpCode: Int, target: Uri) {
+        val fetcher = object: CalendarFetcher(appContext, baseUrl, client) {
+            override suspend fun onRedirect(httpCode: HttpStatusCode, target: Uri) {
                 redirects += target
                 super.onRedirect(httpCode, target)
             }
-            override suspend fun onSuccess(data: InputStream, contentType: MediaType?, eTag: String?, lastModified: Long?, displayName: String?) {
+            override suspend fun onSuccess(data: InputStream, contentType: ContentType?, eTag: String?, lastModified: Long?, displayName: String?) {
                 ical = data.bufferedReader().use { it.readText() }
             }
         }
@@ -157,12 +161,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onRedirectWithoutLocation() {
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
+        MockServer.enqueue(status = HttpStatusCode.TemporaryRedirect)
 
         var e: Exception? = null
         runBlocking {
-            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onError(error: Exception) {
                     e = error
                 }
@@ -174,12 +177,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onNotModified() {
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED))
+        MockServer.enqueue(status = HttpStatusCode.NotModified)
 
         var notModified = false
         runBlocking {
-            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onNotModified() {
                     notModified = true
                 }
@@ -191,12 +193,11 @@ class CalendarFetcherTest {
 
     @Test
     fun testFetchNetwork_onError() {
-        server.enqueue(MockResponse()
-            .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
+        MockServer.enqueue(status = HttpStatusCode.NotFound)
 
         var e: Exception? = null
         runBlocking {
-            object : CalendarFetcher(appContext, server.url("/").toAndroidUri()) {
+            object : CalendarFetcher(appContext, MockServer.uri(), client) {
                 override suspend fun onError(error: Exception) {
                     e = error
                 }

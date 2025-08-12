@@ -153,9 +153,9 @@ dependencies {
     implementation(libs.aboutLibs.compose)
     implementation(libs.jodaTime)
 
-    implementation(libs.okhttp.base)
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.okhttp)
     implementation(libs.okhttp.brotli)
-    implementation(libs.okhttp.coroutines)
 
     // Room Database
     implementation(libs.room.base)
@@ -167,7 +167,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.ktor.mock)
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.hilt.android.testing)
 

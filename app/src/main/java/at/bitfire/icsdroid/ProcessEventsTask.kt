@@ -22,12 +22,13 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import io.ktor.http.ContentType
+import io.ktor.http.charset
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
 import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.property.Action
 import net.fortuna.ical4j.model.property.Trigger
-import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.time.Duration
@@ -57,9 +58,13 @@ class ProcessEventsTask(
     @InstallIn(SingletonComponent::class)
     interface ProcessEventsTaskEntryPoint {
         fun appDatabase(): AppDatabase
+
+        fun provideAppHttpClient(): AppHttpClient
     }
 
-    val db = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java).appDatabase()
+    private val entryPoint = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java)
+    val db = entryPoint.appDatabase()
+    val httpClient = entryPoint.provideAppHttpClient()
 
     private var exception: Throwable? = null
 
@@ -151,10 +156,10 @@ class ProcessEventsTask(
         val notificationManager = NotificationUtils.createChannels(context)
         notificationManager.cancel(subscription.id.toString(), 0)
 
-        val downloader = object : CalendarFetcher(context, uri) {
+        val downloader = object : CalendarFetcher(context, uri, httpClient) {
             override suspend fun onSuccess(
                 data: InputStream,
-                contentType: MediaType?,
+                contentType: ContentType?,
                 eTag: String?,
                 lastModified: Long?,
                 displayName: String?
