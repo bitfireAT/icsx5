@@ -15,15 +15,17 @@ import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
+import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.ktor.http.ContentType
+import io.ktor.http.charset
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.property.Color
-import okhttp3.MediaType
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
@@ -32,6 +34,7 @@ import javax.inject.Singleton
 @Singleton
 class ValidationUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val appHttpClient: AppHttpClient,
 ) {
 
     data class UiState(
@@ -57,10 +60,10 @@ class ValidationUseCase @Inject constructor(
             uiState = uiState.copy(isVerifyingUrl = true)
 
             val info = ResourceInfo(originalUri)
-            val downloader = object: CalendarFetcher(context, originalUri) {
+            val downloader = object: CalendarFetcher(context, originalUri, appHttpClient) {
                 override suspend fun onSuccess(
                     data: InputStream,
-                    contentType: MediaType?,
+                    contentType: ContentType?,
                     eTag: String?,
                     lastModified: Long?,
                     displayName: String?

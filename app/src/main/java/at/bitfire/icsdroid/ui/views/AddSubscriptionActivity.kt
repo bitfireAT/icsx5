@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
-import at.bitfire.icsdroid.HttpClient
+import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.model.AddSubscriptionModel
@@ -122,12 +122,12 @@ class AddSubscriptionActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        HttpClient.setForeground(false)
+        AppHttpClient.setForeground(false)
     }
 
     override fun onResume() {
         super.onResume()
-        HttpClient.setForeground(true)
+        AppHttpClient.setForeground(true)
     }
 
 }
