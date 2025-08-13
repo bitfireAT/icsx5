@@ -48,19 +48,20 @@ class ValidationUseCase @Inject constructor(
 
                     info.calendarName = properties[ICalendar.Companion.CALENDAR_NAME] ?: displayName
                     info.calendarColor =
-                            // try COLOR first
+                        // try COLOR first
                         properties[Color.PROPERTY_NAME]?.let { colorValue ->
-                            Css3Color.Companion.colorFromString(colorValue)
-                        } ?:
-                                // try X-APPLE-CALENDAR-COLOR second
-                                try {
-                                    properties[ICalendar.Companion.CALENDAR_COLOR]?.let { colorValue ->
-                                        Css3Color.Companion.colorFromString(colorValue)
-                                    }
-                                } catch (e: IllegalArgumentException) {
-                                    Log.w(Constants.TAG, "Couldn't parse calendar COLOR", e)
-                                    null
+                            Css3Color.colorFromString(colorValue)
+                        } ?: run {
+                            // try X-APPLE-CALENDAR-COLOR second
+                            try {
+                                properties[ICalendar.Companion.CALENDAR_COLOR]?.let { colorValue ->
+                                    Css3Color.colorFromString(colorValue)
                                 }
+                            } catch (e: IllegalArgumentException) {
+                                Log.w(Constants.TAG, "Couldn't parse calendar COLOR", e)
+                                null
+                            }
+                        }
                     info.eventsFound = events.size
                 }
             }
