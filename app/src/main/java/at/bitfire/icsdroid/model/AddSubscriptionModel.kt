@@ -56,7 +56,13 @@ class AddSubscriptionModel @Inject constructor(
         username: String? = null,
         password: String? = null
     ) = viewModelScope.launch {
-        validationUseCase.validate(originalUri, username, password)
+        try {
+            uiState = uiState.copy(isVerifyingUrl = true)
+            val result = validationUseCase.validate(originalUri, username, password)
+            uiState = uiState.copy(result = result)
+        } finally {
+            uiState = uiState.copy(isVerifyingUrl = false)
+        }
     }
     
     fun checkUrlIntroductionPage() {
