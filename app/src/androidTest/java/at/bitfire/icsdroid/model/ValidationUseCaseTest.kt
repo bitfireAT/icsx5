@@ -86,13 +86,10 @@ class ValidationUseCaseTest {
         MockServer.enqueue(content = iCal)
 
         val client = AppHttpClient(app, MockServer.engine)
-        val model = ValidationUseCase(app, client)
-        runBlocking {
-            // Wait until the validation completed
-            model.validate(MockServer.uri(), null, null).join()
+        val useCase = ValidationUseCase(app, client)
+        return runBlocking {
+            useCase.validate(MockServer.uri(), null, null)
         }
-
-        return model.uiState.result!!
     }
 
 }
