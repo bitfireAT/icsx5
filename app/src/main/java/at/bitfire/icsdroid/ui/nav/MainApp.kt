@@ -57,10 +57,8 @@ fun MainApp(
 
     NavDisplay(
         entryDecorators = listOf(
-            // Add the default decorators for managing scenes and saving state
             rememberSceneSetupNavEntryDecorator(),
             rememberSavedStateNavEntryDecorator(),
-            // Then add the view model store decorator
             rememberViewModelStoreNavEntryDecorator()
         ),
         backStack = backStack,
