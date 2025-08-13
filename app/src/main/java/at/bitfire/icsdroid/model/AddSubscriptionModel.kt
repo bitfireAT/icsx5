@@ -59,7 +59,9 @@ class AddSubscriptionModel @Inject constructor(
         try {
             uiState = uiState.copy(isVerifyingUrl = true)
             val result = validationUseCase.validate(originalUri, username, password)
-            uiState = uiState.copy(result = result)
+            uiState = uiState.copy(result = result, errorMessage = null)
+        } catch (e: Exception) {
+            uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
         } finally {
             uiState = uiState.copy(isVerifyingUrl = false)
         }
