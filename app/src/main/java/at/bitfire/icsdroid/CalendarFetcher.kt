@@ -44,6 +44,13 @@ open class CalendarFetcher(
     var inForeground = false
 
 
+    /**
+     * Resolves the request on the given [uri].
+     *
+     * Blocks the current thread until completed.
+     * Callback methods ([onSuccess], [onNotModified], [onRedirect], [onNewPermanentUrl] and
+     * [onError]) will be run before returning this function.
+     */
     suspend fun fetch() {
         if (uri.scheme.equals("http", true) or uri.scheme.equals("https", true))
             fetchNetwork()
@@ -94,7 +101,7 @@ open class CalendarFetcher(
 
 
     /**
-     * Fetch the file with Android SAF
+     * Fetch the file with Android SAF. Blocks the current thread until the request is resolved.
      */
     internal suspend fun fetchLocal() {
         Log.i(Constants.TAG, "Fetching local file $uri")
@@ -130,7 +137,7 @@ open class CalendarFetcher(
     }
 
     /**
-     * Fetch the file over network
+     * Fetch the file over network. Blocks the current thread until the request is resolved.
      */
     internal suspend fun fetchNetwork() {
         Log.i(Constants.TAG, "Fetching remote file $uri")

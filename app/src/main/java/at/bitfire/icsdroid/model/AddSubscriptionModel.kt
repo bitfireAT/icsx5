@@ -14,6 +14,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.ui.ResourceInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,8 @@ class AddSubscriptionModel @Inject constructor(
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
+        val isVerifyingUrl: Boolean = false,
+        val result: ResourceInfo? = null,
     )
 
     var uiState by mutableStateOf(UiState())
@@ -45,13 +48,20 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(showNextButton = value)
     }
 
-    fun resetValidationResult() = validationUseCase.resetResult()
-    fun validateUrl(originalUri: Uri, username: String? = null, password: String? = null) =
+    fun resetValidationResult() {
+        uiState = uiState.copy(result = null)
+    }
+    fun validateUrl(
+        originalUri: Uri,
+        username: String? = null,
+        password: String? = null
+    ) = viewModelScope.launch {
         validationUseCase.validate(originalUri, username, password)
+    }
     
     fun checkUrlIntroductionPage() {
         with(subscriptionSettingsUseCase) {
-            if (validationUseCase.uiState.isVerifyingUrl) {
+            if (this@AddSubscriptionModel.uiState.isVerifyingUrl) {
                 setShowNextButton(true)
             } else {
                 val uri = validateUri(
