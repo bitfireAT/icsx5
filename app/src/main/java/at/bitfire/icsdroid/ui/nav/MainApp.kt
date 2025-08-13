@@ -31,8 +31,6 @@ fun MainApp(
     savedInstanceState: Bundle?,
     intentExtras: Bundle?,
 ) {
-    val backStack = rememberNavBackStack<Destination>(Destination.SubscriptionList)
-
     // If EXTRA_PERMISSION is true, request the calendar permissions
     val requestPermissions = intentExtras?.getBoolean(EXTRA_REQUEST_CALENDAR_PERMISSION, false) == true
 
@@ -54,6 +52,8 @@ fun MainApp(
         val show: Boolean by service.shouldShow()
         if (show) service.Content()
     }
+
+    val backStack = rememberNavBackStack<Destination>(Destination.SubscriptionList)
 
     NavDisplay(
         entryDecorators = listOf(
