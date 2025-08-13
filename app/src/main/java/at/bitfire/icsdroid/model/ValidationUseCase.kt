@@ -44,9 +44,9 @@ class ValidationUseCase @Inject constructor(
             ) {
                 InputStreamReader(data, contentType?.charset() ?: Charsets.UTF_8).use { reader ->
                     val properties = mutableMapOf<String, String>()
-                    val events = Event.Companion.eventsFromReader(reader, properties)
+                    val events = Event.eventsFromReader(reader, properties)
 
-                    info.calendarName = properties[ICalendar.Companion.CALENDAR_NAME] ?: displayName
+                    info.calendarName = properties[ICalendar.CALENDAR_NAME] ?: displayName
                     info.calendarColor =
                         // try COLOR first
                         properties[Color.PROPERTY_NAME]?.let { colorValue ->
@@ -54,7 +54,7 @@ class ValidationUseCase @Inject constructor(
                         } ?: run {
                             // try X-APPLE-CALENDAR-COLOR second
                             try {
-                                properties[ICalendar.Companion.CALENDAR_COLOR]?.let { colorValue ->
+                                properties[ICalendar.CALENDAR_COLOR]?.let { colorValue ->
                                     Css3Color.colorFromString(colorValue)
                                 }
                             } catch (e: IllegalArgumentException) {
