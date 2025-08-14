@@ -31,6 +31,22 @@ import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
 
+/**
+ * Computes the correct initial destination from some intent extras:
+ * - If [AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE] is present -> [Destination.AddSubscription]
+ * - Otherwise: [Destination.SubscriptionList]
+ */
+private fun calculateInitialDestination(intentExtras: Bundle?): Destination {
+    return if (intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE) == true) {
+        // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
+        // open the add subscription screen
+        Destination.AddSubscription()
+    } else {
+        // If no condition matches, show the subscriptions list
+        Destination.SubscriptionList
+    }
+}
+
 @Composable
 fun MainApp(
     savedInstanceState: Bundle?,
@@ -58,14 +74,7 @@ fun MainApp(
         if (show) service.Content()
     }
 
-    val backStack = rememberNavBackStack<Destination>(
-        intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
-            // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
-            // open the add subscription screen
-            ?.let { Destination.AddSubscription() }
-        // If no condition matches, show the subscriptions list
-            ?: Destination.SubscriptionList
-    )
+    val backStack = rememberNavBackStack(calculateInitialDestination(intentExtras))
 
     NavDisplay(
         entryDecorators = listOf(
