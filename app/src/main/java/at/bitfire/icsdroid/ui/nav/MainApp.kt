@@ -36,15 +36,6 @@ fun MainApp(
     savedInstanceState: Bundle?,
     intentExtras: Bundle?,
 ) {
-    val backStack = rememberNavBackStack<Destination>(
-        intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
-            // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
-            // open the add subscription screen
-            ?.let { Destination.AddSubscription() }
-            // If no condition matches, show the subscriptions list
-            ?: Destination.SubscriptionList
-    )
-
     // If EXTRA_PERMISSION is true, request the calendar permissions
     val requestPermissions = intentExtras?.getBoolean(EXTRA_REQUEST_CALENDAR_PERMISSION, false) == true
 
@@ -67,16 +58,22 @@ fun MainApp(
         if (show) service.Content()
     }
 
+    val backStack = rememberNavBackStack<Destination>(
+        intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
+            // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
+            // open the add subscription screen
+            ?.let { Destination.AddSubscription() }
+        // If no condition matches, show the subscriptions list
+            ?: Destination.SubscriptionList
+    )
+
     NavDisplay(
         entryDecorators = listOf(
-            // Add the default decorators for managing scenes and saving state
             rememberSceneSetupNavEntryDecorator(),
             rememberSavedStateNavEntryDecorator(),
-            // Then add the view model store decorator
             rememberViewModelStoreNavEntryDecorator()
         ),
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
             entry(Destination.SubscriptionList) {
                 SubscriptionsScreen(
