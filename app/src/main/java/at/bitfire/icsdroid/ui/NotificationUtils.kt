@@ -11,8 +11,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import at.bitfire.icsdroid.MainActivity
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.ui.views.SubscriptionListActivity
 
 object NotificationUtils {
 
@@ -37,8 +37,8 @@ object NotificationUtils {
      */
     fun showCalendarPermissionNotification(context: Context) {
         val nm = createChannels(context)
-        val askPermissionsIntent = Intent(context, SubscriptionListActivity::class.java).apply {
-            putExtra(SubscriptionListActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
+        val askPermissionsIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(MainActivity.EXTRA_REQUEST_CALENDAR_PERMISSION, true)
         }
         val notification = NotificationCompat.Builder(context, CHANNEL_SYNC)
             .setSmallIcon(R.drawable.ic_sync_problem_white)

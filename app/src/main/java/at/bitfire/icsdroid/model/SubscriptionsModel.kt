@@ -32,6 +32,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,6 +47,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 
+@HiltViewModel
 class SubscriptionsModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,

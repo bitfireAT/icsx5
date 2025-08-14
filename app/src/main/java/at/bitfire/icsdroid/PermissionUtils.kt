@@ -10,10 +10,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import at.bitfire.icsdroid.PermissionUtils.CALENDAR_PERMISSIONS
 
 object PermissionUtils {
 
@@ -52,45 +55,44 @@ object PermissionUtils {
      * When all requested permissions are granted, [onGranted] is called.
      * When not all requested permissions are granted, a toast is shown.
      *
-     * @param activity The activity where to register the request launcher.
      * @param permissions The permissions to be requested.
      * @param toastMessage The message to show in a toast if at least one permissions was not granted.
      * @param onGranted What to call when all permissions were granted.
      *
      * @return The request launcher for launching the request.
      */
-    private fun registerPermissionRequest(
-        activity: AppCompatActivity,
+    @Composable
+    private fun rememberPermissionRequest(
         permissions: Array<String>,
         @StringRes toastMessage: Int,
         onGranted: () -> Unit = {},
     ): (() -> Unit) {
-        val request = activity.registerForActivityResult(
+        val context = LocalContext.current
+        val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissionsResult ->
             Log.i(Constants.TAG, "Requested permissions: ${permissions.asList()}, got permissions: $permissionsResult")
             if (permissions.all { requestedPermission -> permissionsResult.getOrDefault(requestedPermission, null) == true })
-                // all permissions granted
+            // all permissions granted
                 onGranted()
             else {
                 // some permissions missing
-                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show()
             }
         }
-        return { request.launch(permissions) }
+        return { launcher.launch(permissions) }
     }
 
     /**
      * Registers a calendar permission request launcher.
      *
-     * @param activity   activity to register permission request launcher
      * @param onGranted  called when calendar permissions have been granted
      *
      * @return Call the returning function to launch the request
      */
-    fun registerCalendarPermissionRequest(activity: AppCompatActivity, onGranted: () -> Unit = {}) =
-        registerPermissionRequest(
-            activity,
+    @Composable
+    fun rememberCalendarPermissionRequest(onGranted: () -> Unit = {}) =
+        rememberPermissionRequest(
             CALENDAR_PERMISSIONS,
             R.string.calendar_permissions_required,
             onGranted
@@ -99,15 +101,14 @@ object PermissionUtils {
     /**
      * Registers a notification permission request launcher.
      *
-     * @param activity   activity to register permission request launcher
      * @param onGranted  called when calendar permissions have been granted
      *
      * @return Call the returning function to launch the request
      */
-    fun registerNotificationPermissionRequest(activity: AppCompatActivity, onGranted: () -> Unit = {}) =
+    @Composable
+    fun rememberNotificationPermissionRequest(onGranted: () -> Unit = {}) =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            registerPermissionRequest(
-                activity,
+            rememberPermissionRequest(
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                 R.string.notification_permissions_required,
                 onGranted
