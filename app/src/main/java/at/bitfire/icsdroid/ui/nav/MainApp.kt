@@ -51,6 +51,7 @@ private fun calculateInitialDestination(intentExtras: Bundle?): Destination {
 fun MainApp(
     savedInstanceState: Bundle?,
     intentExtras: Bundle?,
+    onFinish: () -> Unit,
 ) {
     // If EXTRA_PERMISSION is true, request the calendar permissions
     val requestPermissions = intentExtras?.getBoolean(EXTRA_REQUEST_CALENDAR_PERMISSION, false) == true
@@ -76,6 +77,11 @@ fun MainApp(
 
     val backStack = rememberNavBackStack(calculateInitialDestination(intentExtras))
 
+    fun goBack(depth: Int = 1) {
+        if (backStack.size <= 1) onFinish()
+        else repeat(depth) { backStack.removeAt(backStack.lastIndex) }
+    }
+
     NavDisplay(
         entryDecorators = listOf(
             rememberSceneSetupNavEntryDecorator(),
@@ -83,6 +89,7 @@ fun MainApp(
             rememberViewModelStoreNavEntryDecorator()
         ),
         backStack = backStack,
+        onBack = ::goBack,
         entryProvider = entryProvider {
             entry(Destination.SubscriptionList) {
                 SubscriptionsScreen(
@@ -107,7 +114,7 @@ fun MainApp(
                     title = destination.title,
                     color = destination.color,
                     url = url,
-                    onBackRequested = backStack::removeLastOrNull
+                    onBackRequested = { goBack() }
                 )
             }
         }
