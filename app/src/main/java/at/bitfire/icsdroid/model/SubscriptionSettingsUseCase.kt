@@ -91,7 +91,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState.url == subscription.url.toString()
             && uiState.title == subscription.displayName
             && uiState.color == subscription.color
-//            && uiState.customUserAgent == subscription.customUserAgent
+            && uiState.customUserAgent == subscription.customUserAgent
             && uiState.ignoreAlerts == subscription.ignoreEmbeddedAlerts
             && uiState.defaultAlarmMinutes == subscription.defaultAlarmMinutes
             && uiState.defaultAllDayAlarmMinutes == subscription.defaultAllDayAlarmMinutes
