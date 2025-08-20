@@ -81,18 +81,13 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.views.AddSubscriptionActivity"
-            android:parentActivityName=".MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            tools:ignore="UnusedAttribute">
+
             <intent-filter>
                 <!-- intent filter for resources with text/calendar MIME type -->
                 <action android:name="android.intent.action.VIEW" />

@@ -4,8 +4,12 @@
 
 package at.bitfire.icsdroid.ui.nav
 
+import android.accounts.AccountManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,13 +27,31 @@ import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISS
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.AlertDialog
+import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
+
+/**
+ * Computes the correct initial destination from some intent extras:
+ * - If [AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE] is present -> [Destination.AddSubscription]
+ * - Otherwise: [Destination.SubscriptionList]
+ */
+private fun calculateInitialDestination(intentExtras: Bundle?): Destination {
+    return if (intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE) == true) {
+        // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
+        // open the add subscription screen
+        Destination.AddSubscription()
+    } else {
+        // If no condition matches, show the subscriptions list
+        Destination.SubscriptionList
+    }
+}
 
 @Composable
 fun MainApp(
     savedInstanceState: Bundle?,
     intentExtras: Bundle?,
+    onFinish: () -> Unit,
 ) {
     // If EXTRA_PERMISSION is true, request the calendar permissions
     val requestPermissions = intentExtras?.getBoolean(EXTRA_REQUEST_CALENDAR_PERMISSION, false) == true
@@ -53,7 +75,12 @@ fun MainApp(
         if (show) service.Content()
     }
 
-    val backStack = rememberNavBackStack<Destination>(Destination.SubscriptionList)
+    val backStack = rememberNavBackStack(calculateInitialDestination(intentExtras))
+
+    fun goBack(depth: Int = 1) {
+        if (backStack.size <= 1) onFinish()
+        else repeat(depth) { backStack.removeAt(backStack.lastIndex) }
+    }
 
     NavDisplay(
         entryDecorators = listOf(
@@ -62,9 +89,33 @@ fun MainApp(
             rememberViewModelStoreNavEntryDecorator()
         ),
         backStack = backStack,
+        onBack = ::goBack,
         entryProvider = entryProvider {
             entry(Destination.SubscriptionList) {
-                SubscriptionsScreen(requestPermissions)
+                SubscriptionsScreen(
+                    requestPermissions,
+                    onAddRequested = { backStack.add(Destination.AddSubscription()) }
+                )
+            }
+            entry<Destination.AddSubscription> { destination ->
+                var url: String? = null
+                LaunchedEffect(intentExtras) {
+                    if (intentExtras != null) {
+                        intentExtras.getString(Intent.EXTRA_TEXT)
+                            ?.trim()
+                            ?.let { url = it }
+                        BundleCompat.getParcelable(intentExtras, Intent.EXTRA_STREAM, Uri::class.java)
+                            ?.toString()
+                            ?.let { url = it }
+                    }
+                }
+
+                AddSubscriptionScreen(
+                    title = destination.title,
+                    color = destination.color,
+                    url = url,
+                    onBackRequested = { goBack() }
+                )
             }
         }
     )

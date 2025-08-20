@@ -4,15 +4,22 @@
 
 package at.bitfire.icsdroid.ui.screen
 
+import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -35,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +54,68 @@ import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.views.EnterUrlComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 import kotlinx.coroutines.launch
+
+@Composable
+fun AddSubscriptionScreen(
+    title: String?,
+    color: Int?,
+    url: String?,
+    model: AddSubscriptionModel = hiltViewModel(),
+    onBackRequested: () -> Unit
+) {
+    val context = LocalContext.current
+    val uiState = model.uiState
+
+    LaunchedEffect(uiState) {
+        if (uiState.success) {
+            // on success, show notification and close activity
+            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
+            onBackRequested()
+        }
+        uiState.errorMessage?.let {
+            // on error, show error message
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        title?.let(model.subscriptionSettingsUseCase::setTitle)
+        color?.let(model.subscriptionSettingsUseCase::setColor)
+        url?.let {
+            model.subscriptionSettingsUseCase.setUrl(it)
+            model.checkUrlIntroductionPage()
+        }
+    }
+
+    val pickFile = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            // keep the picked file accessible after the first sync and reboots
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            model.subscriptionSettingsUseCase.setUrl(uri.toString())
+
+            // Get file name
+            val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (!cursor.moveToFirst()) return@use null
+                val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                cursor.getString(name)
+            }
+            model.subscriptionSettingsUseCase.setFileName(displayName)
+        }
+    }
+
+    Box(modifier = Modifier.imePadding()) {
+        AddSubscriptionScreen(
+            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
+            finish = onBackRequested,
+            checkUrlIntroductionPage = model::checkUrlIntroductionPage
+        )
+    }
+}
 
 @Composable
 fun AddSubscriptionScreen(
