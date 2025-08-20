@@ -45,6 +45,8 @@ fun SubscriptionSettingsComposable(
     titleChanged: (String) -> Unit,
     color: Int?,
     colorChanged: (Int) -> Unit,
+    customUserAgent: String?,
+    customUserAgentChanged: (String) -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
@@ -189,6 +191,24 @@ fun SubscriptionSettingsComposable(
             checked = ignoreDescription,
             onCheckedChange = onIgnoreDescriptionChanged
         )
+
+        // Custom User Agent
+        Text(
+            text = stringResource(R.string.add_calendar_custom_user_agent_title),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Text(
+            text = stringResource(R.string.add_calendar_custom_user_agent_description),
+            color = Color.Gray,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        OutlinedTextField(
+            value = customUserAgent ?: "",
+            onValueChange = customUserAgentChanged,
+            label = { Text(stringResource(R.string.add_calendar_custom_user_agent_title)) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isCreating
+        )
     }
 }
 
@@ -202,6 +222,8 @@ fun SubscriptionSettingsComposable_Preview() {
             titleChanged = {},
             color = 0,
             colorChanged = {},
+            customUserAgent = "customUserAgent",
+            customUserAgentChanged = {},
             ignoreAlerts = true,
             ignoreAlertsChanged = {},
             defaultAlarmMinutes = 20L,

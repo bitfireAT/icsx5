@@ -88,6 +88,8 @@
     <string name="add_calendar_advanced_title">Advanced</string>
     <string name="add_calendar_description_title">Ignore DESCRIPTION field</string>
     <string name="add_calendar_description_summary">If enabled, the DESCRIPTION field will be removed from events. Helpful if it contains spammy information.</string>
+    <string name="add_calendar_custom_user_agent_title">Custom User Agent</string>
+    <string name="add_calendar_custom_user_agent_description">This will override the default user agent</string>
 
     <!-- AlertFragment -->
     <string name="alert_share_details">Share details</string>

@@ -105,6 +105,7 @@ class EditSubscriptionModel @AssistedInject constructor(
             setUrl(subscription.url.toString())
             setTitle(subscription.displayName)
             setColor(subscription.color)
+//            setCustomUserAgent(subscription.customUserAgent)
             setIgnoreAlerts(subscription.ignoreEmbeddedAlerts)
             setDefaultAlarmMinutes(subscription.defaultAlarmMinutes?.toString())
             setDefaultAllDayAlarmMinutes(subscription.defaultAllDayAlarmMinutes?.toString())
@@ -134,6 +135,7 @@ class EditSubscriptionModel @AssistedInject constructor(
                 val newSubscription = subscription.copy(
                     displayName = title ?: subscription.displayName,
                     color = color,
+//                    customUserAgent = customUserAgent,
                     defaultAlarmMinutes = defaultAlarmMinutes,
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
                     ignoreEmbeddedAlerts = ignoreAlerts,

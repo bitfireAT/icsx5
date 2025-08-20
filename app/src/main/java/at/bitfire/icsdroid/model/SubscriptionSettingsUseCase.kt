@@ -19,6 +19,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val urlError: String? = null,
         val title: String? = null,
         val color: Int? = null,
+        val customUserAgent: String? = null,
         val ignoreAlerts: Boolean = false,
         val defaultAlarmMinutes: Long? = null,
         val defaultAllDayAlarmMinutes: Long? = null,
@@ -67,6 +68,9 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState = uiState.copy(color = value)
     }
 
+    fun setCustomUserAgent(value: String?) {
+        uiState = uiState.copy(customUserAgent = value)
+    }
     fun setIgnoreAlerts(value: Boolean) {
         uiState = uiState.copy(ignoreAlerts = value)
     }
@@ -87,6 +91,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState.url == subscription.url.toString()
             && uiState.title == subscription.displayName
             && uiState.color == subscription.color
+//            && uiState.customUserAgent == subscription.customUserAgent
             && uiState.ignoreAlerts == subscription.ignoreEmbeddedAlerts
             && uiState.defaultAlarmMinutes == subscription.defaultAlarmMinutes
             && uiState.defaultAllDayAlarmMinutes == subscription.defaultAllDayAlarmMinutes
