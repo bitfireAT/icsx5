@@ -257,7 +257,7 @@ private fun AppBarComposable(
 
 @Preview
 @Composable
-fun EditCalendarScreen_Preview() {
+fun EditSubscriptionScreen_Preview() {
     AppTheme {
         EditSubscriptionScreen(
             inputValid = true,
