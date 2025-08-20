@@ -31,14 +31,6 @@ class AppHttpClient(
     engine: HttpClientEngine = OkHttp.create()
 ) {
 
-    companion object {
-        private val appInForeground = MutableStateFlow(false)
-
-        fun setForeground(foreground: Boolean) {
-            appInForeground.tryEmit(foreground)
-        }
-    }
-
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
     private val certManager = CustomCertManager(context, appInForeground = appInForeground)
@@ -74,6 +66,14 @@ class AppHttpClient(
             return chain.proceed(request.build())
         }
 
+    }
+
+    companion object {
+        private val appInForeground = MutableStateFlow(false)
+
+        fun setForeground(foreground: Boolean) {
+            appInForeground.tryEmit(foreground)
+        }
     }
 
     @Module
