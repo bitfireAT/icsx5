@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import at.bitfire.icsdroid.MainActivity
 import at.bitfire.icsdroid.PermissionUtils
 import at.bitfire.icsdroid.R
@@ -82,11 +83,15 @@ fun SubscriptionsScreen(
         model.checkSyncSettings()
     }
 
+    LifecycleResumeEffect(Unit) {
+        model.checkSyncSettings()
+
+        onPauseOrDispose { /* nothing */ }
+    }
+
     LaunchedEffect(Unit) {
         if (requestPermissions && !PermissionUtils.haveCalendarPermissions(context))
             requestCalendarPermissions()
-
-        model.checkSyncSettings()
     }
 
     SubscriptionsScreen(
