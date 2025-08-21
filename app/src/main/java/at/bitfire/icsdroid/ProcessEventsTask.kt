@@ -58,12 +58,12 @@ class ProcessEventsTask(
     interface ProcessEventsTaskEntryPoint {
         fun appDatabase(): AppDatabase
 
-        fun provideAppHttpClient(): AppHttpClient
+        fun appHttpClientFactory(): AppHttpClient.Factory
     }
 
     private val entryPoint = EntryPointAccessors.fromApplication(context, ProcessEventsTaskEntryPoint::class.java)
     val db = entryPoint.appDatabase()
-    val httpClient = entryPoint.provideAppHttpClient()
+    val httpClient = entryPoint.appHttpClientFactory().create(subscription.customUserAgent)
 
     private var exception: Throwable? = null
 

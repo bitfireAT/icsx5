@@ -192,6 +192,8 @@ fun SubscriptionSettingsComposable(
             onCheckedChange = onIgnoreDescriptionChanged
         )
 
+        Spacer(modifier = Modifier.padding(12.dp))
+
         // Custom User Agent
         Text(
             text = stringResource(R.string.add_calendar_custom_user_agent_title),

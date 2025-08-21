@@ -70,6 +70,8 @@ fun EnterUrlComposable(
     onPasswordChange: (String) -> Unit,
     isInsecure: Boolean,
     url: String?,
+    customUserAgent: String?,
+    onCustomUserAgentChange: (String) -> Unit,
     fileName: String?,
     onUrlChange: (String?) -> Unit,
     urlError: String?,
@@ -184,6 +186,8 @@ fun EnterUrlComposable(
                         0 -> SubscribeToUrl(
                             url,
                             onUrlChange,
+                            customUserAgent,
+                            onCustomUserAgentChange,
                             onSubmit,
                             urlError,
                             isVerifyingUrl,
@@ -218,6 +222,8 @@ fun EnterUrlComposable(
 private fun ColumnScope.SubscribeToUrl(
     url: String?,
     onUrlChange: (String) -> Unit,
+    customUserAgent: String?,
+    onCustomUserAgentChange: (String) -> Unit,
     onSubmit: () -> Unit,
     error: String?,
     verifying: Boolean,
@@ -230,6 +236,8 @@ private fun ColumnScope.SubscribeToUrl(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
 ) {
+
+    // URL
     ResourceInput(
         url,
         onUrlChange,
@@ -254,6 +262,8 @@ private fun ColumnScope.SubscribeToUrl(
             )
         }
     }
+
+    // Username + Password
     AnimatedVisibility(visible = supportsAuthentication) {
         LoginCredentialsComposable(
             requiresAuth,
@@ -264,6 +274,26 @@ private fun ColumnScope.SubscribeToUrl(
             onPasswordChange
         )
     }
+
+    Spacer(modifier = Modifier.padding(12.dp))
+
+    // Advanced
+    Text(
+        text = stringResource(R.string.add_calendar_advanced_title),
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.padding(top = 8.dp)
+    )
+
+    // Custom User Agent
+    ResourceInput(
+        customUserAgent,
+        onCustomUserAgentChange,
+        false,
+        onSubmit,
+        null,
+        labelText = stringResource(R.string.add_calendar_custom_user_agent_title)
+    )
+
 }
 
 @Composable
@@ -291,7 +321,7 @@ private fun ColumnScope.SubscribeToFile(
 private fun ColumnScope.ResourceInput(
     value: String?,
     onChange: (String) -> Unit,
-    enabled: Boolean,
+    disabled: Boolean,
     onSubmit: () -> Unit,
     error: String?,
     labelText: String,
@@ -304,7 +334,7 @@ private fun ColumnScope.ResourceInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 16.dp),
-        enabled = !enabled,
+        enabled = !disabled,
         readOnly = readOnly,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
@@ -348,6 +378,8 @@ fun EnterUrlComposable_Preview() {
         url = "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics" +
             "\n\n a\n b\n c\n\n" +
             "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics",
+        customUserAgent = "previewUserAgent",
+        onCustomUserAgentChange = {},
         fileName = "file name",
         onUrlChange = {},
         urlError = "",

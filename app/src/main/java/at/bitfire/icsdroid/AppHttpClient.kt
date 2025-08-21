@@ -5,12 +5,12 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
+import android.util.Log
 import at.bitfire.cert4android.CustomCertManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
@@ -23,13 +23,26 @@ import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 import javax.net.ssl.SSLContext
 
-class AppHttpClient(
-    context: Context,
-    engine: HttpClientEngine = OkHttp.create()
+class AppHttpClient @AssistedInject constructor(
+    @Assisted customUserAgent: String? = null,
+    @Assisted engine: HttpClientEngine,
+    @ApplicationContext context: Context
 ) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            customUserAgent: String? = null,
+            engine: HttpClientEngine = OkHttp.create(),
+        ): AppHttpClient
+    }
+
+    /**
+     * The user agent to use in requests
+     */
+    val userAgent = customUserAgent ?: Constants.USER_AGENT
 
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
@@ -44,7 +57,7 @@ class AppHttpClient(
         @Suppress("UNCHECKED_CAST")
         if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
             addNetworkInterceptor(BrotliInterceptor)
-            addNetworkInterceptor(UserAgentInterceptor)
+            addNetworkInterceptor(UserAgentInterceptor(userAgent))
             config {
                 followRedirects(false)
                 connectTimeout(20, TimeUnit.SECONDS)
@@ -57,12 +70,15 @@ class AppHttpClient(
         }
     }
 
-    object UserAgentInterceptor : Interceptor {
+    class UserAgentInterceptor(
+        private val userAgent: String
+    ) : Interceptor {
 
         override fun intercept(chain: Interceptor.Chain): Response {
+            Log.i(Constants.TAG, "Adding user agent: $userAgent")
             val request = chain.request()
                 .newBuilder()
-                .header("User-Agent", Constants.USER_AGENT)
+                .header("User-Agent", userAgent)
             return chain.proceed(request.build())
         }
 
@@ -73,18 +89,6 @@ class AppHttpClient(
 
         fun setForeground(foreground: Boolean) {
             appInForeground.tryEmit(foreground)
-        }
-    }
-
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object HttpClientModule {
-        @Singleton
-        @Provides
-        fun provideAppHttpClient(
-            @ApplicationContext context: Context
-        ): AppHttpClient {
-            return AppHttpClient(context, OkHttp.create())
         }
     }
 

@@ -219,7 +219,8 @@ fun AddSubscriptionScreen(
                             model.validateUrl(
                                 originalUri = uri,
                                 username = if (authenticate) uiState.username else null,
-                                password = if (authenticate) uiState.password else null
+                                password = if (authenticate) uiState.password else null,
+                                customUserAgent = uiState.customUserAgent
                             )
                         }
                     }
@@ -307,6 +308,8 @@ fun AddSubscriptionScreen(
                     onPasswordChange = onPasswordChange,
                     isInsecure = isInsecure,
                     url = url,
+                    customUserAgent = customUserAgent,
+                    onCustomUserAgentChange = onCustomUserAgentChange,
                     fileName = fileName,
                     onUrlChange = onUrlChange,
                     urlError = urlError,
