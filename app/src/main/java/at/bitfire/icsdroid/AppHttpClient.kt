@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
-import android.util.Log
 import at.bitfire.cert4android.CustomCertManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -17,9 +16,8 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.engine.okhttp.OkHttpConfig
 import io.ktor.client.engine.okhttp.OkHttpEngine
+import io.ktor.client.plugins.UserAgent
 import kotlinx.coroutines.flow.MutableStateFlow
-import okhttp3.Interceptor
-import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.util.concurrent.TimeUnit
@@ -54,10 +52,14 @@ class AppHttpClient @AssistedInject constructor(
     }
 
     val httpClient = HttpClient(engine) {
+        // Add user given user agent to all engines
+        install(UserAgent) {
+            agent = userAgent
+        }
+
         @Suppress("UNCHECKED_CAST")
         if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
             addNetworkInterceptor(BrotliInterceptor)
-            addNetworkInterceptor(UserAgentInterceptor(userAgent))
             config {
                 followRedirects(false)
                 connectTimeout(20, TimeUnit.SECONDS)
@@ -68,20 +70,6 @@ class AppHttpClient @AssistedInject constructor(
         } else {
             followRedirects = false
         }
-    }
-
-    class UserAgentInterceptor(
-        private val userAgent: String
-    ) : Interceptor {
-
-        override fun intercept(chain: Interceptor.Chain): Response {
-            Log.i(Constants.TAG, "Adding user agent: $userAgent")
-            val request = chain.request()
-                .newBuilder()
-                .header("User-Agent", userAgent)
-            return chain.proceed(request.build())
-        }
-
     }
 
     companion object {
