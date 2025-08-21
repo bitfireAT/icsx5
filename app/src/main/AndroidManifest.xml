@@ -115,11 +115,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.views.EditSubscriptionActivity"
-            android:label="@string/activity_edit_calendar"
-            android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
             android:name=".ui.InfoActivity"
             android:label="@string/activity_app_info"
             android:parentActivityName=".MainActivity" />
