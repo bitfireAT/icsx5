@@ -122,7 +122,7 @@ class EditSubscriptionModel @AssistedInject constructor(
             // Save state, before user makes changes
             initialSubscription = subscription
             initialCredential = credential
-            initialRequiresAuthValue = uiState.requiresAuth
+            initialRequiresAuthValue = requiresAuth
         }
 
     /**
