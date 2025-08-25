@@ -81,13 +81,13 @@ object HttpUtils {
     }
 
     /**
-     * Whether an URI scheme supports authentication.
+     * Whether given URL has an accepted protocol.
      *
-     * Currently only HTTP and HTTPS URIs are considered to support authentication.
+     * Currently only HTTP and HTTPS URIs are accepted.
      *
-     * @return true if URI supports authentication; false if it does not
+     * @return true if URI contains valid scheme; false if it does not
      */
-    fun supportsAuthentication(uri: Uri) =
+    fun acceptedProtocol(uri: Uri) =
         when (uri.scheme?.lowercase()) {
             "http", "https" -> true
             else -> false

@@ -1,15 +1,14 @@
 package at.bitfire.icsdroid.model
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import java.net.URISyntaxException
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.net.toUri
 
 @Singleton
 class SubscriptionSettingsUseCase @Inject constructor() {
@@ -33,16 +32,9 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val isInsecure: Boolean = false
     ) {
         // computed settings
-        val supportsAuthentication: Boolean = url.let {
-            val uri = try {
-                Uri.parse(url)
-            } catch (_: URISyntaxException) {
-                return@let false
-            } catch (_: NullPointerException) {
-                return@let false
-            }
-            HttpUtils.supportsAuthentication(uri)
-        }
+        val validUrlInput: Boolean = url?.let { url ->
+            HttpUtils.acceptedProtocol(url.toUri())
+        } ?: false
     }
 
     var uiState by mutableStateOf(UiState())

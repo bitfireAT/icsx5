@@ -228,7 +228,7 @@ private fun ColumnScope.SubscribeToUrl(
     error: String?,
     verifying: Boolean,
     isInsecure: Boolean,
-    supportsAuthentication: Boolean,
+    validUrlInput: Boolean,
     requiresAuth: Boolean,
     username: String?,
     password: String?,
@@ -264,7 +264,7 @@ private fun ColumnScope.SubscribeToUrl(
     }
 
     // Username + Password
-    AnimatedVisibility(visible = supportsAuthentication) {
+    AnimatedVisibility(visible = validUrlInput) {
         LoginCredentialsComposable(
             requiresAuth,
             username,

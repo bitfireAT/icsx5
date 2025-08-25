@@ -68,7 +68,7 @@ fun EditSubscriptionScreen(
             onExit = onExit,
 
             // Subscription settings repository
-            supportsAuthentication = uiState.supportsAuthentication,
+            validUrlInput = uiState.validUrlInput,
             url = uiState.url,
             title = uiState.title,
             titleChanged = ::setTitle,
@@ -106,7 +106,7 @@ fun EditSubscriptionScreen(
     onExit: () -> Unit,
 
     // Subscription settings
-    supportsAuthentication: Boolean,
+    validUrlInput: Boolean,
     url: String?,
     title: String?,
     titleChanged: (String) -> Unit,
@@ -174,7 +174,7 @@ fun EditSubscriptionScreen(
                 isCreating = isCreating
             )
             AnimatedVisibility(
-                visible = supportsAuthentication
+                visible = validUrlInput
             ) {
                 LoginCredentialsComposable(
                     requiresAuth = requiresAuth,
@@ -273,7 +273,7 @@ fun EditSubscriptionScreen_Preview() {
             onSave = {},
             onShare = {},
             onExit = {},
-            supportsAuthentication = true,
+            validUrlInput = true,
 
             // Subscription settings model
             url = "url",
