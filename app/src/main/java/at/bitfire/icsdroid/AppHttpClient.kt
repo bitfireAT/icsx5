@@ -44,7 +44,7 @@ class AppHttpClient @AssistedInject constructor(
 
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
-    private val certManager = CustomCertManager(context, appInForeground = appInForeground)
+    private val certManager = CustomCertManager(context, appInForeground = MutableStateFlow(false))
 
     private val sslContext = SSLContext.getInstance("TLS")
     init {
@@ -70,11 +70,6 @@ class AppHttpClient @AssistedInject constructor(
         } else {
             followRedirects = false
         }
-    }
-
-    companion object {
-        private val appInForeground = MutableStateFlow(false)
-
     }
 
 }
