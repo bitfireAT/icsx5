@@ -9,6 +9,7 @@ import at.bitfire.icsdroid.db.entity.Subscription
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.net.toUri
+import at.bitfire.vcard4android.Utils.trimToNull
 
 @Singleton
 class SubscriptionSettingsUseCase @Inject constructor() {
@@ -61,8 +62,10 @@ class SubscriptionSettingsUseCase @Inject constructor() {
     }
 
     fun setCustomUserAgent(value: String?) {
-        uiState = uiState.copy(customUserAgent = value)
+        // Update with NULL if text field is empty and do not allow whitespace
+        uiState = uiState.copy(customUserAgent = value.takeIf { it?.isNotBlank() == true })
     }
+
     fun setIgnoreAlerts(value: Boolean) {
         uiState = uiState.copy(ignoreAlerts = value)
     }
