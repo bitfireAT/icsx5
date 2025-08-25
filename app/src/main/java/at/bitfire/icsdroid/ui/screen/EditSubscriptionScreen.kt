@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui.screen
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -173,6 +174,9 @@ fun EditSubscriptionScreen(
                 onIgnoreDescriptionChanged = onIgnoreDescriptionChanged,
                 isCreating = isCreating
             )
+
+            Spacer(modifier = Modifier.padding(12.dp))
+
             AnimatedVisibility(
                 visible = validUrlInput
             ) {
