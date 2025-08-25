@@ -26,8 +26,10 @@ import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_ERROR_MESSAGE
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISSION
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.service.ComposableStartupService
+import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
+import at.bitfire.icsdroid.ui.screen.InfoScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
 
@@ -94,7 +96,14 @@ fun MainApp(
             entry(Destination.SubscriptionList) {
                 SubscriptionsScreen(
                     requestPermissions,
+                    onAboutRequested = { backStack.add(Destination.Info) },
                     onAddRequested = { backStack.add(Destination.AddSubscription()) }
+                )
+            }
+            entry(Destination.Info) {
+                InfoScreen(
+                    compStartupServices,
+                    onNavigateUp = ::goBack
                 )
             }
             entry<Destination.AddSubscription> { destination ->

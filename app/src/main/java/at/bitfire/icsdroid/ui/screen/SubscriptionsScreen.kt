@@ -57,7 +57,6 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.SubscriptionsModel
-import at.bitfire.icsdroid.ui.InfoActivity
 import at.bitfire.icsdroid.ui.partials.ActionCard
 import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
@@ -68,6 +67,7 @@ import at.bitfire.icsdroid.ui.views.EditSubscriptionActivity
 @Composable
 fun SubscriptionsScreen(
     requestPermissions: Boolean,
+    onAboutRequested: () -> Unit,
     onAddRequested: () -> Unit,
     model: SubscriptionsModel = hiltViewModel()
 ) {
@@ -96,9 +96,7 @@ fun SubscriptionsScreen(
 
     SubscriptionsScreen(
         model = model,
-        onAboutRequested = {
-            activity?.startActivity(Intent(context, InfoActivity::class.java))
-        },
+        onAboutRequested = onAboutRequested,
         onAddRequested = onAddRequested,
         onRequestCalendarPermissions = requestCalendarPermissions,
         onRequestNotificationPermission = requestNotificationPermission,
