@@ -263,36 +263,39 @@ private fun ColumnScope.SubscribeToUrl(
         }
     }
 
-    // Username + Password
+    // Optional settings
     AnimatedVisibility(visible = validUrlInput) {
-        LoginCredentialsComposable(
-            requiresAuth,
-            username,
-            password,
-            onRequiresAuthChange,
-            onUsernameChange,
-            onPasswordChange
-        )
+        Column {
+            // Username + Password
+            LoginCredentialsComposable(
+                requiresAuth,
+                username,
+                password,
+                onRequiresAuthChange,
+                onUsernameChange,
+                onPasswordChange
+            )
+
+            Spacer(modifier = Modifier.padding(12.dp))
+
+            // Advanced
+            Text(
+                text = stringResource(R.string.add_calendar_advanced_title),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            // Custom User Agent
+            ResourceInput(
+                customUserAgent,
+                onCustomUserAgentChange,
+                false,
+                onSubmit,
+                null,
+                labelText = stringResource(R.string.add_calendar_custom_user_agent_title)
+            )
+        }
     }
-
-    Spacer(modifier = Modifier.padding(12.dp))
-
-    // Advanced
-    Text(
-        text = stringResource(R.string.add_calendar_advanced_title),
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.padding(top = 8.dp)
-    )
-
-    // Custom User Agent
-    ResourceInput(
-        customUserAgent,
-        onCustomUserAgentChange,
-        false,
-        onSubmit,
-        null,
-        labelText = stringResource(R.string.add_calendar_custom_user_agent_title)
-    )
 
 }
 
