@@ -292,7 +292,7 @@ private fun ColumnScope.SubscribeToUrl(
                 false,
                 onSubmit,
                 null,
-                labelText = stringResource(R.string.add_calendar_custom_user_agent_title)
+                labelText = stringResource(R.string.add_calendar_custom_user_agent_label)
             )
         }
     }
@@ -346,7 +346,7 @@ private fun ColumnScope.ResourceInput(
         ),
         keyboardActions = KeyboardActions { onSubmit() },
         maxLines = 8,
-        placeholder = { Text(labelText) },
+        label = { Text(labelText) },
         isError = error != null,
         interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
             LaunchedEffect(interactionSource) {
