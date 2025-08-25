@@ -313,7 +313,7 @@ fun AddSubscriptionScreen(
                     fileName = fileName,
                     onUrlChange = onUrlChange,
                     urlError = urlError,
-                    supportsAuthentication = validUrlInput,
+                    acceptedProtocol = validUrlInput,
                     isVerifyingUrl = isVerifyingUrl,
                     validationResult = validationResult,
                     onValidationResultDismiss = onResetResult,
