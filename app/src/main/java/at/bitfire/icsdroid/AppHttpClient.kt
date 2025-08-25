@@ -75,9 +75,6 @@ class AppHttpClient @AssistedInject constructor(
     companion object {
         private val appInForeground = MutableStateFlow(false)
 
-        fun setForeground(foreground: Boolean) {
-            appInForeground.tryEmit(foreground)
-        }
     }
 
 }
