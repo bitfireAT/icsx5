@@ -18,8 +18,8 @@ import at.bitfire.icsdroid.R
 fun ToggleTextField(
     title: String,
     description: String,
-    onCustomUserAgentChange: (String) -> Unit,
-    customUserAgent: String?,
+    onValueChange: (String) -> Unit,
+    value: String?,
     keyboardActions: KeyboardActions
 ) {
     var showTextField by rememberSaveable { mutableStateOf(false) }
@@ -30,13 +30,13 @@ fun ToggleTextField(
         onCheckedChange = {
             showTextField = !showTextField
             if (!showTextField)
-                onCustomUserAgentChange("")
+                onValueChange("")
         }
     )
     AnimatedVisibility(visible = showTextField) {
         OutlinedTextField(
-            value = customUserAgent ?: "",
-            onValueChange = onCustomUserAgentChange,
+            value = value ?: "",
+            onValueChange = onValueChange,
             label = { Text(stringResource(R.string.add_calendar_custom_user_agent_label)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardActions = keyboardActions

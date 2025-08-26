@@ -290,8 +290,8 @@ private fun ColumnScope.SubscribeToUrl(
             ToggleTextField(
                 title = stringResource(R.string.add_calendar_custom_user_agent_title),
                 description = stringResource(R.string.add_calendar_custom_user_agent_description),
-                onCustomUserAgentChange = onCustomUserAgentChange,
-                customUserAgent = customUserAgent,
+                onValueChange = onCustomUserAgentChange,
+                value = customUserAgent,
                 keyboardActions = KeyboardActions { onSubmit() }
             )
         }
