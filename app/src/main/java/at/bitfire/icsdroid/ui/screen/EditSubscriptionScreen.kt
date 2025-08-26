@@ -5,6 +5,7 @@
 package at.bitfire.icsdroid.ui.screen
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -222,6 +223,11 @@ private fun AppBarComposable(
             dismissButton = stringResource(R.string.edit_calendar_dismiss) to onExit
         ) { openSaveDismissDialog = false }
     }
+
+    BackHandler(enabled = modelsDirty) {
+        openSaveDismissDialog = true
+    }
+
     ExtendedTopAppBar(
         navigationIcon = {
             IconButton(
