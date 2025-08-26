@@ -327,8 +327,6 @@ fun AddSubscriptionScreen(
                     titleChanged = onTitleChange,
                     color = color,
                     colorChanged = onColorChange,
-                    customUserAgent = customUserAgent,
-                    customUserAgentChanged = onCustomUserAgentChange,
                     ignoreAlerts = ignoreAlerts,
                     ignoreAlertsChanged = onIgnoreAlertsChange,
                     defaultAlarmMinutes = defaultAlarmMinutes,

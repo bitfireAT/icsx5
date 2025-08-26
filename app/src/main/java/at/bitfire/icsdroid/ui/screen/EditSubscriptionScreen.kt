@@ -40,6 +40,7 @@ import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel.EditSubscriptionModelFactory
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
+import at.bitfire.icsdroid.ui.partials.ToggleTextField
 import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
@@ -162,8 +163,6 @@ fun EditSubscriptionScreen(
                 titleChanged = titleChanged,
                 color = color,
                 colorChanged = colorChanged,
-                customUserAgent = customUserAgent,
-                customUserAgentChanged = customUserAgentChanged,
                 ignoreAlerts = ignoreAlerts,
                 ignoreAlertsChanged = ignoreAlertsChanged,
                 defaultAlarmMinutes = defaultAlarmMinutes,
@@ -173,6 +172,14 @@ fun EditSubscriptionScreen(
                 ignoreDescription = ignoreDescription,
                 onIgnoreDescriptionChanged = onIgnoreDescriptionChanged,
                 isCreating = isCreating
+            )
+
+            // Custom User Agent
+            ToggleTextField(
+                title = stringResource(R.string.add_calendar_custom_user_agent_title),
+                description = stringResource(R.string.add_calendar_custom_user_agent_description),
+                onValueChange = customUserAgentChanged,
+                value = customUserAgent
             )
 
             Spacer(modifier = Modifier.padding(12.dp))

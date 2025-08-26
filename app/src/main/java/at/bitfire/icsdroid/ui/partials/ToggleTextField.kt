@@ -22,7 +22,7 @@ fun ToggleTextField(
     value: String?,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-    var showTextField by rememberSaveable { mutableStateOf(false) }
+    var showTextField by rememberSaveable { mutableStateOf(value != null) }
     SwitchSetting(
         title = title,
         description = description,

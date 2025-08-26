@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Circle
@@ -37,7 +36,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.ui.partials.ColorPickerDialog
 import at.bitfire.icsdroid.ui.partials.SwitchSetting
-import at.bitfire.icsdroid.ui.partials.ToggleTextField
 import at.bitfire.icsdroid.ui.theme.AppTheme
 
 @Composable
@@ -47,8 +45,6 @@ fun SubscriptionSettingsComposable(
     titleChanged: (String) -> Unit,
     color: Int?,
     colorChanged: (Int) -> Unit,
-    customUserAgent: String?,
-    customUserAgentChanged: (String?) -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
@@ -193,26 +189,6 @@ fun SubscriptionSettingsComposable(
             checked = ignoreDescription,
             onCheckedChange = onIgnoreDescriptionChanged
         )
-
-        Spacer(modifier = Modifier.padding(12.dp))
-
-        // Custom User Agent
-        Text(
-            text = stringResource(R.string.add_calendar_custom_user_agent_title),
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = stringResource(R.string.add_calendar_custom_user_agent_description),
-            color = Color.Gray,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        OutlinedTextField(
-            value = customUserAgent ?: "",
-            onValueChange = customUserAgentChanged,
-            label = { Text(stringResource(R.string.add_calendar_custom_user_agent_title)) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isCreating
-        )
     }
 }
 
@@ -226,8 +202,6 @@ fun SubscriptionSettingsComposable_Preview() {
             titleChanged = {},
             color = 0,
             colorChanged = {},
-            customUserAgent = "customUserAgent",
-            customUserAgentChanged = {},
             ignoreAlerts = true,
             ignoreAlertsChanged = {},
             defaultAlarmMinutes = 20L,
