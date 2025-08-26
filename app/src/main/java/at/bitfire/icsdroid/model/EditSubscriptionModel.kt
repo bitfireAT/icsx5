@@ -40,9 +40,9 @@ class EditSubscriptionModel @AssistedInject constructor(
         fun create(subscriptionId: Long): EditSubscriptionModel
     }
 
-    private var initialSubscription: Subscription? by mutableStateOf(null)
-    private var initialCredential: Credential? by mutableStateOf(null)
-    private var initialRequiresAuthValue: Boolean? by mutableStateOf(null)
+    private var initialSubscription: Subscription? = null
+    private var initialCredential: Credential? = null
+    private var initialRequiresAuthValue: Boolean? = null
 
     /**
      * Whether user input is error free
@@ -101,6 +101,13 @@ class EditSubscriptionModel @AssistedInject constructor(
     private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) =
         with(subscriptionSettingsUseCase) {
             val subscription = subscriptionWithCredential.subscription
+            val credential = subscriptionWithCredential.credential
+            val requiresAuth = credential != null
+
+            // Save the initial state, before updating the UI, so the state is persisted
+            initialSubscription = subscription
+            initialCredential = credential
+            initialRequiresAuthValue = requiresAuth
 
             setUrl(subscription.url.toString())
             setTitle(subscription.displayName)
@@ -110,19 +117,12 @@ class EditSubscriptionModel @AssistedInject constructor(
             setDefaultAllDayAlarmMinutes(subscription.defaultAllDayAlarmMinutes?.toString())
             setIgnoreDescription(subscription.ignoreDescription)
 
-            val credential = subscriptionWithCredential.credential
-            val requiresAuth = credential != null
             setRequiresAuth(requiresAuth)
 
             if (credential != null) {
                 setUsername(credential.username)
                 setPassword(credential.password)
             }
-
-            // Save state, before user makes changes
-            initialSubscription = subscription
-            initialCredential = credential
-            initialRequiresAuthValue = requiresAuth
         }
 
     /**
