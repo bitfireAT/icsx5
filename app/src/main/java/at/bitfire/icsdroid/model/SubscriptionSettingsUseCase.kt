@@ -62,7 +62,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
 
     fun setCustomUserAgent(value: String?) {
         // Update with NULL if text field is empty and do not allow whitespace
-        uiState = uiState.copy(customUserAgent = value.takeIf { it?.isNotBlank() == true })
+        uiState = uiState.copy(customUserAgent = value?.takeIf { it.isNotBlank() })
     }
 
     fun setIgnoreAlerts(value: Boolean) {
