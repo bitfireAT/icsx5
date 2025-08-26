@@ -40,9 +40,9 @@ class EditSubscriptionModel @AssistedInject constructor(
         fun create(subscriptionId: Long): EditSubscriptionModel
     }
 
-    private var initialSubscription: Subscription? = null
-    private var initialCredential: Credential? = null
-    private var initialRequiresAuthValue: Boolean? = null
+    private var initialSubscription: Subscription? by mutableStateOf(null)
+    private var initialCredential: Credential? by mutableStateOf(null)
+    private var initialRequiresAuthValue: Boolean? by mutableStateOf(null)
 
     /**
      * Whether user input is error free
