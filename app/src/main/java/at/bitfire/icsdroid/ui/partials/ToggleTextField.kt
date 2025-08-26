@@ -18,9 +18,9 @@ import at.bitfire.icsdroid.R
 fun ToggleTextField(
     title: String,
     description: String,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String?) -> Unit,
     value: String?,
-    keyboardActions: KeyboardActions
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     var showTextField by rememberSaveable { mutableStateOf(false) }
     SwitchSetting(
@@ -30,7 +30,7 @@ fun ToggleTextField(
         onCheckedChange = {
             showTextField = !showTextField
             if (!showTextField)
-                onValueChange("")
+                onValueChange(null)
         }
     )
     AnimatedVisibility(visible = showTextField) {

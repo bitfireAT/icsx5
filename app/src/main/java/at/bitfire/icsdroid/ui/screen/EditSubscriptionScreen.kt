@@ -114,7 +114,7 @@ fun EditSubscriptionScreen(
     color: Int?,
     colorChanged: (Int) -> Unit,
     customUserAgent: String?,
-    customUserAgentChanged: (String) -> Unit,
+    customUserAgentChanged: (String?) -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,

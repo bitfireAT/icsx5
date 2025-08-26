@@ -265,7 +265,7 @@ fun AddSubscriptionScreen(
     color: Int?,
     onColorChange: (Int) -> Unit,
     customUserAgent: String?,
-    onCustomUserAgentChange: (String) -> Unit,
+    onCustomUserAgentChange: (String?) -> Unit,
     ignoreAlerts: Boolean,
     onIgnoreAlertsChange: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
