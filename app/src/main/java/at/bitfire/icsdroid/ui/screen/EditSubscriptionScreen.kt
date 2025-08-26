@@ -22,6 +22,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +55,12 @@ fun EditSubscriptionScreen(
     val model = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
         factory.create(subscriptionId)
     }
-    val subscription = model.subscription.collectAsStateWithLifecycle(null)
+    val subscriptionWithCredential by model.subscriptionWithCredential.collectAsState(null)
+
+    LaunchedEffect(subscriptionWithCredential) {
+        subscriptionWithCredential?.let { model.onSubscriptionLoaded(it) }
+    }
+
     with(model.subscriptionSettingsUseCase) {
         EditSubscriptionScreen(
             inputValid = model.inputValid,
@@ -61,8 +69,8 @@ fun EditSubscriptionScreen(
             onDelete = model::removeSubscription,
             onSave = model::updateSubscription,
             onShare = {
-                subscription.value?.let {
-                    onShare(it)
+                subscriptionWithCredential?.let { (subscription) ->
+                    onShare(subscription)
                 }
             },
             onExit = onExit,

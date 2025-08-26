@@ -83,6 +83,22 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState = uiState.copy(ignoreDescription = value)
     }
 
+    fun update(subscription: Subscription, credential: Credential?) {
+        uiState = uiState.copy(
+            url = subscription.url.toString(),
+            title = subscription.displayName,
+            color = subscription.color,
+            ignoreAlerts = subscription.ignoreEmbeddedAlerts,
+            defaultAlarmMinutes = subscription.defaultAlarmMinutes,
+            defaultAllDayAlarmMinutes = subscription.defaultAllDayAlarmMinutes,
+            ignoreDescription = subscription.ignoreDescription,
+
+            requiresAuth = credential != null,
+            username = credential?.username,
+            password = credential?.password
+        )
+    }
+
     fun equalsSubscription(subscription: Subscription) =
         uiState.url == subscription.url.toString()
             && uiState.title == subscription.displayName
