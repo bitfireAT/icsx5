@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.ui.screen
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -39,6 +40,7 @@ import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel.EditSubscriptionModelFactory
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
+import at.bitfire.icsdroid.ui.partials.ToggleTextField
 import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
@@ -68,12 +70,14 @@ fun EditSubscriptionScreen(
             onExit = onExit,
 
             // Subscription settings repository
-            supportsAuthentication = uiState.supportsAuthentication,
+            validUrlInput = uiState.validUrlInput,
             url = uiState.url,
             title = uiState.title,
             titleChanged = ::setTitle,
             color = uiState.color,
             colorChanged = ::setColor,
+            customUserAgent = uiState.customUserAgent,
+            customUserAgentChanged = ::setCustomUserAgent,
             ignoreAlerts = uiState.ignoreAlerts,
             ignoreAlertsChanged = ::setIgnoreAlerts,
             defaultAlarmMinutes = uiState.defaultAlarmMinutes,
@@ -104,12 +108,14 @@ fun EditSubscriptionScreen(
     onExit: () -> Unit,
 
     // Subscription settings
-    supportsAuthentication: Boolean,
+    validUrlInput: Boolean,
     url: String?,
     title: String?,
     titleChanged: (String) -> Unit,
     color: Int?,
     colorChanged: (Int) -> Unit,
+    customUserAgent: String?,
+    customUserAgentChanged: (String?) -> Unit,
     ignoreAlerts: Boolean,
     ignoreAlertsChanged: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
@@ -167,8 +173,19 @@ fun EditSubscriptionScreen(
                 onIgnoreDescriptionChanged = onIgnoreDescriptionChanged,
                 isCreating = isCreating
             )
+
+            // Custom User Agent
+            ToggleTextField(
+                title = stringResource(R.string.add_calendar_custom_user_agent_title),
+                description = stringResource(R.string.add_calendar_custom_user_agent_description),
+                onValueChange = customUserAgentChanged,
+                value = customUserAgent
+            )
+
+            Spacer(modifier = Modifier.padding(12.dp))
+
             AnimatedVisibility(
-                visible = supportsAuthentication
+                visible = validUrlInput
             ) {
                 LoginCredentialsComposable(
                     requiresAuth = requiresAuth,
@@ -257,7 +274,7 @@ private fun AppBarComposable(
 
 @Preview
 @Composable
-fun EditCalendarScreen_Preview() {
+fun EditSubscriptionScreen_Preview() {
     AppTheme {
         EditSubscriptionScreen(
             inputValid = true,
@@ -267,7 +284,7 @@ fun EditCalendarScreen_Preview() {
             onSave = {},
             onShare = {},
             onExit = {},
-            supportsAuthentication = true,
+            validUrlInput = true,
 
             // Subscription settings model
             url = "url",
@@ -275,6 +292,8 @@ fun EditCalendarScreen_Preview() {
             titleChanged = {},
             color = 0,
             colorChanged = {},
+            customUserAgent = "customUserAgent",
+            customUserAgentChanged = {},
             ignoreAlerts = true,
             ignoreAlertsChanged = {},
             defaultAlarmMinutes = 20L,

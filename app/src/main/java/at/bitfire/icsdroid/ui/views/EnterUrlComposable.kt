@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.em
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.AlertDialog
+import at.bitfire.icsdroid.ui.partials.ToggleTextField
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -70,10 +71,12 @@ fun EnterUrlComposable(
     onPasswordChange: (String) -> Unit,
     isInsecure: Boolean,
     url: String?,
+    customUserAgent: String?,
+    onCustomUserAgentChange: (String?) -> Unit,
     fileName: String?,
     onUrlChange: (String?) -> Unit,
     urlError: String?,
-    supportsAuthentication: Boolean,
+    acceptedProtocol: Boolean,
     isVerifyingUrl: Boolean,
     validationResult: ResourceInfo?,
     onValidationResultDismiss: () -> Unit,
@@ -184,11 +187,13 @@ fun EnterUrlComposable(
                         0 -> SubscribeToUrl(
                             url,
                             onUrlChange,
+                            customUserAgent,
+                            onCustomUserAgentChange,
                             onSubmit,
                             urlError,
                             isVerifyingUrl,
                             isInsecure,
-                            supportsAuthentication,
+                            acceptedProtocol,
                             requiresAuth,
                             username,
                             password,
@@ -218,11 +223,13 @@ fun EnterUrlComposable(
 private fun ColumnScope.SubscribeToUrl(
     url: String?,
     onUrlChange: (String) -> Unit,
+    customUserAgent: String?,
+    onCustomUserAgentChange: (String?) -> Unit,
     onSubmit: () -> Unit,
     error: String?,
     verifying: Boolean,
     isInsecure: Boolean,
-    supportsAuthentication: Boolean,
+    validUrlInput: Boolean,
     requiresAuth: Boolean,
     username: String?,
     password: String?,
@@ -230,6 +237,8 @@ private fun ColumnScope.SubscribeToUrl(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
 ) {
+
+    // URL
     ResourceInput(
         url,
         onUrlChange,
@@ -254,16 +263,40 @@ private fun ColumnScope.SubscribeToUrl(
             )
         }
     }
-    AnimatedVisibility(visible = supportsAuthentication) {
-        LoginCredentialsComposable(
-            requiresAuth,
-            username,
-            password,
-            onRequiresAuthChange,
-            onUsernameChange,
-            onPasswordChange
-        )
+
+    // Optional settings
+    AnimatedVisibility(visible = validUrlInput) {
+        Column {
+            // Username + Password
+            LoginCredentialsComposable(
+                requiresAuth,
+                username,
+                password,
+                onRequiresAuthChange,
+                onUsernameChange,
+                onPasswordChange
+            )
+
+            Spacer(modifier = Modifier.padding(12.dp))
+
+            // Advanced
+            Text(
+                text = stringResource(R.string.add_calendar_advanced_title),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            // Custom User Agent
+            ToggleTextField(
+                title = stringResource(R.string.add_calendar_custom_user_agent_title),
+                description = stringResource(R.string.add_calendar_custom_user_agent_description),
+                onValueChange = onCustomUserAgentChange,
+                value = customUserAgent,
+                keyboardActions = KeyboardActions { onSubmit() }
+            )
+        }
     }
+
 }
 
 @Composable
@@ -291,7 +324,7 @@ private fun ColumnScope.SubscribeToFile(
 private fun ColumnScope.ResourceInput(
     value: String?,
     onChange: (String) -> Unit,
-    enabled: Boolean,
+    disabled: Boolean,
     onSubmit: () -> Unit,
     error: String?,
     labelText: String,
@@ -304,7 +337,7 @@ private fun ColumnScope.ResourceInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 16.dp),
-        enabled = !enabled,
+        enabled = !disabled,
         readOnly = readOnly,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
@@ -313,7 +346,7 @@ private fun ColumnScope.ResourceInput(
         ),
         keyboardActions = KeyboardActions { onSubmit() },
         maxLines = 8,
-        placeholder = { Text(labelText) },
+        label = { Text(labelText) },
         isError = error != null,
         interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
             LaunchedEffect(interactionSource) {
@@ -348,10 +381,12 @@ fun EnterUrlComposable_Preview() {
         url = "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics" +
             "\n\n a\n b\n c\n\n" +
             "http://previewUrl.com/looong/looong/looong/looong/looong/looong/calendarfile.ics",
+        customUserAgent = "previewUserAgent",
+        onCustomUserAgentChange = {},
         fileName = "file name",
         onUrlChange = {},
         urlError = "",
-        supportsAuthentication = true,
+        acceptedProtocol = true,
         isVerifyingUrl = true,
         validationResult = null,
         onValidationResultDismiss = {},
