@@ -20,8 +20,6 @@ class MainActivity : AppCompatActivity() {
         configureEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        println("Intent: $intent")
-
         setContentThemed {
             MainApp(savedInstanceState, intent, ::finish)
         }
