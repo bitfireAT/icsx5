@@ -13,9 +13,9 @@ import androidx.compose.runtime.setValue
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.ICalendar
+import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.CalendarFetcher
 import at.bitfire.icsdroid.Constants
-import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.HttpUtils.toURI
 import at.bitfire.icsdroid.HttpUtils.toUri
 import at.bitfire.icsdroid.ui.ResourceInfo
@@ -34,7 +34,7 @@ import javax.inject.Singleton
 @Singleton
 class ValidationUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val appHttpClient: AppHttpClient,
+    private val appHttpClientFactory: AppHttpClient.Factory
 ) {
 
     data class UiState(
@@ -52,14 +52,17 @@ class ValidationUseCase @Inject constructor(
     fun validate(
         originalUri: Uri,
         username: String?,
-        password: String?
+        password: String?,
+        customUserAgent: String?
     ) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username)")
+            Log.i(Constants.TAG, "Validating Webcal feed $originalUri (authentication: $username, customUserAgent: $customUserAgent)")
 
             uiState = uiState.copy(isVerifyingUrl = true)
 
             val info = ResourceInfo(originalUri)
+
+            val appHttpClient = appHttpClientFactory.create(customUserAgent)
             val downloader = object: CalendarFetcher(context, originalUri, appHttpClient) {
                 override suspend fun onSuccess(
                     data: InputStream,

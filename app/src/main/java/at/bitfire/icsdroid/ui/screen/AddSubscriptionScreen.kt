@@ -183,11 +183,13 @@ fun AddSubscriptionScreen(
             },
             fileName = uiState.fileName,
             urlError = uiState.urlError,
-            supportsAuthentication = uiState.supportsAuthentication,
+            validUrlInput = uiState.validUrlInput,
             title = uiState.title,
             onTitleChange = ::setTitle,
             color = uiState.color,
             onColorChange = ::setColor,
+            customUserAgent = uiState.customUserAgent,
+            onCustomUserAgentChange = ::setCustomUserAgent,
             ignoreAlerts = uiState.ignoreAlerts,
             onIgnoreAlertsChange = ::setIgnoreAlerts,
             defaultAlarmMinutes = uiState.defaultAlarmMinutes,
@@ -217,7 +219,8 @@ fun AddSubscriptionScreen(
                             model.validateUrl(
                                 originalUri = uri,
                                 username = if (authenticate) uiState.username else null,
-                                password = if (authenticate) uiState.password else null
+                                password = if (authenticate) uiState.password else null,
+                                customUserAgent = uiState.customUserAgent
                             )
                         }
                     }
@@ -256,11 +259,13 @@ fun AddSubscriptionScreen(
     fileName: String?,
     onUrlChange: (String?) -> Unit,
     urlError: String?,
-    supportsAuthentication: Boolean,
+    validUrlInput: Boolean,
     title: String?,
     onTitleChange: (String) -> Unit,
     color: Int?,
     onColorChange: (Int) -> Unit,
+    customUserAgent: String?,
+    onCustomUserAgentChange: (String?) -> Unit,
     ignoreAlerts: Boolean,
     onIgnoreAlertsChange: (Boolean) -> Unit,
     defaultAlarmMinutes: Long?,
@@ -303,10 +308,12 @@ fun AddSubscriptionScreen(
                     onPasswordChange = onPasswordChange,
                     isInsecure = isInsecure,
                     url = url,
+                    customUserAgent = customUserAgent,
+                    onCustomUserAgentChange = onCustomUserAgentChange,
                     fileName = fileName,
                     onUrlChange = onUrlChange,
                     urlError = urlError,
-                    supportsAuthentication = supportsAuthentication,
+                    acceptedProtocol = validUrlInput,
                     isVerifyingUrl = isVerifyingUrl,
                     validationResult = validationResult,
                     onValidationResultDismiss = onResetResult,

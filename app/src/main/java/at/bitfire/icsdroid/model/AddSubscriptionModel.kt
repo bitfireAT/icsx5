@@ -46,8 +46,12 @@ class AddSubscriptionModel @Inject constructor(
     }
 
     fun resetValidationResult() = validationUseCase.resetResult()
-    fun validateUrl(originalUri: Uri, username: String? = null, password: String? = null) =
-        validationUseCase.validate(originalUri, username, password)
+    fun validateUrl(
+        originalUri: Uri,
+        username: String? = null,
+        password: String? = null,
+        customUserAgent: String? = null
+    ) = validationUseCase.validate(originalUri, username, password, customUserAgent)
     
     fun checkUrlIntroductionPage() {
         with(subscriptionSettingsUseCase) {
@@ -88,6 +92,7 @@ class AddSubscriptionModel @Inject constructor(
                     displayName = title!!,
                     url = Uri.parse(url),
                     color = color,
+                    customUserAgent = customUserAgent,
                     ignoreEmbeddedAlerts = ignoreAlerts,
                     defaultAlarmMinutes = defaultAlarmMinutes,
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
