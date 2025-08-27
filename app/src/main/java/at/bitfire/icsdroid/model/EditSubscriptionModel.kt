@@ -24,7 +24,6 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = EditSubscriptionModel.EditSubscriptionModelFactory::class)
@@ -82,18 +81,28 @@ class EditSubscriptionModel @AssistedInject constructor(
     var successMessage: String? by mutableStateOf(null)
         private set
 
-    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
+    var subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential? = null
+        private set
+
+    init {
+        viewModelScope.launch {
+            db.subscriptionsDao().getWithCredentialsById(subscriptionId)?.let {
+                onSubscriptionLoaded(it)
+            }
+        }
+    }
 
     /**
      * Initialise view models and remember their initial state
      */
-    fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
+    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
         val subscription = subscriptionWithCredential.subscription
         val credential = subscriptionWithCredential.credential
 
         // Save the initial state, before updating the UI, so the state is persisted
         initialSubscription = subscription
         initialCredential = credential
+        this.subscriptionWithCredential = subscriptionWithCredential
 
         subscriptionSettingsUseCase.update(subscription, credential)
     }
@@ -103,7 +112,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      */
     fun updateSubscription() = with(subscriptionSettingsUseCase.uiState) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.firstOrNull()?.let { (subscription) ->
+            subscriptionWithCredential?.let { (subscription) ->
                 val newSubscription = subscription.copy(
                     displayName = title ?: subscription.displayName,
                     color = color,
@@ -134,7 +143,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential.firstOrNull()?.let { (subscription) ->
+            subscriptionWithCredential?.let { (subscription) ->
                 db.subscriptionsDao().delete(subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider
