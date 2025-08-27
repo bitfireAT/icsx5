@@ -86,6 +86,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
             url = subscription.url.toString(),
             title = subscription.displayName,
             color = subscription.color,
+            customUserAgent = subscription.customUserAgent,
             ignoreAlerts = subscription.ignoreEmbeddedAlerts,
             defaultAlarmMinutes = subscription.defaultAlarmMinutes,
             defaultAllDayAlarmMinutes = subscription.defaultAllDayAlarmMinutes,
