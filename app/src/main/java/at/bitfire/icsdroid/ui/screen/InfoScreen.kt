@@ -29,11 +29,12 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.text.HtmlCompat
 import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.BuildConfig
 import at.bitfire.icsdroid.R
@@ -207,9 +208,10 @@ private fun License(
 @Composable
 private fun TextDialog(@StringRes text: Int, state: MutableState<Boolean>) {
     GenericAlertDialog(
-        content = { Text(HtmlCompat.fromHtml(
-            stringResource(text).replace("\n", "<br/>"),
-            HtmlCompat.FROM_HTML_MODE_COMPACT).toString()) },
+        content = {
+            val htmlString = stringResource(text).replace("\n", "<br/>")
+            Text(AnnotatedString.fromHtml(htmlString))
+        },
         confirmButton = stringResource(R.string.edit_calendar_dismiss) to {
             state.value = false
         },
