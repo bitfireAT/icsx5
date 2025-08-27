@@ -29,7 +29,7 @@ import javax.inject.Singleton
 @TypeConverters(Converters::class)
 @Database(
     entities = [Subscription::class, Credential::class],
-    version = 4,
+    version = 5,
     autoMigrations = [
         AutoMigration (
             from = 1,
@@ -42,6 +42,10 @@ import javax.inject.Singleton
         AutoMigration (
             from = 3,
             to = 4
+        ),
+        AutoMigration (
+            from = 4,
+            to = 5
         )
     ]
 )

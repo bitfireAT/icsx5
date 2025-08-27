@@ -116,6 +116,7 @@ class EditSubscriptionModel @AssistedInject constructor(
                 val newSubscription = subscription.copy(
                     displayName = title ?: subscription.displayName,
                     color = color,
+                    customUserAgent = customUserAgent,
                     defaultAlarmMinutes = defaultAlarmMinutes,
                     defaultAllDayAlarmMinutes = defaultAllDayAlarmMinutes,
                     ignoreEmbeddedAlerts = ignoreAlerts,
