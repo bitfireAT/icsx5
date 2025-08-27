@@ -82,6 +82,7 @@ fun MainApp(
     val backStack = rememberNavBackStack(calculateInitialDestination(intentExtras))
 
     fun goBack(depth: Int = 1) {
+        println("Going back $depth times")
         if (backStack.size <= 1) onFinish()
         else repeat(depth) { backStack.removeAt(backStack.lastIndex) }
     }
