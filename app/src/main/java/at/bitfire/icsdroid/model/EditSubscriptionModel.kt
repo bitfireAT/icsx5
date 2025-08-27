@@ -41,7 +41,7 @@ class EditSubscriptionModel @AssistedInject constructor(
 
     private var initialSubscription: Subscription? = null
     private var initialCredential: Credential? = null
-    private val initialRequiresAuth: Boolean? get() = initialCredential != null
+    private val initialRequiresAuth: Boolean get() = initialCredential != null
 
     /**
      * Whether user input is error free
