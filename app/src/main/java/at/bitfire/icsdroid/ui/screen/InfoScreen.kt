@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -30,9 +31,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.datastore.preferences.core.edit
@@ -210,7 +213,16 @@ private fun TextDialog(@StringRes text: Int, state: MutableState<Boolean>) {
     GenericAlertDialog(
         content = {
             val htmlString = stringResource(text).replace("\n", "<br/>")
-            Text(AnnotatedString.fromHtml(htmlString))
+            val linkStyle = LocalTextStyle.current.copy(
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline
+            ).toSpanStyle()
+            Text(
+                text = AnnotatedString.fromHtml(
+                    htmlString,
+                    linkStyles = TextLinkStyles(linkStyle)
+                )
+            )
         },
         confirmButton = stringResource(R.string.edit_calendar_dismiss) to {
             state.value = false
