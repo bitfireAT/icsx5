@@ -50,7 +50,10 @@ data class Subscription(
     val ignoreDescription: Boolean = false,
 
     /** The color that represents the subscription. */
-    val color: Int? = null
+    val color: Int? = null,
+
+    /** The user given user agent string to use for HTTP requests. */
+    val customUserAgent: String? = null
 ) {
     constructor(json: JSONObject): this(
         url = json.getString(JSON_URL).toUri(),
@@ -64,6 +67,7 @@ data class Subscription(
         defaultAllDayAlarmMinutes = json.getStringOrNull(JSON_DEFAULT_ALL_DAY_ALARM)?.toLongOrNull(),
         ignoreDescription = json.getStringOrNull(JSON_IGNORE_DESCRIPTION).toBoolean(),
         color = json.getStringOrNull(JSON_COLOR)?.toIntOrNull(),
+        customUserAgent = json.getStringOrNull(CUSTOM_USER_AGENT),
     )
 
     /**
@@ -90,6 +94,7 @@ data class Subscription(
         defaultAllDayAlarmMinutes?.let { put(JSON_DEFAULT_ALL_DAY_ALARM, it) }
         put(JSON_IGNORE_DESCRIPTION, ignoreDescription)
         color?.let { put(JSON_COLOR, it) }
+        customUserAgent?.let { put(CUSTOM_USER_AGENT, it) }
     }
 
 
@@ -105,6 +110,7 @@ data class Subscription(
         const val JSON_DEFAULT_ALL_DAY_ALARM = "defaultAllDayAlarmMinutes"
         const val JSON_IGNORE_DESCRIPTION = "ignoreDescription"
         const val JSON_COLOR = "color"
+        const val CUSTOM_USER_AGENT = "customUserAgent"
     }
 
 }

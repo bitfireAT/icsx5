@@ -6,20 +6,20 @@ package at.bitfire.icsdroid
 
 import android.net.Uri
 import android.util.Log
-import okhttp3.HttpUrl
+import at.bitfire.icsdroid.HttpUtils.httpDateFormat
 import org.apache.commons.lang3.time.DateUtils
 import org.apache.commons.lang3.time.TimeZones
 import java.net.URI
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object HttpUtils {
 
-    const val HTTP_PERMANENT_REDIRECT = 308
-
-    private const val httpDateFormatStr = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
-    private val httpDateFormat = SimpleDateFormat(httpDateFormatStr, Locale.US).apply {
+    private const val HTTP_DATE_FORMAT_STR = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+    private val httpDateFormat = SimpleDateFormat(HTTP_DATE_FORMAT_STR, Locale.US).apply {
         isLenient = false
         timeZone = TimeZone.getTimeZone(TimeZones.GMT_ID)
     }
@@ -50,7 +50,7 @@ object HttpUtils {
         try {
             try {
                 return httpDateFormat.parse(dateStr)
-            } catch (ignored: ParseException) {
+            } catch (_: ParseException) {
                 // not in httpDateFormat, try other formats
             }
 
@@ -74,27 +74,24 @@ object HttpUtils {
                 /* RI bug 6641315 claims a cookie of this format was once served by www.yahoo.com */
                 "EEE MMM d yyyy HH:mm:ss z"
             )
-        } catch (e: ParseException) {
+        } catch (_: ParseException) {
             Log.w(Constants.TAG, "Couldn't parse date: $dateStr, ignoring")
         }
         return null
     }
 
     /**
-     * Whether an URI scheme supports authentication.
+     * Whether given URL has an accepted protocol.
      *
-     * Currently only HTTP and HTTPS URIs are considered to support authentication.
+     * Currently only HTTP and HTTPS URIs are accepted.
      *
-     * @return true if URI supports authentication; false if it does not
+     * @return true if URI contains valid scheme; false if it does not
      */
-    fun supportsAuthentication(uri: Uri) =
+    fun acceptedProtocol(uri: Uri) =
         when (uri.scheme?.lowercase()) {
             "http", "https" -> true
             else -> false
         }
-
-
-    fun HttpUrl.toAndroidUri(): Uri = Uri.parse(toString())
 
     fun Uri.toURI(): URI = URI(toString())
     fun URI.toUri(): Uri = Uri.parse(toString())

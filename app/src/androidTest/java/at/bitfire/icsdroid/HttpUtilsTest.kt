@@ -31,11 +31,11 @@ class HttpUtilsTest {
     }
 
     @Test
-    fun testSupportsAuthentication() {
-        assertEquals(true, HttpUtils.supportsAuthentication(Uri.parse("https://example.com")))
-        assertEquals(true, HttpUtils.supportsAuthentication(Uri.parse("http://example.com")))
-        assertEquals(false, HttpUtils.supportsAuthentication(Uri.parse("content://example.com")))
-        assertEquals(false, HttpUtils.supportsAuthentication(Uri.parse("garbage://example.com")))
+    fun testAcceptedProtocol() {
+        assertEquals(true, HttpUtils.acceptedProtocol(Uri.parse("https://example.com")))
+        assertEquals(true, HttpUtils.acceptedProtocol(Uri.parse("http://example.com")))
+        assertEquals(false, HttpUtils.acceptedProtocol(Uri.parse("content://example.com")))
+        assertEquals(false, HttpUtils.acceptedProtocol(Uri.parse("garbage://example.com")))
     }
 
 }

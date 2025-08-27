@@ -1,13 +1,12 @@
 package at.bitfire.icsdroid.model
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
-import java.net.URISyntaxException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,6 +18,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val urlError: String? = null,
         val title: String? = null,
         val color: Int? = null,
+        val customUserAgent: String? = null,
         val ignoreAlerts: Boolean = false,
         val defaultAlarmMinutes: Long? = null,
         val defaultAllDayAlarmMinutes: Long? = null,
@@ -32,16 +32,9 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val isInsecure: Boolean = false
     ) {
         // computed settings
-        val supportsAuthentication: Boolean = url.let {
-            val uri = try {
-                Uri.parse(url)
-            } catch (_: URISyntaxException) {
-                return@let false
-            } catch (_: NullPointerException) {
-                return@let false
-            }
-            HttpUtils.supportsAuthentication(uri)
-        }
+        val validUrlInput: Boolean = url?.let { url ->
+            HttpUtils.acceptedProtocol(url.toUri())
+        } ?: false
     }
 
     var uiState by mutableStateOf(UiState())
@@ -67,6 +60,11 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState = uiState.copy(color = value)
     }
 
+    fun setCustomUserAgent(value: String?) {
+        // Update with NULL if text field is empty and do not allow whitespace
+        uiState = uiState.copy(customUserAgent = value?.takeIf { it.isNotBlank() })
+    }
+
     fun setIgnoreAlerts(value: Boolean) {
         uiState = uiState.copy(ignoreAlerts = value)
     }
@@ -87,6 +85,7 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         uiState.url == subscription.url.toString()
             && uiState.title == subscription.displayName
             && uiState.color == subscription.color
+            && uiState.customUserAgent == subscription.customUserAgent
             && uiState.ignoreAlerts == subscription.ignoreEmbeddedAlerts
             && uiState.defaultAlarmMinutes == subscription.defaultAlarmMinutes
             && uiState.defaultAllDayAlarmMinutes == subscription.defaultAllDayAlarmMinutes

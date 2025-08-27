@@ -4,34 +4,48 @@
 
 package at.bitfire.icsdroid.model
 
-import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.MockServer
 import at.bitfire.icsdroid.ui.ResourceInfo
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import javax.inject.Inject
 
+@HiltAndroidTest
 class ValidationUseCaseTest {
-
-    companion object {
-
-        val app = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as Application
-
-    }
 
     @get:Rule
     val instantTaskExecutor = InstantTaskExecutorRule()
 
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var appHttpClientFactory: AppHttpClient.Factory
+
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Before
     fun setUp() {
+        hiltRule.inject()
         MockServer.clear()
+
+        appHttpClientFactory = object : AppHttpClient.Factory {
+            override fun create(
+                customUserAgent: String?,
+                engine: HttpClientEngine
+            ): AppHttpClient = MockServer.httpClient(context)
+        }
     }
 
     @Test
@@ -85,11 +99,15 @@ class ValidationUseCaseTest {
     private fun validate(iCal: String): ResourceInfo {
         MockServer.enqueue(content = iCal)
 
-        val client = AppHttpClient(app, MockServer.engine)
-        val model = ValidationUseCase(app, client)
+        val model = ValidationUseCase(context, appHttpClientFactory)
         runBlocking {
             // Wait until the validation completed
-            model.validate(MockServer.uri(), null, null).join()
+            model.validate(
+                MockServer.uri(),
+                null,
+                null,
+                null
+            ).join()
         }
 
         return model.uiState.result!!
