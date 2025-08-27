@@ -37,8 +37,7 @@ import java.util.ServiceLoader
  * - Otherwise: [Destination.SubscriptionList]
  */
 private fun calculateInitialDestination(intent: Intent): Destination {
-    val extras = intent.extras ?: Bundle.EMPTY
-    val text = extras?.getString(Intent.EXTRA_TEXT)
+    val text = extras.getString(Intent.EXTRA_TEXT)
         ?.trim()
         ?.takeUnless { it.isEmpty() }
     val stream = BundleCompat.getParcelable(extras, Intent.EXTRA_STREAM, Uri::class.java)
