@@ -17,5 +17,6 @@ sealed interface Destination : NavKey {
     data class AddSubscription(
         val title: String? = null,
         @param:ColorInt val color: Int? = null,
+        val url: String? = null,
     ): Destination
 }
