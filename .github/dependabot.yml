@@ -9,7 +9,15 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "[CI] "
+    groups:
+      ci-actions:
+        patterns: ["*"]
   - package-ecosystem: "gradle"
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      lib-dependencies:
+        patterns: ["*"]
