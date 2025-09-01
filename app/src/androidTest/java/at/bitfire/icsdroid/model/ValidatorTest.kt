@@ -22,7 +22,7 @@ import org.junit.Test
 import javax.inject.Inject
 
 @HiltAndroidTest
-class ValidationUseCaseTest {
+class ValidatorTest {
 
     @get:Rule
     val instantTaskExecutor = InstantTaskExecutorRule()
