@@ -102,7 +102,7 @@ fun MainApp(
             entry(Destination.Info) {
                 InfoScreen(
                     compStartupServices,
-                    onNavigateUp = ::goBack
+                    onBackRequested = ::goBack
                 )
             }
             entry<Destination.AddSubscription> { destination ->

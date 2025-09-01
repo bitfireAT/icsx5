@@ -56,7 +56,7 @@ import java.util.ServiceLoader
 @OptIn(ExperimentalMaterial3Api::class)
 fun InfoScreen(
     compStartupServices: ServiceLoader<ComposableStartupService>,
-    onNavigateUp: () -> Unit
+    onBackRequested: () -> Unit
 ) {
     val resources = LocalResources.current
     val uriHandler = LocalUriHandler.current
@@ -67,7 +67,7 @@ fun InfoScreen(
         topBar = {
             ExtendedTopAppBar(
                 navigationIcon = {
-                    IconButton(onNavigateUp) {
+                    IconButton(onBackRequested) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
