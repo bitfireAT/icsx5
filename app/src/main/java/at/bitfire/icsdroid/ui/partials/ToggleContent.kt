@@ -12,20 +12,20 @@ fun ToggleContent(
     title: String,
     description: String,
     initialToggleState: Boolean,
-    onStateChange: (Boolean) -> Unit,
+    onToggle: (Boolean) -> Unit,
     content: @Composable () -> Unit
 ) {
-    var showTextField by rememberSaveable { mutableStateOf(initialToggleState) }
+    var showContent by rememberSaveable { mutableStateOf(initialToggleState) }
     SwitchSetting(
         title = title,
         description = description,
-        checked = showTextField,
+        checked = showContent,
         onCheckedChange = {
-            showTextField = !showTextField
-            onStateChange(showTextField)
+            showContent = !showContent
+            onToggle(showContent)
         }
     )
-    AnimatedVisibility(visible = showTextField) {
+    AnimatedVisibility(visible = showContent) {
         content()
     }
 }

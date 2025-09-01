@@ -18,7 +18,7 @@ fun CustomUserAgentInput(
         title = stringResource(R.string.add_calendar_custom_user_agent_title),
         description = stringResource(R.string.add_calendar_custom_user_agent_description),
         initialToggleState = value != null,
-        onStateChange = { checked -> if (!checked) onValueChange(null) },
+        onToggle = { checked -> if (!checked) onValueChange(null) },
     ) {
         DropDownTextField(
             value = value ?: "",
