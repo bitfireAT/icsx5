@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.em
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.AlertDialog
-import at.bitfire.icsdroid.ui.partials.ToggleTextField
+import at.bitfire.icsdroid.ui.partials.CustomUserAgentInput
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -287,11 +287,9 @@ private fun ColumnScope.SubscribeToUrl(
             )
 
             // Custom User Agent
-            ToggleTextField(
-                title = stringResource(R.string.add_calendar_custom_user_agent_title),
-                description = stringResource(R.string.add_calendar_custom_user_agent_description),
-                onValueChange = onCustomUserAgentChange,
+            CustomUserAgentInput(
                 value = customUserAgent,
+                onValueChange = onCustomUserAgentChange,
                 keyboardActions = KeyboardActions { onSubmit() }
             )
         }
