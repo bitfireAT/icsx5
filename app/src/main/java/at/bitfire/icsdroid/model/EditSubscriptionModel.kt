@@ -23,7 +23,6 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,7 +41,7 @@ class EditSubscriptionModel @AssistedInject constructor(
 
     private var initialSubscription: Subscription? = null
     private var initialCredential: Credential? = null
-    private var initialRequiresAuthValue: Boolean? = null
+    private val initialRequiresAuth: Boolean get() = initialCredential != null
 
     /**
      * Whether user input is error free
@@ -69,7 +68,7 @@ class EditSubscriptionModel @AssistedInject constructor(
         get() = with(subscriptionSettingsUseCase) {
             val requiresAuth = uiState.requiresAuth
 
-            val credentialsDirty = initialRequiresAuthValue != requiresAuth || initialCredential?.let {
+            val credentialsDirty = initialRequiresAuth != requiresAuth || initialCredential?.let {
                 !equalsCredential(it)
             } ?: false
             val subscriptionsDirty = initialSubscription?.let {
@@ -79,15 +78,16 @@ class EditSubscriptionModel @AssistedInject constructor(
             credentialsDirty || subscriptionsDirty
         }
 
-    val subscription = db.subscriptionsDao().getByIdFlow(subscriptionId)
-    val subscriptionWithCredential = db.subscriptionsDao().getWithCredentialsByIdFlow(subscriptionId)
+    var successMessage: String? by mutableStateOf(null)
+        private set
+
+    var subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential? = null
+        private set
 
     init {
-        // Initialise view models and save their initial state
         viewModelScope.launch {
-            subscriptionWithCredential.collect { data ->
-                if (data != null)
-                    onSubscriptionLoaded(data)
+            db.subscriptionsDao().getWithCredentialsById(subscriptionId)?.let {
+                onSubscriptionLoaded(it)
             }
         }
     }
@@ -95,33 +95,17 @@ class EditSubscriptionModel @AssistedInject constructor(
     /**
      * Initialise view models and remember their initial state
      */
-    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) =
-        with(subscriptionSettingsUseCase) {
-            val subscription = subscriptionWithCredential.subscription
+    private fun onSubscriptionLoaded(subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential) {
+        val subscription = subscriptionWithCredential.subscription
+        val credential = subscriptionWithCredential.credential
 
-            setUrl(subscription.url.toString())
-            setTitle(subscription.displayName)
-            setColor(subscription.color)
-            setCustomUserAgent(subscription.customUserAgent)
-            setIgnoreAlerts(subscription.ignoreEmbeddedAlerts)
-            setDefaultAlarmMinutes(subscription.defaultAlarmMinutes?.toString())
-            setDefaultAllDayAlarmMinutes(subscription.defaultAllDayAlarmMinutes?.toString())
-            setIgnoreDescription(subscription.ignoreDescription)
+        // Save the initial state, before updating the UI, so the state is persisted
+        initialSubscription = subscription
+        initialCredential = credential
+        this.subscriptionWithCredential = subscriptionWithCredential
 
-            val credential = subscriptionWithCredential.credential
-            val requiresAuth = credential != null
-            setRequiresAuth(requiresAuth)
-
-            if (credential != null) {
-                setUsername(credential.username)
-                setPassword(credential.password)
-            }
-
-            // Save state, before user makes changes
-            initialSubscription = subscription
-            initialCredential = credential
-            initialRequiresAuthValue = uiState.requiresAuth
-        }
+        subscriptionSettingsUseCase.update(subscription, credential)
+    }
 
     private suspend fun showMessage(@StringRes message: Int) = withContext(Dispatchers.Main) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -132,7 +116,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      */
     fun updateSubscription() = with(subscriptionSettingsUseCase.uiState) {
         viewModelScope.launch(Dispatchers.IO) {
-            subscription.firstOrNull()?.let { subscription ->
+            subscriptionWithCredential?.let { (subscription) ->
                 val newSubscription = subscription.copy(
                     displayName = title ?: subscription.displayName,
                     color = color,
@@ -164,7 +148,7 @@ class EditSubscriptionModel @AssistedInject constructor(
      */
     fun removeSubscription() {
         viewModelScope.launch(Dispatchers.IO) {
-            subscription.firstOrNull()?.let { subscription ->
+            subscriptionWithCredential?.let { (subscription) ->
                 db.subscriptionsDao().delete(subscription)
 
                 // sync the subscription to reflect the changes in the calendar provider

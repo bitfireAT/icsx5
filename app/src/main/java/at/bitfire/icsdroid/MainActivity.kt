@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentThemed {
-            MainApp(savedInstanceState, intent.extras, ::finish)
+            MainApp(savedInstanceState, intent, ::finish)
         }
     }
 

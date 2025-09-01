@@ -9,11 +9,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.content.IntentCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ShareCompat
 import androidx.core.os.BundleCompat
@@ -31,20 +31,36 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
+import at.bitfire.icsdroid.ui.screen.InfoScreen
 import at.bitfire.icsdroid.ui.screen.EditSubscriptionScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
 
 /**
- * Computes the correct initial destination from some intent extras:
+ * Computes the correct initial destination from some intent:
  * - If [AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE] is present -> [Destination.AddSubscription]
  * - Otherwise: [Destination.SubscriptionList]
  */
-private fun calculateInitialDestination(intentExtras: Bundle?): Destination {
-    return if (intentExtras?.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE) == true) {
+private fun calculateInitialDestination(intent: Intent): Destination {
+    val extras = intent.extras ?: Bundle.EMPTY
+    val text = extras.getString(Intent.EXTRA_TEXT)
+        ?.trim()
+        ?.takeUnless { it.isEmpty() }
+    val stream = BundleCompat.getParcelable(extras, Intent.EXTRA_STREAM, Uri::class.java)
+        ?.toString()
+    val data = intent.dataString
+
+    return if (extras.containsKey(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
         // If KEY_ACCOUNT_AUTHENTICATOR_RESPONSE was given, intent was launched from authenticator,
         // open the add subscription screen
         Destination.AddSubscription()
+    } else if (text != null || stream != null || data != null) {
+        // If a URL was given, open the add subscription screen
+        Destination.AddSubscription(
+            title = extras.getString("title"),
+            color = extras.takeIf { it.containsKey("color") }?.getInt("color", -1),
+            url = text ?: stream ?: data
+        )
     } else {
         // If no condition matches, show the subscriptions list
         Destination.SubscriptionList
@@ -54,20 +70,20 @@ private fun calculateInitialDestination(intentExtras: Bundle?): Destination {
 @Composable
 fun MainApp(
     savedInstanceState: Bundle?,
-    intentExtras: Bundle?,
+    intent: Intent,
     onFinish: () -> Unit,
 ) {
     // If EXTRA_PERMISSION is true, request the calendar permissions
-    val requestPermissions = intentExtras?.getBoolean(EXTRA_REQUEST_CALENDAR_PERMISSION, false) == true
+    val requestPermissions = intent.getBooleanExtra(EXTRA_REQUEST_CALENDAR_PERMISSION, false)
 
     // show error message from calling intent, if available
     var showingErrorMessage by remember {
-        mutableStateOf(savedInstanceState == null && intentExtras?.containsKey(EXTRA_ERROR_MESSAGE) == true)
+        mutableStateOf(savedInstanceState == null && intent.hasExtra(EXTRA_ERROR_MESSAGE))
     }
-    if (showingErrorMessage && intentExtras != null) {
+    if (showingErrorMessage) {
         AlertDialog(
-            intentExtras.getString(EXTRA_ERROR_MESSAGE)!!,
-            BundleCompat.getSerializable(intentExtras, EXTRA_THROWABLE, Throwable::class.java)
+            intent.getStringExtra(EXTRA_ERROR_MESSAGE)!!,
+            IntentCompat.getSerializableExtra(intent, EXTRA_THROWABLE, Throwable::class.java)
         ) { showingErrorMessage = false }
     }
 
@@ -79,10 +95,9 @@ fun MainApp(
         if (show) service.Content()
     }
 
-    val backStack = rememberNavBackStack(calculateInitialDestination(intentExtras))
+    val backStack = rememberNavBackStack(calculateInitialDestination(intent))
 
     fun goBack(depth: Int = 1) {
-        println("Going back $depth times")
         if (backStack.size <= 1) onFinish()
         else repeat(depth) { backStack.removeAt(backStack.lastIndex) }
     }
@@ -100,26 +115,21 @@ fun MainApp(
                 SubscriptionsScreen(
                     requestPermissions,
                     onAddRequested = { backStack.add(Destination.AddSubscription()) },
-                    onItemSelected = { backStack.add(Destination.EditSubscription(it.id)) }
+                    onItemSelected = { backStack.add(Destination.EditSubscription(it.id)) },
+                    onAboutRequested = { backStack.add(Destination.Info) },
+                )
+            }
+            entry(Destination.Info) {
+                InfoScreen(
+                    compStartupServices,
+                    onBackRequested = ::goBack
                 )
             }
             entry<Destination.AddSubscription> { destination ->
-                var url: String? = null
-                LaunchedEffect(intentExtras) {
-                    if (intentExtras != null) {
-                        intentExtras.getString(Intent.EXTRA_TEXT)
-                            ?.trim()
-                            ?.let { url = it }
-                        BundleCompat.getParcelable(intentExtras, Intent.EXTRA_STREAM, Uri::class.java)
-                            ?.toString()
-                            ?.let { url = it }
-                    }
-                }
-
                 AddSubscriptionScreen(
                     title = destination.title,
                     color = destination.color,
-                    url = url,
+                    url = destination.url,
                     onBackRequested = { goBack() }
                 )
             }

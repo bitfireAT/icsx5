@@ -114,10 +114,6 @@
                 <data android:mimeType="text/calendar" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.InfoActivity"
-            android:label="@string/activity_app_info"
-            android:parentActivityName=".MainActivity" />
 
     </application>
 

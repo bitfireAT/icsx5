@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.EditSubscriptionModel
@@ -53,7 +52,7 @@ fun EditSubscriptionScreen(
     val model = hiltViewModel<EditSubscriptionModel, EditSubscriptionModelFactory> { factory ->
         factory.create(subscriptionId)
     }
-    val subscription = model.subscription.collectAsStateWithLifecycle(null)
+
     with(model.subscriptionSettingsUseCase) {
         EditSubscriptionScreen(
             inputValid = model.inputValid,
@@ -63,8 +62,8 @@ fun EditSubscriptionScreen(
                 model.updateSubscription().invokeOnCompletion { onExit() }
             },
             onShare = {
-                subscription.value?.let {
-                    onShare(it)
+                model.subscriptionWithCredential?.let { (subscription) ->
+                    onShare(subscription)
                 }
             },
             onExit = onExit,
