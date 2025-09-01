@@ -47,7 +47,7 @@ interface SubscriptionsDao {
     suspend fun getByUrl(url: String): Subscription?
 
     @Query("SELECT * FROM subscriptions WHERE id=:id")
-    fun getWithCredentialsByIdFlow(id: Long): Flow<SubscriptionWithCredential?>
+    suspend fun getWithCredentialsById(id: Long): SubscriptionWithCredential?
 
     @Query("SELECT errorMessage FROM subscriptions WHERE id=:id")
     fun getErrorMessageFlow(id: Long): Flow<String?>
