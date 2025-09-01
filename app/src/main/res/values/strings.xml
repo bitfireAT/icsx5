@@ -17,7 +17,7 @@
     <string name="install_browser">Please install a Web browser</string>
     <string name="required_annotation">Required</string>
 
-    <!-- CalendarListActivity -->
+    <!-- SubscriptionScreen -->
     <string name="title_activity_calendar_list">My subscriptions</string>
     <string name="calendar_list_empty_info">To subscribe to a Webcal feed, use the + button or open a Webcal URL.</string>
     <string name="calendar_list_info">About ICSx⁵</string>
@@ -56,7 +56,7 @@
     </string-array>
     <string name="settings_force_dark_theme">Force dark theme</string>
 
-    <!-- AddCalendarActivity -->
+    <!-- AddSubscriptionScreen -->
     <string name="activity_add_calendar">Subscribe to calendar</string>
     <string name="activity_add_calendar_subscribe">Subscribe</string>
     <string name="add_calendar_subscribe_url">Subscribe to URL</string>
@@ -92,10 +92,10 @@
     <string name="add_calendar_custom_user_agent_label">Custom user agent string</string>
     <string name="add_calendar_custom_user_agent_description">Replace the default user agent with a custom one.</string>
 
-    <!-- AlertFragment -->
+    <!-- AlertDialog -->
     <string name="alert_share_details">Share details</string>
 
-    <!-- EditCalendarActivity -->
+    <!-- EditSubscriptionScreen -->
     <string name="activity_edit_calendar">Edit subscription</string>
     <string name="edit_calendar_cancel">Cancel</string>
     <string name="edit_calendar_delete">Unsubscribe</string>
@@ -117,7 +117,7 @@
     <string name="sync_permission_required_sync_calendar">Needing permission to sync your calendar</string>
     <string name="could_not_open_storage_file">Couldn\'t open file from storage</string>
 
-    <!-- InfoActivity -->
+    <!-- InfoScreen -->
     <string name="activity_app_info">App info</string>
     <string name="app_info_version">Version %1$s-%2$s</string>
     <string name="app_info_copyright">© Ricki Hirner, Bernhard Stockmann (bitfire web engineering GmbH) and contributors</string>
