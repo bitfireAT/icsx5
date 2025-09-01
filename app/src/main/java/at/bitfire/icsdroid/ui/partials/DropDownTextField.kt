@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.toSize
 @Composable
 fun DropDownTextField(
     value: String?,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String?) -> Unit,
     options: Map<String, String>,
     modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
