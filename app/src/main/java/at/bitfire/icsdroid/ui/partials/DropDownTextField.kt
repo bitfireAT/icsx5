@@ -35,7 +35,7 @@ fun DropDownTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var textFieldSize by remember { mutableStateOf(Size.Zero)}
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     Column {
         OutlinedTextField(
