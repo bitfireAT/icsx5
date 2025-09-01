@@ -14,6 +14,9 @@ sealed interface Destination : NavKey {
     object SubscriptionList : Destination
 
     @Serializable
+    object Info : Destination
+
+    @Serializable
     data class AddSubscription(
         val title: String? = null,
         @param:ColorInt val color: Int? = null,
