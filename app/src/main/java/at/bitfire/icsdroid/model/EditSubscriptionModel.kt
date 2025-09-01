@@ -78,9 +78,6 @@ class EditSubscriptionModel @AssistedInject constructor(
             credentialsDirty || subscriptionsDirty
         }
 
-    var successMessage: String? by mutableStateOf(null)
-        private set
-
     var subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential? = null
         private set
 
