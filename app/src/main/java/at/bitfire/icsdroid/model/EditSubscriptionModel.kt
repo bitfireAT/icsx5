@@ -6,9 +6,8 @@ package at.bitfire.icsdroid.model
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -25,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel(assistedFactory = EditSubscriptionModel.EditSubscriptionModelFactory::class)
 class EditSubscriptionModel @AssistedInject constructor(
@@ -78,9 +78,6 @@ class EditSubscriptionModel @AssistedInject constructor(
             credentialsDirty || subscriptionsDirty
         }
 
-    var successMessage: String? by mutableStateOf(null)
-        private set
-
     var subscriptionWithCredential: SubscriptionsDao.SubscriptionWithCredential? = null
         private set
 
@@ -107,6 +104,10 @@ class EditSubscriptionModel @AssistedInject constructor(
         subscriptionSettingsUseCase.update(subscription, credential)
     }
 
+    private suspend fun showMessage(@StringRes message: Int) = withContext(Dispatchers.Main) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
     /**
      * Updates the loaded subscription from the data provided by the view models.
      */
@@ -131,7 +132,7 @@ class EditSubscriptionModel @AssistedInject constructor(
                     db.credentialsDao().removeBySubscriptionId(subscriptionId)
 
                 // notify UI about success
-                successMessage = context.getString(R.string.edit_calendar_saved)
+                showMessage(R.string.edit_calendar_saved)
 
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context, forceResync = true)
@@ -151,7 +152,7 @@ class EditSubscriptionModel @AssistedInject constructor(
                 SyncWorker.run(context)
 
                 // notify UI about success
-                successMessage = context.getString(R.string.edit_calendar_deleted)
+                showMessage(R.string.edit_calendar_deleted)
             } ?: Log.w(Constants.TAG, "There's no subscription to remove")
         }
     }

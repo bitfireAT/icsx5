@@ -22,4 +22,9 @@ sealed interface Destination : NavKey {
         @param:ColorInt val color: Int? = null,
         val url: String? = null,
     ): Destination
+
+    @Serializable
+    data class EditSubscription(
+        val subscriptionId: Long
+    ): Destination
 }

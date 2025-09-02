@@ -4,7 +4,7 @@
 
 package at.bitfire.icsdroid.ui.screen
 
-import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,9 +57,10 @@ fun EditSubscriptionScreen(
         EditSubscriptionScreen(
             inputValid = model.inputValid,
             modelsDirty = model.modelsDirty,
-            successMessage = model.successMessage,
             onDelete = model::removeSubscription,
-            onSave = model::updateSubscription,
+            onSave = {
+                model.updateSubscription().invokeOnCompletion { onExit() }
+            },
             onShare = {
                 model.subscriptionWithCredential?.let { (subscription) ->
                     onShare(subscription)
@@ -100,7 +100,6 @@ fun EditSubscriptionScreen(
 fun EditSubscriptionScreen(
     inputValid: Boolean,
     modelsDirty: Boolean,
-    successMessage: String?,
     onDelete: () -> Unit,
     onSave: () -> Unit,
     onShare: () -> Unit,
@@ -131,12 +130,6 @@ fun EditSubscriptionScreen(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
 ) {
-    // show success message
-    successMessage?.let {
-        Toast.makeText(LocalContext.current, successMessage, Toast.LENGTH_LONG).show()
-        onExit()
-    }
-
     Scaffold(
         topBar = {
             AppBarComposable(
@@ -236,6 +229,11 @@ private fun AppBarComposable(
             dismissButton = stringResource(R.string.edit_calendar_dismiss) to onExit
         ) { openSaveDismissDialog = false }
     }
+
+    BackHandler(enabled = modelsDirty) {
+        openSaveDismissDialog = true
+    }
+
     ExtendedTopAppBar(
         navigationIcon = {
             IconButton(
@@ -276,7 +274,6 @@ fun EditSubscriptionScreen_Preview() {
         EditSubscriptionScreen(
             inputValid = true,
             modelsDirty = false,
-            successMessage = "yay!",
             onDelete = {},
             onSave = {},
             onShare = {},
