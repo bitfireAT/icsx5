@@ -14,6 +14,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
+import at.bitfire.icsdroid.ui.ResourceInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,7 @@ import javax.inject.Inject
 class AddSubscriptionModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    val validationUseCase: ValidationUseCase,
+    val validator: Validator,
     val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
 ) : ViewModel() {
 
@@ -36,6 +37,8 @@ class AddSubscriptionModel @Inject constructor(
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
+        val isVerifyingUrl: Boolean = false,
+        val verificationResult: ResourceInfo? = null
     )
 
     var uiState by mutableStateOf(UiState())
@@ -45,19 +48,26 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(showNextButton = value)
     }
 
-    fun resetValidationResult() = validationUseCase.resetResult()
+    fun resetValidationResult() {
+        uiState = uiState.copy(verificationResult = null)
+    }
+
     fun validateUrl(
         originalUri: Uri,
         username: String? = null,
         password: String? = null,
         customUserAgent: String? = null
-    ) = validationUseCase.validate(originalUri, username, password, customUserAgent)
+    ) = viewModelScope.launch {
+        uiState = uiState.copy(isVerifyingUrl = true)
+        val result = validator.validate(originalUri, username, password, customUserAgent)
+        uiState = uiState.copy(isVerifyingUrl = false, verificationResult = result)
+    }
     
     fun checkUrlIntroductionPage() {
-        with(subscriptionSettingsUseCase) {
-            if (validationUseCase.uiState.isVerifyingUrl) {
-                setShowNextButton(true)
-            } else {
+        if (uiState.isVerifyingUrl) {
+            setShowNextButton(true)
+        } else {
+            with(subscriptionSettingsUseCase) {
                 val uri = validateUri(
                     url = uiState.url,
                     onSetUrl = ::setUrl,

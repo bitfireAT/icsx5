@@ -142,8 +142,8 @@ fun AddSubscriptionScreen(
         }
     }
 
-    val isVerifyingUrl = model.validationUseCase.uiState.isVerifyingUrl
-    val validationResult = model.validationUseCase.uiState.result
+    val isVerifyingUrl = model.uiState.isVerifyingUrl
+    val validationResult = model.uiState.verificationResult
 
     LaunchedEffect(validationResult) {
         Log.i("AddCalendarActivity", "Validation result updated: $validationResult")

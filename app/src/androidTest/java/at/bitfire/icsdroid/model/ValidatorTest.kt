@@ -22,7 +22,7 @@ import org.junit.Test
 import javax.inject.Inject
 
 @HiltAndroidTest
-class ValidationUseCaseTest {
+class ValidatorTest {
 
     @get:Rule
     val instantTaskExecutor = InstantTaskExecutorRule()
@@ -99,18 +99,16 @@ class ValidationUseCaseTest {
     private fun validate(iCal: String): ResourceInfo {
         MockServer.enqueue(content = iCal)
 
-        val model = ValidationUseCase(context, appHttpClientFactory)
-        runBlocking {
+        val validator = Validator(context, appHttpClientFactory)
+        return runBlocking {
             // Wait until the validation completed
-            model.validate(
+            validator.validate(
                 MockServer.uri(),
                 null,
                 null,
                 null
-            ).join()
+            )
         }
-
-        return model.uiState.result!!
     }
 
 }
