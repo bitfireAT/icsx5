@@ -33,7 +33,7 @@
     <string name="calendar_list_autorevoke_permissions_title">Auto-Revoke Permissions</string>
     <string name="calendar_list_autorevoke_permissions_text">Android revokes permissions of rarely opened apps. Please disable for %s.</string>
     <string name="calendar_list_autorevoke_permissions_instruction">Click Permissions > uncheck \"Remove permissions if app isn\'t used\"</string>
-    <!-- settings, currently in CalendarListActivity -->
+    <!-- settings, currently in SubscriptionsScreen -->
     <string name="calendar_list_privacy_policy">Privacy policy</string>
     <string name="set_sync_interval_title">Set sync. interval:</string>
     <string-array name="set_sync_interval_seconds" translatable="false">
