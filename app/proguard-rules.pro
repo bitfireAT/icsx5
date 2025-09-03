@@ -14,6 +14,9 @@
 -keep class org.apache.commons.validator.routines.** { *; }
 -dontwarn org.apache.commons.validator.routines.**
 
+# okhttp3's internal API - not used by us but apparently still required
+-keep class okhttp3.internal.** { *; }
+
 # we are not using those optional features of ical4j
 -dontwarn org.jparsec.** # parser for filter expressions
 -dontwarn javax.cache.** # timezone caching
