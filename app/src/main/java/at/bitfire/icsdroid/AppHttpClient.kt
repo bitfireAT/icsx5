@@ -68,7 +68,6 @@ class AppHttpClient @AssistedInject constructor(
         if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
             addNetworkInterceptor(BrotliInterceptor)
             config {
-                followRedirects(false)
                 sslSocketFactory(sslContext.socketFactory, certManager)
                 hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
             }
