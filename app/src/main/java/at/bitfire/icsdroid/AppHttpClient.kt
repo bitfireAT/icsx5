@@ -71,8 +71,6 @@ class AppHttpClient @AssistedInject constructor(
                 sslSocketFactory(sslContext.socketFactory, certManager)
                 hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
             }
-        } else {
-            followRedirects = false
         }
     }
 
