@@ -11,21 +11,19 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.engine.okhttp.OkHttpConfig
-import io.ktor.client.engine.okhttp.OkHttpEngine
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.UserAgent
 import kotlinx.coroutines.flow.MutableStateFlow
+import okhttp3.Interceptor
+import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 
 class AppHttpClient @AssistedInject constructor(
-    @Assisted customUserAgent: String? = null,
-    @Assisted engine: HttpClientEngine,
+    @Assisted customUserAgent: String?,
+    @Assisted createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine,
     @ApplicationContext context: Context
 ) {
 
@@ -33,14 +31,28 @@ class AppHttpClient @AssistedInject constructor(
     interface Factory {
         fun create(
             customUserAgent: String? = null,
-            engine: HttpClientEngine = OkHttp.create(),
+            createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { certManager, sslContext ->
+                OkHttp.create {
+                    addNetworkInterceptor(BrotliInterceptor)
+                    addNetworkInterceptor(object : Interceptor {
+                        override fun intercept(chain: Interceptor.Chain): Response {
+                            val request = chain.request().newBuilder()
+                                .header("User-Agent", customUserAgent ?: Constants.USER_AGENT)
+                                .build()
+                            return chain.proceed(request)
+                        }
+                    })
+                    config {
+                        followRedirects(true)
+                        connectTimeout(20, TimeUnit.SECONDS)
+                        readTimeout(60, TimeUnit.SECONDS)
+                        sslSocketFactory(sslContext.socketFactory, certManager)
+                        hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
+                    }
+                }
+            }
         ): AppHttpClient
     }
-
-    /**
-     * The user agent to use in requests
-     */
-    val userAgent = customUserAgent ?: Constants.USER_AGENT
 
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
@@ -51,30 +63,6 @@ class AppHttpClient @AssistedInject constructor(
         sslContext.init(null, arrayOf(certManager), null)
     }
 
-    val httpClient = HttpClient(engine) {
-        // Add user given user agent to all engines
-        install(UserAgent) {
-            agent = userAgent
-        }
-
-        // Increase default timeouts
-        install(HttpTimeout) {
-            connectTimeoutMillis = 20_000
-            requestTimeoutMillis = 60_000
-            socketTimeoutMillis = 60_000
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
-            addNetworkInterceptor(BrotliInterceptor)
-            config {
-                followRedirects(false)
-                sslSocketFactory(sslContext.socketFactory, certManager)
-                hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
-            }
-        } else {
-            followRedirects = false
-        }
-    }
+    val httpClient = HttpClient(createEngine(certManager, sslContext))
 
 }

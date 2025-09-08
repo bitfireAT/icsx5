@@ -6,6 +6,7 @@ package at.bitfire.icsdroid.model
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
+import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.ical4android.Css3Color
 import at.bitfire.icsdroid.AppHttpClient
 import at.bitfire.icsdroid.MockServer
@@ -20,6 +21,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
+import javax.net.ssl.SSLContext
 
 @HiltAndroidTest
 class ValidatorTest {
@@ -43,7 +45,7 @@ class ValidatorTest {
         appHttpClientFactory = object : AppHttpClient.Factory {
             override fun create(
                 customUserAgent: String?,
-                engine: HttpClientEngine
+                createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine
             ): AppHttpClient = MockServer.httpClient(context)
         }
     }
