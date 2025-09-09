@@ -21,7 +21,7 @@ object MockServer {
 
     private val queue = mutableListOf<Response>()
 
-    val mockCreate: (CustomCertManager, SSLContext) -> HttpClientEngine = { _, _ ->
+    val createMockEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { _, _ ->
         MockEngine {
             if (queue.isNotEmpty()) {
                 val response = lock.withLock { queue.removeAt(0) }
@@ -54,7 +54,11 @@ object MockServer {
         .toURI()
         .toUri()
 
-    fun httpClient(context: Context) = AppHttpClient(null, mockCreate, context)
+    fun httpClient(context: Context) = AppHttpClient(
+        customUserAgent = null,
+        createEngine = createMockEngine,
+        context = context
+    )
 
     private class Response(val content: String, val status: HttpStatusCode, val headers: Headers)
 }
