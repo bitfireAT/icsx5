@@ -64,16 +64,16 @@ class AppHttpClient @AssistedInject constructor(
             socketTimeoutMillis = 60_000
         }
 
+        // Disable redirect following, it's handled by CalendarFetcher
+        followRedirects = false
+
         @Suppress("UNCHECKED_CAST")
         if (engine is OkHttpEngine) (this as HttpClientConfig<OkHttpConfig>).engine {
             addNetworkInterceptor(BrotliInterceptor)
             config {
-                followRedirects(false)
                 sslSocketFactory(sslContext.socketFactory, certManager)
                 hostnameVerifier(certManager.HostnameVerifier(OkHostnameVerifier))
             }
-        } else {
-            followRedirects = false
         }
     }
 
