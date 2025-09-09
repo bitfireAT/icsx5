@@ -54,7 +54,7 @@ object MockServer {
         .toURI()
         .toUri()
 
-    fun httpClient(context: Context) = AppHttpClient("", mockCreate, context)
+    fun httpClient(context: Context) = AppHttpClient(null, mockCreate, context)
 
     private class Response(val content: String, val status: HttpStatusCode, val headers: Headers)
 }

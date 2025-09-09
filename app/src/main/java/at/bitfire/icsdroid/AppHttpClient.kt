@@ -51,22 +51,21 @@ class AppHttpClient @AssistedInject constructor(
         sslContext.init(null, arrayOf(certManager), null)
     }
 
-    val httpClient = HttpClient(createEngine(certManager, sslContext))
-        .config {
-            // Add user given user agent to all engines
-            install(UserAgent) {
-                agent = customUserAgent ?: Constants.USER_AGENT
-            }
-
-            // Increase default timeouts
-            install(HttpTimeout) {
-                connectTimeoutMillis = 20_000
-                requestTimeoutMillis = 60_000
-                socketTimeoutMillis = 60_000
-            }
-
-            // Disable redirect following, it's handled by CalendarFetcher
-            followRedirects = false
+    val httpClient = HttpClient(createEngine(certManager, sslContext)) {
+        // Add user given user agent to all engines
+        install(UserAgent) {
+            agent = customUserAgent ?: Constants.USER_AGENT
         }
+
+        // Increase default timeouts
+        install(HttpTimeout) {
+            connectTimeoutMillis = 20_000
+            requestTimeoutMillis = 60_000
+            socketTimeoutMillis = 60_000
+        }
+
+        // Disable redirect following, it's handled by CalendarFetcher
+        followRedirects = false
+    }
 
 }
