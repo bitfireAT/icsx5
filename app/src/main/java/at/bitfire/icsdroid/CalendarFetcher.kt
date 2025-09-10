@@ -182,6 +182,8 @@ open class CalendarFetcher(
                 }
             }
         } catch (e: ClosedByteChannelException) {
+            // Ignore ClosedByteChannelException which is thrown ProtocolException is thrown which
+            // happens when when servers misbehave and for example send more bytes than expected.
             Log.i(Constants.TAG, "Ignoring ClosedByteChannelException", e)
         } catch (e: Exception) {
             onError(e)
