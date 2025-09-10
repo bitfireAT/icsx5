@@ -1,7 +1,9 @@
 package at.bitfire.icsdroid
 
 import android.content.Context
+import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.icsdroid.HttpUtils.toUri
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.Headers
@@ -11,6 +13,7 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.headersOf
 import io.ktor.http.toURI
 import java.util.concurrent.locks.ReentrantLock
+import javax.net.ssl.SSLContext
 import kotlin.concurrent.withLock
 
 object MockServer {
@@ -18,12 +21,14 @@ object MockServer {
 
     private val queue = mutableListOf<Response>()
 
-    val engine = MockEngine {
-        if (queue.isNotEmpty()) {
-            val response = lock.withLock { queue.removeAt(0) }
-            respond(response.content, response.status, response.headers)
-        } else {
-            respond("No more responses", HttpStatusCode.NotImplemented)
+    val createMockEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { _, _ ->
+        MockEngine {
+            if (queue.isNotEmpty()) {
+                val response = lock.withLock { queue.removeAt(0) }
+                respond(response.content, response.status, response.headers)
+            } else {
+                respond("No more responses", HttpStatusCode.NotImplemented)
+            }
         }
     }
 
@@ -49,7 +54,11 @@ object MockServer {
         .toURI()
         .toUri()
 
-    fun httpClient(context: Context) = AppHttpClient(null, engine, context)
+    fun httpClient(context: Context) = AppHttpClient(
+        customUserAgent = null,
+        createEngine = createMockEngine,
+        context = context
+    )
 
     private class Response(val content: String, val status: HttpStatusCode, val headers: Headers)
 }
