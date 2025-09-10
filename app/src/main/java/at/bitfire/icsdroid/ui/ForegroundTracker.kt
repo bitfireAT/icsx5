@@ -14,7 +14,7 @@ object ForegroundTracker {
 
     /**
      * Whether the app is in the foreground.
-     * Used by cert4android to known when it's possible to show the certificate trust decision dialog.
+     * Used by cert4android to know when it's possible to show the certificate trust decision dialog.
      */
     private val _inForeground = MutableStateFlow(false)
 
