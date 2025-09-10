@@ -20,6 +20,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.ClosedByteChannelException
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -180,6 +181,8 @@ open class CalendarFetcher(
                     else -> throw IOException("HTTP ${statusCode.value} ${statusCode.description}")
                 }
             }
+        } catch (e: ClosedByteChannelException) {
+            Log.i(Constants.TAG, "Ignoring ClosedByteChannelException", e)
         } catch (e: Exception) {
             onError(e)
         }
