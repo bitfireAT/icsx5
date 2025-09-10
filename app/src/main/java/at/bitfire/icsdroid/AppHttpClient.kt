@@ -20,6 +20,10 @@ import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import javax.net.ssl.SSLContext
 
+/**
+ * Provides the apps [HttpClient] instance with a custom certificate manager and a custom user agent
+ * (if provided).
+ */
 class AppHttpClient @AssistedInject constructor(
     @Assisted customUserAgent: String?,
     @Assisted createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine,
@@ -28,6 +32,14 @@ class AppHttpClient @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
+
+        /**
+         * Provides the apps [HttpClient] instance with a custom certificate manager and a custom user agent
+         * (if provided).
+         *
+         * @param customUserAgent custom user agent to use, or null to use the default one
+         * @param createEngine function to create the [HttpClientEngine] to use. Can be a mock engine.
+         */
         fun create(
             customUserAgent: String? = null,
             createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { certManager, sslContext ->
