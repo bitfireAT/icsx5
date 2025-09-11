@@ -14,8 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import at.bitfire.icsdroid.model.ThemeModel
+import at.bitfire.icsdroid.ui.ForegroundTracker
 
 private val DarkColors = darkColorScheme(
     primary = lightblue,
@@ -64,6 +67,15 @@ fun AppTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         content = content
     )
+
+    // Track whether the app is in the foreground
+    val view = LocalView.current
+    LifecycleResumeEffect(view) {
+        ForegroundTracker.onResume()
+        onPauseOrDispose {
+            ForegroundTracker.onPaused()
+        }
+    }
 }
 
 /**

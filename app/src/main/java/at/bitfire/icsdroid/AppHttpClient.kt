@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
+import at.bitfire.icsdroid.ui.ForegroundTracker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -15,11 +16,14 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
-import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import javax.net.ssl.SSLContext
 
+/**
+ * Provides the apps [HttpClient] instance with a custom certificate manager and a custom user agent
+ * (if provided).
+ */
 class AppHttpClient @AssistedInject constructor(
     @Assisted customUserAgent: String?,
     @Assisted createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine,
@@ -28,6 +32,14 @@ class AppHttpClient @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
+
+        /**
+         * Provides the apps [HttpClient] instance with a custom certificate manager and a custom user agent
+         * (if provided).
+         *
+         * @param customUserAgent custom user agent to use, or null to use the default one
+         * @param createEngine function to create the [HttpClientEngine] to use. Can be a mock engine.
+         */
         fun create(
             customUserAgent: String? = null,
             createEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { certManager, sslContext ->
@@ -44,7 +56,10 @@ class AppHttpClient @AssistedInject constructor(
 
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
-    private val certManager = CustomCertManager(context, appInForeground = MutableStateFlow(false))
+    private val certManager = CustomCertManager(
+        context = context,
+        appInForeground = ForegroundTracker.inForeground
+    )
 
     private val sslContext = SSLContext.getInstance("TLS")
     init {
