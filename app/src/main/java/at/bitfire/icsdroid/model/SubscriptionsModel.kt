@@ -112,18 +112,14 @@ class SubscriptionsModel @Inject constructor(
      */
     fun checkSyncSettings() = viewModelScope.launch(Dispatchers.IO) {
         val haveNotificationPermission = PermissionUtils.haveNotificationPermission(context)
-        uiState = uiState.copy(askForNotificationPermission = !haveNotificationPermission)
 
         val haveCalendarPermission = PermissionUtils.haveCalendarPermissions(context)
-        uiState = uiState.copy(askForCalendarPermission = !haveCalendarPermission)
 
         val powerManager = context.getSystemService<PowerManager>()
-        val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(
-            BuildConfig.APPLICATION_ID)
+        val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
 
         // If not ignoring battery optimizations, and sync interval is less than a day
         val shouldWhitelistApp = isIgnoringBatteryOptimizations == false
-        uiState = uiState.copy(askForWhitelisting = shouldWhitelistApp)
 
         // Make sure permissions are not revoked automatically
         val isAutoRevokeWhitelisted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -131,7 +127,12 @@ class SubscriptionsModel @Inject constructor(
         } else {
             true
         }
-        uiState = uiState.copy(askForAutoRevoke = !isAutoRevokeWhitelisted)
+        uiState = uiState.copy(
+            askForAutoRevoke = !isAutoRevokeWhitelisted,
+            askForCalendarPermission = !haveCalendarPermission,
+            askForNotificationPermission = !haveNotificationPermission,
+            askForWhitelisting = shouldWhitelistApp,
+        )
     }
 
     fun onRefreshRequested() {
