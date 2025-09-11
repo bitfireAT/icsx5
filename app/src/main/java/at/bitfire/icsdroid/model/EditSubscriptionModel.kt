@@ -143,18 +143,16 @@ class EditSubscriptionModel @AssistedInject constructor(
     /**
      * Removes the loaded subscription.
      */
-    fun removeSubscription() {
-        viewModelScope.launch(Dispatchers.IO) {
-            subscriptionWithCredential?.let { (subscription) ->
-                db.subscriptionsDao().delete(subscription)
+    fun removeSubscription() = viewModelScope.launch(Dispatchers.IO) {
+        subscriptionWithCredential?.let { (subscription) ->
+            db.subscriptionsDao().delete(subscription)
 
-                // sync the subscription to reflect the changes in the calendar provider
-                SyncWorker.run(context)
+            // sync the subscription to reflect the changes in the calendar provider
+            SyncWorker.run(context)
 
-                // notify UI about success
-                showMessage(R.string.edit_calendar_deleted)
-            } ?: Log.w(Constants.TAG, "There's no subscription to remove")
-        }
+            // notify UI about success
+            showMessage(R.string.edit_calendar_deleted)
+        } ?: Log.w(Constants.TAG, "There's no subscription to remove")
     }
 
 }
