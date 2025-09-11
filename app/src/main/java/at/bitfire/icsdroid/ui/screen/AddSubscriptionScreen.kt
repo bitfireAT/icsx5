@@ -78,11 +78,10 @@ fun AddSubscriptionScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        title?.let(model.subscriptionSettingsUseCase::setTitle)
-        color?.let(model.subscriptionSettingsUseCase::setColor)
-        url?.let {
-            model.subscriptionSettingsUseCase.setUrl(it)
+    LaunchedEffect(title, color, url) {
+        model.subscriptionSettingsUseCase.setInitialValues(title, color, url)
+
+        if (url != null) {
             model.checkUrlIntroductionPage()
         }
     }
@@ -110,28 +109,26 @@ fun AddSubscriptionScreen(
 
     Box(modifier = Modifier.imePadding()) {
         AddSubscriptionScreen(
+            model = model,
             onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
-            finish = onBackRequested,
-            checkUrlIntroductionPage = model::checkUrlIntroductionPage
+            finish = onBackRequested
         )
     }
 }
 
 @Composable
 fun AddSubscriptionScreen(
+    model: AddSubscriptionModel,
     onPickFileRequested: () -> Unit,
-    checkUrlIntroductionPage: () -> Unit,
     finish: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
 
-    val model: AddSubscriptionModel = hiltViewModel()
-
     // Receive updates for the URL introduction page
     with(model.subscriptionSettingsUseCase.uiState) {
         LaunchedEffect(url, requiresAuth, username, password) {
-            checkUrlIntroductionPage()
+            model.checkUrlIntroductionPage()
         }
     }
 
