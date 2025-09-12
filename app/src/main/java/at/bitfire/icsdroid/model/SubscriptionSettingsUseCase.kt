@@ -98,6 +98,24 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         )
     }
 
+    /**
+     * Set initial values when creating a new subscription.
+     *
+     * Note that all values will be overwritten, so call this method before changing any individual
+     * value, or when you want to reset the form to an initial state.
+     */
+    fun setInitialValues(
+        title: String?,
+        color: Int?,
+        url: String?,
+    ) {
+        uiState = UiState(
+            title = title,
+            color = color,
+            url = url,
+        )
+    }
+
     fun equalsSubscription(subscription: Subscription) =
         uiState.url == subscription.url.toString()
             && uiState.title == subscription.displayName
