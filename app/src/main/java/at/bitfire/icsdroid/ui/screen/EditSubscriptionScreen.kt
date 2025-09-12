@@ -36,9 +36,9 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.EditSubscriptionModel
 import at.bitfire.icsdroid.model.EditSubscriptionModel.EditSubscriptionModelFactory
+import at.bitfire.icsdroid.ui.partials.CustomUserAgentInput
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
-import at.bitfire.icsdroid.ui.partials.CustomUserAgentInput
 import at.bitfire.icsdroid.ui.theme.AppTheme
 import at.bitfire.icsdroid.ui.views.LoginCredentialsComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
@@ -57,7 +57,9 @@ fun EditSubscriptionScreen(
         EditSubscriptionScreen(
             inputValid = model.inputValid,
             modelsDirty = model.modelsDirty,
-            onDelete = model::removeSubscription,
+            onDelete = {
+                model.removeSubscription().invokeOnCompletion { onExit() }
+            },
             onSave = {
                 model.updateSubscription().invokeOnCompletion { onExit() }
             },
