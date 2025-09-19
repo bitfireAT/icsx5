@@ -299,6 +299,7 @@ fun AddSubscriptionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
         ) { page ->
             when (page) {
                 0 -> EnterUrlComposable(
