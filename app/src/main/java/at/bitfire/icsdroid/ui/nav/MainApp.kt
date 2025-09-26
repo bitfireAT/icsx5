@@ -13,17 +13,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.core.content.IntentCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ShareCompat
+import androidx.core.content.IntentCompat
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_ERROR_MESSAGE
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISSION
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
@@ -31,8 +30,8 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
-import at.bitfire.icsdroid.ui.screen.InfoScreen
 import at.bitfire.icsdroid.ui.screen.EditSubscriptionScreen
+import at.bitfire.icsdroid.ui.screen.InfoScreen
 import at.bitfire.icsdroid.ui.screen.SubscriptionsScreen
 import java.util.ServiceLoader
 
