@@ -8,9 +8,7 @@ import at.bitfire.icsdroid.HttpUtils
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class SubscriptionSettingsUseCase @Inject constructor() {
     data class UiState(
         val url: String? = null,
@@ -35,6 +33,8 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val validUrlInput: Boolean = url?.let { url ->
             HttpUtils.acceptedProtocol(url.toUri())
         } ?: false
+
+        fun isInitialized() = url != null || title != null || color != null
     }
 
     var uiState by mutableStateOf(UiState())
