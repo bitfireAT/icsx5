@@ -79,6 +79,8 @@ fun AddSubscriptionScreen(
     }
 
     LaunchedEffect(title, color, url) {
+        if (model.subscriptionSettingsUseCase.uiState.isInitialized())
+            return@LaunchedEffect
         model.subscriptionSettingsUseCase.setInitialValues(title, color, url)
 
         if (url != null) {
