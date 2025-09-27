@@ -165,6 +165,8 @@ dependencies {
     implementation(libs.room.base)
     ksp(libs.room.compiler)
 
+    implementation(libs.confettiKit)
+
     implementation(libs.kotlinx.serialization.core)
 
     // for tests
