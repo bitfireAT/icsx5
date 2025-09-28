@@ -138,7 +138,7 @@ class AddSubscriptionModel @Inject constructor(
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
             withContext(Dispatchers.Main) {
-                Toast.makeText(context,  e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
             }
         } finally {
             uiState = uiState.copy(isCreating = false)
