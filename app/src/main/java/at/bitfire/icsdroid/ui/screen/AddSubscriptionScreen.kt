@@ -121,6 +121,7 @@ fun AddSubscriptionScreen(
             onUrlChange = {
                 setUrl(it)
                 setFileName(null)
+                model.checkUrlIntroductionPage()
             },
             fileName = uiState.fileName,
             urlError = uiState.urlError,
