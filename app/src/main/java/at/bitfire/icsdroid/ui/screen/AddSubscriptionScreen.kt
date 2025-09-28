@@ -54,9 +54,7 @@ fun AddSubscriptionScreen(
     title: String?,
     color: Int?,
     url: String?,
-    model: AddSubscriptionModel = hiltViewModel<AddSubscriptionModel, AddSubscriptionModel.Factory> {
-        it.create(title, color, url)
-    },
+    model: AddSubscriptionModel = hiltViewModel { vmf: AddSubscriptionModel.Factory -> vmf.create(title, color, url) },
     onBackRequested: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
