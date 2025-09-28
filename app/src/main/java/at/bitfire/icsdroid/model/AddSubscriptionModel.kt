@@ -1,8 +1,11 @@
 package at.bitfire.icsdroid.model
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
@@ -33,7 +37,6 @@ class AddSubscriptionModel @Inject constructor(
 ) : ViewModel() {
 
     data class UiState(
-        val success: Boolean = false,
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
@@ -129,10 +132,14 @@ class AddSubscriptionModel @Inject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            uiState = uiState.copy(success = true)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.add_calendar_created, Toast.LENGTH_LONG).show()
+            }
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context,  e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
+            }
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
@@ -216,5 +223,33 @@ class AddSubscriptionModel @Inject constructor(
             onSetUrlError(errorMsg)
         }
         return uri
+    }
+
+    fun initialize(title: String?, color: Int?, url: String?,) {
+        if (subscriptionSettingsUseCase.uiState.isInitialized()) return
+        subscriptionSettingsUseCase.setInitialValues(title, color, url)
+
+        if (url != null) {
+            checkUrlIntroductionPage()
+        }
+    }
+
+    fun onFilePicked(uri: Uri?) {
+        if (uri == null) return
+
+        // keep the picked file accessible after the first sync and reboots
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        subscriptionSettingsUseCase.setUrl(uri.toString())
+
+        // Get file name
+        val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor.getString(name)
+        }
+        subscriptionSettingsUseCase.setFileName(displayName)
     }
 }

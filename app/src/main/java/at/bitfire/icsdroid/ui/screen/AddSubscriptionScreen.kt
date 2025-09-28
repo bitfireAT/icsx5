@@ -4,18 +4,14 @@
 
 package at.bitfire.icsdroid.ui.screen
 
-import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -63,69 +58,16 @@ fun AddSubscriptionScreen(
     model: AddSubscriptionModel = hiltViewModel(),
     onBackRequested: () -> Unit
 ) {
-    val context = LocalContext.current
-    val uiState = model.uiState
-
-    LaunchedEffect(uiState) {
-        if (uiState.success) {
-            // on success, show notification and close activity
-            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
-            onBackRequested()
-        }
-        uiState.errorMessage?.let {
-            // on error, show error message
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-        }
-    }
-
-    LaunchedEffect(title, color, url) {
-        if (model.subscriptionSettingsUseCase.uiState.isInitialized())
-            return@LaunchedEffect
-        model.subscriptionSettingsUseCase.setInitialValues(title, color, url)
-
-        if (url != null) {
-            model.checkUrlIntroductionPage()
-        }
-    }
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState { 2 }
 
     val pickFile = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            // keep the picked file accessible after the first sync and reboots
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            model.subscriptionSettingsUseCase.setUrl(uri.toString())
+    ) { uri: Uri? -> model.onFilePicked(uri) }
 
-            // Get file name
-            val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                if (!cursor.moveToFirst()) return@use null
-                val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.getString(name)
-            }
-            model.subscriptionSettingsUseCase.setFileName(displayName)
-        }
+    LaunchedEffect(title, color, url) {
+        model.initialize(title, color, url)
     }
-
-    Box(modifier = Modifier.imePadding()) {
-        AddSubscriptionScreen(
-            model = model,
-            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
-            finish = onBackRequested
-        )
-    }
-}
-
-@Composable
-fun AddSubscriptionScreen(
-    model: AddSubscriptionModel,
-    onPickFileRequested: () -> Unit,
-    finish: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState { 2 }
 
     // Receive updates for the URL introduction page
     with(model.subscriptionSettingsUseCase.uiState) {
@@ -202,7 +144,7 @@ fun AddSubscriptionScreen(
             isCreating = model.uiState.isCreating,
             validationResult = validationResult,
             onResetResult = model::resetValidationResult,
-            onPickFileRequested = onPickFileRequested,
+            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
             onNextRequested = { page: Int ->
                 when (page) {
                     // First page (Enter Url)
@@ -225,13 +167,13 @@ fun AddSubscriptionScreen(
                     }
                     // Second page (details and confirm)
                     1 -> {
-                        model.createSubscription()
+                        model.createSubscription().invokeOnCompletion { onBackRequested() }
                     }
                 }
             },
             onNavigationClicked = {
                 // If first page, close activity
-                if (pagerState.currentPage <= 0) finish()
+                if (pagerState.currentPage <= 0) onBackRequested()
                 // otherwise, go back a page
                 else scope.launch {
                     // Needed for non-first-time validations to trigger following validation result updates
@@ -296,6 +238,7 @@ fun AddSubscriptionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .imePadding()
         ) { page ->
             when (page) {
                 0 -> EnterUrlComposable(
