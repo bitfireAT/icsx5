@@ -18,6 +18,9 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -26,15 +29,33 @@ import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
-import javax.inject.Inject
 
-@HiltViewModel
-class AddSubscriptionModel @Inject constructor(
+@HiltViewModel(assistedFactory = AddSubscriptionModel.Factory::class)
+class AddSubscriptionModel @AssistedInject constructor(
+    @Assisted("title") initialTitle: String?,
+    @Assisted("color") initialColor: Int?,
+    @Assisted("url") initialUrl: String?,
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    val validator: Validator,
-    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
+    val validator: Validator
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("title") title: String? = null,
+            @Assisted("color") color: Int? = null,
+            @Assisted("url") url: String? = null
+        ): AddSubscriptionModel
+    }
+
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase = SubscriptionSettingsUseCase(
+        SubscriptionSettingsUseCase.UiState(
+            title = initialTitle,
+            color = initialColor,
+            url = initialUrl
+        )
+    )
 
     data class UiState(
         val errorMessage: String? = null,
@@ -223,15 +244,6 @@ class AddSubscriptionModel @Inject constructor(
             onSetUrlError(errorMsg)
         }
         return uri
-    }
-
-    fun initialize(title: String?, color: Int?, url: String?,) {
-        if (subscriptionSettingsUseCase.uiState.isInitialized()) return
-        subscriptionSettingsUseCase.setInitialValues(title, color, url)
-
-        if (url != null) {
-            checkUrlIntroductionPage()
-        }
     }
 
     fun onFilePicked(uri: Uri?) {

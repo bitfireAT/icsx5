@@ -54,7 +54,9 @@ fun AddSubscriptionScreen(
     title: String?,
     color: Int?,
     url: String?,
-    model: AddSubscriptionModel = hiltViewModel(),
+    model: AddSubscriptionModel = hiltViewModel<AddSubscriptionModel, AddSubscriptionModel.Factory> {
+        it.create(title, color, url)
+    },
     onBackRequested: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -63,10 +65,6 @@ fun AddSubscriptionScreen(
     val pickFile = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? -> model.onFilePicked(uri) }
-
-    LaunchedEffect(title, color, url) {
-        model.initialize(title, color, url)
-    }
 
     // Receive updates for the URL introduction page
     with(model.subscriptionSettingsUseCase.uiState) {
