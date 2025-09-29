@@ -25,7 +25,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
@@ -269,5 +268,7 @@ class AddSubscriptionModel @AssistedInject constructor(
             cursor.getString(name)
         }
         subscriptionSettingsUseCase.setFileName(displayName)
+
+        checkUrlIntroductionPage()
     }
 }
