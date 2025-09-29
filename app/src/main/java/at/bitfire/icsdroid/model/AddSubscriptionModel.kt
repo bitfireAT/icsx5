@@ -153,14 +153,20 @@ class AddSubscriptionModel @AssistedInject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, R.string.add_calendar_created, Toast.LENGTH_LONG).show()
-            }
+            toastAsync(
+                context,
+                messageResId = R.string.add_calendar_created,
+                cancelToast = null,
+                duration = Toast.LENGTH_LONG
+            )
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
-            }
+            toastAsync(
+                context,
+                message = { e.localizedMessage ?: e.message },
+                cancelToast = null,
+                duration = Toast.LENGTH_LONG
+            )
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
