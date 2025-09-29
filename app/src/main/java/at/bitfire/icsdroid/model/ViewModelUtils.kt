@@ -7,12 +7,11 @@ import kotlinx.coroutines.withContext
 
 suspend fun toastAsync(
     context: Context,
+    message: String?,
     cancelToast: Toast? = null,
     duration: Int = Toast.LENGTH_LONG,
-    message: Context.() -> String?
 ): Toast? = withContext(Dispatchers.Main) {
     cancelToast?.cancel()
 
-    val msg = message(context)
-    Toast.makeText(context, msg, duration).also { it.show() }
+    Toast.makeText(context, message, duration).also { it.show() }
 }
