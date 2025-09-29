@@ -184,8 +184,7 @@ class SubscriptionsModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val toast = toastAsync(
                 context,
-                messageResId = R.string.backup_exporting,
-                duration = Toast.LENGTH_LONG
+                messageResId = R.string.backup_exporting
             )
 
             val subscriptions = subscriptions.value
@@ -206,14 +205,14 @@ class SubscriptionsModel @Inject constructor(
                 toastAsync(
                     context,
                     messageResId = R.string.backup_exported,
-                    cancelToast = toast
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_SHORT
                 )
             } catch (e: IOException) {
                 Log.e(TAG, "Could not write export file.", e)
                 toastAsync(
                     context,
-                    messageResId = R.string.backup_export_error_io,
-                    duration = Toast.LENGTH_LONG
+                    messageResId = R.string.backup_export_error_io
                 )
             }
         }
@@ -223,8 +222,7 @@ class SubscriptionsModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val toast = toastAsync(
                 context,
-                messageResId = R.string.backup_importing,
-                duration = Toast.LENGTH_LONG
+                messageResId = R.string.backup_importing
             )
 
             try {
@@ -237,8 +235,7 @@ class SubscriptionsModel @Inject constructor(
                     toastAsync(
                         context,
                         messageResId = R.string.backup_import_error_io,
-                        cancelToast = toast,
-                        duration = Toast.LENGTH_LONG
+                        cancelToast = toast
                     )
                     return@launch
                 }
@@ -274,31 +271,29 @@ class SubscriptionsModel @Inject constructor(
                     message = {
                         resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size)
                     },
-                    cancelToast = toast
+                    cancelToast = toast,
+                    duration = Toast.LENGTH_SHORT
                 )
             } catch (e: JSONException) {
                 Log.e(TAG, "Could not load JSON: $e")
                 toastAsync(
                     context,
                     messageResId = R.string.backup_import_error_json,
-                    cancelToast = toast,
-                    duration = Toast.LENGTH_LONG
+                    cancelToast = toast
                 )
             } catch (e: SecurityException) {
                 Log.e(TAG, "Could not load JSON: $e")
                 toastAsync(
                     context,
                     messageResId = R.string.backup_import_error_security,
-                    cancelToast = toast,
-                    duration = Toast.LENGTH_LONG
+                    cancelToast = toast
                 )
             } catch (e: IOException) {
                 Log.e(TAG, "Could not load JSON: $e")
                 toastAsync(
                     context,
                     messageResId = R.string.backup_import_error_io,
-                    cancelToast = toast,
-                    duration = Toast.LENGTH_LONG
+                    cancelToast = toast
                 )
             }
         }

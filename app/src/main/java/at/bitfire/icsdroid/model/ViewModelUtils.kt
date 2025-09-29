@@ -11,7 +11,7 @@ suspend fun toastAsync(
     message: Context.() -> String? = { null },
     @StringRes messageResId: Int? = null,
     cancelToast: Toast? = null,
-    duration: Int = Toast.LENGTH_SHORT
+    duration: Int = Toast.LENGTH_LONG
 ): Toast? = withContext(Dispatchers.Main) {
     cancelToast?.cancel()
 
