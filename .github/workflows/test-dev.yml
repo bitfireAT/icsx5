@@ -12,7 +12,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Check
         run: ./gradlew app:lintStandardDebug app:testStandardDebugUnitTest
@@ -40,7 +40,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Enable KVM group perms
         run: |
