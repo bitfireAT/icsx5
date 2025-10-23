@@ -2,6 +2,8 @@ name: Update About Libraries
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'gradle/libs.versions.toml'
 
