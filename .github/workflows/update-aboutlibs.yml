@@ -1,0 +1,36 @@
+name: Update About Libraries
+
+on:
+  push:
+    paths:
+      - 'gradle/libs.versions.toml'
+
+jobs:
+  build:
+    name: Create release
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Export library definitions
+        run: ./gradlew --no-configuration-cache --no-daemon app:exportLibraryDefinitions
+
+      - name: Copy AboutLibraries files
+        run: cp app/build/generated/aboutLibraries/aboutlibraries.json app/src/main/res/raw/
+
+      - name: Commit modified version code file
+        id: commit_version_code
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: 'Updated Version'
+          file_pattern: 'version.properties iosApp/iosApp.xcodeproj/project.pbxproj iosApp/iosApp/Info.plist composeApp/src/commonMain/composeResources/values-*/strings.xml'
+          branch: master

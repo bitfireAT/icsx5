@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,8 +46,8 @@ import at.bitfire.icsdroid.service.ComposableStartupService
 import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONATION_DIALOG
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
+import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
-import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
 
@@ -58,7 +57,6 @@ fun InfoScreen(
     compStartupServices: ServiceLoader<ComposableStartupService>,
     onBackRequested: () -> Unit
 ) {
-    val resources = LocalResources.current
     val uriHandler = LocalUriHandler.current
 
     val hasDonateDialogService = compStartupServices.any { it.hasFlag(FLAG_DONATION_DIALOG) }
@@ -104,11 +102,7 @@ fun InfoScreen(
             )
         }
     ) { contentPadding ->
-        val libraries by rememberLibraries {
-            resources.openRawResource(R.raw.aboutlibraries).bufferedReader().use { input ->
-                input.readText()
-            }
-        }
+        val libraries by produceLibraries(R.raw.aboutlibraries)
 
         Column(Modifier.padding(contentPadding)) {
             Header()
