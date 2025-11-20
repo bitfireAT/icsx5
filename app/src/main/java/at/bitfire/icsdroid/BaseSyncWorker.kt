@@ -7,6 +7,7 @@ package at.bitfire.icsdroid
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
+import android.os.Build
 import android.os.DeadObjectException
 import android.util.Log
 import androidx.work.CoroutineWorker
@@ -17,7 +18,9 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import kotlinx.coroutines.job
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 abstract class BaseSyncWorker(
     context: Context,
@@ -42,6 +45,18 @@ abstract class BaseSyncWorker(
     private var forceReSync: Boolean = false
 
     override suspend fun doWork(): Result {
+        if (Build.VERSION.SDK_INT >= 31) {
+            // Read reason from previous stop
+            Log.d(Constants.TAG, "Previous worker stop reason: $stopReason")
+
+            // Observe cancellation
+            coroutineContext.job.invokeOnCompletion { e ->
+                if (e is CancellationException)
+                    Log.e(Constants.TAG, "Worker cancelled with reason: $stopReason")
+            }
+        }
+
+        // Check whether we should force a complete sync
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
 
         provider = try {
