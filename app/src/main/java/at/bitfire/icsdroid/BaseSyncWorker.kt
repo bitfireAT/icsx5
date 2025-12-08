@@ -18,6 +18,7 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -50,7 +51,7 @@ abstract class BaseSyncWorker(
             Log.d(Constants.TAG, "Previous worker stop reason: $stopReason")
 
             // Observe cancellation
-            coroutineContext.job.invokeOnCompletion { e ->
+            currentCoroutineContext().job.invokeOnCompletion { e ->
                 if (e is CancellationException)
                     Log.e(Constants.TAG, "Worker cancelled with reason: $stopReason")
             }
