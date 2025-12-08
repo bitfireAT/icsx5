@@ -66,7 +66,6 @@ fun AddSubscriptionScreen(
     val context = LocalContext.current
     val uiState = model.uiState
 
-    val addCalendarCreatedString = stringResource(R.string.add_calendar_created)
     LaunchedEffect(uiState) {
         if (uiState.success) {
             // on success, show notification and close activity
