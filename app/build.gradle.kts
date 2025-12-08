@@ -154,7 +154,9 @@ dependencies {
     implementation(libs.compose.ui.toolingPreview)
     implementation(libs.compose.runtime.livedata)
 
+    implementation(libs.aboutLibs.core)
     implementation(libs.aboutLibs.compose)
+    implementation(libs.aboutLibs.compose.core)
     implementation(libs.jodaTime)
 
     implementation(libs.ktor.core)
