@@ -4,11 +4,15 @@
 
 package at.bitfire.icsdroid
 
+import android.app.PendingIntent
 import android.content.ContentProviderClient
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.DeadObjectException
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import at.bitfire.ical4android.AndroidCalendar
@@ -17,10 +21,13 @@ import at.bitfire.icsdroid.calendar.LocalCalendar
 import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.NotificationUtils
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 abstract class BaseSyncWorker(
-    context: Context,
+    val context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
@@ -42,6 +49,20 @@ abstract class BaseSyncWorker(
     private var forceReSync: Boolean = false
 
     override suspend fun doWork(): Result {
+        if (Build.VERSION.SDK_INT >= 31) {
+            // Read reason from previous stop
+            Log.d(Constants.TAG, "Previous worker stop reason: $stopReason")
+
+            // Observe cancellation
+            currentCoroutineContext().job.invokeOnCompletion { e ->
+                if (e is CancellationException) {
+                    Log.e(Constants.TAG, "Worker cancelled with reason: $stopReason")
+                    notifyError(context, e)
+                }
+            }
+        }
+
+        // Check whether we should force a complete sync
         forceReSync = inputData.getBoolean(FORCE_RESYNC, false)
 
         provider = try {
@@ -144,4 +165,38 @@ abstract class BaseSyncWorker(
             calendar.delete()
         }
     }
+
+
+    /**
+     * Sunik's Debug-Build only
+     */
+    private fun notifyError(context: Context, exception: Exception?) {
+        val exception = exception ?: return
+        val message = exception.localizedMessage ?: exception.message ?: exception.toString()
+        val errorIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(MainActivity.EXTRA_ERROR_MESSAGE, message)
+            putExtra(MainActivity.EXTRA_THROWABLE, exception)
+        }
+
+        val notificationManager = NotificationUtils.createChannels(context)
+        val notification = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_SYNC)
+            .setSmallIcon(R.drawable.ic_sync_problem_white)
+            .setCategory(NotificationCompat.CATEGORY_ERROR)
+            .setGroup(context.getString(R.string.app_name))
+            .setContentTitle(context.getString(R.string.sync_error_title))
+            .setContentText(message)
+            .setAutoCancel(true)
+            .setWhen(System.currentTimeMillis())
+            .setOnlyAlertOnce(true)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    errorIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        notificationManager.notify(9999999, notification.build())
+    }
+
 }
