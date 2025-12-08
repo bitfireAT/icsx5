@@ -45,7 +45,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -83,8 +82,6 @@ fun EnterUrlComposable(
     onPickFileRequested: () -> Unit,
     onSubmit: () -> Unit
 ) {
-    val context = LocalContext.current
-
     validationResult?.exception?.let { exception ->
         val errorMessage = exception.localizedMessage ?: exception.message ?: exception.toString()
         AlertDialog(
@@ -94,10 +91,11 @@ fun EnterUrlComposable(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val addCalendarValidatingString = stringResource(R.string.add_calendar_validating)
     LaunchedEffect(isVerifyingUrl) {
         if (isVerifyingUrl) {
             snackbarHostState.showSnackbar(
-                context.getString(R.string.add_calendar_validating),
+                addCalendarValidatingString,
                 duration = SnackbarDuration.Indefinite
             )
         } else {
