@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
+import at.bitfire.cert4android.CustomCertStore
 import at.bitfire.icsdroid.ui.ForegroundTracker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -57,7 +58,8 @@ class AppHttpClient @AssistedInject constructor(
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
     private val certManager = CustomCertManager(
-        context = context,
+        certStore = CustomCertStore.getInstance(context),
+        trustSystemCerts = true,
         appInForeground = ForegroundTracker.inForeground
     )
 
