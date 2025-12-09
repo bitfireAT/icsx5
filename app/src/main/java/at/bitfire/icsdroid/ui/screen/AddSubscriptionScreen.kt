@@ -69,7 +69,7 @@ fun AddSubscriptionScreen(
     LaunchedEffect(uiState) {
         if (uiState.success) {
             // on success, show notification and close activity
-            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, R.string.add_calendar_created, Toast.LENGTH_LONG).show()
             onBackRequested()
         }
         uiState.errorMessage?.let {
