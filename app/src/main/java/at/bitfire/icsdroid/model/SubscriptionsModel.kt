@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import java.io.FileInputStream
@@ -182,7 +183,9 @@ class SubscriptionsModel @Inject constructor(
 
     fun onBackupExportRequested(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val toast = toastAsync(context, context.getString(R.string.backup_exporting))
+            val toast = withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.backup_exporting, Toast.LENGTH_LONG).apply { show() }
+            }
 
             val subscriptions = subscriptions.value
             Log.i(TAG, "Exporting ${subscriptions.size} subscriptions...")
@@ -199,22 +202,26 @@ class SubscriptionsModel @Inject constructor(
                     }
                 }
 
-                toastAsync(
-                    context,
-                    message = context.getString(R.string.backup_exported),
-                    cancelToast = toast,
-                    duration = Toast.LENGTH_SHORT
-                )
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(context, R.string.backup_exported, Toast.LENGTH_SHORT).show()
+                }
             } catch (e: IOException) {
                 Log.e(TAG, "Could not write export file.", e)
-                toastAsync(context, context.getString(R.string.backup_export_error_io))
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(context, R.string.backup_export_error_io, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
     fun onBackupImportRequested(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val toast = toastAsync(context, context.getString(R.string.backup_importing))
+            val toast = withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.backup_importing, Toast.LENGTH_LONG)
+                    .apply { show() }
+            }
 
             try {
                 val jsonString = context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
@@ -223,11 +230,10 @@ class SubscriptionsModel @Inject constructor(
                     }
                 }
                 if (jsonString == null) {
-                    toastAsync(
-                        context,
-                        message = context.getString(R.string.backup_import_error_io),
-                        cancelToast = toast
-                    )
+                    withContext(Dispatchers.Main) {
+                        toast.cancel()
+                        Toast.makeText(context, R.string.backup_import_error_io, Toast.LENGTH_LONG).show()
+                    }
                     return@launch
                 }
 
@@ -239,7 +245,7 @@ class SubscriptionsModel @Inject constructor(
 
                 val oldSubscriptions = subscriptions.value
 
-                var toAdd = mutableListOf<Subscription>()
+                val toAdd = mutableListOf<Subscription>()
                 var toDelete = arrayOf<Subscription>()
                 for (subscription in newSubscriptions) {
                     val existingSubscription = oldSubscriptions.find { it.url == subscription.url }
@@ -257,12 +263,14 @@ class SubscriptionsModel @Inject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
 
-                toastAsync(
-                    context,
-                    message = context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
-                    cancelToast = toast,
-                    duration = Toast.LENGTH_SHORT
-                )
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(
+                        context,
+                        context.resources.getQuantityString(R.plurals.backup_imported, newSubscriptions.size, newSubscriptions.size),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: JSONException) {
                 Log.e(TAG, "Could not load JSON: $e")
                 toastAsync(

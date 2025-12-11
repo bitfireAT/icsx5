@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -151,10 +152,10 @@ class AddSubscriptionModel @AssistedInject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            toastAsync(context, message = context.getString(R.string.add_calendar_created))
+            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            toastAsync(context, message = e.localizedMessage ?: e.message)
+            Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
