@@ -11,6 +11,7 @@ import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Relation
+import androidx.room.Transaction
 import androidx.room.Update
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
@@ -46,6 +47,7 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions WHERE url=:url")
     suspend fun getByUrl(url: String): Subscription?
 
+    @Transaction
     @Query("SELECT * FROM subscriptions WHERE id=:id")
     suspend fun getWithCredentialsById(id: Long): SubscriptionWithCredential?
 
