@@ -57,12 +57,69 @@ fun AddSubscriptionScreen(
     model: AddSubscriptionModel = hiltViewModel { vmf: AddSubscriptionModel.Factory -> vmf.create(title, color, url) },
     onBackRequested: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState { 2 }
+    val context = LocalContext.current
+    val uiState = model.uiState
+
+    LaunchedEffect(uiState) {
+        if (uiState.success) {
+            // on success, show notification and close activity
+            Toast.makeText(context, R.string.add_calendar_created, Toast.LENGTH_LONG).show()
+            onBackRequested()
+        }
+        uiState.errorMessage?.let {
+            // on error, show error message
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    LaunchedEffect(title, color, url) {
+        if (model.subscriptionSettingsUseCase.uiState.isInitialized())
+            return@LaunchedEffect
+        model.subscriptionSettingsUseCase.setInitialValues(title, color, url)
+
+        if (url != null) {
+            model.checkUrlIntroductionPage()
+        }
+    }
 
     val pickFile = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? -> model.onFilePicked(uri) }
+    ) { uri: Uri? ->
+        if (uri != null) {
+            // keep the picked file accessible after the first sync and reboots
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            model.subscriptionSettingsUseCase.setUrl(uri.toString())
+
+            // Get file name
+            val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (!cursor.moveToFirst()) return@use null
+                val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                cursor.getString(name)
+            }
+            model.subscriptionSettingsUseCase.setFileName(displayName)
+        }
+    }
+
+    Box(modifier = Modifier.imePadding()) {
+        AddSubscriptionScreen(
+            model = model,
+            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
+            finish = onBackRequested
+        )
+    }
+}
+
+@Composable
+fun AddSubscriptionScreen(
+    model: AddSubscriptionModel,
+    onPickFileRequested: () -> Unit,
+    finish: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState { 2 }
 
     // Receive updates for the URL introduction page
     with(model.subscriptionSettingsUseCase.uiState) {

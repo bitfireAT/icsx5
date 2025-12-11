@@ -48,7 +48,7 @@ import at.bitfire.icsdroid.service.ComposableStartupService.Companion.FLAG_DONAT
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
 import at.bitfire.icsdroid.ui.partials.GenericAlertDialog
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
-import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
+import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
 import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
 
@@ -104,7 +104,7 @@ fun InfoScreen(
             )
         }
     ) { contentPadding ->
-        val libraries by rememberLibraries {
+        val libraries by produceLibraries {
             resources.openRawResource(R.raw.aboutlibraries).bufferedReader().use { input ->
                 input.readText()
             }
