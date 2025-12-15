@@ -159,4 +159,8 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
         <item quantity="other">%d subscriptions imported</item>
     </plurals>
 
+    <!-- Winter Easter Egg -->
+    <string name="winter_easter_egg_disable">Disable Easter Egg</string>
+    <string name="winter_easter_egg_enable">Enable Easter Egg</string>
+
 </resources>
