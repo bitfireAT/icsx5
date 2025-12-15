@@ -1,5 +1,6 @@
 package at.bitfire.icsdroid.ui
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
@@ -16,8 +17,10 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import at.bitfire.icsdroid.R
-import at.bitfire.icsdroid.Settings
+import at.bitfire.icsdroid.dataStore
 import at.bitfire.icsdroid.ui.icons.ModeCoolOff
 import io.github.vinceglb.confettikit.compose.ConfettiKit
 import io.github.vinceglb.confettikit.core.Angle
@@ -29,9 +32,19 @@ import io.github.vinceglb.confettikit.core.emitter.Emitter
 import io.github.vinceglb.confettikit.core.models.Shape
 import io.github.vinceglb.confettikit.core.models.Size
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.MonthDay
 import kotlin.time.Duration
+
+private val hideWinterEasterEgg = booleanPreferencesKey("hideWinterEasterEgg")
+
+fun Context.hideWinterEasterEggFlow(): Flow<Boolean> = dataStore.data.map { it[hideWinterEasterEgg] ?: false }
+suspend fun Context.hideWinterEasterEgg(hide: Boolean) {
+    // save setting
+    dataStore.edit { it[hideWinterEasterEgg] = hide }
+}
 
 /**
  * Determines whether the winter easter egg should be displayed.
@@ -50,15 +63,14 @@ fun WinterEasterEggToggleButton() {
     if (!shouldDisplay) return
 
     val context = LocalContext.current
-    val settings = remember(context) { Settings(context) }
     val scope = rememberCoroutineScope()
 
-    val easterEggDisabled by settings.hideWinterEasterEggFlow().collectAsState(false)
+    val easterEggDisabled by context.hideWinterEasterEggFlow().collectAsState(false)
 
     IconButton(
         onClick = {
             scope.launch(Dispatchers.IO) {
-                settings.hideWinterEasterEgg(!easterEggDisabled)
+                context.hideWinterEasterEgg(!easterEggDisabled)
             }
         }
     ) {
@@ -75,8 +87,7 @@ fun WinterEasterEgg() {
     if (!shouldDisplay) return
 
     val context = LocalContext.current
-    val settings = remember(context) { Settings(context) }
-    val easterEggDisabled by settings.hideWinterEasterEggFlow().collectAsState(false)
+    val easterEggDisabled by context.hideWinterEasterEggFlow().collectAsState(false)
     if (easterEggDisabled) return
 
     ConfettiKit(

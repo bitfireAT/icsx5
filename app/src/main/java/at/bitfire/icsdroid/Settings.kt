@@ -20,8 +20,6 @@ class Settings(context: Context) {
         val forceDarkMode = booleanPreferencesKey("forceDarkMode")
 
         val nextReminder = longPreferencesKey("nextDonationReminder")
-
-        val hideWinterEasterEgg = booleanPreferencesKey("hideWinterEasterEgg")
     }
 
     private val dataStore = context.dataStore
@@ -32,12 +30,6 @@ class Settings(context: Context) {
     suspend fun forceDarkMode(force: Boolean) {
         // save setting
         dataStore.edit { it[forceDarkMode] = force }
-    }
-
-    fun hideWinterEasterEggFlow(): Flow<Boolean> = dataStore.data.map { it[hideWinterEasterEgg] ?: false }
-    suspend fun hideWinterEasterEgg(hide: Boolean) {
-        // save setting
-        dataStore.edit { it[hideWinterEasterEgg] = hide }
     }
 
 }
