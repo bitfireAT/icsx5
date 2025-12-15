@@ -6,6 +6,7 @@ package at.bitfire.icsdroid
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
+import at.bitfire.cert4android.CustomCertStore
 import at.bitfire.icsdroid.ui.ForegroundTracker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -16,6 +17,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.cookies.HttpCookies
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import javax.net.ssl.SSLContext
@@ -57,7 +59,8 @@ class AppHttpClient @AssistedInject constructor(
     // CustomCertManager is Closeable, but HttpClient will live as long as the application is in memory,
     // so we don't need to close it
     private val certManager = CustomCertManager(
-        context = context,
+        certStore = CustomCertStore.getInstance(context),
+        trustSystemCerts = true,
         appInForeground = ForegroundTracker.inForeground
     )
 
@@ -78,6 +81,9 @@ class AppHttpClient @AssistedInject constructor(
             requestTimeoutMillis = 60_000
             socketTimeoutMillis = 60_000
         }
+
+        // Enable cookie storage - in memory, will be lost on app restart
+        install(HttpCookies)
 
         // Disable redirect following, it's handled by CalendarFetcher
         followRedirects = false

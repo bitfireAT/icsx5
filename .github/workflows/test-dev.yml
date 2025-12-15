@@ -5,21 +5,21 @@ jobs:
     name: Tests without emulator
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Check
         run: ./gradlew app:lintStandardDebug app:testStandardDebugUnitTest
 
       - name: Archive results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-unit
           path: |
@@ -33,14 +33,14 @@ jobs:
       matrix:
         api-level: [31]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Enable KVM group perms
         run: |
@@ -80,7 +80,7 @@ jobs:
 
       - name: Archive results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-instrumented-${{ matrix.api-level }}
           path: |
