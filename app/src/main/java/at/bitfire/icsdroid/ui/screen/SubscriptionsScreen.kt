@@ -56,6 +56,7 @@ import at.bitfire.icsdroid.SyncWorker
 import at.bitfire.icsdroid.UriUtils
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.model.SubscriptionsModel
+import at.bitfire.icsdroid.ui.WinterEasterEggToggleButton
 import at.bitfire.icsdroid.ui.partials.ActionCard
 import at.bitfire.icsdroid.ui.partials.CalendarListItem
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
@@ -192,6 +193,8 @@ fun SubscriptionsScreen(
                     Text(stringResource(R.string.title_activity_calendar_list))
                 },
                 actions = {
+                    WinterEasterEggToggleButton()
+
                     ActionOverflowMenu(
                         subscriptionsCount = subscriptions.size,
                         forceDarkMode = forceDarkMode,

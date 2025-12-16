@@ -159,4 +159,8 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
         <item quantity="other">%d subscriptions imported</item>
     </plurals>
 
+    <!-- Snowfall Winter Easter Egg -->
+    <string name="snowfall_disable">Disable Snowfall</string>
+    <string name="snowfall_enable">Enable Snowfall</string>
+
 </resources>
