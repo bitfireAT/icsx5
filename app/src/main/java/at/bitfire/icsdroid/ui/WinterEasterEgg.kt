@@ -42,57 +42,56 @@ import kotlinx.coroutines.launch
 import java.time.MonthDay
 import kotlin.time.Duration
 
-private val hideWinterEasterEgg = booleanPreferencesKey("hideWinterEasterEgg")
+private val hideSnowfall = booleanPreferencesKey("hideWinterEasterEgg")
 
-fun Context.hideWinterEasterEggFlow(): Flow<Boolean> = dataStore.data.map { it[hideWinterEasterEgg] ?: false }
-suspend fun Context.hideWinterEasterEgg(hide: Boolean) {
+fun Context.hideSnowfall(): Flow<Boolean> = dataStore.data.map { it[hideSnowfall] ?: false }
+suspend fun Context.hideSnowfall(hide: Boolean) {
     // save setting
-    dataStore.edit { it[hideWinterEasterEgg] = hide }
+    dataStore.edit { it[hideSnowfall] = hide }
 }
 
 /**
- * Determines whether the winter easter egg should be displayed.
+ * Determines whether snowfall (the winter easter egg) should be displayed.
  *
- * It is displayed from December 20th to December 31st.
+ * It is active from December 20th to December 31st.
  */
-fun displayWinterEasterEgg(): Boolean {
-    // return true // Uncomment for testing
+fun inSnowySeason(): Boolean {
     val now = MonthDay.now()
     return now >= MonthDay.of(12, 20) && now <= MonthDay.of(12, 31)
 }
 
 @Composable
 fun WinterEasterEggToggleButton() {
-    val shouldDisplay = remember { displayWinterEasterEgg() }
-    if (!shouldDisplay) return
+    val inSnowySeason = remember { inSnowySeason() }
+    if (!inSnowySeason) return
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val easterEggDisabled by context.hideWinterEasterEggFlow().collectAsState(false)
+    val snowfallDisabled by context.hideSnowfall().collectAsState(false)
 
     IconButton(
         onClick = {
             scope.launch(Dispatchers.IO) {
-                context.hideWinterEasterEgg(!easterEggDisabled)
+                context.hideSnowfall(!snowfallDisabled)
             }
         }
     ) {
         Icon(
-            if (easterEggDisabled) Icons.Rounded.AcUnit else Icons.Rounded.ModeCoolOff,
-            stringResource(if (easterEggDisabled) R.string.winter_easter_egg_enable else R.string.winter_easter_egg_disable)
+            if (snowfallDisabled) Icons.Rounded.AcUnit else Icons.Rounded.ModeCoolOff,
+            stringResource(if (snowfallDisabled) R.string.snowfall_enable else R.string.snowfall_disable)
         )
     }
 }
 
 @Composable
 fun WinterEasterEgg() {
-    val shouldDisplay = remember { displayWinterEasterEgg() }
+    val shouldDisplay = remember { inSnowySeason() }
     if (!shouldDisplay) return
 
     val context = LocalContext.current
-    val easterEggDisabled by context.hideWinterEasterEggFlow().collectAsState(false)
-    if (easterEggDisabled) return
+    val snowfallDisabled by context.hideSnowfall().collectAsState(false)
+    if (snowfallDisabled) return
 
     ConfettiKit(
         modifier = Modifier
