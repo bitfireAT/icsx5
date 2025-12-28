@@ -1,8 +1,11 @@
 package at.bitfire.icsdroid.model
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +18,9 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -22,18 +28,35 @@ import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
-import javax.inject.Inject
 
-@HiltViewModel
-class AddSubscriptionModel @Inject constructor(
+@HiltViewModel(assistedFactory = AddSubscriptionModel.Factory::class)
+class AddSubscriptionModel @AssistedInject constructor(
+    @Assisted("title") initialTitle: String?,
+    @Assisted("color") initialColor: Int?,
+    @Assisted("url") initialUrl: String?,
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    val validator: Validator,
-    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
+    val validator: Validator
 ) : ViewModel() {
 
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("title") title: String? = null,
+            @Assisted("color") color: Int? = null,
+            @Assisted("url") url: String? = null
+        ): AddSubscriptionModel
+    }
+
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase = SubscriptionSettingsUseCase(
+        SubscriptionSettingsUseCase.UiState(
+            title = initialTitle,
+            color = initialColor,
+            url = initialUrl
+        )
+    )
+
     data class UiState(
-        val success: Boolean = false,
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
@@ -129,10 +152,10 @@ class AddSubscriptionModel @Inject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            uiState = uiState.copy(success = true)
+            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
+            Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
@@ -216,5 +239,26 @@ class AddSubscriptionModel @Inject constructor(
             onSetUrlError(errorMsg)
         }
         return uri
+    }
+
+    fun onFilePicked(uri: Uri?) {
+        if (uri == null) return
+
+        // keep the picked file accessible after the first sync and reboots
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        subscriptionSettingsUseCase.setUrl(uri.toString())
+
+        // Get file name
+        val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor.getString(name)
+        }
+        subscriptionSettingsUseCase.setFileName(displayName)
+
+        checkUrlIntroductionPage()
     }
 }

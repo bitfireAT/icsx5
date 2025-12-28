@@ -4,22 +4,17 @@
 
 package at.bitfire.icsdroid.ui.screen
 
-import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -42,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -60,7 +54,7 @@ fun AddSubscriptionScreen(
     title: String?,
     color: Int?,
     url: String?,
-    model: AddSubscriptionModel = hiltViewModel(),
+    model: AddSubscriptionModel = hiltViewModel { vmf: AddSubscriptionModel.Factory -> vmf.create(title, color, url) },
     onBackRequested: () -> Unit
 ) {
     val context = LocalContext.current
@@ -179,6 +173,7 @@ fun AddSubscriptionScreen(
             onUrlChange = {
                 setUrl(it)
                 setFileName(null)
+                model.checkUrlIntroductionPage()
             },
             fileName = uiState.fileName,
             urlError = uiState.urlError,
@@ -202,7 +197,7 @@ fun AddSubscriptionScreen(
             isCreating = model.uiState.isCreating,
             validationResult = validationResult,
             onResetResult = model::resetValidationResult,
-            onPickFileRequested = onPickFileRequested,
+            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
             onNextRequested = { page: Int ->
                 when (page) {
                     // First page (Enter Url)
@@ -225,13 +220,13 @@ fun AddSubscriptionScreen(
                     }
                     // Second page (details and confirm)
                     1 -> {
-                        model.createSubscription()
+                        model.createSubscription().invokeOnCompletion { onBackRequested() }
                     }
                 }
             },
             onNavigationClicked = {
                 // If first page, close activity
-                if (pagerState.currentPage <= 0) finish()
+                if (pagerState.currentPage <= 0) onBackRequested()
                 // otherwise, go back a page
                 else scope.launch {
                     // Needed for non-first-time validations to trigger following validation result updates
