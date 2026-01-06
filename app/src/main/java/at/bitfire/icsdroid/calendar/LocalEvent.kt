@@ -7,6 +7,7 @@ package at.bitfire.icsdroid.calendar
 import android.content.ContentValues
 import android.provider.CalendarContract
 import at.bitfire.ical4android.*
+import at.bitfire.synctools.storage.BatchOperation
 import net.fortuna.ical4j.model.DateTime
 import net.fortuna.ical4j.model.property.LastModified
 
