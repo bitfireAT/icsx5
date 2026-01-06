@@ -13,8 +13,8 @@ import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import at.bitfire.ical4android.AndroidCalendar
 import at.bitfire.ical4android.AndroidCalendarFactory
-import at.bitfire.ical4android.CalendarStorageException
 import at.bitfire.ical4android.util.MiscUtils.asSyncAdapter
+import at.bitfire.synctools.storage.LocalStorageException
 
 class LocalCalendar private constructor(
     account: Account,
@@ -30,12 +30,12 @@ class LocalCalendar private constructor(
          * Gets the calendar provider for a given context.
          * The caller (you) is responsible for closing the client!
          *
-         * @throws CalendarStorageException if the calendar provider is not available
+         * @throws LocalStorageException if the calendar provider is not available
          * @throws SecurityException if permissions for accessing the calendar are not granted
          */
         fun getCalendarProvider(context: Context): ContentProviderClient =
             context.contentResolver.acquireContentProviderClient(CalendarContract.AUTHORITY) ?:
-            throw CalendarStorageException("Calendar provider not available")
+            throw LocalStorageException("Calendar provider not available")
 
 
         // CRUD methods
@@ -72,7 +72,7 @@ class LocalCalendar private constructor(
             }
             return deleted
         } catch (_: RemoteException) {
-            throw CalendarStorageException("Couldn't delete local events")
+            throw LocalStorageException("Couldn't delete local events")
         }
     }
 
