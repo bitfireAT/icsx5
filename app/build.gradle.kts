@@ -21,8 +21,8 @@ android {
         minSdk = 23
         targetSdk = 36
 
-        versionCode = 91
-        versionName = "2.4.2"
+        versionCode = 92
+        versionName = "2.4.3"
 
         setProperty("archivesBaseName", "icsx5-$versionCode-$versionName")
 
@@ -166,6 +166,8 @@ dependencies {
     // Room Database
     implementation(libs.room.base)
     ksp(libs.room.compiler)
+
+    implementation(libs.confettiKit)
 
     implementation(libs.kotlinx.serialization.core)
 

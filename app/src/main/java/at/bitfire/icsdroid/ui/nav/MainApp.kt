@@ -27,6 +27,7 @@ import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_REQUEST_CALENDAR_PERMISS
 import at.bitfire.icsdroid.MainActivity.Companion.EXTRA_THROWABLE
 import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.service.ComposableStartupService
+import at.bitfire.icsdroid.ui.WinterEasterEgg
 import at.bitfire.icsdroid.ui.partials.AlertDialog
 import at.bitfire.icsdroid.ui.screen.AddSubscriptionScreen
 import at.bitfire.icsdroid.ui.screen.EditSubscriptionScreen
@@ -99,6 +100,8 @@ fun MainApp(
         if (backStack.size <= 1) onFinish()
         else repeat(depth) { backStack.removeAt(backStack.lastIndex) }
     }
+
+    WinterEasterEgg()
 
     NavDisplay(
         entryDecorators = listOf(
