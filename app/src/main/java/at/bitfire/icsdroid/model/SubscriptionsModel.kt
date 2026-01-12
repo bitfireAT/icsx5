@@ -273,25 +273,34 @@ class SubscriptionsModel @Inject constructor(
                 }
             } catch (e: JSONException) {
                 Log.e(TAG, "Could not load JSON: $e")
-                toastAsync(
-                    context,
-                    message = context.getString(R.string.backup_import_error_json),
-                    cancelToast = toast
-                )
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(
+                        context,
+                        R.string.backup_import_error_json,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Could not load JSON: $e")
-                toastAsync(
-                    context,
-                    message = context.getString(R.string.backup_import_error_security),
-                    cancelToast = toast
-                )
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(
+                        context,
+                        R.string.backup_import_error_security,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: IOException) {
                 Log.e(TAG, "Could not load JSON: $e")
-                toastAsync(
-                    context,
-                    message = context.getString(R.string.backup_import_error_io),
-                    cancelToast = toast
-                )
+                withContext(Dispatchers.Main) {
+                    toast.cancel()
+                    Toast.makeText(
+                        context,
+                        R.string.backup_import_error_io,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
