@@ -5,7 +5,6 @@
 package at.bitfire.icsdroid.ui.screen
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -36,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -44,7 +42,6 @@ import at.bitfire.icsdroid.R
 import at.bitfire.icsdroid.model.AddSubscriptionModel
 import at.bitfire.icsdroid.ui.ResourceInfo
 import at.bitfire.icsdroid.ui.partials.ExtendedTopAppBar
-import at.bitfire.icsdroid.ui.theme.lightblue
 import at.bitfire.icsdroid.ui.views.EnterUrlComposable
 import at.bitfire.icsdroid.ui.views.SubscriptionSettingsComposable
 import kotlinx.coroutines.launch
@@ -64,42 +61,13 @@ fun AddSubscriptionScreen(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? -> model.onFilePicked(uri) }
 
-    // Receive updates for the URL introduction page
-    with(model.subscriptionSettingsUseCase.uiState) {
-        LaunchedEffect(url, requiresAuth, username, password) {
-            model.checkUrlIntroductionPage()
-        }
-    }
-
-    // Receive updates for the Details page
-    with(model.subscriptionSettingsUseCase.uiState) {
-        LaunchedEffect(title, color, ignoreAlerts, defaultAlarmMinutes, defaultAllDayAlarmMinutes) {
-            model.setShowNextButton(!title.isNullOrBlank())
-        }
-    }
-
-    val isVerifyingUrl = model.uiState.isVerifyingUrl
-    val validationResult = model.uiState.verificationResult
-
-    LaunchedEffect(validationResult) {
-        Log.i("AddCalendarActivity", "Validation result updated: $validationResult")
-        validationResult?.let { info ->
-            if (info.exception != null)
-                return@LaunchedEffect
-
-            // When a result has been obtained, and it's neither null nor has an exception,
-            // clean the subscriptionSettingsModel, and move the pager to the next page
-            with(model.subscriptionSettingsUseCase) {
-                setUrl(info.uri.toString())
-
-                if (uiState.color == null)
-                    setColor(info.calendarColor ?: lightblue.toArgb())
-
-                if (uiState.title.isNullOrBlank())
-                    setTitle(info.calendarName ?: info.uri.toString())
+    LaunchedEffect(Unit) {
+        model.onVerificationSucceeded {
+            // When the model verifies a resource, scroll to the next page
+            // It's necessary to use the compose scope here to avoid "Cannot access this event loop from another thread" errors
+            scope.launch {
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
-
-            pagerState.animateScrollToPage(pagerState.currentPage + 1)
         }
     }
     with(model.subscriptionSettingsUseCase) {
@@ -136,30 +104,16 @@ fun AddSubscriptionScreen(
             ignoreDescription = uiState.ignoreDescription,
             onIgnoreDescriptionChange = ::setIgnoreDescription,
             showNextButton = model.uiState.showNextButton,
-            isVerifyingUrl = isVerifyingUrl,
+            isVerifyingUrl = model.uiState.isVerifyingUrl,
             isCreating = model.uiState.isCreating,
-            validationResult = validationResult,
+            validationResult = model.uiState.verificationResult,
             onResetResult = model::resetValidationResult,
             onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
             onNextRequested = { page: Int ->
                 when (page) {
                     // First page (Enter Url)
                     0 -> {
-                        // flush the credentials if auth toggle is disabled
-                        if (!uiState.requiresAuth)
-                            clearCredentials()
-
-                        val uri: Uri? = uiState.url?.let(Uri::parse)
-                        val authenticate = uiState.requiresAuth
-
-                        if (uri != null) {
-                            model.validateUrl(
-                                originalUri = uri,
-                                username = if (authenticate) uiState.username else null,
-                                password = if (authenticate) uiState.password else null,
-                                customUserAgent = uiState.customUserAgent
-                            )
-                        }
+                        model.validateUrl()
                     }
                     // Second page (details and confirm)
                     1 -> {

@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -18,13 +20,17 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
+import at.bitfire.icsdroid.ui.theme.lightblue
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
@@ -67,6 +73,60 @@ class AddSubscriptionModel @AssistedInject constructor(
     var uiState by mutableStateOf(UiState())
         private set
 
+    init {
+        // Receive updates for the URL introduction page
+        viewModelScope.launch {
+            snapshotFlow { subscriptionSettingsUseCase.uiState }
+                // Only react to relevant changes
+                .distinctUntilChangedBy {
+                    it.url.hashCode() + it.requiresAuth.hashCode() + it.username.hashCode() + it.password.hashCode()
+                }
+                .collect { checkUrlIntroductionPage() }
+        }
+
+        // Receive updates for the Details page
+        viewModelScope.launch {
+            snapshotFlow { subscriptionSettingsUseCase.uiState }
+                // Only react to relevant changes
+                .distinctUntilChangedBy {
+                    it.title.hashCode() + it.color.hashCode() + it.ignoreAlerts.hashCode() + it.defaultAlarmMinutes.hashCode() + it.defaultAllDayAlarmMinutes.hashCode()
+                }
+                .collect { setShowNextButton(!it.title.isNullOrBlank()) }
+        }
+    }
+
+    fun onVerificationSucceeded(block: () -> Unit) {
+        viewModelScope.launch {
+            snapshotFlow { uiState }
+                // Only react to changes in verificationResult
+                .distinctUntilChangedBy { it.verificationResult.hashCode() }
+                // only react when verificationResult is not null
+                .filter { it.verificationResult != null }
+                .collect { state ->
+                    val info = state.verificationResult ?: return@collect
+                    Log.i("AddCalendarActivity", "Validation result updated: $info")
+
+                    // Ignore results with exceptions
+                    if (info.exception != null)
+                        return@collect
+
+                    // When a result has been obtained, and it's neither null nor has an exception,
+                    // clean the subscriptionSettingsModel, and move the pager to the next page
+                    with(subscriptionSettingsUseCase) {
+                        setUrl(info.uri.toString())
+
+                        if (uiState.color == null)
+                            setColor(info.calendarColor ?: lightblue.toArgb())
+
+                        if (uiState.title.isNullOrBlank())
+                            setTitle(info.calendarName ?: info.uri.toString())
+                    }
+
+                    block()
+                }
+        }
+    }
+
     fun setShowNextButton(value: Boolean) {
         uiState = uiState.copy(showNextButton = value)
     }
@@ -75,14 +135,30 @@ class AddSubscriptionModel @AssistedInject constructor(
         uiState = uiState.copy(verificationResult = null)
     }
 
-    fun validateUrl(
-        originalUri: Uri,
-        username: String? = null,
-        password: String? = null,
-        customUserAgent: String? = null
-    ) = viewModelScope.launch {
+    fun validateUrl() = viewModelScope.launch {
         uiState = uiState.copy(isVerifyingUrl = true)
-        val result = validator.validate(originalUri, username, password, customUserAgent)
+
+        val authenticate = subscriptionSettingsUseCase.uiState.requiresAuth
+
+        if (!authenticate) {
+            // Flush credentials if auth not required
+            subscriptionSettingsUseCase.clearCredentials()
+        }
+
+        val uri: Uri? = subscriptionSettingsUseCase.uiState.url?.let(Uri::parse)
+
+        val result = if (uri != null) {
+            // If the URL is valid, perform validation
+            validator.validate(
+                originalUri = uri,
+                username = if (authenticate) subscriptionSettingsUseCase.uiState.username else null,
+                password = if (authenticate) subscriptionSettingsUseCase.uiState.password else null,
+                customUserAgent = subscriptionSettingsUseCase.uiState.customUserAgent
+            )
+        } else {
+            null
+        }
+
         uiState = uiState.copy(isVerifyingUrl = false, verificationResult = result)
     }
     
@@ -152,10 +228,18 @@ class AddSubscriptionModel @AssistedInject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            Toast.makeText(context, context.getString(R.string.add_calendar_created), Toast.LENGTH_LONG).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.add_calendar_created),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
+            }
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
