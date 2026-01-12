@@ -4,9 +4,7 @@
 
 package at.bitfire.icsdroid.ui.screen
 
-import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -60,44 +57,12 @@ fun AddSubscriptionScreen(
     model: AddSubscriptionModel = hiltViewModel { vmf: AddSubscriptionModel.Factory -> vmf.create(title, color, url) },
     onBackRequested: () -> Unit
 ) {
-    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState { 2 }
 
     val pickFile = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            // keep the picked file accessible after the first sync and reboots
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            model.subscriptionSettingsUseCase.setUrl(uri.toString())
-
-            // Get file name
-            val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                if (!cursor.moveToFirst()) return@use null
-                val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.getString(name)
-            }
-            model.subscriptionSettingsUseCase.setFileName(displayName)
-        }
-    }
-
-    AddSubscriptionScreen(
-        model = model,
-        onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
-        onBackRequested = onBackRequested
-    )
-}
-
-@Composable
-fun AddSubscriptionScreen(
-    model: AddSubscriptionModel,
-    onPickFileRequested: () -> Unit,
-    onBackRequested: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState { 2 }
+    ) { uri: Uri? -> model.onFilePicked(uri) }
 
     // Receive updates for the URL introduction page
     with(model.subscriptionSettingsUseCase.uiState) {
@@ -175,7 +140,7 @@ fun AddSubscriptionScreen(
             isCreating = model.uiState.isCreating,
             validationResult = validationResult,
             onResetResult = model::resetValidationResult,
-            onPickFileRequested = onPickFileRequested,
+            onPickFileRequested = { pickFile.launch(arrayOf("text/calendar")) },
             onNextRequested = { page: Int ->
                 when (page) {
                     // First page (Enter Url)
