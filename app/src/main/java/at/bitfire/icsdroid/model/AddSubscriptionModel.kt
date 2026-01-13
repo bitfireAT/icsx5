@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -74,7 +75,14 @@ class AddSubscriptionModel @AssistedInject constructor(
         private set
 
     init {
-        // Receive updates for the URL introduction page
+        setupUrlIntroductionPageObserver()
+        setupDetailsPageObserver()
+    }
+
+    /**
+     * Receives updates for the URL introduction page.
+     */
+    private fun setupUrlIntroductionPageObserver() {
         viewModelScope.launch {
             snapshotFlow { subscriptionSettingsUseCase.uiState }
                 // Only react to relevant changes
@@ -83,8 +91,12 @@ class AddSubscriptionModel @AssistedInject constructor(
                 }
                 .collect { checkUrlIntroductionPage() }
         }
+    }
 
-        // Receive updates for the Details page
+    /**
+     * Receives updates for the Details page
+     */
+    private fun setupDetailsPageObserver() {
         viewModelScope.launch {
             snapshotFlow { subscriptionSettingsUseCase.uiState }
                 // Only react to relevant changes
@@ -199,7 +211,7 @@ class AddSubscriptionModel @AssistedInject constructor(
             with(subscriptionSettingsUseCase.uiState) {
                 val subscription = Subscription(
                     displayName = title!!,
-                    url = Uri.parse(url),
+                    url = (url ?: "").toUri(),
                     color = color,
                     customUserAgent = customUserAgent,
                     ignoreEmbeddedAlerts = ignoreAlerts,
@@ -259,7 +271,7 @@ class AddSubscriptionModel @AssistedInject constructor(
         var uri: Uri
         try {
             try {
-                uri = Uri.parse(url ?: return null)
+                uri = url?.toUri() ?: return null
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
