@@ -29,7 +29,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -119,7 +118,9 @@ class AddSubscriptionModel @AssistedInject constructor(
         viewModelScope.launch {
             snapshotFlow { uiState }
                 // Only react to changes in verificationResult
-                .distinctUntilChangedBy { it.verificationResult.hashCode() }
+                .distinctUntilChanged { old, new ->
+                    old.verificationResult == new.verificationResult
+                }
                 // only react when verificationResult is not null
                 .filter { it.verificationResult != null }
                 .collect { state ->
