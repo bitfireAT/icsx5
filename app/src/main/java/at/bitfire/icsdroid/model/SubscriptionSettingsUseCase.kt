@@ -9,7 +9,11 @@ import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import javax.inject.Inject
 
-class SubscriptionSettingsUseCase @Inject constructor() {
+class SubscriptionSettingsUseCase(initialUiState: UiState = UiState()) {
+
+    @Deprecated("Do not inject constructor. Manually initialize with initial state.")
+    @Inject constructor(): this(UiState())
+
     data class UiState(
         val url: String? = null,
         val fileName: String? = null,
@@ -33,11 +37,9 @@ class SubscriptionSettingsUseCase @Inject constructor() {
         val validUrlInput: Boolean = url?.let { url ->
             HttpUtils.acceptedProtocol(url.toUri())
         } ?: false
-
-        fun isInitialized() = url != null || title != null || color != null
     }
 
-    var uiState by mutableStateOf(UiState())
+    var uiState by mutableStateOf(initialUiState)
         private set
 
     fun setUrl(value: String?) {
@@ -95,24 +97,6 @@ class SubscriptionSettingsUseCase @Inject constructor() {
             requiresAuth = credential != null,
             username = credential?.username,
             password = credential?.password
-        )
-    }
-
-    /**
-     * Set initial values when creating a new subscription.
-     *
-     * Note that all values will be overwritten, so call this method before changing any individual
-     * value, or when you want to reset the form to an initial state.
-     */
-    fun setInitialValues(
-        title: String?,
-        color: Int?,
-        url: String?,
-    ) {
-        uiState = UiState(
-            title = title,
-            color = color,
-            url = url,
         )
     }
 

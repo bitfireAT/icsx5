@@ -1,11 +1,17 @@
 package at.bitfire.icsdroid.model
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.bitfire.icsdroid.Constants
@@ -15,25 +21,49 @@ import at.bitfire.icsdroid.db.AppDatabase
 import at.bitfire.icsdroid.db.entity.Credential
 import at.bitfire.icsdroid.db.entity.Subscription
 import at.bitfire.icsdroid.ui.ResourceInfo
+import at.bitfire.icsdroid.ui.theme.lightblue
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URI
 import java.net.URISyntaxException
-import javax.inject.Inject
 
-@HiltViewModel
-class AddSubscriptionModel @Inject constructor(
+@HiltViewModel(assistedFactory = AddSubscriptionModel.Factory::class)
+class AddSubscriptionModel @AssistedInject constructor(
+    @Assisted("title") initialTitle: String?,
+    @Assisted("color") initialColor: Int?,
+    @Assisted("url") initialUrl: String?,
     @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
-    val validator: Validator,
-    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase
+    val validator: Validator
 ) : ViewModel() {
 
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("title") title: String? = null,
+            @Assisted("color") color: Int? = null,
+            @Assisted("url") url: String? = null
+        ): AddSubscriptionModel
+    }
+
+    val subscriptionSettingsUseCase: SubscriptionSettingsUseCase = SubscriptionSettingsUseCase(
+        SubscriptionSettingsUseCase.UiState(
+            title = initialTitle,
+            color = initialColor,
+            url = initialUrl
+        )
+    )
+
     data class UiState(
-        val success: Boolean = false,
         val errorMessage: String? = null,
         val isCreating: Boolean = false,
         val showNextButton: Boolean = false,
@@ -44,6 +74,80 @@ class AddSubscriptionModel @Inject constructor(
     var uiState by mutableStateOf(UiState())
         private set
 
+    init {
+        setupUrlIntroductionPageObserver()
+        setupDetailsPageObserver()
+    }
+
+    /**
+     * Receives updates for the URL introduction page.
+     */
+    private fun setupUrlIntroductionPageObserver() {
+        viewModelScope.launch {
+            snapshotFlow { subscriptionSettingsUseCase.uiState }
+                // Only react to relevant changes
+                .distinctUntilChanged { old, new ->
+                    old.url == new.url &&
+                            old.requiresAuth == new.requiresAuth &&
+                            old.username == new.username &&
+                            old.password == new.password
+                }
+                .collect { checkUrlIntroductionPage() }
+        }
+    }
+
+    /**
+     * Receives updates for the Details page
+     */
+    private fun setupDetailsPageObserver() {
+        viewModelScope.launch {
+            snapshotFlow { subscriptionSettingsUseCase.uiState }
+                // Only react to relevant changes
+                .distinctUntilChanged { old, new ->
+                    old.title == new.title &&
+                            old.color == new.color &&
+                            old.ignoreAlerts == new.ignoreAlerts &&
+                            old.defaultAlarmMinutes == new.defaultAlarmMinutes &&
+                            old.defaultAllDayAlarmMinutes == new.defaultAllDayAlarmMinutes
+                }
+                .collect { setShowNextButton(!it.title.isNullOrBlank()) }
+        }
+    }
+
+    fun onVerificationSucceeded(block: () -> Unit) {
+        viewModelScope.launch {
+            snapshotFlow { uiState }
+                // Only react to changes in verificationResult
+                .distinctUntilChanged { old, new ->
+                    old.verificationResult == new.verificationResult
+                }
+                // only react when verificationResult is not null
+                .filter { it.verificationResult != null }
+                .collect { state ->
+                    val info = state.verificationResult ?: return@collect
+                    Log.i("AddCalendarActivity", "Validation result updated: $info")
+
+                    // Ignore results with exceptions
+                    if (info.exception != null)
+                        return@collect
+
+                    // When a result has been obtained, and it's neither null nor has an exception,
+                    // clean the subscriptionSettingsModel, and move the pager to the next page
+                    with(subscriptionSettingsUseCase) {
+                        setUrl(info.uri.toString())
+
+                        if (uiState.color == null)
+                            setColor(info.calendarColor ?: lightblue.toArgb())
+
+                        if (uiState.title.isNullOrBlank())
+                            setTitle(info.calendarName ?: info.uri.toString())
+                    }
+
+                    block()
+                }
+        }
+    }
+
     fun setShowNextButton(value: Boolean) {
         uiState = uiState.copy(showNextButton = value)
     }
@@ -52,14 +156,30 @@ class AddSubscriptionModel @Inject constructor(
         uiState = uiState.copy(verificationResult = null)
     }
 
-    fun validateUrl(
-        originalUri: Uri,
-        username: String? = null,
-        password: String? = null,
-        customUserAgent: String? = null
-    ) = viewModelScope.launch {
+    fun validateUrl() = viewModelScope.launch {
         uiState = uiState.copy(isVerifyingUrl = true)
-        val result = validator.validate(originalUri, username, password, customUserAgent)
+
+        val authenticate = subscriptionSettingsUseCase.uiState.requiresAuth
+
+        if (!authenticate) {
+            // Flush credentials if auth not required
+            subscriptionSettingsUseCase.clearCredentials()
+        }
+
+        val uri: Uri? = subscriptionSettingsUseCase.uiState.url?.let(Uri::parse)
+
+        val result = if (uri != null) {
+            // If the URL is valid, perform validation
+            validator.validate(
+                originalUri = uri,
+                username = if (authenticate) subscriptionSettingsUseCase.uiState.username else null,
+                password = if (authenticate) subscriptionSettingsUseCase.uiState.password else null,
+                customUserAgent = subscriptionSettingsUseCase.uiState.customUserAgent
+            )
+        } else {
+            null
+        }
+
         uiState = uiState.copy(isVerifyingUrl = false, verificationResult = result)
     }
     
@@ -100,7 +220,7 @@ class AddSubscriptionModel @Inject constructor(
             with(subscriptionSettingsUseCase.uiState) {
                 val subscription = Subscription(
                     displayName = title!!,
-                    url = Uri.parse(url),
+                    url = (url ?: "").toUri(),
                     color = color,
                     customUserAgent = customUserAgent,
                     ignoreEmbeddedAlerts = ignoreAlerts,
@@ -129,10 +249,18 @@ class AddSubscriptionModel @Inject constructor(
                 // sync the subscription to reflect the changes in the calendar provider
                 SyncWorker.run(context)
             }
-            uiState = uiState.copy(success = true)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.add_calendar_created),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Couldn't create calendar", e)
-            uiState = uiState.copy(errorMessage = e.localizedMessage ?: e.message)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, e.localizedMessage ?: e.message, Toast.LENGTH_LONG).show()
+            }
         } finally {
             uiState = uiState.copy(isCreating = false)
         }
@@ -152,7 +280,7 @@ class AddSubscriptionModel @Inject constructor(
         var uri: Uri
         try {
             try {
-                uri = Uri.parse(url ?: return null)
+                uri = url?.toUri() ?: return null
             } catch (e: URISyntaxException) {
                 Log.d(Constants.TAG, "Invalid URL", e)
                 errorMsg = e.localizedMessage
@@ -216,5 +344,26 @@ class AddSubscriptionModel @Inject constructor(
             onSetUrlError(errorMsg)
         }
         return uri
+    }
+
+    fun onFilePicked(uri: Uri?) {
+        if (uri == null) return
+
+        // keep the picked file accessible after the first sync and reboots
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        subscriptionSettingsUseCase.setUrl(uri.toString())
+
+        // Get file name
+        val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor.getString(name)
+        }
+        subscriptionSettingsUseCase.setFileName(displayName)
+
+        checkUrlIntroductionPage()
     }
 }
