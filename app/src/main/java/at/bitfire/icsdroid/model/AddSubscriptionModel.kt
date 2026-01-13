@@ -28,6 +28,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -86,8 +87,11 @@ class AddSubscriptionModel @AssistedInject constructor(
         viewModelScope.launch {
             snapshotFlow { subscriptionSettingsUseCase.uiState }
                 // Only react to relevant changes
-                .distinctUntilChangedBy {
-                    it.url.hashCode() + it.requiresAuth.hashCode() + it.username.hashCode() + it.password.hashCode()
+                .distinctUntilChanged { old, new ->
+                    old.url == new.url &&
+                            old.requiresAuth == new.requiresAuth &&
+                            old.username == new.username &&
+                            old.password == new.password
                 }
                 .collect { checkUrlIntroductionPage() }
         }
@@ -100,8 +104,12 @@ class AddSubscriptionModel @AssistedInject constructor(
         viewModelScope.launch {
             snapshotFlow { subscriptionSettingsUseCase.uiState }
                 // Only react to relevant changes
-                .distinctUntilChangedBy {
-                    it.title.hashCode() + it.color.hashCode() + it.ignoreAlerts.hashCode() + it.defaultAlarmMinutes.hashCode() + it.defaultAllDayAlarmMinutes.hashCode()
+                .distinctUntilChanged { old, new ->
+                    old.title == new.title &&
+                            old.color == new.color &&
+                            old.ignoreAlerts == new.ignoreAlerts &&
+                            old.defaultAlarmMinutes == new.defaultAlarmMinutes &&
+                            old.defaultAllDayAlarmMinutes == new.defaultAllDayAlarmMinutes
                 }
                 .collect { setShowNextButton(!it.title.isNullOrBlank()) }
         }
