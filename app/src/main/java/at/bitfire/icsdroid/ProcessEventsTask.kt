@@ -10,6 +10,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import at.bitfire.ical4android.AndroidEvent
 import at.bitfire.ical4android.Event
 import at.bitfire.ical4android.util.DateUtils
 import at.bitfire.icsdroid.calendar.LocalCalendar
@@ -232,7 +233,7 @@ class ProcessEventsTask(
             val localEvents = calendar.queryByUID(uid)
             if (localEvents.isEmpty()) {
                 Log.d(Constants.TAG, "$uid not in local calendar, adding")
-                LocalEvent(calendar, event).add()
+                LocalEvent(AndroidEvent(calendar, event, null, null, null, 0)).add()
             } else {
                 val localEvent = localEvents.first()
 
