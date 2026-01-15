@@ -159,7 +159,7 @@ open class CalendarFetcher(
                         val contentType: ContentType? = try {
                             response.contentType()
                         } catch (e: BadContentTypeFormatException) {
-                            Log.w(Constants.TAG,"Failed to parse content type. Continuing without.", e)
+                            Log.w(Constants.TAG, "Failed to parse content type. Continuing without.", e)
                             null
                         }
                         onSuccess(
