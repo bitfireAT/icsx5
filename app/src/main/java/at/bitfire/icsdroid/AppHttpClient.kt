@@ -92,7 +92,6 @@ class AppHttpClient @AssistedInject constructor(
         // Ktor adds it by default, so we need to manually strip it with a custom plugin.
         install(createClientPlugin("RemoveAcceptCharsetHeader") {
             on(Send) { request ->
-                // Remove the header added by Ktor by default because some servers have problems with it
                 request.headers.remove(HttpHeaders.AcceptCharset)
                 proceed(request)
             }
