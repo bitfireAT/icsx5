@@ -49,24 +49,24 @@ class LocalCalendar private constructor(
     }
 
     fun queryByUID(uid: String) =
-        queryEvents("${Events._SYNC_ID}=?", arrayOf(uid))
+        queryEvents("${Events.UID_2445}=?", arrayOf(uid))
 
     fun retainByUID(uids: MutableSet<String>): Int {
         var deleted = 0
         try {
             provider.query(
                 Events.CONTENT_URI.asSyncAdapter(account),
-                arrayOf(Events._ID, Events._SYNC_ID, Events.ORIGINAL_SYNC_ID),
+                arrayOf(Events._ID, Events.UID_2445),
                 "${Events.CALENDAR_ID}=? AND ${Events.ORIGINAL_SYNC_ID} IS NULL", arrayOf(id.toString()), null
             )?.use { row ->
                 while (row.moveToNext()) {
                     val eventId = row.getLong(0)
-                    val syncId = row.getString(1)
-                    if (!uids.contains(syncId)) {
+                    val uid = row.getString(1)
+                    if (!uids.contains(uid)) {
                         provider.delete(ContentUris.withAppendedId(Events.CONTENT_URI, eventId).asSyncAdapter(account), null, null)
                         deleted++
 
-                        uids -= syncId
+                        uids -= uid
                     }
                 }
             }
