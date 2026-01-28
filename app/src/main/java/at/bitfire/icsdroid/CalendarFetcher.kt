@@ -15,6 +15,7 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.BadContentTypeFormatException
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -154,16 +155,23 @@ open class CalendarFetcher(
                 val statusCode = response.status
                 when {
                     // 20x
-                    statusCode.isSuccess() ->
+                    statusCode.isSuccess() -> {
+                        val contentType: ContentType? = try {
+                            response.contentType()
+                        } catch (e: BadContentTypeFormatException) {
+                            Log.w(Constants.TAG, "Failed to parse content type. Continuing without.", e)
+                            null
+                        }
                         onSuccess(
                             response.bodyAsChannel().toInputStream(),
-                            response.contentType(),
+                            contentType,
                             response.headers[HttpHeaders.ETag],
                             response.headers[HttpHeaders.LastModified]?.let {
                                 HttpUtils.parseDate(it)?.time
                             },
                             null
                         )
+                    }
 
                     // 30x
                     statusCode == HttpStatusCode.NotModified -> onNotModified()
