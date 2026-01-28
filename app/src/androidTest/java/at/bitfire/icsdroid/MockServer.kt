@@ -21,8 +21,14 @@ object MockServer {
 
     private val queue = mutableListOf<Response>()
 
+    var lastRequestHeaders: Headers? = null
+        private set
+
     val createMockEngine: (CustomCertManager, SSLContext) -> HttpClientEngine = { _, _ ->
-        MockEngine {
+        MockEngine { request ->
+            // record headers from the incoming request
+            lastRequestHeaders = request.headers
+
             if (queue.isNotEmpty()) {
                 val response = lock.withLock { queue.removeAt(0) }
                 respond(response.content, response.status, response.headers)
@@ -34,6 +40,7 @@ object MockServer {
 
     fun clear() {
         queue.clear()
+        lastRequestHeaders = null
     }
 
     private fun enqueue(response: Response) {

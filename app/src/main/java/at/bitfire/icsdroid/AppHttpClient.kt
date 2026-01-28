@@ -17,7 +17,10 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.api.Send
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.http.HttpHeaders
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.internal.tls.OkHostnameVerifier
 import javax.net.ssl.SSLContext
@@ -84,6 +87,15 @@ class AppHttpClient @AssistedInject constructor(
 
         // Enable cookie storage - in memory, will be lost on app restart
         install(HttpCookies)
+
+        // Some servers have issues with the Accept-Charset header. It is actually deprecated/not-recommended by RFC 9110 §12.5.2.
+        // Ktor adds it by default, so we need to manually strip it with a custom plugin.
+        install(createClientPlugin("RemoveAcceptCharsetHeader") {
+            on(Send) { request ->
+                request.headers.remove(HttpHeaders.AcceptCharset)
+                proceed(request)
+            }
+        })
 
         // Disable redirect following, it's handled by CalendarFetcher
         followRedirects = false
