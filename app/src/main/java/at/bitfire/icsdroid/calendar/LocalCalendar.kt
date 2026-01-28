@@ -20,7 +20,7 @@ class LocalCalendar private constructor(
     account: Account,
     provider: ContentProviderClient,
     id: Long
-) : AndroidCalendar<LocalEvent>(account, provider, LocalEvent.Factory, id) {
+) : AndroidCalendar(account, provider, id) {
 
     companion object {
 
