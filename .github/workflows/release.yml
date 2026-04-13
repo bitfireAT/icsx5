@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Prepare keystore
         run: echo ${{ secrets.android_keystore_base64 }} | base64 -d >$GITHUB_WORKSPACE/keystore.jks
@@ -35,7 +35,7 @@ jobs:
 
       - name: Create Github release (from standard flavor)
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
           files: app/build/outputs/apk/standard/release/*.apk
