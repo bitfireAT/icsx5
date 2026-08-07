@@ -49,7 +49,10 @@ class LocalCalendar private constructor(
     }
 
     fun queryByUID(uid: String) =
-        queryEvents("${Events.UID_2445}=?", arrayOf(uid))
+        queryEvents(
+            "${Events.UID_2445}=? AND ${Events.ORIGINAL_ID} IS NULL",
+            arrayOf(uid)
+        ).map(::LocalEvent)
 
     fun retainByUID(uids: MutableSet<String>): Int {
         var deleted = 0
