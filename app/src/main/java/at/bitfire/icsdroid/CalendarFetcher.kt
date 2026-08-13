@@ -77,7 +77,7 @@ open class CalendarFetcher(
         if (!hasFollowedTempRedirect) {
             when (httpCode) {
                 // 301: Moved Permanently, 308: Permanent Redirect
-                HttpStatusCode.NotModified,
+                HttpStatusCode.MovedPermanently,
                 HttpStatusCode.PermanentRedirect ->
                     onNewPermanentUrl(target)
                 else ->
