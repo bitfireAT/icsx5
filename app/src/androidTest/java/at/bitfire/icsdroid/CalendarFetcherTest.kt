@@ -160,6 +160,30 @@ class CalendarFetcherTest {
     }
 
     @Test
+    fun testFetchNetwork_onRedirectMovedPermanently_callsOnNewPermanentUrl() {
+        // 301 Moved Permanently must be treated like 308 Permanent Redirect
+        MockServer.enqueue(
+            status = HttpStatusCode.MovedPermanently,
+            headers = headers {
+                append(HttpHeaders.Location, MockServer.uri("new-location").toString())
+            }
+        )
+        MockServer.enqueue(content = "icalCorrect", status = HttpStatusCode.OK)
+
+        var newPermanentUrl: Uri? = null
+        val fetcher = object: CalendarFetcher(appContext, MockServer.uri(), client) {
+            override suspend fun onNewPermanentUrl(target: Uri) {
+                newPermanentUrl = target
+            }
+        }
+        runBlocking {
+            fetcher.fetch()
+        }
+
+        assertEquals(MockServer.uri("new-location"), newPermanentUrl)
+    }
+
+    @Test
     fun testFetchNetwork_onRedirectWithoutLocation() {
         MockServer.enqueue(status = HttpStatusCode.TemporaryRedirect)
 
